@@ -1,0 +1,111 @@
+.s_selector-modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 10px; /* Đảm bảo có padding cho mobile */
+  }
+  
+  .s_selector-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Căn giữa các phần tử theo chiều ngang */
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px; /* Phù hợp cho cả mobile và desktop */
+  }
+  
+  .s_selector-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .s_selector-header h2 {
+    font-size: 1.5em;
+    color: #333;
+  }
+  
+  .s_selector-search-input {
+    width: 100%; /* Chỉnh lại từ 90% thành 100% */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Đảm bảo padding không ảnh hưởng đến tổng chiều rộng */
+  }
+  
+  .s_selector-record-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    width: 100%;
+  }
+  
+  .s_selector-record-list li {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1em;
+    /* Tăng kích thước chữ */
+    color: #333;
+    /* Màu chữ đậm hơn */
+    background-color: #ffffff;
+    /* Nền sáng hơn */
+    opacity: 1;
+    /* Đảm bảo độ mờ là 1, không trong suốt */
+  
+    &:hover {
+        background-color: #f1f1f1;
+        /* Màu nền khi hover */
+    }
+  
+    .record-name {
+        font-weight: normal;
+        /* Trọng lượng font chữ */
+    }
+  
+    .record-checkmark {
+        color: green;
+        font-size: 1.5em;
+    }
+  }
+  
+  .s_selector-action-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    width: 100%;
+  }
+  
+  .s_selector-action-buttons button {
+    flex-grow: 1;
+    margin: 0 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .s_selector-action-buttons button:hover {
+    background-color: #0056b3;
+  }
+  
+  .record-name {
+    font-weight: normal;
+    /* Trọng lượng font chữ */
+  }

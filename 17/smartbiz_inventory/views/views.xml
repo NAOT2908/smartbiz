@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="seq_smartbiz_mes_package" model="ir.sequence">
+        <field name="name">smartbiz inventory history</field>
+        <field name="code">smartbiz.inventory.history</field>
+        <field name="prefix">%(year)s%(month)s%(day)s/KK/</field>
+        <field name="padding">7</field>
+    </record>
+
+    <record id="view_inventory_history_tree" model="ir.ui.view">
+        <field name="name">smartbiz.inventory.history.tree</field>
+        <field name="model">smartbiz.inventory.history</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" />
+                <field name="date" />
+                <field name="user_id" optional="show"/>
+                <field name="inventory_id" optional="show"/>
+                <field name="location_id" optional="show"/>
+                <field name="product_id" />
+                <field name="lot_id" />
+                <field name="package_id" />
+                <field name="quantity_before" />
+                <field name="quantity_after" />
+                <field name="difference" />
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_inventory_history_form" model="ir.ui.view">
+        <field name="name">smartbiz.inventory.history.form</field>
+        <field name="model">smartbiz.inventory.history</field>
+        <field name="arch" type="xml">
+            <form string="Inventory History">
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="date" readonly="1"/>
+                        <field name="user_id" readonly="1"/>
+                        <field name="inventory_id" readonly="1"/>
+                        <field name="location_id" readonly="1"/>
+                        <field name="product_id" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="quantity_before" readonly="1"/>
+                        <field name="quantity_after" readonly="1"/>
+                        <field name="difference" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_smartbiz_inventory_history" model="ir.actions.act_window">
+        <field name="name">Inventory History</field>
+        <field name="res_model">smartbiz.inventory.history</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p>
+                View past inventory adjustments and stock movements.
+            </p>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_inventory_form" model="ir.ui.view">
+        <field name="name">smartbiz.inventory.form</field>
+        <field name="model">smartbiz.inventory</field>
+        <field name="arch" type="xml">
+            <form string="Inventory">
+                <header>
+                    <button name="action_start" type="object" string="Start Inventory"
+                        class="btn-primary" invisible="state in 'done'"/>
+                    <button name="open_confirm_wizard" type="object" string="Validate"
+                        class="btn-success" invisible="state in 'done'"/>
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="date" />
+                            <field name="company_id" />
+                        </group>
+                        <group>
+                            <field name="user_id" />
+                            <field name="inventory_period_id" />
+                            <field name="inventory_location_ids" widget="many2many_tags" />
+                        </group>
+                    </group>
+                    <field name="line_ids" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="location_id" optional="show"/>
+                            <field name="product_id" />
+                            <field name="lot_id" />
+                            <field name="package_id" />
+                            <field name="quantity_before" readonly="1" />
+                            <field name="quantity_counted" />
+                            <field name="difference" readonly="1" />
+                        </tree>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_inventory_tree" model="ir.ui.view">
+        <field name="name">smartbiz.inventory.tree</field>
+        <field name="model">smartbiz.inventory</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" />
+                <field name="date" />
+                <field name="company_id" />
+                <field name="user_id" />
+                <field name="inventory_period_id" />
+                <field name="state" />
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action for Inventory -->
+    <record id="action_smartbiz_inventory" model="ir.actions.act_window">
+        <field name="name">Inventory Sessions</field>
+        <field name="res_model">smartbiz.inventory</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p>
+                Manage your inventory checks with different periods and locations.
+                Click "Create" to start a new inventory session.
+            </p>
+        </field>
+    </record>
+
+    <record id="view_inventory_period_tree" model="ir.ui.view">
+        <field name="name">smartbiz.inventory.period.tree</field>
+        <field name="model">smartbiz.inventory.period</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" />
+                <field name="date_start" />
+                <field name="date_end" />
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_inventory_period_form" model="ir.ui.view">
+        <field name="name">smartbiz.inventory.period.form</field>
+        <field name="model">smartbiz.inventory.period</field>
+        <field name="arch" type="xml">
+            <form string="Inventory Period">
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="date_start" />
+                        <field name="date_end" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_smartbiz_inventory_line_tree" model="ir.ui.view">
+        <field name="name">smartbiz.inventory.line.tree</field>
+        <field name="model">smartbiz.inventory.line</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="inventory_id"/>
+                <field name="product_id"/>
+                <field name="lot_id"/>
+                <field name="package_id"/>
+                <field name="location_id"/>
+                <field name="quantity_before"/>
+                <field name="quantity_counted"/>
+                <field name="difference"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_smartbiz_inventory_period" model="ir.actions.act_window">
+        <field name="name">Inventory Periods</field>
+        <field name="res_model">smartbiz.inventory.period</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p>
+                Define inventory periods for stocktaking sessions.
+                Click "Create" to define a new period.
+            </p>
+        </field>
+    </record>
+
+    <record id="adjustment_inventory_action" model="ir.actions.client">
+        <field name="name">Adjustment Inventory</field>
+        <field name="tag">smartbiz_inventory.AdjustmentInventory</field>
+        <field name="target">fullscreen</field>
+    </record>
+
+    <record id="action_smartbiz_inventory_line" model="ir.actions.act_window">
+        <field name="name">Dòng Kiểm Kê</field>
+        <field name="res_model">smartbiz.inventory.line</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_smartbiz_inventory_root"
+        name="Adjustment Inventory Management"
+        parent="stock.menu_stock_root" />
+
+
+    <menuitem id="menu_smartbiz_inventory"
+        name="Inventory Sessions"
+        parent="menu_smartbiz_inventory_root"
+        action="action_smartbiz_inventory" />
+
+    <menuitem id="menu_smartbiz_inventory_periods"
+        name="Inventory Periods"
+        parent="menu_smartbiz_inventory_root"
+        action="action_smartbiz_inventory_period" />
+    
+    <menuitem id="menu_smartbiz_inventory_history"
+              name="Inventory History"
+              parent="menu_smartbiz_inventory_root"
+              action="action_smartbiz_inventory_history"/>
+
+    <menuitem id="menu_smartbiz_inventory_line"
+              name="Inventory Line"
+              parent="menu_smartbiz_inventory_root"
+              action="action_smartbiz_inventory_line"
+              sequence="20"/>
+
+</odoo>

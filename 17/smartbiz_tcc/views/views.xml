@@ -1,0 +1,1203 @@
+<odoo>
+
+<!-- Forms -->
+
+    <record model="ir.ui.view" id="res_partner_form">
+      <field name="name">res_partner_form</field>
+      <field name="model">res.partner</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="base.view_partner_form" />
+      <field name="arch" type="xml">
+           <xpath expr="//field[@name='vat']" position="after">
+                   <field name="customer"/>
+                   <field name="supplier"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sale_order_line_form">
+      <field name="name">sale_order_line_form</field>
+      <field name="model">sale.order.line</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+      <form name="Form sale.order.line" >
+
+        <group col="1"> 
+            <group>        
+               
+               <field name="order_id"/>  
+               <field name="order_partner_id" />  
+               <field name="salesman_id" />  
+               <field name="sales_team_id" /> 
+               <field name="product_id" /> 
+               <field name="product_uom_qty" /> 
+               <field name="price_unit" /> 
+        <field name="company_id" invisible="1" /> 
+               
+                <field name="tc_cost" string="Giá vốn TC" />  
+                <field name="ppd_cost" string="Giá vốn PPD" />  
+                <field name="price_subtotal" string="Thành Tiền" />  
+                <field name="price_total" string="Thành tiền có thuế" />  
+                <field name="tc_margin" string="Lợi nhuận TC" />  
+                <field name="ppd_margin"  string="Lợi nhuận PPD"/>  
+               
+            </group>
+            </group>
+      </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sale_order_form">
+      <field name="name">sale_order_form</field>
+      <field name="model">sale.order</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="sale.view_order_form" />
+      <field name="arch" type="xml">
+           
+                <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='order_lines']/field[@name='order_line']/tree[1]/field[@name='price_unit']" position="after">
+                    <field name="ppd_price" optional="show"/>  
+                </xpath>
+                <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='order_lines']/field[@name='order_line']/tree[1]/field[@name='product_uom_qty']" position="after">
+                    <field name="remain_quantity" optional="show" decoration-danger="remain_quantity&lt;product_uom_qty" decoration-success="remain_quantity&gt;product_uom_qty"/>
+                </xpath>
+                <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='order_lines']/field[@name='order_line']/tree[1]/field[@name='price_unit']" position="before">
+                    <field  name="lots" domain="[('product_id','=', product_id),('product_qty','>', 0)]" context="{'default_product_id': product_id}" widget="many2many_tags" optional="show"/>
+                    <field  name="note" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <field  name="team_id" />
+                    <field  name="reserve_period_id" />
+                </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_product_form">
+      <field name="name">product_product_form</field>
+      <field name="model">product.product</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+      <form name="Form product.product" >
+           
+        <group> 
+            <group>        
+               <field name="default_code"/>
+               <field name="name"/>  <field name="standard_price" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+               <field name="weight" widget='smartbiz_float' options="{'unit': 'kg'}"/>  
+               <field name="company_currency_id" invisible="1"/>
+            </group>
+            <group col="4">
+                <group string="Tồn đầu kỳ">          
+                   <field name="begin_quantity" />
+                   <field name="begin_weight" widget='smartbiz_float' options="{'unit': 'kg'}"/> 
+                   <field name="begin_value" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                   <field name="begin_ppd_value" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                </group>
+                <group string="Xuất hàng">          
+                   <field name="out_quantity"/>
+                   <field name="out_weight" widget='smartbiz_float' options="{'unit': 'kg'}"/>
+                
+                   <field name="out_value" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                   <field name="out_ppd_value" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                </group>
+               <group string="Nhập kho "> 
+                   <field name="in_quantity"/>
+                   <field name="in_weight" widget='smartbiz_float' options="{'unit': 'kg'}"/>
+
+                   <field name="in_value" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                   <field name="in_ppd_value" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+               </group>
+               <group string="Tồn cuối kì"> 
+                   <field name="end_quantity"/>
+                   <field name="end_weight" widget='smartbiz_float' options="{'unit': 'kg'}"/>
+                   <field name="end_value" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                   <field name="end_ppd_value" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+               </group>
+           </group>
+        </group>
+      </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_picking_form">
+      <field name="name">stock_picking_form</field>
+      <field name="model">stock.picking</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_picking_form" />
+      <field name="arch" type="xml">
+           <xpath expr="//page[@name='extra']" position="after">
+            <page string="Thông tin điều vận">
+            <group col="3">
+            <group string="Thông tin người gửi">
+                   <field name="sender"/>
+                   <field name="sender_contact"/>
+                   <field name="sender_contact_title"/>
+                   <field name="sender_contact_phone"/>
+            </group>
+            <group string="Thông tin đơn vị vận chuyển">
+                   <field name="carrier_name"/>
+                   <field name="license_plates"/>
+                   <field name="carrier_contact"/>
+                   <field name="carrier_contact_title"/>
+                   <field name="carrier_contact_id_card"/>
+                   <field name="carrier_contact_issue_date"/>
+                   <field name="carrier_contact_issue_place"/>
+                   <field name="carrier_contact_phone"/>
+            </group>
+            <group string="Thông tin người nhận">
+                   <field name="delivery_address"/>
+                   <field name="contact"/>
+                   <field name="contact_title"/>
+                   <field name="contact_phone"/>
+                   <field name="contact_id_card"/>
+                   <field name="issue_date"/>
+                   <field name="issue_place"/>
+                   <field name="arrival_time"/>
+            </group>
+            </group>
+            </page>
+           </xpath>
+<xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='lot_ids']" position="after">
+          
+                   <field name="package_type" />
+                   <field name="number_of_packages" />
+                   <field name="actual_weight" />
+                   <field name="note" />
+           </xpath>
+
+       <xpath expr="//field[@name='origin']" position="after">
+            <field name="warehouse_id" invisible="1"/>
+            <field name='picking_order_ids' widget="many2many_tags" domain="[('warehouse_id', '=',warehouse_id),('picking_type_id.code', '=','internal'),('state', '=','assigned')]"/>
+            <field name="sale_team_id" />
+            <field name="reserve_period_id" />
+        </xpath>
+           <xpath expr="//page[@name='extra']" position="after">
+            <page string="Thông tin lệnh nhập">
+            <group col="2">
+            <group>
+                   <field name="commodity_information"/>
+                   <field name="job_code"/>
+                   <field name="customs_declaration"/>
+            </group>
+            <group>
+                   <field name="plan_approval"/>
+                   <field name="quote_number"/>
+                   <field name="inspection_number"/>
+                   <field name="request_number"/>
+                   <field name="purchase_number"/>
+                   <field name="sale_plan"/>
+            </group>
+            </group>
+            </page>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_template_form">
+      <field name="name">product_template_form</field>
+      <field name="model">product.template</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="product.product_template_only_form_view" />
+      <field name="arch" type="xml">
+                                    
+                <xpath expr="//field[@name='categ_id']" position="before">
+                                    
+                                    <label for="ppd_price"/>
+                                    <div name="ppd_pricing">
+                                      <field name="ppd_price" class="oe_inline" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                    </div>
+                </xpath>
+                <xpath expr="//field[@name='barcode']" position="after">
+                                      <field name="specifications"/>                                 
+               </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_move_form">
+      <field name="name">stock_picking_form</field>
+      <field name="model">stock.picking</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_picking_form" />
+      <field name="arch" type="xml">
+                      
+            <xpath expr="//page[@name='operations']/field[@name='move_ids_without_package']/tree/field[@name='product_packaging_id']" position="after">           
+                <field  name="lots"  optional="hide"  domain="[('product_id','=', product_id),('product_qty','>', 0)]" context="{'default_product_id': product_id}" widget="many2many_tags" />
+                <field name="remain_quantity" optional="show" decoration-danger="remain_quantity&lt;quantity" decoration-success="remain_quantity&gt;quantity"/>
+            </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_warehouse_form">
+      <field name="name">stock_warehouse_form</field>
+      <field name="model">stock.warehouse</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_warehouse" />
+      <field name="arch" type="xml">
+           <xpath expr="//page[@name='warehouse_config']" position="inside">
+                <group>
+                    <field name="customize_reception"/>
+                </group>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_stock_report_form">
+      <field name="name">tcc_stock_report_form</field>
+      <field name="model">tcc.stock_report</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Stock Report">
+            <header>
+                <button name="action_not_viewed_view_report" string="View Report" type = "object" class="oe_highlight" invisible="bool(state) == False"/>
+                <field name="state" widget="statusbar" />
+            </header>
+      <sheet>
+          <group col="1">
+                   <field name="from_date"/>
+                   <field name="to_date"/>
+                   <field name="name" invisible="1"/>
+          </group>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_form">
+      <field name="name">tcc_reserve_form</field>
+      <field name="model">tcc.reserve</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Reserve">
+      <sheet>
+            <group col="2">
+            <group string="Thông tin sản phẩm">
+                   <field name="warehouse_id"/>
+                   <field name="sale_team_id"/>
+                   <field name="reserve_period_id"/>
+                   <field name="product_id"/>
+            </group>
+            <group string="Số lượng">
+                   <field name="reserved_quantity"/>
+                   <field name="used_quantity"/>
+                   <field name="remain_quantity"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Chi tiết giao dịch">
+                   <field name="reserve_line_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_line_form">
+      <field name="name">tcc_reserve_line_form</field>
+      <field name="model">tcc.reserve_line</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Reserve Line">
+            <header>
+                <button name="action_draft_post" string="Post" type = "object"  invisible="state != 'draft'"/>
+                <field name="state" widget="statusbar" />
+            </header>
+      <sheet>
+          <group col="1">
+                   <field name="warehouse_id"/>
+                   <field name="sale_team_id"/>
+                   <field name="reserve_type"/>
+                   <field name="reserve_period_id"/>
+                   <field name="product_id"/>
+                   <field name="quantity"/>
+                   <field name="reserve_id"/>
+                   <field name="picking_id"/>
+                   <field name="move_line_id"/>
+                   <field name="reserve_order_line_id"/>
+          </group>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_period_form">
+      <field name="name">tcc_reserve_period_form</field>
+      <field name="model">tcc.reserve_period</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Reserve Period">
+      <sheet>
+          <group col="1">
+                   <field name="name"/>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_order_form">
+      <field name="name">tcc_reserve_order_form</field>
+      <field name="model">tcc.reserve_order</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Reserve Order">
+            <header>
+                <button name="action_draft_confirm" string="Confirm" type = "object" class="oe_highlight" invisible="state != 'draft'"/>
+                <button name="action_processing_appoval" string="Appoval" type = "object" class="oe_highlight" invisible="state != 'processing'" groups="smartbiz_tcc.group_roles_giu_hang___xac_nhan_don_17"/>
+                <button name="action_done_cancel" string="Cancel" type = "object"  invisible="state != 'done'" groups="smartbiz_tcc.group_roles_giu_hang___huy_don_19"/>
+                <field name="state" widget="statusbar" />
+            </header>
+      <sheet>
+            <group col="3">
+            <group string="Thông tin giữ hàng">
+                   <field name="name"/>
+                   <field name="warehouse_id"/>
+                   <field name="reserve_type"/>
+                   <field name="reserve_period_id"/>
+            </group>
+            <group string="Nhóm kinh doanh">
+                   <field name="sale_team_id"/>
+                   <field name="destination_team_id" required="reserve_type == 'transfer'" invisible="reserve_type != 'transfer'"/>
+            </group>
+            <group string="Phiếu yêu cầu">
+                   <field name="request_number"/>
+                   <field name="request_date"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Chi tiết giao dịch">
+                   <field name="order_line_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_order_line_form">
+      <field name="name">tcc_reserve_order_line_form</field>
+      <field name="model">tcc.reserve_order_line</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Reserve Order Line">
+      <sheet>
+          <group col="1">
+                   <field name="product_id"/>
+                   <field name="quantity"/>
+                   <field name="remain_quantity"/>
+                   <field name="product_uom_id"/>
+                   <field name="location"/>
+                   <field name="contract"/>
+                   <field name="order_number"/>
+                   <field name="packing_list"/>
+                   <field name="note"/>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_report_form">
+      <field name="name">tcc_reserve_report_form</field>
+      <field name="model">tcc.reserve_report</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Reserve Report">
+            <header>
+                <button name="action_not_viewed_view_report" string="View Report" type = "object" class="oe_highlight" invisible="bool(state) == False"/>
+                <field name="state" widget="statusbar" />
+            </header>
+      <sheet>
+          <group col="1">
+                   <field name="from_date"/>
+                   <field name="to_date"/>
+                   <field name="name" invisible="1"/>
+          </group>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_report_line_form">
+      <field name="name">tcc_reserve_report_line_form</field>
+      <field name="model">tcc.reserve_report_line</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Reserve Report Line">
+      <sheet>
+          <group col="1">
+                   <field name="warehouse_id"/>
+                   <field name="sale_team_id"/>
+                   <field name="reserve_period_id"/>
+                   <field name="product_id"/>
+                   <field name="begin_reserved_quantity"/>
+                   <field name="begin_used_quantity"/>
+                   <field name="begin_remain_quantity"/>
+                   <field name="begin_remain_weight"/>
+                   <field name="reserved_quantity"/>
+                   <field name="reserved_weight"/>
+                   <field name="used_quantity"/>
+                   <field name="used_weight"/>
+                   <field name="end_reserved_quantity"/>
+                   <field name="end_used_quantity"/>
+                   <field name="end_remain_quantity"/>
+                   <field name="end_remain_weight"/>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+<!-- Trees -->
+
+    <record model="ir.ui.view" id="res_partner_tree">
+      <field name="name">res_partner_tree</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_tree" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+           <xpath expr="//field[@name='vat']" position="after">
+            <field name="customer" optional="hire"/>
+            <field name="supplier" optional="hire"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sale_order_line_tree">
+      <field name="name">sale_order_line_tree</field>
+      <field name="model">sale.order.line</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+      <tree >
+
+        <field name="order_id"/>  
+        <field name="order_partner_id" />  
+        <field name="salesman_id" />  
+        <field name="sales_team_id" /> 
+        <field name="product_id" /> 
+        <field name="product_uom_qty" /> 
+        <field name="price_unit" /> 
+        <field name="company_id" invisible="1" /> 
+               <field name="tc_cost" string="Giá vốn TC"  sum="Total" />  
+                <field name="ppd_cost" string="Giá vốn PPD"  sum="Total" />  
+                <field name="price_subtotal" string="Thành Tiền"   sum="Total"/>  
+                <field name="price_total" string="Thành tiền có thuế"  sum="Total" />  
+                <field name="tc_margin" string="Lợi nhuận TC"  sum="Total" />  
+                <field name="ppd_margin"  string="Lợi nhuận PPD"  sum="Total"/>  
+ 
+      </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_product_tree">
+      <field name="name">product_product_tree</field>
+      <field name="model">product.product</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+      <tree sample="1" js_class="stock_report_list_view">
+
+            <field name="default_code"/>
+            <field name="company_currency_id" invisible="1"/>
+           <field name="name"/>  
+           <field name="standard_price" optional="hide" widget="monetary" options="{'currency_field': 'company_currency_id'}"  />
+           <field name="weight" widget='smartbiz_float' options="{'unit': 'kg'}"/> 
+           
+           <field name="begin_quantity" optional="show"  sum="Total"/> 
+           <field name="begin_weight" optional="show" widget='smartbiz_float' options="{'unit': 'kg'}"  sum="Total"/> 
+           <field name="begin_value" optional="hide" widget="monetary" options="{'currency_field': 'company_currency_id'}"   sum="Total" />
+           <field name="begin_ppd_value" optional="show" widget="monetary" options="{'currency_field': 'company_currency_id'}"   sum="Total" />
+            
+           <field name="out_quantity" optional="show"  sum="Total"/>
+           <field name="out_weight" optional="show" widget='smartbiz_float' options="{'unit': 'kg'}"  sum="Total"/>
+           <field name="out_value" optional="hide" widget="monetary" options="{'currency_field': 'company_currency_id'}"   sum="Total"/>
+           <field name="out_ppd_value" optional="show" widget="monetary" options="{'currency_field': 'company_currency_id'}"  sum="Total" />
+           
+           <field name="in_quantity" optional="show"  sum="Total"/>
+           <field name="in_weight" optional="show" widget='smartbiz_float' options="{'unit': 'kg'}"  sum="Total"/>       
+           <field name="in_value" optional="hide" widget="monetary" options="{'currency_field': 'company_currency_id'}"    sum="Total"/>
+           <field name="in_ppd_value" optional="show" widget="monetary" options="{'currency_field': 'company_currency_id'}"  sum="Total"  />
+           
+           <field name="end_quantity" optional="show"  sum="Total"/>
+           <field name="end_weight" optional="show" widget='smartbiz_float' options="{'unit': 'kg'}"  sum="Total"/>        
+           <field name="end_value" optional="hide" widget="monetary" options="{'currency_field': 'company_currency_id'}"    sum="Total"/>
+           <field name="end_ppd_value" optional="show" widget="monetary" options="{'currency_field': 'company_currency_id'}"   sum="Total" />
+      </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_quant_tree">
+      <field name="name">stock_quant_tree</field>
+      <field name="model">stock.quant</field>
+      <field name="inherit_id" ref="stock.view_stock_quant_tree_editable" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+           <xpath expr="//field[@name='lot_id']" position="after">
+            <field name="vendor_id" optional="show"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_stock_report_tree">
+      <field name="name">tcc_stock_report_tree</field>
+      <field name="model">tcc.stock_report</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Stock Report" >
+            <field name="state" />
+            <field name="from_date" />
+            <field name="to_date" />
+            <field name="name" invisible="1"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_tree">
+      <field name="name">tcc_reserve_tree</field>
+      <field name="model">tcc.reserve</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Reserve" >
+            <field name="warehouse_id" optional="show"/>
+            <field name="sale_team_id" optional="show"/>
+            <field name="reserve_period_id" optional="show"/>
+            <field name="product_id" optional="show"/>
+            <field name="reserved_quantity" optional="show"/>
+            <field name="used_quantity" optional="show"/>
+            <field name="remain_quantity" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_line_tree">
+      <field name="name">tcc_reserve_line_tree</field>
+      <field name="model">tcc.reserve_line</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Reserve Line" >
+            <field name="state" />
+            <field name="warehouse_id" optional="show"/>
+            <field name="sale_team_id" optional="show"/>
+            <field name="reserve_type" optional="show"/>
+            <field name="reserve_period_id" optional="show"/>
+            <field name="product_id" optional="show"/>
+            <field name="quantity" optional="show"/>
+            <field name="reserve_id" optional="hire"/>
+            <field name="picking_id" optional="hire"/>
+            <field name="move_line_id" optional="hire"/>
+            <field name="reserve_order_line_id" optional="hire"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_period_tree">
+      <field name="name">tcc_reserve_period_tree</field>
+      <field name="model">tcc.reserve_period</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Reserve Period" >
+            <field name="name" />
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_order_tree">
+      <field name="name">tcc_reserve_order_tree</field>
+      <field name="model">tcc.reserve_order</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Reserve Order" >
+            <field name="state" />
+            <field name="name" optional="show"/>
+            <field name="warehouse_id" optional="show"/>
+            <field name="reserve_type" optional="show"/>
+            <field name="reserve_period_id" optional="show"/>
+            <field name="sale_team_id" optional="show"/>
+            <field name="destination_team_id" required="reserve_type == 'transfer'" invisible="reserve_type != 'transfer'" optional="show"/>
+            <field name="request_number" optional="show"/>
+            <field name="request_date" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_order_line_tree">
+      <field name="name">tcc_reserve_order_line_tree</field>
+      <field name="model">tcc.reserve_order_line</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Reserve Order Line" >
+          <field name="product_id" />
+<field name="quantity" sum="Total"/>
+<field name="remain_quantity" sum="Total"  decoration-danger="remain_quantity&lt;quantity" decoration-success="remain_quantity&gt;quantity"/>
+<field name="product_uom_id"/>
+<field name="location" optional="show"/>
+<field name="contract" optional="show"/>
+<field name="order_number" optional="show"/>
+<field name="packing_list" optional="show"/>
+<field name="note" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_report_tree">
+      <field name="name">tcc_reserve_report_tree</field>
+      <field name="model">tcc.reserve_report</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Reserve Report" >
+            <field name="state" />
+            <field name="from_date" />
+            <field name="to_date" />
+            <field name="name" invisible="1"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_report_line_tree">
+      <field name="name">tcc_reserve_report_line_tree</field>
+      <field name="model">tcc.reserve_report_line</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Reserve Report Line" >
+            <field name="warehouse_id" optional="show"/>
+            <field name="sale_team_id" optional="show"/>
+            <field name="reserve_period_id" optional="show"/>
+            <field name="product_id" optional="show"/>
+            <field name="begin_reserved_quantity" optional="hire"/>
+            <field name="begin_used_quantity" optional="hire"/>
+            <field name="begin_remain_quantity" optional="show"/>
+            <field name="begin_remain_weight" optional="show"/>
+            <field name="reserved_quantity" optional="show"/>
+            <field name="reserved_weight" optional="show"/>
+            <field name="used_quantity" optional="show"/>
+            <field name="used_weight" optional="show"/>
+            <field name="end_reserved_quantity" optional="hire"/>
+            <field name="end_used_quantity" optional="hire"/>
+            <field name="end_remain_quantity" optional="show"/>
+            <field name="end_remain_weight" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+<!-- calendars -->
+
+<!-- kanbans -->
+
+<!-- pivots -->
+
+    <record model="ir.ui.view" id="sale_order_line_pivot">
+      <field name="name">sale_order_line_pivot</field>
+      <field name="model">sale.order.line</field>
+      <field name="arch" type="xml">
+        <pivot string="Order.Line">
+
+        <field name="order_id" type="row"/>  
+        <field name="order_partner_id" type="row"/>  
+        <field name="sales_team_id"  type="row"/> 
+        <field name="salesman_id" type="row"/>  
+     
+        <field name="product_id" type="row"/> 
+        <field name="tc_cost" type="measure"/>  
+        <field name="ppd_cost" type="measure"/>  
+        <field name="price_subtotal" type="measure"/>  
+        <field name="price_total" type="measure"/>  
+        <field name="tc_margin" type="measure"/>  
+        <field name="ppd_margin" type="measure"/>  
+        </pivot>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_product_pivot">
+      <field name="name">product_product_pivot</field>
+      <field name="model">product.product</field>
+      <field name="arch" type="xml">
+        <pivot string="Product">
+
+            <field name="name" type="row"/>
+
+        </pivot>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_report_line_pivot">
+      <field name="name">tcc_reserve_report_line_pivot</field>
+      <field name="model">tcc.reserve_report_line</field>
+      <field name="arch" type="xml">
+        <pivot string="Reserve Report Line">
+            <field name="warehouse_id" type="row"/>
+            <field name="sale_team_id" type="row"/>
+            <field name="reserve_period_id" type="row"/>
+            <field name="product_id" type="row"/>
+        </pivot>
+      </field>
+    </record>
+
+<!-- graphs -->
+
+    <record model="ir.ui.view" id="sale_order_line_graph">
+      <field name="name">sale_order_line_graph</field>
+      <field name="model">sale.order.line</field>
+      <field name="arch" type="xml">
+        <graph string="Order.Line" type="line">
+
+        <field name="order_id" type="row"/>  
+        <field name="order_partner_id" type="row"/>  
+        <field name="sales_team_id"  type="row"/> 
+        <field name="salesman_id" type="row"/>  
+        
+        <field name="product_id" type="row"/> 
+        <field name="tc_cost" type="measure"/>  
+        <field name="ppd_cost" type="measure"/>  
+        <field name="price_subtotal" type="measure"/>  
+        <field name="price_total" type="measure"/>  
+        <field name="tc_margin" type="measure"/>  
+        <field name="ppd_margin" type="measure"/>  
+        </graph>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_product_graph">
+      <field name="name">product_product_graph</field>
+      <field name="model">product.product</field>
+      <field name="arch" type="xml">
+        <graph string="Product" type="line">
+
+            <field name="name" type="row"/>
+
+        </graph>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_report_line_graph">
+      <field name="name">tcc_reserve_report_line_graph</field>
+      <field name="model">tcc.reserve_report_line</field>
+      <field name="arch" type="xml">
+        <graph string="Reserve Report Line" type="bar" stacked="False">
+            <field name="warehouse_id" type="row"/>
+            <field name="sale_team_id" type="row"/>
+            <field name="reserve_period_id" type="row"/>
+            <field name="product_id" type="row"/>
+        </graph>
+      </field>
+    </record>
+
+<!-- Gantt -->
+
+<!-- Search -->
+
+    <record model="ir.ui.view" id="res_partner_search">
+      <field name="name">res_partner_search</field>
+      <field name="model">res.partner</field>
+      <field name="priority">2</field>
+      <field name="inherit_id" ref="base.view_res_partner_filter" />
+      <field name="arch" type="xml">
+        <search>
+            <filter string="Customer" domain="[('customer','=',True)]" name="customer_filter"/>
+            <separator/>
+            <filter string="Supplier" domain="[('supplier','=',True)]" name="supplier_filter"/>
+            <separator/>
+        </search>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_product_search">
+      <field name="name">product_product_search</field>
+      <field name="model">product.product</field>
+      <field name="priority">2</field>
+      <field name="arch" type="xml">
+        <search>
+            <field name="name"/>
+            <field name="default_code"/>
+               <searchpanel>
+                    <field name="categ_id" icon="fa-filter" string="Category" select="multi"/>
+            </searchpanel>
+            <filter string="Available Onhand" domain="[('qty_available','>',0)]" name="available_onhand_filter"/>
+            <separator/>
+        </search>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="tcc_reserve_report_line_search">
+      <field name="name">tcc_reserve_report_line_search</field>
+      <field name="model">tcc.reserve_report_line</field>
+      <field name="arch" type="xml">
+        <search string="Tree Reserve Report Line">
+            <field name="warehouse_id"/>
+            <field name="sale_team_id"/>
+            <field name="reserve_period_id"/>
+            <field name="product_id"/>
+          <group expand="0" string="Group By">
+            <filter string="Theo kho"  name="theo_kho_filter" domain="[]" context="{ 'group_by':'warehouse_id'}"/>
+            <filter string="Theo đơn vị kinh doanh"  name="theo_don_vi_kinh_doanh_filter" domain="[]" context="{ 'group_by':'sale_team_id'}"/>
+            <filter string="Theo kì dự trữ"  name="theo_ki_du_tru_filter" domain="[]" context="{ 'group_by':'reserve_period_id'}"/>
+            <filter string="Theo sản phẩm"  name="theo_san_pham_filter" domain="[]" context="{ 'group_by':'product_id'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+<!-- Modified Views -->
+
+<!-- Modified Views Properties -->
+
+<!-- Modified Elements Properties -->
+
+    <record model="ir.ui.view" id="purchase_order_inherit_form">
+      <field name="name">purchase_order_inherit_form</field>
+      <field name="model">purchase.order</field>
+      <field name="priority" eval="60"/>
+      <field name="inherit_id" ref="purchase.purchase_order_form" />
+      <field name="arch" type="xml">
+   <xpath expr="//button[@id='draft_confirm']" position="attributes">
+   </xpath>
+   <xpath expr="//button[@name='button_approve']" position="attributes">
+   </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_picking_inherit_form">
+      <field name="name">stock_picking_inherit_form</field>
+      <field name="model">stock.picking</field>
+      <field name="priority" eval="60"/>
+      <field name="inherit_id" ref="stock.view_picking_form" />
+      <field name="arch" type="xml">
+   <xpath expr="//button[@name='button_validate']" position="attributes">
+   </xpath>
+      </field>
+    </record>
+
+<!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="res_partner_action">
+      <field name="name">Partner</field>
+      <field name="res_model">res.partner</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="sale_order_line_action">
+      <field name="name">Sales Report</field>
+      <field name="res_model">sale.order.line</field>
+      <field name="view_mode">tree,form,graph,pivot</field>
+      <field name="view_ids" eval="[(5, 0, 0),(0, 0, {'view_mode': 'tree', 'view_id': ref('smartbiz_tcc.sale_order_line_tree')}),(0, 0, {'view_mode': 'form', 'view_id': ref('smartbiz_tcc.sale_order_line_form')}),(0, 0, {'view_mode': 'pivot', 'view_id': ref('smartbiz_tcc.sale_order_line_pivot')}),(0, 0, {'view_mode': 'graph', 'view_id': ref('smartbiz_tcc.sale_order_line_graph')})]"/>
+      <field name="domain">[('state','in',['done','sale'])]</field>
+      <field name="context">{'edit':False,'delete':False,'create':False,}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="sale_order_action">
+      <field name="name">Order</field>
+      <field name="res_model">sale.order</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="purchase_order_action">
+      <field name="name">Order</field>
+      <field name="res_model">purchase.order</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="purchase_order_line_action">
+      <field name="name">Order.Line</field>
+      <field name="res_model">purchase.order.line</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="product_product_action">
+      <field name="name">Product</field>
+      <field name="res_model">product.product</field>
+      <field name="view_mode">tree,form,graph,pivot</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_picking_action">
+      <field name="name">Picking</field>
+      <field name="res_model">stock.picking</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="product_template_action">
+      <field name="name">Template</field>
+      <field name="res_model">product.template</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_quant_action">
+      <field name="name">quant</field>
+      <field name="res_model">stock.quant</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_move_action">
+      <field name="name">Move</field>
+      <field name="res_model">stock.move</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_warehouse_action">
+      <field name="name">Warehouse</field>
+      <field name="res_model">stock.warehouse</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_picking_type_action">
+      <field name="name">Picking.Type</field>
+      <field name="res_model">stock.picking.type</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="product_category_action">
+      <field name="name">Category</field>
+      <field name="res_model">product.category</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="uom_uom_action">
+      <field name="name">Uom</field>
+      <field name="res_model">uom.uom</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="uom_category_action">
+      <field name="name">Category</field>
+      <field name="res_model">uom.category</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_lot_action">
+      <field name="name">Lot</field>
+      <field name="res_model">stock.lot</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="tcc_stock_report_action">
+      <field name="name">Stock Report</field>
+      <field name="res_model">tcc.stock_report</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="tcc_reserve_action">
+      <field name="name">Reserve</field>
+      <field name="res_model">tcc.reserve</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{'edit':False,'delete':False,'create':False,}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="tcc_reserve_line_action">
+      <field name="name">Reserve Line</field>
+      <field name="res_model">tcc.reserve_line</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{'edit':False,'delete':False,'create':False,}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="tcc_reserve_period_action">
+      <field name="name">Reserve Period</field>
+      <field name="res_model">tcc.reserve_period</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="tcc_reserve_order_action">
+      <field name="name">Reserve Order</field>
+      <field name="res_model">tcc.reserve_order</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="tcc_reserve_order_line_action">
+      <field name="name">Reserve Order Line</field>
+      <field name="res_model">tcc.reserve_order_line</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="tcc_reserve_report_action">
+      <field name="name">Reserve Report</field>
+      <field name="res_model">tcc.reserve_report</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="tcc_reserve_report_line_action">
+      <field name="name">Reserve Report Line</field>
+      <field name="res_model">tcc.reserve_report_line</field>
+      <field name="view_mode">tree,form,graph,pivot</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_valuation_layer_action">
+      <field name="name">valuation.layer</field>
+      <field name="res_model">stock.valuation.layer</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="purchase_requisition_line_action">
+      <field name="name">requisition.line</field>
+      <field name="res_model">purchase.requisition.line</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_move_line_action">
+      <field name="name">move.line</field>
+      <field name="res_model">stock.move.line</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+<!-- Menu -->
+
+<!-- Top menu item -->
+
+    <menuitem name="Report" 
+       id="menu_report_40"
+       sequence ="40"
+    />
+    <menuitem name="Giữ hàng" 
+       id="menu_giu_hang_7"
+       sequence ="7"
+    />
+    <menuitem name="Cấu hình" 
+       id="menu_cau_hinh_10"
+       sequence ="10"
+    />
+    <menuitem name="Báo cáo" 
+       id="menu_bao_cao_9"
+       sequence ="9"
+    />
+    <menuitem name="Lệnh giữ hàng" 
+       id="menu_lenh_giu_hang_8"
+       sequence ="8"
+    />
+    <record id="sale.menu_sale_report" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_report_40"/>
+    </record>
+
+    <record id="menu_report_40" model="ir.ui.menu">
+       <field name="parent_id" ref="sale.sale_menu_root"/>
+    </record>
+
+    <record id="stock.stock_move_menu" model="ir.ui.menu">
+         <field name="groups_id" eval="[(6, 0, [ref('smartbiz_tcc.group_roles_kho___bao_cao_day_du_7'),])]"/>
+    </record>
+
+    <record id="stock_account.menu_valuation" model="ir.ui.menu">
+         <field name="groups_id" eval="[(6, 0, [ref('smartbiz_tcc.group_roles_kho___bao_cao_day_du_7'),])]"/>
+    </record>
+
+    <record id="menu_cau_hinh_10" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_giu_hang_7"/>
+    </record>
+
+    <record id="menu_bao_cao_9" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_giu_hang_7"/>
+    </record>
+
+    <record id="menu_lenh_giu_hang_8" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_giu_hang_7"/>
+    </record>
+
+<!-- Menu item action -->
+
+    <menuitem name="Sales Report" 
+       id="sale_order_line_menuitem"
+       action ="sale_order_line_action"
+       parent ="menu_report_40"
+       sequence ="5" groups="smartbiz_tcc.group_roles_ban_hang___bao_cao_co_ban_14"
+    />
+    <menuitem name="Stock Report" 
+       id="tcc_stock_report_menuitem"
+       action ="tcc_stock_report_action"
+       parent ="stock.menu_warehouse_report"
+       sequence ="21"
+    />
+    <menuitem name="Reserve" 
+       id="tcc_reserve_menuitem"
+       action ="tcc_reserve_action"
+       parent ="menu_bao_cao_9"
+       sequence ="22"
+    />
+    <menuitem name="Reserve Line" 
+       id="tcc_reserve_line_menuitem"
+       action ="tcc_reserve_line_action"
+       parent ="menu_bao_cao_9"
+       sequence ="23"
+    />
+    <menuitem name="Reserve Period" 
+       id="tcc_reserve_period_menuitem"
+       action ="tcc_reserve_period_action"
+       parent ="menu_cau_hinh_10"
+       sequence ="24"
+    />
+    <menuitem name="Reserve Order" 
+       id="tcc_reserve_order_menuitem"
+       action ="tcc_reserve_order_action"
+       parent ="menu_lenh_giu_hang_8"
+       sequence ="25"
+    />
+    <menuitem name="Reserve Report" 
+       id="tcc_reserve_report_menuitem"
+       action ="tcc_reserve_report_action"
+       parent ="menu_bao_cao_9"
+       sequence ="27"
+    />
+
+</odoo>

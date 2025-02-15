@@ -1,0 +1,158 @@
+<templates>
+    <t t-name="Production_Orders">
+        <div class="card">
+            <h2>Production Orders</h2>
+            <ul>
+                <li t-foreach="props.orders" t-as="order" t-key="order.id">
+                    <strong t-esc="order.name" /> - <span t-esc="order.status" /> (Progress: <span
+                        t-esc="order.progress" />%) </li>
+            </ul>
+        </div>
+    </t>
+
+    <t t-name="Machines">
+        <div class="card">
+            <h2>Machines</h2>
+            <ul>
+                <li t-foreach="props.machines" t-as="machine" t-key="machine.id">
+                    <strong t-esc="machine.name" /> - <span t-esc="machine.status" /> (Last
+                    Maintenance: <span t-esc="machine.lastMaintenance" />) </li>
+            </ul>
+        </div>
+    </t>
+
+    <t t-name="QualityIssues">
+        <div class="card">
+            <h2>Quality Issues</h2>
+            <ul>
+                <li t-foreach="props.issues" t-as="issue" t-key="issue.id">
+                    <strong t-esc="issue.product" /> - <span t-esc="issue.issue" /> (Resolution: <span
+                        t-esc="issue.resolution" /> at <span t-esc="issue.time" />) </li>
+            </ul>
+        </div>
+    </t>
+
+    <t t-name="Materials">
+        <div class="card">
+            <h2>Materials</h2>
+            <ul>
+                <li t-foreach="props.materials" t-as="material" t-key="material.id">
+                    <strong t-esc="material.name" /> - <span t-esc="material.quantity" /> (Status: <span
+                        t-esc="material.status" />) </li>
+            </ul>
+        </div>
+    </t>
+
+    <t t-name="Workers">
+        <div class="card">
+            <h2>Workers</h2>
+            <ul>
+                <li t-foreach="props.workers" t-as="worker" t-key="worker.id">
+                    <strong t-esc="worker.name" /> - Hours Worked: <span t-esc="worker.hoursWorked" />
+                </li>
+            </ul>
+        </div>
+    </t>
+
+    <t t-name="ChartComponent">
+        <canvas t-ref="canvas" width="400" height="200"></canvas>
+    </t>
+
+    <t t-name="Dashboard">
+
+
+        <div class="dashboard">
+
+            <h1>Production Dashboard</h1>
+
+            <div class="row">
+                <Production_Orders orders="state.productionOrders" />
+                <Machines machines="state.machines" />
+            </div>
+            <div class="row">
+                <QualityIssues issues="state.qualityIssues" />
+                <Materials materials="state.materials" />
+                <Workers workers="state.workers" />
+            </div>
+            <div class="row">
+                <div class="card">
+                    <div class="workorder_dashboard_info_header">
+                        <h2>Production Progress</h2>
+                        <div class="workorder_dashboard_info_value">
+                            <select t-model="state.stage" t-on-change="updateChartOnChange">
+                                <option value="so_luong">Số lượng</option>
+                                <option value="thoi_gian_thuc_te">Thời gian thực tế</option>
+                                <t t-foreach="state.steps" t-as="step" t-key="step">
+                                    <option t-att-value="step" value="[[ step ]]">
+                                        <t t-esc="step" />
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                    </div>
+                    <ChartComponent type="state.charts.productionProgress.type"
+                        data="state.charts.productionProgress.data"
+                        options="state.charts.productionProgress.options" />
+                </div>
+                <div class="card">
+                    <div class="workorder_dashboard_info_header">
+                        <h2>Quality Issues</h2>
+                        <div class="workorder_dashboard_info_value">
+                            <select t-model="state.stage" t-on-change="updateChartOnChange">
+                                <option value="so_luong">Số lượng</option>
+                                <option value="thoi_gian_thuc_te">Thời gian thực tế</option>
+                                <t t-foreach="state.steps" t-as="step" t-key="step">
+                                    <option t-att-value="step" value="[[ step ]]">
+                                        <t t-esc="step" />
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                    </div>
+                    <ChartComponent type="state.charts.qualityIssues.type"
+                        data="state.charts.qualityIssues.data"
+                        options="state.charts.qualityIssues.options" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="card">
+                    <div class="workorder_dashboard_info_header">
+                        <h2>PolarArea</h2>
+                        <div class="workorder_dashboard_info_value">
+                            <select t-model="state.stage" t-on-change="updateChartOnChange">
+                                <option value="so_luong">Số lượng</option>
+                                <option value="thoi_gian_thuc_te">Thời gian thực tế</option>
+                                <t t-foreach="state.steps" t-as="step" t-key="step">
+                                    <option t-att-value="step" value="[[ step ]]">
+                                        <t t-esc="step" />
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                    </div>
+                    <ChartComponent type="state.charts.polarArea.type"
+                        data="state.charts.polarArea.data" options="state.charts.polarArea.options" />
+                </div>
+                <div class="card">
+                    <div class="workorder_dashboard_info_header">
+                        <h2>Doughnut</h2>
+                        <div class="workorder_dashboard_info_value">
+                            <select t-model="state.stage" t-on-change="updateChartOnChange">
+                                <option value="so_luong">Số lượng</option>
+                                <option value="thoi_gian_thuc_te">Thời gian thực tế</option>
+                                <t t-foreach="state.steps" t-as="step" t-key="step">
+                                    <option t-att-value="step" value="[[ step ]]">
+                                        <t t-esc="step" />
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                    </div>
+                    <ChartComponent type="state.charts.doughnut.type"
+                        data="state.charts.doughnut.data" options="state.charts.doughnut.options" />
+                </div>
+            </div>
+        </div>
+
+    </t>
+</templates>

@@ -1,0 +1,870 @@
+msgid ""
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_ban_hang___bao_cao_day_du_1
+msgid "Bán hàng - Báo cáo đầy đủ"
+msgstr "Bán hàng - Báo cáo đầy đủ"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_ban_hang___xac_nhan_don_ban_2
+msgid "Bán hàng - Xác nhận đơn bán"
+msgstr "Bán hàng - Xác nhận đơn bán"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_cau_hinh_kho___chi_doc_3
+msgid "Cấu hình kho - Chỉ đọc"
+msgstr "Kho cấu hình - Chỉ đọc"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_hoat_dong_kho___chi_doc_4
+msgid "Hoạt động kho - Chỉ đọc"
+msgstr "Kho hoạt động - Chỉ đọc"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_hoat_dong_kho___xac_nhan_qc_5
+msgid "Hoạt động kho - Xác nhận QC"
+msgstr "Kho hoạt động - Xác nhận QC"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_hoat_dong_kho___xac_nhan_xuat_hang_6
+msgid "Hoạt động kho - Xác nhận xuất hàng"
+msgstr "Kho hoạt động - Xác nhận xuất hàng"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_kho___bao_cao_day_du_7
+msgid "Kho - Báo cáo đầy đủ"
+msgstr "Kho - Report full"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_kiem_ke___duoc_phep_ap_dung_8
+msgid "Kiểm kê - Được phép áp dụng"
+msgstr "Kiểm tra - Được phép áp dụng"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_lien_he___chi_doc_9
+msgid "Liên hệ - Chỉ đọc"
+msgstr "Liên hệ - Chỉ đọc"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_mua_hang___phe_quyet_don_mua_10
+msgid "Mua hàng - Phê quyệt đơn mua"
+msgstr "Mua hàng - Phê pha đơn mua"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_mua_hang___xac_nhan_don_mua_11
+msgid "Mua hàng - Xác nhận đơn mua"
+msgstr "Mua hàng - Xác nhận đơn mua"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_san_pham___chi_doc_12
+msgid "Sản phẩm - Chỉ đọc"
+msgstr "Sản phẩm - Chỉ đọc"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_kho___bao_cao_co_ban_13
+msgid "Kho - Báo cáo cơ bản"
+msgstr "Kho - Report base"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_ban_hang___bao_cao_co_ban_14
+msgid "Bán hàng - Báo cáo cơ bản"
+msgstr "Bán hàng - Báo cáo cơ sở"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_giu_hang___user_15
+msgid "Giữ hàng - User"
+msgstr "Giữ hàng - Người dùng"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_giu_hang___admin_16
+msgid "Giữ hàng - Admin"
+msgstr "Giữ hàng - Admin"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_giu_hang___xac_nhan_don_17
+msgid "Giữ hàng - Xác nhận đơn"
+msgstr "Giữ hàng - Xác nhận đơn hàng"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_giu_hang___xoa_don_18
+msgid "Giữ hàng - Xóa đơn"
+msgstr "Giữ hàng - Xóa đơn"
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_giu_hang___huy_don_19
+msgid "Giữ hàng - Hủy đơn"
+msgstr "Giữ hàng - Hủy đơn"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_res_users
+#: model:ir.ui.menu,name:smartbiz_tcc.res_users_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.res_users_action
+msgid "Users"
+msgstr "Người dùng"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_res_partner
+#: model:ir.ui.menu,name:smartbiz_tcc.res_partner_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.res_partner_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order__partner_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_purchase_order__partner_id
+msgid "Partner"
+msgstr "Cộng sự"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_res_partner__customer
+msgid "Customer"
+msgstr "Khách hàng"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_res_partner__supplier
+msgid "Supplier"
+msgstr "Nhà cung cấp"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_res_employee
+#: model:ir.ui.menu,name:smartbiz_tcc.res_employee_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.res_employee_action
+msgid "Employee"
+msgstr "Người lao động"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_ir_attachment
+#: model:ir.ui.menu,name:smartbiz_tcc.ir_attachment_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.ir_attachment_action
+msgid "Attachment"
+msgstr "Tập tin đính kèm"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_sale_order_line
+#: model:ir.ui.menu,name:smartbiz_tcc.sale_order_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.sale_order_line_action
+#: model:ir.model,name:smartbiz_tcc.model_purchase_order_line
+#: model:ir.ui.menu,name:smartbiz_tcc.purchase_order_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.purchase_order_line_action
+msgid "Order.Line"
+msgstr "Đơn hàng"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__tc_cost
+msgid "TC Cost"
+msgstr "Giá vốn"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__tc_margin
+msgid "TC Margin"
+msgstr "Lợi nhuận"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__ppd_cost
+msgid "PPD Cost"
+msgstr "Giá vốn PPD"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__ppd_margin
+msgid "PPD Margin"
+msgstr "Lợi nhuận PPD"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__sales_team_id
+msgid "Sales Team"
+msgstr "Đội ngũ bán hàng"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__ppd_price
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_template__ppd_price
+msgid "PPD Price"
+msgstr "Giá PPD"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__lots
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move__lots
+msgid "Lots"
+msgstr "Lô/Serial"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__remain_quantity
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move__remain_quantity
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__remain_quantity
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__remain_quantity
+msgid "Remain Quantity"
+msgstr "Số lượng còn lại"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__note
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move__note
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__note
+msgid "Note"
+msgstr "Ghi chú"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_sale_order
+#: model:ir.ui.menu,name:smartbiz_tcc.sale_order_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.sale_order_action
+#: model:ir.model,name:smartbiz_tcc.model_purchase_order
+#: model:ir.ui.menu,name:smartbiz_tcc.purchase_order_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.purchase_order_action
+msgid "Order"
+msgstr "Đặt hàng"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order__reserve_period_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__reserve_period_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__reserve_period_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__reserve_period_id
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve_period
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_period_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_period_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__reserve_period_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__reserve_period_id
+msgid "Reserve Period"
+msgstr "Kì dự trữ"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_purchase_order_line__product_id
+#: model:ir.model,name:smartbiz_tcc.model_product_product
+#: model:ir.ui.menu,name:smartbiz_tcc.product_product_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.product_product_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__product_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__product_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__product_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__product_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_valuation_layer__product_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_purchase_requisition_line__product_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move_line__product_id
+msgid "Product"
+msgstr "Sản phẩm"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__begin_quantity
+msgid "Begin Quantity"
+msgstr "Số lượng đầu kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__begin_weight
+msgid "Begin Weight"
+msgstr "Khối lượng đầu kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__begin_ppd_value
+msgid "Begin PPD Value"
+msgstr "Giá trị PPD đầu kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__begin_value
+msgid "Begin Value"
+msgstr "Giá trị đầu kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__in_quantity
+msgid "In Quantity"
+msgstr "Số lượng nhập"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__in_weight
+msgid "In Weight"
+msgstr "Khối lượng nhập"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__out_ppd_value
+msgid "Out PPD Value"
+msgstr "Giá trị PPD xuất"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__out_value
+msgid "Out Value"
+msgstr "Giá trị xuất"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__out_quantity
+msgid "Out Quantity"
+msgstr "Số lượng xuất"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__out_weight
+msgid "Out Weight"
+msgstr "Khối lượng xuất"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__in_ppd_value
+msgid "In PPD Value"
+msgstr "Giá trị PPD nhập"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__in_value
+msgid "In Value"
+msgstr "Giá trị nhập"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__end_quantity
+msgid "End Quantity"
+msgstr "Số lượng cuối kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__end_weight
+msgid "End Weight"
+msgstr "Khối lượng cuối kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__end_value
+msgid "End Value"
+msgstr "Giá trị cuối kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__end_ppd_value
+msgid "End PPD Value"
+msgstr "Giá trị PPD cuối kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__standard_price
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_template__standard_price
+msgid "Standard Price"
+msgstr "Giá vốn"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_picking
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_picking_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_picking_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__picking_id
+msgid "Picking"
+msgstr "Điều chuyển"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__sender
+msgid "Sender"
+msgstr "Người gửi"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__sender_contact
+msgid "Sender Contact"
+msgstr "Liên hệ"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__sender_contact_title
+msgid "Sender Contact Title"
+msgstr "Chức vụ"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__sender_contact_phone
+msgid "Sender Contact Phone"
+msgstr "Điện thoại"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_name
+msgid "Carrier Name"
+msgstr "Đơn vị vận chuyển"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__license_plates
+msgid "License Plates"
+msgstr "Biển số xe"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_contact
+msgid "Carrier Contact"
+msgstr "Liên hệ"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_contact_title
+msgid "Carrier Contact Title"
+msgstr "Chức vụ"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_contact_id_card
+msgid "Carrier Contact ID Card"
+msgstr "CCCD/GPLX"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_contact_issue_date
+msgid "Carrier Contact Issue Date"
+msgstr "Ngày cấp"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_contact_issue_place
+msgid "Carrier Contact Issue place"
+msgstr "Nơi cấp"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_contact_phone
+msgid "Carrier Contact Phone"
+msgstr "Điện thoại"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__delivery_address
+msgid "Delivery Address"
+msgstr "Địa chỉ giao hàng"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__contact
+msgid "Contact"
+msgstr "Liên hệ"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__contact_title
+msgid "Contact Title"
+msgstr "Chức vụ"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__contact_phone
+msgid "Contact Phone"
+msgstr "Điện thoại"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__contact_id_card
+msgid "Contact ID Card"
+msgstr "CCCD"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__issue_date
+msgid "Issue Date"
+msgstr "Ngày cấp"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__issue_place
+msgid "Issue Place"
+msgstr "Nơi cấp"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__arrival_time
+msgid "Arrival Time"
+msgstr "Thời gian đến"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__warehouse_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_quant__warehouse_id
+#: model:ir.model,name:smartbiz_tcc.model_stock_warehouse
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_warehouse_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_warehouse_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__warehouse_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__warehouse_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__warehouse_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__warehouse_id
+msgid "Warehouse"
+msgstr "Kho"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__picking_order_ids
+msgid "Picking Order"
+msgstr "Lệnh điều chuyển"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__picking_type_id
+msgid "Picking Type"
+msgstr "Kiểu điều chuyển"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__sale_team_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__sale_team_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__sale_team_id
+msgid "Sale Team"
+msgstr "Đội ngũ bán hàng"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__commodity_information
+msgid "Commodity information"
+msgstr "Thông tin hàng hóa"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__job_code
+msgid "Job code"
+msgstr "Số hợp đồng/Job Code"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__customs_declaration
+msgid "Customs Declaration"
+msgstr "Tờ Khai HQ"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__plan_approval
+msgid "Plan Approval"
+msgstr "Phê duyệt kế hoạch"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__quote_number
+msgid "Quote Number"
+msgstr "Số báo giá/Yêu cầu"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__inspection_number
+msgid "Inspection Number"
+msgstr "Biên bản kiểm tra"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__request_number
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__request_number
+msgid "Request Number"
+msgstr "Số lệnh"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__purchase_number
+msgid "Purchase Number"
+msgstr "Chứng từ mua"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__sale_plan
+msgid "Sale Plan"
+msgstr "Kế hoạch bán"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__state
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_stock_report__state
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__state
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__state
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report__state
+msgid "State"
+msgstr "Tình trạng"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_product_template
+#: model:ir.ui.menu,name:smartbiz_tcc.product_template_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.product_template_action
+msgid "Template"
+msgstr "Bản mẫu"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_template__specifications
+msgid "Specifications"
+msgstr "Quy cách"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_crm_team
+#: model:ir.ui.menu,name:smartbiz_tcc.crm_team_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.crm_team_action
+msgid "Team"
+msgstr "Đơn vị kinh doanh"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_quant
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_quant_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_quant_action
+msgid "quant"
+msgstr "số lượng"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_quant__vendor_id
+msgid "Vendor"
+msgstr "Người bán"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_quant__product_tmpl_id
+msgid "Product Template"
+msgstr "Mẫu sản phẩm"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_move
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_move_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_move_action
+msgid "Move"
+msgstr "Di chuyển"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move__package_type
+msgid "Package Type"
+msgstr "Loại bao bì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move__number_of_packages
+msgid "Number of Packages"
+msgstr "Số lượng gói"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move__actual_weight
+msgid "Actual Weight"
+msgstr "Trọng lượng (kg)"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_warehouse__customize_reception
+msgid "Customize Reception"
+msgstr "Tùy chỉnh nhận hàng"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_picking_type
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_picking_type_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_picking_type_action
+msgid "Picking.Type"
+msgstr "Kiểu điều chuyển"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_product_category
+#: model:ir.ui.menu,name:smartbiz_tcc.product_category_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.product_category_action
+#: model:ir.model,name:smartbiz_tcc.model_uom_category
+#: model:ir.ui.menu,name:smartbiz_tcc.uom_category_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.uom_category_action
+msgid "Category"
+msgstr "Loại"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_uom_uom
+#: model:ir.ui.menu,name:smartbiz_tcc.uom_uom_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.uom_uom_action
+msgid "Uom"
+msgstr "Đơn vị"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_lot
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_lot_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_lot_action
+msgid "Lot"
+msgstr "Số lô"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_lot__product_qty
+msgid "Product Qty"
+msgstr "Số lượng sản phẩm"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_tcc_stock_report
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_stock_report_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_stock_report_action
+msgid "Stock Report"
+msgstr "Nhập xuất tồn"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_stock_report__from_date
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report__from_date
+msgid "From Date"
+msgstr "Từ ngày"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_stock_report__to_date
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report__to_date
+msgid "To Date"
+msgstr "Đến ngày"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_stock_report__name
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_period__name
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report__name
+msgid "Name"
+msgstr "Tên"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__reserve_id
+msgid "Reserve"
+msgstr "Dự trữ"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__sale_team_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__sale_team_id
+msgid "Sale team"
+msgstr "Đội ngũ bán hàng"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__reserved_quantity
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__reserved_quantity
+msgid "Reserved Quantity"
+msgstr "Số lượng nhập"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__used_quantity
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__used_quantity
+msgid "Used Quantity"
+msgstr "Số lượng xuất"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__reserve_line_ids
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve_line
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_line_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__reserve_line_ids
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move_line__reserve_line_ids
+msgid "Reserve Line"
+msgstr "Chi tiết dự trữ"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__reserve_type
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__reserve_type
+msgid "Reserve Type"
+msgstr "Kiểu dự trữ"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__quantity
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__quantity
+msgid "Quantity"
+msgstr "Số lượng"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__move_line_id
+msgid "Move Line"
+msgstr "Chi tiết dịch chuyển"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__reserve_order_line_id
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve_order_line
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_order_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_order_line_action
+msgid "Reserve Order Line"
+msgstr "Chi tiết giữ hàng"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_period__active
+msgid "Active"
+msgstr "Đang kích hoạt"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve_order
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_order_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_order_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__reserve_order_id
+msgid "Reserve Order"
+msgstr "Đơn dự trữ"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__name
+msgid "Order Code"
+msgstr "Mã lệnh"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__destination_team_id
+msgid "Destination Team"
+msgstr "Đơn vị đích"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__request_date
+msgid "Request Date"
+msgstr "Ngày lập Số PĐN:"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__order_line_ids
+msgid "Order Line"
+msgstr "Chi tiết đơn"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__product_uom_id
+msgid "Product UoM"
+msgstr "Đơn vị tính"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__location
+msgid "Location"
+msgstr "Vị trí"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__contract
+msgid "Contract"
+msgstr "Hợp đồng"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__order_number
+msgid "Order Number"
+msgstr "Đơn hàng số"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__packing_list
+msgid "Packing List"
+msgstr "Thực xuất/Packinglist"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve_report
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_report_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_report_action
+msgid "Reserve Report"
+msgstr "Báo cáo dự trữ"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve_report_line
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_report_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_report_line_action
+msgid "Reserve Report Line"
+msgstr "Chi tiết báo cáo dự trữ"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__begin_reserved_quantity
+msgid "Begin Reserved Quantity"
+msgstr "Dự trữ đầu kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__begin_used_quantity
+msgid "Begin Used Quantity"
+msgstr "Đã dùng đầu kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__begin_remain_quantity
+msgid "Begin Remain Quantity"
+msgstr "Tồn đầu kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__begin_remain_weight
+msgid "Begin Remain Weight"
+msgstr "Khối lượng đầu kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__reserved_weight
+msgid "Reserved Weight"
+msgstr "Khối lượng nhập"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__used_weight
+msgid "Used Weight"
+msgstr "Khối lượng xuất"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__end_reserved_quantity
+msgid "End Reserved Quantity"
+msgstr "Dự trữ cuối kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__end_used_quantity
+msgid "End Used Quantity"
+msgstr "Đã dùng cuối kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__end_remain_quantity
+msgid "End Remain Quantity"
+msgstr "Tồn cuối kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__end_remain_weight
+msgid "End Remain Weight"
+msgstr "Khối lượng cuối kì"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_valuation_layer
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_valuation_layer_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_valuation_layer_action
+msgid "valuation.layer"
+msgstr "Định giá"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_purchase_requisition_line
+#: model:ir.ui.menu,name:smartbiz_tcc.purchase_requisition_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.purchase_requisition_line_action
+msgid "requisition.line"
+msgstr "Yêu cầu"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_picking_batch
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_picking_batch_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_picking_batch_action
+msgid "picking.batch"
+msgstr "Dịch chuyển hàng loạt"
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_move_line
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_move_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_move_line_action
+msgid "move.line"
+msgstr "Chi tiết dịch chuyển"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields.selection,name:smartbiz_tcc.selection__tcc_stock_report__state__not viewed
+#: model:ir.model.fields.selection,name:smartbiz_tcc.selection__tcc_reserve_report__state__not viewed
+msgid "Not Viewed"
+msgstr "Chưa xem"
+
+#. module: smartbiz_tcc
+#: model_terms:ir.ui.view,arch_db:smartbiz_tcc.tcc_stock_report_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_tcc.tcc_reserve_report_form
+msgid "View Report"
+msgstr "Xem báo cáo"
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields.selection,name:smartbiz_tcc.selection__tcc_stock_report__state__viewed
+#: model:ir.model.fields.selection,name:smartbiz_tcc.selection__tcc_reserve_report__state__viewed
+msgid "Viewed"
+msgstr "Đã xem"

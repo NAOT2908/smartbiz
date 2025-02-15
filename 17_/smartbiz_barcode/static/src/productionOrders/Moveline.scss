@@ -1,0 +1,10 @@
+
+.move_line-items{
+    height: 300px; /* Chiều cao tối đa để hiển thị */
+    overflow-y: auto; /* Hiển thị thanh cuộn dọc nếu danh sách dài hơn chiều cao */
+    overflow-x: hidden; /* Ẩn thanh cuộn ngang */
+    border: 1px solid #ddd; /* Đường viền nhẹ xung quanh */
+    border-radius: 5px; /* Bo góc */
+    padding: 10px; /* Khoảng cách bên trong container */
+    background-color: #f9f9f9; /* Màu nền nhạt */
+}

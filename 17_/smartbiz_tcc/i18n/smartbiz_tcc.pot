@@ -1,0 +1,870 @@
+msgid ""
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_ban_hang___bao_cao_day_du_1
+msgid "Bán hàng - Báo cáo đầy đủ"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_ban_hang___xac_nhan_don_ban_2
+msgid "Bán hàng - Xác nhận đơn bán"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_cau_hinh_kho___chi_doc_3
+msgid "Cấu hình kho - Chỉ đọc"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_hoat_dong_kho___chi_doc_4
+msgid "Hoạt động kho - Chỉ đọc"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_hoat_dong_kho___xac_nhan_qc_5
+msgid "Hoạt động kho - Xác nhận QC"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_hoat_dong_kho___xac_nhan_xuat_hang_6
+msgid "Hoạt động kho - Xác nhận xuất hàng"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_kho___bao_cao_day_du_7
+msgid "Kho - Báo cáo đầy đủ"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_kiem_ke___duoc_phep_ap_dung_8
+msgid "Kiểm kê - Được phép áp dụng"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_lien_he___chi_doc_9
+msgid "Liên hệ - Chỉ đọc"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_mua_hang___phe_quyet_don_mua_10
+msgid "Mua hàng - Phê quyệt đơn mua"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_mua_hang___xac_nhan_don_mua_11
+msgid "Mua hàng - Xác nhận đơn mua"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_san_pham___chi_doc_12
+msgid "Sản phẩm - Chỉ đọc"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_kho___bao_cao_co_ban_13
+msgid "Kho - Báo cáo cơ bản"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_ban_hang___bao_cao_co_ban_14
+msgid "Bán hàng - Báo cáo cơ bản"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_giu_hang___user_15
+msgid "Giữ hàng - User"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_giu_hang___admin_16
+msgid "Giữ hàng - Admin"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_giu_hang___xac_nhan_don_17
+msgid "Giữ hàng - Xác nhận đơn"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_giu_hang___xoa_don_18
+msgid "Giữ hàng - Xóa đơn"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:res_groups,name:smartbiz_tcc.group_roles_giu_hang___huy_don_19
+msgid "Giữ hàng - Hủy đơn"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_res_users
+#: model:ir.ui.menu,name:smartbiz_tcc.res_users_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.res_users_action
+msgid "Users"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_res_partner
+#: model:ir.ui.menu,name:smartbiz_tcc.res_partner_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.res_partner_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order__partner_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_purchase_order__partner_id
+msgid "Partner"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_res_partner__customer
+msgid "Customer"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_res_partner__supplier
+msgid "Supplier"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_res_employee
+#: model:ir.ui.menu,name:smartbiz_tcc.res_employee_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.res_employee_action
+msgid "Employee"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_ir_attachment
+#: model:ir.ui.menu,name:smartbiz_tcc.ir_attachment_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.ir_attachment_action
+msgid "Attachment"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_sale_order_line
+#: model:ir.ui.menu,name:smartbiz_tcc.sale_order_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.sale_order_line_action
+#: model:ir.model,name:smartbiz_tcc.model_purchase_order_line
+#: model:ir.ui.menu,name:smartbiz_tcc.purchase_order_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.purchase_order_line_action
+msgid "Order.Line"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__tc_cost
+msgid "TC Cost"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__tc_margin
+msgid "TC Margin"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__ppd_cost
+msgid "PPD Cost"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__ppd_margin
+msgid "PPD Margin"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__sales_team_id
+msgid "Sales Team"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__ppd_price
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_template__ppd_price
+msgid "PPD Price"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__lots
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move__lots
+msgid "Lots"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__remain_quantity
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move__remain_quantity
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__remain_quantity
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__remain_quantity
+msgid "Remain Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order_line__note
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move__note
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__note
+msgid "Note"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_sale_order
+#: model:ir.ui.menu,name:smartbiz_tcc.sale_order_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.sale_order_action
+#: model:ir.model,name:smartbiz_tcc.model_purchase_order
+#: model:ir.ui.menu,name:smartbiz_tcc.purchase_order_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.purchase_order_action
+msgid "Order"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_sale_order__reserve_period_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__reserve_period_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__reserve_period_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__reserve_period_id
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve_period
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_period_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_period_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__reserve_period_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__reserve_period_id
+msgid "Reserve Period"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_purchase_order_line__product_id
+#: model:ir.model,name:smartbiz_tcc.model_product_product
+#: model:ir.ui.menu,name:smartbiz_tcc.product_product_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.product_product_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__product_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__product_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__product_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__product_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_valuation_layer__product_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_purchase_requisition_line__product_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move_line__product_id
+msgid "Product"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__begin_quantity
+msgid "Begin Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__begin_weight
+msgid "Begin Weight"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__begin_ppd_value
+msgid "Begin PPD Value"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__begin_value
+msgid "Begin Value"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__in_quantity
+msgid "In Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__in_weight
+msgid "In Weight"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__out_ppd_value
+msgid "Out PPD Value"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__out_value
+msgid "Out Value"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__out_quantity
+msgid "Out Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__out_weight
+msgid "Out Weight"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__in_ppd_value
+msgid "In PPD Value"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__in_value
+msgid "In Value"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__end_quantity
+msgid "End Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__end_weight
+msgid "End Weight"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__end_value
+msgid "End Value"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__end_ppd_value
+msgid "End PPD Value"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_product__standard_price
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_template__standard_price
+msgid "Standard Price"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_picking
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_picking_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_picking_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__picking_id
+msgid "Picking"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__sender
+msgid "Sender"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__sender_contact
+msgid "Sender Contact"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__sender_contact_title
+msgid "Sender Contact Title"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__sender_contact_phone
+msgid "Sender Contact Phone"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_name
+msgid "Carrier Name"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__license_plates
+msgid "License Plates"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_contact
+msgid "Carrier Contact"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_contact_title
+msgid "Carrier Contact Title"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_contact_id_card
+msgid "Carrier Contact ID Card"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_contact_issue_date
+msgid "Carrier Contact Issue Date"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_contact_issue_place
+msgid "Carrier Contact Issue place"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__carrier_contact_phone
+msgid "Carrier Contact Phone"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__delivery_address
+msgid "Delivery Address"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__contact
+msgid "Contact"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__contact_title
+msgid "Contact Title"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__contact_phone
+msgid "Contact Phone"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__contact_id_card
+msgid "Contact ID Card"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__issue_date
+msgid "Issue Date"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__issue_place
+msgid "Issue Place"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__arrival_time
+msgid "Arrival Time"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__warehouse_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_quant__warehouse_id
+#: model:ir.model,name:smartbiz_tcc.model_stock_warehouse
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_warehouse_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_warehouse_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__warehouse_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__warehouse_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__warehouse_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__warehouse_id
+msgid "Warehouse"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__picking_order_ids
+msgid "Picking Order"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__picking_type_id
+msgid "Picking Type"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__sale_team_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__sale_team_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__sale_team_id
+msgid "Sale Team"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__commodity_information
+msgid "Commodity information"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__job_code
+msgid "Job code"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__customs_declaration
+msgid "Customs Declaration"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__plan_approval
+msgid "Plan Approval"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__quote_number
+msgid "Quote Number"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__inspection_number
+msgid "Inspection Number"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__request_number
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__request_number
+msgid "Request Number"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__purchase_number
+msgid "Purchase Number"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__sale_plan
+msgid "Sale Plan"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_picking__state
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_stock_report__state
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__state
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__state
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report__state
+msgid "State"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_product_template
+#: model:ir.ui.menu,name:smartbiz_tcc.product_template_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.product_template_action
+msgid "Template"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_product_template__specifications
+msgid "Specifications"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_crm_team
+#: model:ir.ui.menu,name:smartbiz_tcc.crm_team_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.crm_team_action
+msgid "Team"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_quant
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_quant_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_quant_action
+msgid "quant"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_quant__vendor_id
+msgid "Vendor"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_quant__product_tmpl_id
+msgid "Product Template"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_move
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_move_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_move_action
+msgid "Move"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move__package_type
+msgid "Package Type"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move__number_of_packages
+msgid "Number of Packages"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move__actual_weight
+msgid "Actual Weight"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_warehouse__customize_reception
+msgid "Customize Reception"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_picking_type
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_picking_type_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_picking_type_action
+msgid "Picking.Type"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_product_category
+#: model:ir.ui.menu,name:smartbiz_tcc.product_category_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.product_category_action
+#: model:ir.model,name:smartbiz_tcc.model_uom_category
+#: model:ir.ui.menu,name:smartbiz_tcc.uom_category_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.uom_category_action
+msgid "Category"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_uom_uom
+#: model:ir.ui.menu,name:smartbiz_tcc.uom_uom_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.uom_uom_action
+msgid "Uom"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_lot
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_lot_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_lot_action
+msgid "Lot"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_lot__product_qty
+msgid "Product Qty"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_tcc_stock_report
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_stock_report_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_stock_report_action
+msgid "Stock Report"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_stock_report__from_date
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report__from_date
+msgid "From Date"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_stock_report__to_date
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report__to_date
+msgid "To Date"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_stock_report__name
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_period__name
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report__name
+msgid "Name"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__reserve_id
+msgid "Reserve"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__sale_team_id
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__sale_team_id
+msgid "Sale team"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__reserved_quantity
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__reserved_quantity
+msgid "Reserved Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__used_quantity
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__used_quantity
+msgid "Used Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve__reserve_line_ids
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve_line
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_line_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__reserve_line_ids
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_stock_move_line__reserve_line_ids
+msgid "Reserve Line"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__reserve_type
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__reserve_type
+msgid "Reserve Type"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__quantity
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__quantity
+msgid "Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__move_line_id
+msgid "Move Line"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_line__reserve_order_line_id
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve_order_line
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_order_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_order_line_action
+msgid "Reserve Order Line"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_period__active
+msgid "Active"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve_order
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_order_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_order_action
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__reserve_order_id
+msgid "Reserve Order"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__name
+msgid "Order Code"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__destination_team_id
+msgid "Destination Team"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__request_date
+msgid "Request Date"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order__order_line_ids
+msgid "Order Line"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__product_uom_id
+msgid "Product UoM"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__location
+msgid "Location"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__contract
+msgid "Contract"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__order_number
+msgid "Order Number"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_order_line__packing_list
+msgid "Packing List"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve_report
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_report_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_report_action
+msgid "Reserve Report"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_tcc_reserve_report_line
+#: model:ir.ui.menu,name:smartbiz_tcc.tcc_reserve_report_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.tcc_reserve_report_line_action
+msgid "Reserve Report Line"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__begin_reserved_quantity
+msgid "Begin Reserved Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__begin_used_quantity
+msgid "Begin Used Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__begin_remain_quantity
+msgid "Begin Remain Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__begin_remain_weight
+msgid "Begin Remain Weight"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__reserved_weight
+msgid "Reserved Weight"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__used_weight
+msgid "Used Weight"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__end_reserved_quantity
+msgid "End Reserved Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__end_used_quantity
+msgid "End Used Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__end_remain_quantity
+msgid "End Remain Quantity"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields,field_description:smartbiz_tcc.field_tcc_reserve_report_line__end_remain_weight
+msgid "End Remain Weight"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_valuation_layer
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_valuation_layer_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_valuation_layer_action
+msgid "valuation.layer"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_purchase_requisition_line
+#: model:ir.ui.menu,name:smartbiz_tcc.purchase_requisition_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.purchase_requisition_line_action
+msgid "requisition.line"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_picking_batch
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_picking_batch_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_picking_batch_action
+msgid "picking.batch"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model,name:smartbiz_tcc.model_stock_move_line
+#: model:ir.ui.menu,name:smartbiz_tcc.stock_move_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_tcc.stock_move_line_action
+msgid "move.line"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields.selection,name:smartbiz_tcc.selection__tcc_stock_report__state__not viewed
+#: model:ir.model.fields.selection,name:smartbiz_tcc.selection__tcc_reserve_report__state__not viewed
+msgid "Not Viewed"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model_terms:ir.ui.view,arch_db:smartbiz_tcc.tcc_stock_report_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_tcc.tcc_reserve_report_form
+msgid "View Report"
+msgstr ""
+
+#. module: smartbiz_tcc
+#: model:ir.model.fields.selection,name:smartbiz_tcc.selection__tcc_stock_report__state__viewed
+#: model:ir.model.fields.selection,name:smartbiz_tcc.selection__tcc_reserve_report__state__viewed
+msgid "Viewed"
+msgstr ""

@@ -1,0 +1,362 @@
+msgid ""
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:res_groups,name:mrp.group_mrp_user
+msgid "mrp.group_mrp_user"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:res_groups,name:mrp.group_mrp_manager
+msgid "mrp.group_mrp_manager"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_res_users
+#: model:ir.ui.menu,name:smartbiz_mes.res_users_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.res_users_action
+msgid "Users"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_res_partner
+#: model:ir.ui.menu,name:smartbiz_mes.res_partner_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.res_partner_action
+msgid "Partner"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_res_employee
+#: model:ir.ui.menu,name:smartbiz_mes.res_employee_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.res_employee_action
+msgid "Employee"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_ir_attachment
+#: model:ir.ui.menu,name:smartbiz_mes.ir_attachment_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.ir_attachment_action
+msgid "Attachment"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_res_company
+#: model:ir.ui.menu,name:smartbiz_mes.res_company_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.res_company_action
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_factory__company_id
+msgid "Company"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_product_product
+#: model:ir.ui.menu,name:smartbiz_mes.product_product_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.product_product_action
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_bom_components__product_id
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__product_id
+msgid "Product"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_mrp_production
+#: model:ir.ui.menu,name:smartbiz_mes.mrp_production_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.mrp_production_action
+msgid "Production"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__production_line_id
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_workcenter__production_line_id
+#: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_production_line
+#: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_production_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_production_line_action
+msgid "Production Line"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__name
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_factory__name
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_line__name
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__name
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_bom_components__name
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_check_point__name
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__name
+msgid "Name"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_mrp_workcenter
+#: model:ir.ui.menu,name:smartbiz_mes.mrp_workcenter_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.mrp_workcenter_action
+msgid "Workcenter"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_mrp_workorder
+#: model:ir.ui.menu,name:smartbiz_mes.mrp_workorder_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.mrp_workorder_action
+msgid "Workorder"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_workorder__product_quality_ids
+msgid "Product Quality"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_mrp_bom
+#: model:ir.ui.menu,name:smartbiz_mes.mrp_bom_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.mrp_bom_action
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_bom_components__bom_id
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_check_point__bom_id
+msgid "BoM"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_bom__components_ids
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_bom_line__components_ids
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_routing_workcenter__components_ids
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_bom_byproduct__components_ids
+msgid "Components"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_bom__checkpoints_ids
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_bom_components__checkpoints_ids
+msgid "CheckPoints"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_mrp_bom_line
+#: model:ir.ui.menu,name:smartbiz_mes.mrp_bom_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.mrp_bom_line_action
+msgid "bom.line"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_mrp_routing_workcenter
+#: model:ir.ui.menu,name:smartbiz_mes.mrp_routing_workcenter_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.mrp_routing_workcenter_action
+msgid "routing.workcenter"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_mrp_bom_byproduct
+#: model:ir.ui.menu,name:smartbiz_mes.mrp_bom_byproduct_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.mrp_bom_byproduct_action
+msgid "bom.byproduct"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_stock_lot
+#: model:ir.ui.menu,name:smartbiz_mes.stock_lot_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.stock_lot_action
+msgid "lot"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_res_currency
+#: model:ir.ui.menu,name:smartbiz_mes.res_currency_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.res_currency_action
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__currency_id
+msgid "Currency"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_factory
+#: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_factory_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_factory_action
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_line__factory_id
+msgid "Factory"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_factory__production_lines_ids
+msgid "Production Lines"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_line__work_centers_ids
+msgid "Work Centers"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_production_activity
+#: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_production_activity_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_production_activity_action
+msgid "Production Activity"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__work_order_id
+msgid "Work Order"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__component_id
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_check_point__component_id
+msgid "Component"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__quantity
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_bom_components__quantity
+msgid "Quantity"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__quality
+msgid "Quality"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__lot_id
+msgid "Lot"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__start
+msgid "Start"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__finish
+msgid "Finish"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__duration
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__duration
+msgid "Duration"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_bom_components
+#: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_bom_components_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_bom_components_action
+msgid "BoM Components"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_bom_components__type
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_check_point__type
+msgid "Type"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_bom_components__material_id
+msgid "Material"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_bom_components__operations_ids
+msgid "Operations"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_check_point
+#: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_check_point_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_check_point_action
+msgid "Check Point"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_check_point__operation_id
+msgid "Operation"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_check_point__attached_ids
+msgid "Attached"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_check_point__instruction
+msgid "Instruction"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_check_point__code
+msgid "Code"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_production_report
+#: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_production_report_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_production_report_action
+msgid "Production Report"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__production_order_id
+msgid "Production Order"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__date
+msgid "Date"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__planned_quantity
+msgid "Planned Quantity"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__produced_quantity
+msgid "Produced Quantity"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__remaining_quantity
+msgid "Remaining Quantity"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__yield_percentage
+msgid "Yield Percentage"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__component_cost
+msgid "Component Cost"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__operation_cost
+msgid "Operation Cost"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__total_cost
+msgid "Total Cost"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__component_cost_per_unit
+msgid "Component Cost per Unit"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__operation_cost_per_unit
+msgid "Operation Cost per Unit"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__cost_per_unit
+msgid "Cost per Unit"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__expected_duration
+msgid "Expected Duration"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__duration_per_unit
+msgid "Duration per Unit"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_report__byproduct_cost
+msgid "ByProduct Cost"
+msgstr ""

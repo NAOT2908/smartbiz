@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="CustomInventoryViewTemplate">
+        <div class="inventory-header">
+            <nav class="inventory_nav">
+            <nav class="inventory_nav_left">
+                <button t-on-click="exit" class="inventory_nav-link">
+                    <i class="oi oi-chevron-left" />
+                </button>
+                (<t t-esc="this.state.data.length"/>) 
+                <div class="inventory_nav_title"> Điều chỉnh tồn kho
+                    <div class="inventory_search-box" t-if="state.search">
+                        <input class="inventory_search-input" t-on-input="handleInput" t-att-value="state.searchInput"
+                            placeholder="Tìm kiếm" />
+                    </div>
+                </div>
+                
+            </nav>
+            <nav class="inventory_nav_right">
+                <div class="inventory_nav-link" t-on-click="searchClick">
+                    <i class="fa fa-search" />
+                </div>
+                <div class="inventory_nav-link" t-on-click="openManualScanner">
+                    <i class="fa fa-barcode" />
+                </div>
+                <div class="inventory_nav-link" t-on-click="toggleMenu">
+                    <i class="fa fa-bars"></i>
+                </div>
+            </nav>
+        </nav>
+        </div>
+
+        <!-- Apply the class based on menu visibility -->
+        <div t-att-class="{
+            'inventory-overlay': true,
+            'open': state.menuVisible,
+            'close': !state.menuVisible
+        }" t-on-click="toggleMenu"></div>
+
+        <div t-att-class="{
+            'inventory': true,
+            'inventory-open': state.menuVisible,
+            'inventory-close': !state.menuVisible
+        }">
+            <div class="inventory-header">
+                <span class="close-icon" t-on-click="toggleMenu">
+                    <i class="fa fa-times"></i>
+                </span>
+            </div>
+            <div class="inventory-items">
+                <button t-on-click="() => this.openSelector(1)">In phiếu kiểm kê</button>
+                <button t-on-click="() => this.openSelector(8)">In hàng loạt</button>
+                <button t-on-click="cancelOrder">ZZZ</button>
+            </div>
+        </div>
+        
+        <div t-if="state.view === 'AdjustmentInventory'">
+            <div>
+                <div t-foreach="state.data" t-as="item" t-key="item.id" class="inventory-item">
+                        <div class="info-item">
+                            <div>
+                                <t t-esc="item.name"/>
+                            </div>
+                            <div>
+                                <t t-esc="item.state" />
+                            </div>
+                            <div>
+                                <t t-esc="item.date" />
+                            </div>
+                        </div>
+                        <div class="btn-item o_line_buttons">
+                            <button t-on-click="() => this.selectOrder(item.id)" class="o_line_button o_edit btn btn-secondary">
+                                <i
+                                    class="fa fa-pencil"></i>
+                            </button>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <div t-if="state.view === 'DetailInventory'" class="inventory-content">
+                <div class="list-items">
+                    <div t-foreach="state.lines" t-as="item" t-key="item.id" class="inventory-item">
+                        <div class="info-item">
+                            <div>
+                                <t t-esc="item.location_name"/>
+                            </div>
+                            <div>
+                                <t t-esc="item.product_name" />
+                            </div>
+                            <div t-if="item.lot_id">
+                                <t t-esc="item.lot_name" />
+                            </div>
+                            <div t-if="item.package_id">
+                                <t t-esc="item.package_name" />
+                            </div>
+                            <div>
+                                <t t-esc="item.inventory_quantity" /> / <t t-esc="item.quantity" />
+                            </div>
+                        </div>
+                        <div class="btn-item o_line_buttons">
+                            <button class="o_line_button o_edit btn btn-secondary">
+                                <i
+                                    class="fa fa-pencil"></i>
+                            </button>
+                            <button class="o_line_button btn btn-secondary">
+                                <i
+                                    class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,183 @@
+msgid ""
+msgstr ""
+
+#. module: sdm
+#: model:res_groups,name:sdm.group_roles_sdm_admin_1
+msgid "SDM Admin"
+msgstr "Quản trị viên SDM"
+
+#. module: sdm
+#: model:res_groups,name:sdm.group_roles_sdm_user_2
+msgid "SDM User"
+msgstr "Người dùng SDM"
+
+#. module: sdm
+#: model:ir.model,name:sdm.model_res_users
+#: model:ir.ui.menu,name:sdm.res_users_menuitem
+#: model:ir.actions.act_window,name:sdm.res_users_action
+msgid "Users"
+msgstr "Người dùng"
+
+#. module: sdm
+#: model:ir.model,name:sdm.model_res_partner
+#: model:ir.ui.menu,name:sdm.res_partner_menuitem
+#: model:ir.actions.act_window,name:sdm.res_partner_action
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification__partner_ids
+msgid "Partner"
+msgstr "Cộng sự"
+
+#. module: sdm
+#: model:ir.model,name:sdm.model_res_employee
+#: model:ir.ui.menu,name:sdm.res_employee_menuitem
+#: model:ir.actions.act_window,name:sdm.res_employee_action
+msgid "Employee"
+msgstr "Người lao động"
+
+#. module: sdm
+#: model:ir.model,name:sdm.model_ir_attachment
+#: model:ir.ui.menu,name:sdm.ir_attachment_menuitem
+#: model:ir.actions.act_window,name:sdm.ir_attachment_action
+msgid "Attachment"
+msgstr "Tệp đính kèm"
+
+#. module: sdm
+#: model:ir.model,name:sdm.model_mail_template
+#: model:ir.ui.menu,name:sdm.mail_template_menuitem
+#: model:ir.actions.act_window,name:sdm.mail_template_action
+msgid "Template"
+msgstr "Mẫu"
+
+#. module: sdm
+#: model:ir.model,name:sdm.model_ir_model
+#: model:ir.ui.menu,name:sdm.ir_model_menuitem
+#: model:ir.actions.act_window,name:sdm.ir_model_action
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification__model_id
+msgid "Model"
+msgstr "Model"
+
+#. module: sdm
+#: model:ir.model,name:sdm.model_sdm_location
+#: model:ir.ui.menu,name:sdm.sdm_location_menuitem
+#: model:ir.actions.act_window,name:sdm.sdm_location_action
+#: model:ir.model.fields,field_description:sdm.field_sdm_device__location_id
+msgid "Location"
+msgstr "Vị trí"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_location__name
+#: model:ir.model.fields,field_description:sdm.field_sdm_device_type__name
+#: model:ir.model.fields,field_description:sdm.field_sdm_device__name
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification_type__name
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification__name
+msgid "Name"
+msgstr "Tên"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_location__parent_location_id
+msgid "Parent Location"
+msgstr "Vị trí cha"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_location__children_location_ids
+msgid "Children Location"
+msgstr "Vị trí con"
+
+#. module: sdm
+#: model:ir.model,name:sdm.model_sdm_device_type
+#: model:ir.ui.menu,name:sdm.sdm_device_type_menuitem
+#: model:ir.actions.act_window,name:sdm.sdm_device_type_action
+#: model:ir.model.fields,field_description:sdm.field_sdm_device__device_type_id
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification__device_type_id
+msgid "Device Type"
+msgstr "Loại thiết bị"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_device_type__device_ids
+#: model:ir.model,name:sdm.model_sdm_device
+#: model:ir.ui.menu,name:sdm.sdm_device_menuitem
+#: model:ir.actions.act_window,name:sdm.sdm_device_action
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification_log__device_id
+msgid "Device"
+msgstr "Thiết bị"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_device_type__notification_ids
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification_type__notification_ids
+#: model:ir.model,name:sdm.model_sdm_notification
+#: model:ir.ui.menu,name:sdm.sdm_notification_menuitem
+#: model:ir.actions.act_window,name:sdm.sdm_notification_action
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification_log__notification_id
+msgid "Notification"
+msgstr "Thông báo"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_device__code
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification_type__code
+msgid "Code"
+msgstr "Mã"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_device__status
+msgid "Status"
+msgstr "Trạng thái"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_device__last_checked
+msgid "Last Checked"
+msgstr "Lần kiểm tra cuối"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_device__iot_id
+msgid "IoT ID"
+msgstr "Mã IoT"
+
+#. module: sdm
+#: model:ir.model,name:sdm.model_sdm_notification_type
+#: model:ir.ui.menu,name:sdm.sdm_notification_type_menuitem
+#: model:ir.actions.act_window,name:sdm.sdm_notification_type_action
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification__notification_type_id
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification_log__notification_type_id
+msgid "Notification Type"
+msgstr "Loại thông báo"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification__time_in_day
+msgid "Time in day"
+msgstr "Thời gian trong ngày"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification__interval_hours
+msgid "Interval Hours"
+msgstr "Số giờ lập lại"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification__max_notice
+msgid "Max Notice"
+msgstr "Số thông báo tối đa"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification__notification_template_id
+msgid "Notification Template"
+msgstr "Mẫu thông báo"
+
+#. module: sdm
+#: model:ir.model,name:sdm.model_sdm_notification_log
+#: model:ir.ui.menu,name:sdm.sdm_notification_log_menuitem
+#: model:ir.actions.act_window,name:sdm.sdm_notification_log_action
+msgid "Notification Log"
+msgstr "Nhật ký thông báo"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification_log__time
+msgid "Time"
+msgstr "Thời gian"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification_log__subject
+msgid "Subject"
+msgstr "Tiêu đề"
+
+#. module: sdm
+#: model:ir.model.fields,field_description:sdm.field_sdm_notification_log__body
+msgid "Body"
+msgstr "Nội dung"

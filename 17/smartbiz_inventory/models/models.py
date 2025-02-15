@@ -1,0 +1,346 @@
+# -*- coding: utf-8 -*-
+
+from odoo.osv import expression
+from odoo import models, fields, api, exceptions,_, tools
+import os
+import base64,pytz,logging
+from datetime import datetime, timedelta
+import datetime as date_time
+import random
+from odoo.exceptions import UserError, ValidationError
+_logger = logging.getLogger(__name__)
+from io import BytesIO
+import xlsxwriter
+from openpyxl import load_workbook
+
+
+class InventoryPeriod(models.Model):
+    _name = 'smartbiz.inventory.period'
+    _description = 'Inventory Period'
+
+    name = fields.Char(string="Period Name", required=True)
+    date_start = fields.Date(string="Start Date", required=True)
+    date_end = fields.Date(string="End Date", required=True)
+    company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company)
+    inventory_ids = fields.One2many('smartbiz.inventory', 'inventory_period_id', string="Inventories")
+
+class Inventory(models.Model):
+    _name = 'smartbiz.inventory'
+    _description = 'Stock Inventory'
+
+    name = fields.Char(string="Inventory Name", required=True, default=lambda self: self.env['ir.sequence'].next_by_code('smartbiz.inventory'))
+    date = fields.Datetime(string="Inventory Date", default=fields.Datetime.now, required=True)
+    company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company)
+    user_id = fields.Many2one('res.users', string="Responsible User", default=lambda self: self.env.user)
+    inventory_period_id = fields.Many2one('smartbiz.inventory.period', string="Inventory Period", required=True)
+    inventory_location_ids = fields.Many2many('stock.location', string="Inventory Locations")
+    line_ids = fields.One2many('smartbiz.inventory.line', 'inventory_id', string="Inventory Lines")
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('in_progress', 'In Progress'),
+        ('done', 'Done'),
+    ], string="State", default='draft')
+
+    def action_start(self):
+        """ Bắt đầu kiểm kê - lọc danh sách kiểm kê theo location nếu có """
+        self.state = 'in_progress'
+        self.line_ids.unlink()
+        self._generate_inventory_lines()
+
+    def _generate_inventory_lines(self):
+        """ Tạo danh sách kiểm kê dựa trên location nếu có """
+        domain = [('company_id', '=', self.company_id.id)]
+        if self.inventory_location_ids:
+            domain.append(('location_id', 'in', self.inventory_location_ids.ids))
+
+        quants = self.env['stock.quant'].search(domain)
+        for quant in quants:
+            self.env['smartbiz.inventory.line'].create({
+                'inventory_id': self.id,
+                'product_id': quant.product_id.id,
+                'lot_id': quant.lot_id.id if quant.lot_id else False,
+                'package_id': quant.package_id.id if quant.package_id else False,
+                'location_id': quant.location_id.id,
+                'company_id': self.company_id.id,  
+                'quantity_before': quant.quantity,
+                'quantity_counted': quant.quantity,
+                'quant_id': quant.id,
+            })
+
+    def action_validate(self):
+        """ Xác nhận kiểm kê - lưu vào lịch sử nhưng KHÔNG cập nhật stock.quant ngay """
+        self.state = 'done'
+        for line in self.line_ids:
+            self.env['smartbiz.inventory.history'].create({
+                'inventory_id': self.id,
+                'product_id': line.product_id.id,
+                'lot_id': line.lot_id.id if line.lot_id else False,
+                'package_id': line.package_id.id if line.package_id else False,
+                'location_id': line.location_id.id,
+                'company_id': self.company_id.id,
+                'user_id': self.user_id.id if self.user_id else False,
+                'quantity_before': line.quantity_before,
+                'quantity_after': line.quantity_counted,
+                'difference': line.difference,
+                'date': fields.Datetime.now(),
+            })
+        
+            quants = self.env['stock.quant'].search([('id', '=', line.quant_id.id)])
+
+            if quants:
+                for quant in quants:
+                    quant.inventory_quantity = line.quantity_counted
+            else:
+                quant = self.env['stock.quant'].create({
+                    'product_id': line.product_id.id,
+                    'location_id': line.location_id.id,
+                    'lot_id': line.lot_id.id if line.lot_id else False,
+                    'package_id': line.package_id.id if line.package_id else False,
+                    'company_id': self.company_id.id,
+                    'quantity': 0,
+                })
+                quant.inventory_quantity = line.quantity_counted
+    
+    def open_confirm_wizard(self):
+        return {
+            'name': 'Xác nhận kiểm kê',
+            'type': 'ir.actions.act_window',
+            'res_model': 'smartbiz.inventory.confirm.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_inventory_id': self.id},
+        } 
+    
+    def get_order(self):
+        """Lấy danh sách các phiếu kiểm kê đang thực hiện, kèm theo chi tiết dòng kiểm kê"""
+        
+        inventories = self.env['smartbiz.inventory'].search([('state', '=', 'in_progress')])
+        users = self.env['res.users'].search([]).read(['name','barcode'], load=False)
+        result = []
+        for inventory in inventories:
+            lines = []
+            for line in inventory.line_ids:
+                lines.append({
+                    'id': line.id,
+                    'product_id': line.product_id.id,
+                    'product_name': line.product_id.display_name,
+                    'lot_id': line.lot_id.id if line.lot_id else False,
+                    'lot_name': line.lot_id.name if line.lot_id else '',
+                    'package_id': line.package_id.id if line.package_id else False,
+                    'package_name': line.package_id.name if line.package_id else '',
+                    'location_id': line.location_id.id,
+                    'location_name': line.location_id.display_name,
+                    'quantity_before': line.quantity_before,
+                    'quantity_counted': line.quantity_counted,
+                    'difference': line.difference,
+                    'quant_id': line.quant_id.id if line.quant_id else False,
+                })
+            
+            result.append({
+                'id': inventory.id,
+                'name': inventory.name,
+                'state': inventory.state,
+                'company_id': inventory.company_id.id,
+                'company_name': inventory.company_id.name,
+                'date': inventory.date,
+                'user_id': inventory.user_id.id,
+                'lines': lines,  # Danh sách các dòng kiểm kê
+            })
+            
+        data = {
+        'orders':result,
+        'users':users
+        }
+        
+        return data
+
+    
+    def get_data(self, inventory_id):
+        """Lấy dữ liệu kiểm kê chi tiết theo ID"""
+        inventory = self.browse(inventory_id)
+        if not inventory:
+            return {}
+
+        lines = inventory.line_ids
+        products = lines.mapped('product_id')
+        lots = lines.mapped('lot_id')
+        locations = lines.mapped('location_id')
+        packages = lines.mapped('package_id')
+
+        data = {
+            'inventory': inventory.read(['id', 'name', 'state', 'company_id', 'user_id', 'date']),
+            'lines': lines.read([
+                'id', 'product_id', 'lot_id', 'location_id', 'package_id',
+                'quantity_before', 'quantity_counted', 'difference'
+            ]),
+            'products': products.read(['id', 'name', 'barcode', 'default_code', 'uom_id']),
+            'lots': lots.read(['id', 'name', 'product_id']),
+            'locations': locations.read(['id', 'name', 'barcode']),
+            'packages': packages.read(['id', 'name']),
+            'company_id': inventory.company_id.id,
+            'user_id': inventory.user_id.id,
+        }
+        return data
+    
+    def get_inventory_barcode_data(self,barcode,filters,barcodeType):
+        """
+        Tìm kiếm dữ liệu liên quan đến mã vạch trong bối cảnh 'stock.quant'.
+        Args:
+            barcode (str): Mã vạch được quét.
+            filters (dict): Các bộ lọc bổ sung, ví dụ: `{'product_id': X}`.
+            barcodeType (str): Loại mã vạch (product, location, lot, package).
+        Returns:
+            dict: Dữ liệu liên quan đến mã vạch hoặc False nếu không tìm thấy.
+        """
+        if barcodeType:
+            if barcodeType == 'products':
+                # Tìm kiếm sản phẩm theo mã vạch
+                record = self.env['product.product'].search_read([('barcode', '=', barcode)], limit=1,
+                                                                 fields=self._get_fields('product.product'))
+            elif barcodeType == 'locations':
+                # Tìm kiếm vị trí theo mã vạch
+                record = self.env['stock.location'].search_read([('barcode', '=', barcode)], limit=1,
+                                                                 fields=self._get_fields('stock.location'))
+            elif barcodeType == 'lots':
+                # Tìm kiếm lô hàng theo mã vạch và sản phẩm (nếu có)
+                record = self.env['stock.lot'].search_read([('name', '=', barcode), ('product_id', '=', filters.get('product_id'))], limit=1,
+                                                           fields=self._get_fields('stock.lot'))
+            elif barcodeType == 'packages':
+                # Tìm kiếm bao bì (package) theo mã vạch
+                record = self.env['stock.quant.package'].search([('name', '=', barcode)], limit=1)
+                if record:
+                    # Xử lý package và các thông tin liên quan như sản phẩm, vị trí, số lượng, v.v.
+                    record = self.env['stock.quant.package'].search([('name', '=', barcode)], limit=1)
+                    if record:
+                        products = [
+                            {
+                                'product_id': quant.product_id.id,
+                                'location_id': quant.location_id.id,
+                                'quantity': quant.quantity,
+                                'lot_id': quant.lot_id.id,
+                                'lot_name': quant.lot_id.name,
+                                'product_uom_id': quant.product_id.uom_id.id,
+                                'location_name': quant.location_id.display_name,
+                                'available_quantity': quant.available_quantity,
+                                'expiration_date': quant.lot_id.expiration_date,
+                            }
+                            for quant in record.quant_ids
+                        ]
+                        return {
+                            'id': record.id,
+                            'name': record.name,
+                            'location': record.location_id.id,
+                            'location_name': record.location_id.display_name,
+                            'products': products,
+                        }
+            if record:
+                return {'barcode': barcode, 'match': True, 'barcodeType': barcodeType, 'record': record[0] if isinstance(record, list) else record, 'fromCache': False}
+        else:
+            # Nếu không có `barcodeType`, kiểm tra lần lượt với các loại mã vạch
+            if filters:
+                # Tìm kiếm lô hàng (lot) theo mã vạch và sản phẩm (nếu có)
+                record = self.env['stock.lot'].search_read([('name', '=', barcode), ('product_id', '=', filters.get('product_id'))], limit=1,
+                                                           fields=self._get_fields('stock.lot'))
+                if record:
+                    return {'barcode': barcode, 'match': True, 'barcodeType': 'lots', 'record': record[0], 'fromCache': False}
+
+            # Tìm kiếm sản phẩm theo mã vạch
+            record = self.env['product.product'].search_read([('barcode', '=', barcode)], limit=1,
+                                                             fields=self._get_fields('product.product'))
+            if record:
+                return {'barcode': barcode, 'match': True, 'barcodeType': 'products', 'record': record[0], 'fromCache': False}
+
+            # Tìm kiếm vị trí theo mã vạch
+            record = self.env['stock.location'].search_read([('barcode', '=', barcode)], limit=1,
+                                                             fields=self._get_fields('stock.location'))
+            if record:
+                return {'barcode': barcode, 'match': True, 'barcodeType': 'locations', 'record': record[0], 'fromCache': False}
+
+            # Tìm kiếm bao bì (package) theo mã vạch
+            record = self.env['stock.quant.package'].search([('name', '=', barcode)], limit=1)
+            if record:
+                # Xử lý package và các thông tin liên quan
+                products = []
+                for quant in record.quant_ids:
+                    product_id = quant.product_id.id
+                    product_uom_id = quant.product_id.uom_id.id
+                    location_id = quant.location_id.id
+                    location_name = quant.location_id.display_name
+                    quantity = quant.quantity
+                    available_quantity = quant.available_quantity
+                    lot_id = quant.lot_id.id
+                    lot_name = quant.lot_id.name
+                    expiration_date = quant.lot_id.expiration_date
+                    products.append(
+                        {'product_id': product_id, 'location_id': location_id, 'quantity': quantity, 
+                         'lot_id': lot_id, 'lot_name': lot_name, 'product_uom_id': product_uom_id, 
+                         'location_name': location_name, 'available_quantity': available_quantity, 
+                         'expiration_date': expiration_date}
+                    )
+                record = {'id': record.id, 'name': record.name, 'location': record.location_id.id,
+                          'location_name': record.location_id.display_name, 'products': products}
+                return {'barcode': barcode, 'match': True, 'barcodeType': 'packages', 'record': record, 'fromCache': False}
+
+        return {'barcode': barcode, 'match': False, 'barcodeType': barcodeType, 'record': False, 'fromCache': False}
+     
+    
+class InventoryLine(models.Model):
+    _name = 'smartbiz.inventory.line'
+    _description = 'Inventory Line'
+
+    inventory_id = fields.Many2one('smartbiz.inventory', string="Inventory", required=True, ondelete='cascade')
+    product_id = fields.Many2one('product.product', string="Product", required=True)
+    lot_id = fields.Many2one('stock.lot', string="Lot/Serial")
+    package_id = fields.Many2one('stock.quant.package', string="Package")
+    location_id = fields.Many2one('stock.location', string="Location", required=True)
+    company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company)
+    quantity_before = fields.Float(string="Before Inventory", readonly=True)
+    quantity_counted = fields.Float(string="Counted Quantity")
+    difference = fields.Float(string="Difference", compute="_compute_difference")
+
+    quant_id = fields.Many2one('stock.quant', string="Related Stock Quant")
+    state = fields.Selection([
+        ('pending', 'Chờ kiểm kê'),
+        ('counting', 'Đang kiểm kê'),
+        ('done', 'Đã kiểm kê'),
+        ('error', 'Lỗi')
+    ], string='Trạng thái', default='pending')
+
+    @api.depends('quantity_before', 'quantity_counted')
+    def _compute_difference(self):
+        for line in self:
+            line.difference = line.quantity_counted - line.quantity_before
+            
+
+class InventoryHistory(models.Model):
+    _name = "smartbiz.inventory.history"
+    _description = "Inventory History"
+    _order = "date desc"
+
+    name = fields.Char(string="Reference", required=True, copy=False, readonly=True, default=lambda self: _("New"))
+    inventory_id = fields.Many2one("smartbiz.inventory", string="Inventory Session", required=True, ondelete="cascade")
+    user_id = fields.Many2one("res.users", string="User", required=True, default=lambda self: self.env.user)
+    date = fields.Datetime(string="Date", required=True, default=fields.Datetime.now)
+    location_id = fields.Many2one("stock.location", string="Location", required=True)
+    product_id = fields.Many2one("product.product", string="Product", required=True)
+    quantity_before = fields.Float(string="Quantity Before", readonly=True)
+    quantity_after = fields.Float(string="Quantity After", readonly=True)
+    difference = fields.Float(string="Difference", compute="_compute_difference")
+    lot_id = fields.Many2one("stock.lot", string="Lot/Serial Number")
+    package_id = fields.Many2one("stock.quant.package", string="Package")
+    company_id = fields.Many2one("res.company", string="Company", required=True, default=lambda self: self.env.company)
+    
+    @api.model
+    def create(self, vals):
+        if vals.get("name", _("New")) == _("New"):
+            vals["name"] = self.env["ir.sequence"].next_by_code("smartbiz.inventory.history") or _("New")
+        return super().create(vals)
+    
+    @api.depends("quantity_before", "quantity_after")
+    def _compute_difference(self):
+        for rec in self:
+            rec.difference = rec.quantity_after - rec.quantity_before
+
+    
+    
+            

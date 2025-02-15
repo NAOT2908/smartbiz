@@ -1,0 +1,1114 @@
+body {
+    margin: 0;
+    /* Đảm bảo không có margin mặc định làm lệch layout */
+    padding: 0;
+}
+
+
+/* General Navigation Styles */
+.work-order_nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px;
+    background-color: #1E479F;
+    /* Màu xanh đậm */
+    color: #f3f4f6;
+    /* Màu chữ sáng */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    left: 0;
+    /* Đảm bảo bắt đầu từ trái */
+    width: 100%;
+    /* Trải rộng toàn màn hình */
+    z-index: 100;
+    box-sizing: border-box;
+    /* Đảm bảo padding không làm rộng thêm */
+}
+
+
+.work-order_nav .work-order_nav-link {
+    background: none;
+    border: none;
+    color: #f3f4f6;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 18px;
+    transition: color 0.3s ease-in-out;
+}
+
+.work-order_nav_title {
+    position: relative;
+    /* Đặt vị trí tương đối để làm mốc cho phần tử con */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.work-order_nav_left {
+    display: flex;
+    align-items: center;
+    /* Đảm bảo các phần tử con trong .left và .right cũng được căn giữa theo chiều dọc */
+}
+
+.work-order_nav_right {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    /* Đảm bảo .right luôn nằm ở bên phải nhất */
+    margin-right: 5px;
+}
+
+.work-order_nav .work-order_nav-link:hover {
+    color: #60a5fa;
+    /* Màu xanh sáng khi hover */
+}
+
+
+
+.work-order {
+    display: block;
+    width: 100%;
+    /* height: calc(93vh - 25px); */
+    overflow: hidden;
+}
+
+.work-order-list {
+    border-right: 1px solid #ccc;
+    padding: 10px;
+    box-sizing: border-box;
+    height: 100%;
+    /* overflow-y: auto; */
+}
+
+.work-order-right {
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.work-order-detail {
+    // border-bottom: 1px solid #ccc;
+    box-sizing: border-box;
+    position: relative;
+
+}
+
+
+/* Tổng quan cho container */
+.components-container {
+    width: 100%;
+    margin: 0 auto;
+    /* Canh giữa */
+    background-color: #f9f9f9;
+    /* Màu nền */
+    overflow: hidden;
+    /* Cắt nội dung tràn */
+}
+
+/* Header cho danh sách */
+.components-header {
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding: 5px;
+}
+
+/* Wrapper cho danh sách */
+.components-list {
+    // max-height: 400px; /* Giới hạn chiều cao */
+    overflow-y: auto;
+    /* Cho phép cuộn dọc */
+    // padding: 16px;
+    background-color: #fff;
+    height: calc(100vh - 328px);
+}
+
+/* Tùy chỉnh thanh cuộn */
+.components-list::-webkit-scrollbar {
+    width: 8px;
+    /* Độ rộng của thanh cuộn */
+}
+
+.components-list::-webkit-scrollbar-thumb {
+    background-color: #888;
+    /* Màu của thanh cuộn */
+    border-radius: 4px;
+    /* Bo góc */
+}
+
+.components-list::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+    /* Màu khi hover */
+}
+
+.components-list::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    /* Màu nền track */
+}
+
+.component-item {
+    display: flex;
+    /* Sử dụng flexbox để bố trí phần tử */
+    justify-content: space-between;
+    /* Đặt khoảng cách giữa các phần tử */
+    align-items: center;
+    /* Căn giữa theo chiều dọc */
+    padding: 10px;
+    border: 1px solid #ccc;
+    /* Thêm viền để kiểm tra layout */
+    margin-top: 5px;
+    /* Khoảng cách giữa các mục */
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.component-item:hover {
+    // background-color: #7effb4;
+    /* Thay đổi nền khi hover */
+    border-color: #1E479F;
+    /* Đổi màu viền khi hover */
+}
+
+.component-info {
+    flex: 1;
+    /* Chiếm tối đa không gian bên trái */
+    text-align: left;
+    /* Căn lề trái */
+}
+
+.component-actions {
+    display: flex;
+    /* Hiển thị các nút trên cùng một hàng */
+    gap: 10px;
+    /* Khoảng cách giữa các nút */
+}
+
+.action-btn {
+    display: flex;
+    /* Đặt nút thành khối flex */
+    align-items: center;
+    /* Căn giữa theo chiều dọc */
+    justify-content: center;
+    /* Căn giữa nội dung */
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background-color: #ddd;
+    /* Màu nền mặc định */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.action-btn i {
+    font-size: 16px;
+    /* Kích thước icon */
+    color: #ffffff;
+    /* Màu icon */
+}
+
+.action-btn.ok-btn {
+    background-color: #4caf50;
+    /* Màu xanh lá cho nút OK */
+    color: white;
+}
+
+.action-btn.ng-btn {
+    background-color: #f44336;
+    /* Màu đỏ cho nút NG */
+    color: white;
+}
+
+.action-btn.details-btn {
+    background-color: #1E479F;
+    /* Màu xanh dương cho nút Details */
+    color: white;
+}
+
+.action-btn:hover {
+    opacity: 0.9;
+    /* Hiệu ứng hover */
+}
+
+
+.close-pdf-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    // background: #ff4d4f;
+    border-radius: 3px;
+    color: #000;
+    border: none;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1001;
+    /* Nút nằm trên mọi thứ */
+}
+
+.close-pdf-btn:hover {
+    background: #f0c9cb;
+}
+
+/* Container chính bao gồm cả ActionDetail và ActionDocument */
+.s_detail_componentlist {
+    display: flex;
+    flex-direction: column;
+    /* Đặt các phần tử theo chiều dọc */
+    height: 100%;
+    /* Đảm bảo chiếm toàn bộ chiều cao */
+}
+
+/* Đảm bảo ActionDetail chiếm không gian tự động */
+.action-detail {
+    flex: 0 0 auto;
+    /* Phần này sẽ không thay đổi kích thước */
+    margin-bottom: 20px;
+    /* Khoảng cách giữa ActionDetail và ActionDocument */
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.document-container {
+    height: 100vh;
+}
+
+.document-content {
+    height: 100%;
+}
+
+.detailtabs{
+    display: flex;
+}
+
+.detailtab {
+    flex: 1;
+    text-align: center;
+    color: #000;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.detailtab:hover {
+    background-color: #95f1a9;
+}
+
+.detailtab.active {
+    border-bottom: 2px solid #0eb609;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+/* iframe để hiển thị tài liệu PDF */
+.o_pdfview_iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+
+.pdf-iframe {
+    flex: 1;
+    /* Thêm dòng này */
+    width: 100%;
+    border: none;
+}
+
+
+.action-detail-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: center;
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+}
+
+.action-buttons button {
+    padding: 10px;
+    font-size: 18px;
+    background-color: #1E479F;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    min-width: 100px;
+}
+
+.action-buttons button i {
+    margin-right: 5px;
+}
+
+/* Căn chỉnh nút */
+.s_work_order_button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f4f4f4;
+    color: #333;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.s_work_order_button i {
+    font-size: 18px;
+    /* Kích thước icon */
+    margin-right: 10px;
+    /* Khoảng cách giữa icon và chữ */
+}
+
+.s_work_order_button:hover {
+    background-color: #eaeaea;
+}
+
+.s_work_order_button .active {
+    background-color: #1dd44b;
+    color: white;
+    border-color: #0056b3;
+    font-weight: bold;
+}
+
+
+/* Ẩn nhãn khi màn hình nhỏ */
+@media screen and (max-width: 768px) {
+    .s_work_order_right {
+        flex-direction: row;
+        margin-left: 20px;
+    }
+
+    .s_work_order_button .button-label {
+        display: none;
+    }
+
+    .s_work_order_button {
+        padding: 10px;
+        /* Thu gọn kích thước nút */
+    }
+
+    .s_work_order_button i {
+        margin-right: 0px;
+        /* Khoảng cách giữa icon và chữ */
+    }
+}
+
+.s_work_order_button:hover {
+    background-color: #3bf570;
+    transform: scale(1.05);
+}
+
+.item-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.state-label {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.state-progress {
+    background-color: #19AFF1;
+    /* Màu xanh */
+    color: #ffffff;
+}
+
+.state-pending {
+    background-color: #ffc107;
+    /* Màu vàng */
+    color: #000;
+}
+
+.state-ready {
+    background-color: #17A2B8;
+    /* Màu xanh lá */
+    color: #fff;
+}
+
+.state-waiting {
+    background-color: #6c757d;
+    /* Màu xám */
+    color: #fff;
+}
+
+.state-default {
+    background-color: #e9ecef;
+    /* Màu nhạt */
+    color: #212529;
+}
+
+
+
+.s_work_order_container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+}
+
+.s_work_order_left {
+    // width: 80%;
+    /* padding: 1em; */
+    display: flex;
+    flex-direction: column;
+    // border-right: 1px solid #444;
+}
+
+.s_work_order_right {
+    // width: 20%;
+    display: flex;
+    // flex-direction: row;
+    margin-left: 20px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    /* Khoảng cách giữa các nút */
+}
+
+.s_work_order_element {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.2em;
+    padding-bottom: 0.2em;
+    // border-bottom: 1px solid #444;
+}
+
+.s_work_order_element_left {
+    display: flex;
+    align-items: center;
+}
+
+.s_work_order_element_right {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-right: 5px;
+    gap: 10px;
+}
+
+.s_work_order_element_label {
+    padding-right: 10px;
+    font-weight: bold;
+}
+
+.s_work_order_element_value {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 10px;
+}
+
+.s_work_order_element_icon {
+    background-color: transparent;
+    color: white;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 35px;
+    height: 35px;
+    font-size: 20px;
+}
+
+
+/* ActionDetail */
+/* Tổng thể container */
+.s_action_detail_container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    overflow-y: auto;
+    // height: calc(100vh - 94px)
+}
+
+/* Phần content */
+.s_action_detail_content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.s_detail_row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.s_detail_label {
+    font-weight: bold;
+    flex: 1;
+    color: #444;
+}
+
+.s_detail_value {
+    flex: 1;
+    text-align: right;
+    color: #666;
+}
+
+/* Các nút action */
+.s_action_buttons {
+    display: flex;
+    // gap: 15px;
+    margin-top: 20px;
+    justify-content: space-around;
+    flex-direction: column;
+
+    .s_group_button:nth-child(1) {
+        display: flex;
+        justify-content: space-around;
+
+        .s_action_detail_buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+    }
+
+    .s_group_button:nth-child(2) {
+        .s_action_detail_buttons {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            text-align: center;
+            justify-content: flex-end;
+        }
+    }
+}
+
+
+
+
+
+/* Chi tiết nút */
+
+
+.s_ok_plus_button,
+.s_ok_minus_button,
+.s_ng_plus_button,
+.s_ng_minus_button,
+.s_action_ok_button,
+.s_action_ng_button {
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    color: #333;
+    padding: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.s_action_pdf_button {
+    padding: 5px;
+}
+
+.s_action_print_button:hover,
+.s_action_pdf_button:hover,
+.s_ok_plus_button:hover,
+.s_ok_minus_button:hover,
+.s_ng_plus_button:hover,
+.s_ng_minus_button:hover,
+.s_action_ok_button:hover,
+.s_action_ng_button:hover {
+    opacity: 0.7;
+    color: #fff;
+}
+
+/* Số lượng */
+.s_increment_buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.s_increment_buttons div {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    text-align: center;
+    min-width: 50px;
+    border-radius: 5px;
+}
+
+
+.s_increment_buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Căn giữa theo chiều dọc */
+    gap: 5px;
+    /* Khoảng cách giữa các nút */
+}
+
+.s_action_ng_button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #E53935;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 80%;
+    /* Đảm bảo nút Bắt đầu chiếm toàn bộ chiều rộng */
+    height: 50px;
+    /* Chiều cao của nút */
+    margin: 20px;
+}
+
+.s_action_ok_button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #28A745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 80%;
+    /* Đảm bảo nút Bắt đầu chiếm toàn bộ chiều rộng */
+    height: 50px;
+    /* Chiều cao của nút */
+    margin: 20px;
+}
+
+.s_action_print_button,
+.s_action_pdf_button {
+    font-size: 16px;
+    background-color: #1E479F;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.s_action_print_button {
+    padding: 20px;
+    display: none;
+}
+
+.s_action_pdf_button {
+    padding: 20px;
+    margin-top: 20px;
+}
+
+
+.s_ok_plus_button,
+.s_ok_minus_button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin: 5px 0;
+}
+
+.s_ng_plus_button,
+.s_ng_minus_button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #FF7043;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin: 5px 0;
+}
+
+// button:hover {
+//     background-color: #0056b3;
+// }
+
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.work-order_search-input {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+
+}
+
+.workorder-items {
+    height: 100vh;
+    /* Giới hạn chiều cao danh sách */
+    overflow-y: auto;
+    /* Hiển thị thanh cuộn dọc nếu danh sách quá dài */
+    overflow-x: hidden;
+    /* Ẩn thanh cuộn ngang */
+    padding: 10px;
+    /* Khoảng cách bên trong */
+    border: 1px solid #ddd;
+    /* Viền bao quanh */
+    border-radius: 5px;
+    /* Bo góc */
+    background-color: #f9f9f9;
+    /* Màu nền nhạt */
+}
+
+.workorder-items .item {
+    padding: 10px;
+    /* Khoảng cách bên trong từng mục */
+    margin-bottom: 8px;
+    /* Khoảng cách giữa các mục */
+    border: 1px solid #e0e0e0;
+    /* Viền mờ cho từng mục */
+    border-radius: 4px;
+    /* Bo góc từng mục */
+    background-color: #fff;
+    /* Màu nền trắng */
+    cursor: pointer;
+    /* Hiệu ứng con trỏ khi hover */
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+    /* Hiệu ứng đổ bóng nhẹ */
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.workorder-items .item:hover {
+    background-color: #7effb4;
+    /* Thay đổi nền khi hover */
+    border-color: #1E479F;
+    /* Đổi màu viền khi hover */
+}
+
+.workorder-items .item.selected {
+    background-color: #7effb4;
+    /* Màu nền cho mục được chọn */
+    color: #fff;
+    /* Chữ trắng */
+    border-color: #1E479F;
+    /* Màu viền trùng màu nền */
+}
+
+.workorder-items .item div {
+    margin: 4px 0;
+    /* Khoảng cách giữa các dòng trong mục */
+}
+
+.workorder-items::-webkit-scrollbar {
+    width: 8px;
+    /* Độ rộng thanh cuộn */
+}
+
+.workorder-items::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    /* Màu nền thanh cuộn */
+}
+
+.workorder-items::-webkit-scrollbar-thumb {
+    background: #888;
+    /* Màu thanh cuộn */
+    border-radius: 4px;
+}
+
+.workorder-items::-webkit-scrollbar-thumb:hover {
+    background: #555;
+    /* Màu thanh cuộn khi hover */
+}
+
+
+.scan-info {
+    padding: 20px;
+    border: 1px solid #ddd;
+    margin: 20px 0;
+    border-radius: 5px;
+    background: #f9f9f9;
+}
+
+.form-group-area {
+    margin-bottom: 15px;
+}
+
+.form-group-area label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-control-area {
+    display: inline-block;
+    /* Để giữ span dạng block */
+    width: 100%;
+    /* Chiếm toàn bộ chiều rộng của container */
+    padding: 10px;
+    height: 50px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    /* Đảm bảo padding và border không ảnh hưởng đến width */
+    background-color: #f9f9f9;
+    /* Màu nền để dễ nhìn */
+}
+
+.scan-btn {
+    padding: 10px 20px;
+    background-color: #1E479F;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.scan-btn:hover {
+    background-color: #0056b3;
+}
+
+.scan-button {
+    display: flex;
+    justify-content: space-around;
+}
+
+.workorder-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.workorder-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.workorder-overlay.close {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.workorder {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background-color: #ffffff;
+    z-index: 100;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.workorder.workorder-open {
+    transform: translateX(0);
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    animation: slideIn 0.3s forwards;
+}
+
+.workorder.workorder-close {
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    // animation: slideOut 0.3s forwards;
+}
+
+/* Animation for closing the workorder */
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* workorder header */
+.workorder-header {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: rgb(7, 7, 7);
+}
+
+/* workorder item buttons */
+.workorder-items button {
+    width: 100%;
+    padding: 10px;
+    background: none;
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: 20px;
+}
+
+.s_barcode_workorder_production_activity {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+.s_barcode_workorder_production_activity_left {
+    overflow: auto;
+}
+
+.s_barcode_workorder_production_activity_right {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    /* Đảm bảo .right luôn nằm ở bên phải nhất */
+    margin-right: 5px;
+}
+
+.s_barcode_workorder-icon {
+    background-color: transparent; // Nền trong suốt cho nút
+    color: $color-nav-buttons; // Màu cho icon
+    border: none; // Không viền
+    padding: 0;
+    margin-right: 5px;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px; // Chiều rộng cố định cho nút chỉ có biểu tượng
+    height: 30px; // Chiều cao cố định cho nút chỉ có biểu tượng
+
+    i {
+        font-size: 25px; // Kích thước biểu tượng
+    }
+}
+
+.workorder-items button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.s_work_order_table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+.s_work_order_table td {
+    padding: 5px 0px;
+}
+
+.s_work_order_label {
+    font-weight: bold;
+    text-align: left;
+    vertical-align: center;
+    width: 50%;
+}
+
+.s_work_order_value {
+    text-align: left;
+    vertical-align: center;
+    width: 50%;
+}
+
+.pdf-container {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    /* Chiều cao mặc định cho máy tính để bàn */
+}
+
+#pdf-canvas {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Tối ưu hóa cho thiết bị di động */
+@media (max-width: 768px) {
+    .pdf-container {
+        height: 400px;
+        /* Chiều cao PDF trên màn hình di động */
+    }
+}
+
+
+.bg-yellow {
+    background-color: rgb(253, 253, 140);
+}
+
+.bg-green {
+    background-color: rgb(101, 250, 101);
+    border: 1px solid #19AFF1;
+}
+
+.bg-red {
+    background-color: #ec6c69;
+}
+
+.bg-white {
+    background-color: #fff;
+}

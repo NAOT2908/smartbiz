@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+sale_report_sales_report,"Sale Report-Sales.Report",model_sales_report,smartbiz_sales.group_roles_sale_report_1,1,1,1,1

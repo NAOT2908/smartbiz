@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+sdm_admin_sdm_location,"SDM Admin-sdm.Location",model_sdm_location,sdm.group_roles_sdm_admin_1,1,1,1,1
+sdm_user_sdm_location,"SDM User-sdm.Location",model_sdm_location,sdm.group_roles_sdm_user_2,1,1,1,0
+sdm_admin_sdm_device_type,"SDM Admin-sdm.Device Type",model_sdm_device_type,sdm.group_roles_sdm_admin_1,1,1,1,1
+sdm_user_sdm_device_type,"SDM User-sdm.Device Type",model_sdm_device_type,sdm.group_roles_sdm_user_2,1,1,1,0
+sdm_admin_sdm_device,"SDM Admin-sdm.Device",model_sdm_device,sdm.group_roles_sdm_admin_1,1,1,1,1
+sdm_user_sdm_device,"SDM User-sdm.Device",model_sdm_device,sdm.group_roles_sdm_user_2,1,1,1,0
+sdm_admin_sdm_notification_type,"SDM Admin-sdm.Notification Type",model_sdm_notification_type,sdm.group_roles_sdm_admin_1,1,1,1,1
+sdm_user_sdm_notification_type,"SDM User-sdm.Notification Type",model_sdm_notification_type,sdm.group_roles_sdm_user_2,1,1,1,0
+sdm_admin_sdm_notification,"SDM Admin-sdm.Notification",model_sdm_notification,sdm.group_roles_sdm_admin_1,1,1,1,1
+sdm_user_sdm_notification,"SDM User-sdm.Notification",model_sdm_notification,sdm.group_roles_sdm_user_2,1,1,1,0
+sdm_admin_sdm_notification_log,"SDM Admin-sdm.Notification Log",model_sdm_notification_log,sdm.group_roles_sdm_admin_1,1,1,1,1
+sdm_user_sdm_notification_log,"SDM User-sdm.Notification Log",model_sdm_notification_log,sdm.group_roles_sdm_user_2,1,1,1,0

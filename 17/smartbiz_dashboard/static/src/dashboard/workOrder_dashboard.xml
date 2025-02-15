@@ -1,0 +1,257 @@
+<templates>
+    <t t-name="WorkOrderDashboard">
+        <div class="dashboard-header">
+            <nav class="dashboard_nav">
+                <nav class="dashboard_nav_left">
+                    <div t-on-click="() => this.home.toggle(true)" class="dashboard_nav-link">
+                        <i class="oi oi-chevron-left" />
+                    </div>
+                    <div class="dashboard_nav_title">
+                        <t t-esc="state.title" />
+                    </div>
+
+                </nav>
+                <nav class="dashboard_nav_right">
+                    <div class="s_menu">
+                        <div class="s_item">
+                            <a href="#" class="link">
+                                <span>
+                                    <t t-esc="state.view" />
+                                </span>
+                                <svg viewBox="0 0 360 360" xml:space="preserve">
+                                <g id="SVGRepo_iconCarrier">
+                                <path
+                                    id="XMLID_225_"
+                                    d="M325.607,79.393c-5.857-5.857-15.355-5.858-21.213,0.001l-139.39,139.393L25.607,79.393 c-5.857-5.857-15.355-5.858-21.213,0.001c-5.858,5.858-5.858,15.355,0,21.213l150.004,150c2.813,2.813,6.628,4.393,10.606,4.393 s7.794-1.581,10.606-4.394l149.996-150C331.465,94.749,331.465,85.251,325.607,79.393z"
+                                ></path>
+                                </g>
+                            </svg>
+                            </a>
+                            <div class="submenu">
+                                <div class="submenu-item">
+                                    <div
+                                        t-on-click="() => this.changedashboard('WorkOrderDashboard')"
+                                        class="submenu-link"> Workorder Dashboard </div>
+                                </div>
+                                <div class="submenu-item">
+                                    <div t-on-click="() => this.changedashboard('Dashboard')"
+                                        class="submenu-link"> Dashboard </div>
+                                </div>
+                                <div class="submenu-item">
+                                    <a class="submenu-link"> Marketing </a>
+                                </div>
+                                <div class="submenu-item">
+                                    <a class="submenu-link"> SEO </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard_nav-link" t-on-click="toggleMenu">
+                        <i class="fa fa-bars"></i>
+                    </div>
+                </nav>
+            </nav>
+        </div>
+        <t t-if="state.view === 'WorkOrderDashboard'">
+            <div class="workorder_dashboard_main">
+                <div class="workorder_dashboard_header">
+                    <span>BÁO CÁO TIẾN ĐỘ <t t-esc="state.line || '-'" /></span>
+                    <span class="workorder_dashboard_header_value">
+                        <t t-esc="state.headerValue || '-'" />
+                    </span>
+                </div>
+                <div class="workorder_dashboard_info_row">
+                    <div class="workorder_dashboard_info_label">Ngày sx: </div>
+                    <div class="workorder_dashboard_info_value">
+                        <input type="date" t-model="state.productionDate" t-on-change="onDateChange" />
+                    </div>
+                    <div class="workorder_dashboard_info_label">Ca: </div>
+                    <div class="workorder_dashboard_info_value">
+                        <select t-model="state.shift" t-on-change="onShiftChange">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                    <div class="workorder_dashboard_info_search">
+                        <div class="search">
+                            <input type="text" class="search__input" autocomplete="off"
+                                placeholder="Tìm kiếm ..." id="search" t-model="state.search"
+                                t-on-change="onSearchChange" />
+                            <button class="search__button">
+                                <svg class="search__icon" aria-hidden="true" viewBox="0 0 24 24">
+                                    <g>
+                                        <path
+                                            d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path>
+                                    </g>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="s_dashboard_btn">
+                        <button class="Btn" t-on-click="downloadExcel">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                height="1em"
+                                viewBox="0 0 384 512"
+                                class="svgIcon"
+                            >
+                                <path
+                                    d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"
+                                ></path>
+                            </svg>
+                            <span class="icon2"></span>
+                        </button>
+
+                    </div>
+                </div>
+                <div class="workorder_dashboard_section workorder_dashboard_production">
+                    <div class="workorder_dashboard_section_header">1.1 Tiến độ sản xuất</div>
+                    <div class="workorder_dashboard_table_container">
+                        <table class="workorder_dashboard_table">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>KH</th>
+                                    <th>Lot</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Số lượng</th>
+                                    <th>Thời gian tiêu chuẩn</th>
+                                    <th>Thời gian thực tế</th>
+                                    <!-- Duyệt qua các bước trong mảng `steps` nếu có -->
+                                    <t t-if="state.steps">
+                                        <t t-foreach="state.steps" t-as="step"
+                                            t-key="step">
+                                            <th>
+                                                <t t-esc="step" />
+                                            </th>
+                                        </t>
+                                    </t>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Duyệt qua mảng `data` nếu có -->
+                                <t t-if="state.dashboardData">
+                                    <t t-foreach="state.dashboardData" t-as="row"
+                                        t-key="row.stt">
+                                        <tr>
+                                            <td>
+                                                <t t-esc="row.stt" />
+                                            </td>
+                                            <td>
+                                                <t t-esc="row.kh ? row.kh : ''" />
+                                            </td>
+                                            <td>
+                                                <t t-esc="row.lot" />
+                                            </td>
+                                            <td>
+                                                <t t-esc="row.item" />
+                                            </td>
+                                            <td>
+                                                <t t-esc="row.so_luong" />
+                                            </td>
+                                            <td>
+                                                <t
+                                                    t-esc="formatFloatToTime(row.thoi_gian_tieu_chuan)" />
+                                            </td>
+                                            <td>
+                                                <t t-esc="formatFloatToTime(row.thoi_gian_thuc_te)" />
+                                            </td>
+                                            <!-- Duyệt qua mảng `steps` và lấy giá trị tương ứng cho
+                                            mỗi
+                                        cột nếu có -->
+                                            <t t-if="state.steps">
+                                                <t t-foreach="state.steps" t-as="step"
+                                                    t-key="step">
+                                                    <td>
+                                                        <t
+                                                            t-esc="(typeof row[step] === 'number' &amp;&amp; row[step] !== 0) ? formatFloatToTime(row[step]) : (row[step] === 0 ? '-' : (row[step] || '-'))" />
+                                                    </td>
+                                                </t>
+                                            </t>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="workorder_dashboard_section workorder_dashboard_inventory">
+                    <div class="workorder_dashboard_section_header">1.2 Tiến độ sản phẩm lỗi</div>
+                    <div class="workorder_dashboard_table_container">
+                        <table class="workorder_dashboard_table">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>KH</th>
+                                    <th>Lot</th>
+                                    <th>Item</th>
+                                    <th>Component Name</th>
+                                    <th>Total Faulty</th>
+                                    <t t-foreach="Object.keys(state.faultyData[0] || {})" t-as="key"
+                                        t-key="key">
+                                        <!-- Skip the standard fields like 'stt', 'kh', etc., and
+                                        add
+                                    the dynamic columns -->
+                                        <t
+                                            t-if="key !== 'stt' &amp;&amp; key !== 'kh' &amp;&amp; key !== 'lot' &amp;&amp; key !== 'item' &amp;&amp; key !== 'component_name' &amp;&amp; key !== 'total_faulty'">
+                                            <th>
+                                                <t t-esc="key" />
+                                            </th>
+                                        </t>
+                                    </t>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="state.faultyData" t-as="row" t-key="row.stt">
+                                    <tr>
+                                        <td>
+                                            <t t-esc="row.stt" />
+                                        </td>
+                                        <td>
+                                            <t t-esc="row.kh ? row.kh : ''" />
+                                        </td>
+                                        <td>
+                                            <t t-esc="row.lot" />
+                                        </td>
+                                        <td>
+                                            <t t-esc="row.item" />
+                                        </td>
+                                        <td>
+                                            <t t-esc="row.component_name" />
+                                        </td>
+                                        <td>
+                                            <t t-esc="row.total_faulty" />
+                                        </td>
+                                        <t t-foreach="Object.keys(row)" t-as="key" t-key="key">
+                                            <!-- Skip the standard fields -->
+                                            <t
+                                                t-if="key !== 'stt' &amp;&amp; key !== 'kh' &amp;&amp; key !== 'lot' &amp;&amp; key !== 'item' &amp;&amp; key !== 'component_name' &amp;&amp; key !== 'total_faulty'">
+                                                <td>
+                                                    <t t-esc="row[key] === 0 ? '-' : row[key]" />
+                                                </td>
+                                            </t>
+                                        </t>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </t>
+        <t t-if="state.view === 'Dashboard'">
+            <div class="s_main_dashboard">
+                <Dashboard
+                    t-props="{
+                        dashboardData: state.dashboardData,
+                        faultyData: state.faultyData,
+                        steps: state.steps,
+                    }"
+                />
+            </div>
+        </t>
+    </t>
+</templates>

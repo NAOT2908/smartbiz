@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+mrp_group_mrp_user_smartbiz_mes_factory,"mrp.group_mrp_user-smartbiz_mes.Factory",model_smartbiz_mes_factory,mrp.group_mrp_user,1,0,0,0
+mrp_group_mrp_manager_smartbiz_mes_factory,"mrp.group_mrp_manager-smartbiz_mes.Factory",model_smartbiz_mes_factory,mrp.group_mrp_manager,1,1,1,1
+mrp_group_mrp_user_smartbiz_mes_production_line,"mrp.group_mrp_user-smartbiz_mes.Production Line",model_smartbiz_mes_production_line,mrp.group_mrp_user,1,0,0,0
+mrp_group_mrp_manager_smartbiz_mes_production_line,"mrp.group_mrp_manager-smartbiz_mes.Production Line",model_smartbiz_mes_production_line,mrp.group_mrp_manager,1,1,1,1
+mrp_group_mrp_user_smartbiz_mes_production_activity,"mrp.group_mrp_user-smartbiz_mes.Production Activity",model_smartbiz_mes_production_activity,mrp.group_mrp_user,1,0,0,0
+mrp_group_mrp_manager_smartbiz_mes_production_activity,"mrp.group_mrp_manager-smartbiz_mes.Production Activity",model_smartbiz_mes_production_activity,mrp.group_mrp_manager,1,1,1,1
+mrp_group_mrp_user_smartbiz_mes_bom_components,"mrp.group_mrp_user-smartbiz_mes.BoM Components",model_smartbiz_mes_bom_components,mrp.group_mrp_user,1,0,0,0
+mrp_group_mrp_manager_smartbiz_mes_bom_components,"mrp.group_mrp_manager-smartbiz_mes.BoM Components",model_smartbiz_mes_bom_components,mrp.group_mrp_manager,1,1,1,1
+mrp_group_mrp_user_smartbiz_mes_check_point,"mrp.group_mrp_user-smartbiz_mes.Check Point",model_smartbiz_mes_check_point,mrp.group_mrp_user,1,0,0,0
+mrp_group_mrp_manager_smartbiz_mes_check_point,"mrp.group_mrp_manager-smartbiz_mes.Check Point",model_smartbiz_mes_check_point,mrp.group_mrp_manager,1,1,1,1
+mrp_group_mrp_user_smartbiz_mes_production_report,"mrp.group_mrp_user-smartbiz_mes.Production Report",model_smartbiz_mes_production_report,mrp.group_mrp_user,1,0,0,0
+mrp_group_mrp_manager_smartbiz_mes_production_report,"mrp.group_mrp_manager-smartbiz_mes.Production Report",model_smartbiz_mes_production_report,mrp.group_mrp_manager,1,1,1,1

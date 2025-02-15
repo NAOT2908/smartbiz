@@ -1,0 +1,44 @@
+<odoo>
+
+<!-- Forms -->
+
+<!-- Trees -->
+
+<!-- calendars -->
+
+<!-- kanbans -->
+<!-- pivots -->
+
+<!-- graphs -->
+
+<!-- Gantt -->
+
+<!-- Search -->
+
+<!-- Modified Views -->
+
+<!-- Modified Views Properties -->
+
+<!-- Modified Elements Properties -->
+
+<!-- actions opening views on models -->
+
+    <record id="mrp_workorder_action" model="ir.actions.client">
+        <field name="name">Work Order</field>
+        <!-- <field name="res_model">mrp.production</field> -->
+        <field name="tag">smartbiz_barcode.WorkOrder</field>
+        <field name="target">fullscreen</field>
+    </record>
+
+
+    <record model="ir.actions.act_window" id="mrp_production_action">
+      <field name="name">Production</field>
+      <field name="res_model">mrp.production</field>
+      <field name="view_mode">kanban,tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+<!-- Menu -->
+
+
+</odoo>

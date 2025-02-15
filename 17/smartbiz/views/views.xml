@@ -1,0 +1,1368 @@
+<odoo>
+
+<!-- Forms -->
+
+    <record model="ir.ui.view" id="res_partner_form">
+      <field name="name">res_partner_form</field>
+      <field name="model">res.partner</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="base.view_partner_form" />
+      <field name="arch" type="xml">
+           <xpath expr="//field[@name='vat']" position="after">
+                   <field name="partner_type"/>
+                   <field name="account_id" readonly="bool(account_id) != False" invisible="partner_type != 'site'" domain="[('partner_type', '=', 'account')]"/>
+                   <field name="site_id" invisible="partner_type not in [ 'requester', 'user']" domain="[('partner_type', '=', 'site')]"/>
+           </xpath>
+           <xpath expr="//notebook" position="inside">
+            <page string="Sites" invisible="partner_type != 'account'">
+                   <field name="sites_ids" invisible="partner_type != 'account'" domain="[('partner_type', '=', 'site')]" context="{'default_partner_type':'site','default_account_id':id}"/>
+            </page>
+            <page string="Requesters" invisible="partner_type != 'site'">
+                   <field name="requesters_ids" invisible="partner_type != 'site'" domain="[('partner_type', '=', 'requester')]" context="{'default_partner_type':'requester','default_site_id':id}"/>
+            </page>
+            <page string="Users" invisible="partner_type != 'site'">
+                   <field name="users_ids" invisible="partner_type != 'site'" domain="[('partner_type', '=', 'user')]" context="{'default_partner_type':'user','default_site_id':id}"/>
+            </page>
+           </xpath>
+           <xpath expr="//field[@name='type']" position="before">
+                   <field name="invoice_name" invisible="partner_type != 'account'"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="res_groups_form">
+      <field name="name">res_groups_form</field>
+      <field name="model">res.groups</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="base.view_groups_form" />
+      <field name="arch" type="xml">
+           <xpath expr="//field[@name='category_id']" position="after">
+                   <field name="type"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_workflow_definition_form">
+      <field name="name">smartbiz_workflow_definition_form</field>
+      <field name="model">smartbiz.workflow_definition</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Workflow Definition">
+            <header>
+                <button name="action_active_create_state" string="Create State" type = "object" class="oe_highlight" invisible="state != 'active'"/>
+                <button name="action_active_create_function" string="Create Function" type = "object" class="oe_highlight" invisible="state != 'active'"/>
+                <button name="action_inactive_reactivate" string="Reactivate" type = "object"  invisible="state != 'inactive'"/>
+                <field name="state" widget="statusbar" />
+            </header>
+      <sheet>
+            <group string="Workflow">
+                   <field name="name"/>
+                   <field name="model_id"/>
+                   <field name="version"/>
+            </group>
+            <notebook>
+            <page string="Task Definition">
+                   <field name="task_definition_ids"/>
+            </page>
+            <page string="Workflow State">
+                   <field name="state_ids"/>
+            </page>
+            <page string="Workflow Function">
+                   <field name="function_ids"/>
+            </page>
+            <page string="Workflow Auto Jobs">
+                   <field name="auto_job_ids" domain="[('model_id','=',model_id)]" context="{'default_model_id':model_id}"/>
+            </page>
+            </notebook>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_rabbitmq_sever_form">
+      <field name="name">smartbiz_rabbitmq_sever_form</field>
+      <field name="model">smartbiz.rabbitmq_sever</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Rabbitmq Sever">
+            <header>
+                <button name="action_stopped_run" string="Run" type = "object" class="oe_highlight" invisible="type == 'produce'"/>
+                <field name="state" widget="statusbar" />
+            </header>
+      <sheet>
+            <group>
+                   <field name="name"/>
+                   <field name="host"/>
+                   <field name="user"/>
+                   <field name="password" password="1"/>
+                   <field name="port"/>
+                   <field name="channel_number"/>
+                   <field name="type"/>
+                   <field name="routing_key"/>
+                   <field name="exchange"/>
+                   <field name="queue_name"/>
+                   <field name="exchange_type"/>
+                   <field name="passive"/>
+                   <field name="durable"/>
+                   <field name="auto_delete"/>
+                   <field name="internal"/>
+            </group>
+            <group>
+                   <field name="model_id"/>
+            </group>
+            <notebook>
+            <page string="Python Code">
+                   <field name="code"/>
+            </page>
+            </notebook>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_device_register_form">
+      <field name="name">smartbiz_device_register_form</field>
+      <field name="model">smartbiz.device_register</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Device Register">
+      <sheet>
+          <group col="1">
+                   <field name="name"/>
+                   <field name="user_id"/>
+                   <field name="token"/>
+                   <field name="active_date"/>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_workflow_state_form">
+      <field name="name">smartbiz_workflow_state_form</field>
+      <field name="model">smartbiz.workflow_state</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Workflow State">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="sequence" widget="handle" />
+                   <field name="name"/>
+                   <field name="value"/>
+            </group>
+            <group>
+                   <field name="workflow_definition_id"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_organization_unit_form">
+      <field name="name">smartbiz_organization_unit_form</field>
+      <field name="model">smartbiz.organization_unit</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Organization Unit">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+            </group>
+            <group>
+                   <field name="parent_unit_id"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Đơn vị thành viên">
+                   <field name="child_units_ids"/>
+            </page>
+            <page string="Vị trí">
+                   <field name="position_ids"/>
+            </page>
+            <page string="Lịch sử">
+            <group>
+                   <field name="established_date"/>
+            </group>
+                   <field name="history"/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_role_form">
+      <field name="name">smartbiz_role_form</field>
+      <field name="model">smartbiz.role</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Role">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+            </group>
+            <group>
+                   <field name="level_id"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_position_form">
+      <field name="name">smartbiz_position_form</field>
+      <field name="model">smartbiz.position</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Position">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+            </group>
+            <group>
+                   <field name="organization_unit_id"/>
+                   <field name="level_id"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Người dùng">
+                   <field name="users_ids"/>
+            </page>
+            <page string="Vai trò">
+                   <field name="roles_ids"/>
+            </page>
+            <page string="Báo cáo tới">
+                   <field name="reports_to_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_level_form">
+      <field name="name">smartbiz_level_form</field>
+      <field name="model">smartbiz.level</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Level">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+            </group>
+            <group>
+                   <field name="hierarchy_order"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_task_definition_form">
+      <field name="name">smartbiz_task_definition_form</field>
+      <field name="model">smartbiz.task_definition</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Task Definition">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+                   <field name="workflow_definition_id"/>
+            </group>
+            <group>
+                   <field name="state_id"/>
+                   <field name="duration_type"/>
+                   <field name="duration"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Function">
+                   <field name="function_ids" domain="[('workflow_definition_id','=',workflow_definition_id)]"/>
+            </page>
+            <page string="Notification">
+                   <field name="notification_ids" domain="[('model_id','=',model_id)]" context="{'default_model_id':model_id}"/>
+            </page>
+            <page string="Transfer">
+                   <field name="transfer_ids" domain="[('model_id','=',model_id)]" context="{'default_model_id':model_id}"/>
+            </page>
+            </notebook>
+                   <field name="model_id" invisible="1"/>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_rule_form">
+      <field name="name">smartbiz_rule_form</field>
+      <field name="model">smartbiz.rule</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Rule">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+                   <field name="function_id"/>
+            </group>
+            <group>
+                   <field name="task_finish"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Điều kiện">
+                   <field name="condition_ids" context="{'default_rule_id':id}"/>
+            </page>
+            <page string="Nguồn lực">
+                   <field name="resource_ids" context="{'default_rule_id':id}"/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_condition_form">
+      <field name="name">smartbiz_condition_form</field>
+      <field name="model">smartbiz.condition</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Condition">
+      <sheet>
+            <group>
+                   <field name="model_id"/>
+            </group>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+                   <field name="rule_id"/>
+            </group>
+            <group>
+                   <field name="field_id" domain="[('model_id', '=', model_id)]"/>
+                   <field name="operator"/>
+                   <field name="value"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_resource_form">
+      <field name="name">smartbiz_resource_form</field>
+      <field name="model">smartbiz.resource</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Resource">
+      <sheet>
+            <group>
+                   <field name="model_id"/>
+            </group>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+                   <field name="rule_id"/>
+            </group>
+            <group>
+                   <field name="method"/>
+                   <field name="operator"/>
+                   <field name="position_id" invisible="method != 'by_position'"/>
+                   <field name="role_id" invisible="method != 'by_role'"/>
+                   <field name="level_id" invisible="method != 'by_level'"/>
+                   <field name="user_field_id" invisible="method != 'by_user_field'" domain="[('relation', '=', 'res.users'),('model_id', '=', model_id),('ttype', '=', 'many2one')]"/>
+                   <field name="ou_field_id" invisible="method != 'by_ou_field'" domain="[('relation', '=', 'smartbiz.organization_unit'),('model_id', '=', model_id),('ttype', '=', 'many2one')]"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_action_form">
+      <field name="name">smartbiz_action_form</field>
+      <field name="model">smartbiz.action</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Action">
+      <sheet>
+            <group>
+                   <field name="workflow_definition_id"/>
+            </group>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+                   <field name="function_id"/>
+            </group>
+            <group>
+                   <field name="type"/>
+                   <field name="trigger_type"/>
+                   <field name="server_action_id" invisible="type != 'run_server_action'" domain="[('model_id','=',model_id)]" context="{'default_model_id':model_id}"/>
+                   <field name="template_id" invisible="type != 'send_notification'" domain="[('model_id','=',model_id)]" context="{'default_model_id':model_id}"/>
+                   <field name="state_id" invisible="type != 'move_to_state'" domain="[('workflow_definition_id','=',workflow_definition_id)]"/>
+            </group>
+            </group>
+                   <field name="model_id" invisible="1"/>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_function_form">
+      <field name="name">smartbiz_function_form</field>
+      <field name="model">smartbiz.function</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Function">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+                   <field name="function_name"/>
+            </group>
+            <group>
+                   <field name="workflow_definition_id"/>
+                   <field name="type"/>
+                   <field name="run_code"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Quy tắc">
+                   <field name="rule_ids"/>
+            </page>
+            <page string="Hành động">
+                   <field name="action_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_task_form">
+      <field name="name">smartbiz_task_form</field>
+      <field name="model">smartbiz.task</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Task">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+                   <field name="model"/>
+                   <field name="res_id"/>
+                   <field name="document_name"/>
+            </group>
+            <group>
+                   <field name="task_definition_id"/>
+                   <field name="deadline"/>
+            </group>
+            </group>
+            <group col="2">
+            <group>
+                   <field name="assignees_ids" widget="many2many_tags" />
+                   <field name="actual_users_ids" widget="many2many_tags" />
+            </group>
+            <group>
+                   <field name="start"/>
+                   <field name="finish"/>
+                   <field name="duration"/>
+            </group>
+            </group>
+            <group>
+                   <field name="state"/>
+            </group>
+            <notebook>
+            <page string="Work Log">
+                   <field name="work_log_ids"/>
+            </page>
+            <page string="Notification Log">
+                   <field name="notification_log_ids"/>
+            </page>
+            <page string="Transfer Log">
+                   <field name="transfer_log_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_work_log_form">
+      <field name="name">smartbiz_work_log_form</field>
+      <field name="model">smartbiz.work_log</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Work Log">
+      <sheet>
+            <group>
+                   <field name="name"/>
+            </group>
+            <group col="2">
+            <group>
+                   <field name="task_id"/>
+                   <field name="function_id"/>
+            </group>
+            <group>
+                   <field name="rule_id"/>
+                   <field name="user_id"/>
+                   <field name="date"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_notification_condition_form">
+      <field name="name">smartbiz_notification_condition_form</field>
+      <field name="model">smartbiz.notification_condition</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Notification Condition">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+                   <field name="days_before_overdue"/>
+                   <field name="time_in_day"/>
+            </group>
+            <group>
+                   <field name="interval_hours"/>
+                   <field name="max_notice"/>
+                   <field name="notification_template_id" domain="[('model_id','=',model_id)]" context="{'default_model_id':model_id}"/>
+                   <field name="model_id"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_transfer_condition_form">
+      <field name="name">smartbiz_transfer_condition_form</field>
+      <field name="model">smartbiz.transfer_condition</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Transfer Condition">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+                   <field name="overdue_transfer"/>
+                   <field name="max_transfer"/>
+                   <field name="to_manager"/>
+                   <field name="to_users_ids"/>
+            </group>
+            <group>
+                   <field name="create_new_task"/>
+                   <field name="notification_template_id" domain="[('model_id','=',model_id)]" context="{'default_model_id':model_id}"/>
+                   <field name="model_id"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_notification_log_form">
+      <field name="name">smartbiz_notification_log_form</field>
+      <field name="model">smartbiz.notification_log</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Notification Log">
+      <sheet>
+          <group col="1">
+                   <field name="task_id"/>
+                   <field name="notification_condition_id"/>
+                   <field name="time"/>
+                   <field name="users_ids"/>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_transfer_log_form">
+      <field name="name">smartbiz_transfer_log_form</field>
+      <field name="model">smartbiz.transfer_log</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Transfer Log">
+      <sheet>
+          <group col="1">
+                   <field name="task_id"/>
+                   <field name="transfer_condition_id"/>
+                   <field name="time"/>
+                   <field name="from_user_id"/>
+                   <field name="to_users_ids"/>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+<!-- Trees -->
+
+    <record model="ir.ui.view" id="res_partner_tree">
+      <field name="name">res_partner_tree</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_tree" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+           <xpath expr="//field[@name='vat']" position="after">
+            <field name="partner_type" />
+           </xpath>
+           <xpath expr="//field[@name='vat']" position="after">
+            <field name="invoice_name" invisible="partner_type != 'account'" optional="hire"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="res_groups_tree">
+      <field name="name">res_groups_tree</field>
+      <field name="model">res.groups</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+      <tree >
+           <field name="full_name"/>
+            <field name="type" />
+      </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_workflow_definition_tree">
+      <field name="name">smartbiz_workflow_definition_tree</field>
+      <field name="model">smartbiz.workflow_definition</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Workflow Definition" >
+            <field name="state" />
+            <field name="name" />
+            <field name="model_id" optional="show"/>
+            <field name="version" optional="show"/>
+            <field name="task_definition_ids" optional="show"/>
+            <field name="state_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_rabbitmq_sever_tree">
+      <field name="name">smartbiz_rabbitmq_sever_tree</field>
+      <field name="model">smartbiz.rabbitmq_sever</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Rabbitmq Sever" >
+            <field name="state" />
+            <field name="name" />
+            <field name="host" />
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_device_register_tree">
+      <field name="name">smartbiz_device_register_tree</field>
+      <field name="model">smartbiz.device_register</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Device Register" >
+            <field name="name" />
+            <field name="user_id" />
+            <field name="token" />
+            <field name="active_date" />
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_workflow_state_tree">
+      <field name="name">smartbiz_workflow_state_tree</field>
+      <field name="model">smartbiz.workflow_state</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Workflow State" editable="bottom" >
+            <field name="sequence" widget="handle"  />
+            <field name="name" optional="show"/>
+            <field name="value" optional="show"/>
+            <field name="workflow_definition_id" optional="hire"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_organization_unit_tree">
+      <field name="name">smartbiz_organization_unit_tree</field>
+      <field name="model">smartbiz.organization_unit</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Organization Unit" >
+            <field name="name" optional="show"/>
+            <field name="parent_unit_id" optional="show"/>
+            <field name="child_units_ids" optional="show"/>
+            <field name="position_ids" optional="show"/>
+            <field name="established_date" optional="show"/>
+            <field name="history" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_role_tree">
+      <field name="name">smartbiz_role_tree</field>
+      <field name="model">smartbiz.role</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Role" >
+            <field name="name" optional="show"/>
+            <field name="level_id" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_position_tree">
+      <field name="name">smartbiz_position_tree</field>
+      <field name="model">smartbiz.position</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Position" >
+            <field name="name" optional="show"/>
+            <field name="organization_unit_id" optional="show"/>
+            <field name="level_id" optional="show"/>
+            <field name="users_ids" optional="show"/>
+            <field name="roles_ids" optional="show"/>
+            <field name="reports_to_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_level_tree">
+      <field name="name">smartbiz_level_tree</field>
+      <field name="model">smartbiz.level</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Level" >
+            <field name="name" optional="show"/>
+            <field name="hierarchy_order" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_task_definition_tree">
+      <field name="name">smartbiz_task_definition_tree</field>
+      <field name="model">smartbiz.task_definition</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Task Definition" >
+            <field name="name" optional="show"/>
+            <field name="workflow_definition_id" optional="show"/>
+            <field name="state_id" optional="show"/>
+            <field name="duration_type" optional="show"/>
+            <field name="duration" optional="show"/>
+            <field name="function_ids" domain="[('workflow_definition_id','=',workflow_definition_id)]" optional="show"/>
+            <field name="notification_ids" context="{'default_model_id':model_id}" domain="[('model_id','=',model_id)]" optional="show"/>
+            <field name="transfer_ids" context="{'default_model_id':model_id}" domain="[('model_id','=',model_id)]" optional="show"/>
+            <field name="model_id" invisible="1"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_rule_tree">
+      <field name="name">smartbiz_rule_tree</field>
+      <field name="model">smartbiz.rule</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Rule" >
+            <field name="sequence" widget="handle"  optional="show"/>
+            <field name="name" optional="show"/>
+            <field name="function_id" optional="show"/>
+            <field name="task_finish" optional="show"/>
+            <field name="condition_ids" context="{'default_rule_id':id}" optional="show"/>
+            <field name="resource_ids" context="{'default_rule_id':id}" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_condition_tree">
+      <field name="name">smartbiz_condition_tree</field>
+      <field name="model">smartbiz.condition</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Condition" >
+            <field name="model_id" optional="show"/>
+            <field name="name" />
+            <field name="rule_id" optional="show"/>
+            <field name="field_id" domain="[('model_id', '=', model_id)]" optional="show"/>
+            <field name="operator" optional="show"/>
+            <field name="value" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_resource_tree">
+      <field name="name">smartbiz_resource_tree</field>
+      <field name="model">smartbiz.resource</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Resource" >
+            <field name="model_id" optional="show"/>
+            <field name="name" />
+            <field name="rule_id" optional="show"/>
+            <field name="method" optional="show"/>
+            <field name="operator" optional="show"/>
+            <field name="position_id" invisible="method != 'by_position'" optional="show"/>
+            <field name="role_id" invisible="method != 'by_role'" optional="show"/>
+            <field name="level_id" invisible="method != 'by_level'" optional="show"/>
+            <field name="user_field_id" invisible="method != 'by_user_field'" domain="[('relation', '=', 'res.users'),('model_id', '=', model_id),('ttype', '=', 'many2one')]" optional="show"/>
+            <field name="ou_field_id" invisible="method != 'by_ou_field'" domain="[('relation', '=', 'smartbiz.organization_unit'),('model_id', '=', model_id),('ttype', '=', 'many2one')]" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_action_tree">
+      <field name="name">smartbiz_action_tree</field>
+      <field name="model">smartbiz.action</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Action" >
+            <field name="workflow_definition_id" optional="show"/>
+            <field name="name" />
+            <field name="function_id" optional="show"/>
+            <field name="type" optional="show"/>
+            <field name="trigger_type" optional="show"/>
+            <field name="server_action_id" invisible="type != 'run_server_action'" context="{'default_model_id':model_id}" domain="[('model_id','=',model_id)]" optional="show"/>
+            <field name="template_id" invisible="type != 'send_notification'" context="{'default_model_id':model_id}" domain="[('model_id','=',model_id)]" optional="show"/>
+            <field name="state_id" invisible="type != 'move_to_state'" domain="[('workflow_definition_id','=',workflow_definition_id)]" optional="show"/>
+            <field name="model_id" invisible="1"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_function_tree">
+      <field name="name">smartbiz_function_tree</field>
+      <field name="model">smartbiz.function</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Function" >
+            <field name="name" optional="show"/>
+            <field name="function_name" optional="show"/>
+            <field name="workflow_definition_id" optional="show"/>
+            <field name="type" optional="show"/>
+            <field name="run_code" optional="show"/>
+            <field name="rule_ids" optional="show"/>
+            <field name="action_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_task_tree">
+      <field name="name">smartbiz_task_tree</field>
+      <field name="model">smartbiz.task</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Task" >
+            <field name="name" optional="show"/>
+            <field name="model" optional="show"/>
+            <field name="res_id" optional="show"/>
+            <field name="document_name" optional="show"/>
+            <field name="task_definition_id" optional="show"/>
+            <field name="deadline" optional="show"/>
+            <field name="assignees_ids" widget="many2many_tags"  optional="show"/>
+            <field name="actual_users_ids" widget="many2many_tags"  optional="show"/>
+            <field name="start" optional="show"/>
+            <field name="finish" optional="show"/>
+            <field name="duration" optional="show"/>
+            <field name="state" optional="show"/>
+            <field name="work_log_ids" optional="show"/>
+            <field name="notification_log_ids" optional="show"/>
+            <field name="transfer_log_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_work_log_tree">
+      <field name="name">smartbiz_work_log_tree</field>
+      <field name="model">smartbiz.work_log</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Work Log" >
+            <field name="name" optional="show"/>
+            <field name="task_id" optional="show"/>
+            <field name="function_id" optional="show"/>
+            <field name="rule_id" optional="show"/>
+            <field name="user_id" optional="show"/>
+            <field name="date" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_notification_condition_tree">
+      <field name="name">smartbiz_notification_condition_tree</field>
+      <field name="model">smartbiz.notification_condition</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Notification Condition" >
+            <field name="name" optional="show"/>
+            <field name="days_before_overdue" optional="show"/>
+            <field name="time_in_day" optional="show"/>
+            <field name="interval_hours" optional="show"/>
+            <field name="max_notice" optional="show"/>
+            <field name="notification_template_id" context="{'default_model_id':model_id}" domain="[('model_id','=',model_id)]" optional="show"/>
+            <field name="model_id" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_transfer_condition_tree">
+      <field name="name">smartbiz_transfer_condition_tree</field>
+      <field name="model">smartbiz.transfer_condition</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Transfer Condition" >
+            <field name="name" optional="show"/>
+            <field name="overdue_transfer" optional="show"/>
+            <field name="max_transfer" optional="show"/>
+            <field name="to_manager" optional="show"/>
+            <field name="to_users_ids" optional="show"/>
+            <field name="create_new_task" optional="show"/>
+            <field name="notification_template_id" context="{'default_model_id':model_id}" domain="[('model_id','=',model_id)]" optional="show"/>
+            <field name="model_id" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_notification_log_tree">
+      <field name="name">smartbiz_notification_log_tree</field>
+      <field name="model">smartbiz.notification_log</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Notification Log" >
+            <field name="task_id" optional="show"/>
+            <field name="notification_condition_id" optional="show"/>
+            <field name="time" optional="show"/>
+            <field name="users_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_transfer_log_tree">
+      <field name="name">smartbiz_transfer_log_tree</field>
+      <field name="model">smartbiz.transfer_log</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Transfer Log" >
+            <field name="task_id" optional="show"/>
+            <field name="transfer_condition_id" optional="show"/>
+            <field name="time" optional="show"/>
+            <field name="from_user_id" optional="show"/>
+            <field name="to_users_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+<!-- calendars -->
+
+<!-- kanbans -->
+
+<!-- pivots -->
+
+<!-- graphs -->
+
+<!-- Gantt -->
+
+<!-- Search -->
+
+    <record model="ir.ui.view" id="res_partner_search">
+      <field name="name">res_partner_search</field>
+      <field name="model">res.partner</field>
+      <field name="priority">2</field>
+      <field name="inherit_id" ref="base.view_res_partner_filter" />
+      <field name="arch" type="xml">
+        <search>
+            <filter string="Account" domain="[('partner_type','=','account')]" name="account_filter"/>
+            <separator/>
+            <filter string="Site" domain="[('partner_type','=','site')]" name="site_filter"/>
+            <separator/>
+            <filter string="Requester" domain="[('partner_type','=','requester')]" name="requester_filter"/>
+            <separator/>
+            <filter string="User" domain="[('partner_type','=','user')]" name="user_filter"/>
+            <separator/>
+          <group expand="0" string="Group By">
+            <filter string="Group by Type"  name="group_by_type_filter" domain="[]" context="{ 'group_by':'partner_type'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="res_groups_search">
+      <field name="name">res_groups_search</field>
+      <field name="model">res.groups</field>
+      <field name="priority">2</field>
+      <field name="inherit_id" ref="base.view_groups_search" />
+      <field name="arch" type="xml">
+        <search>
+            <field name="type"/>
+            <filter string="Product" domain="[('type','=','product')]" name="product_filter"/>
+            <separator/>
+            <filter string="Level" domain="[('type','=','level')]" name="level_filter"/>
+            <separator/>
+            <filter string="Roles" domain="[('type','=','roles')]" name="roles_filter"/>
+            <separator/>
+            <filter string="OU" domain="[('type','=','ou')]" name="ou_filter"/>
+            <separator/>
+            <filter string="Function" domain="[('type','=','function')]" name="function_filter"/>
+            <separator/>
+            <filter string="Position" domain="[('type','=','position')]" name="position_filter"/>
+            <separator/>
+        </search>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_device_register_search">
+      <field name="name">smartbiz_device_register_search</field>
+      <field name="model">smartbiz.device_register</field>
+      <field name="arch" type="xml">
+        <search string="Tree Device Register">
+            <filter string="y" domain="[]" name="y_filter"/>
+            <separator/>
+        </search>
+      </field>
+    </record>
+
+<!-- Modified Views -->
+
+<!-- Modified Views Properties -->
+
+<!-- Modified Elements Properties -->
+
+<!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="res_partner_action">
+      <field name="name">Partner</field>
+      <field name="res_model">res.partner</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{'search_default_account_filter': 1,}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="res_groups_action">
+      <field name="name">Groups</field>
+      <field name="res_model">res.groups</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_workflow_definition_action">
+      <field name="name">Workflow Definition</field>
+      <field name="res_model">smartbiz.workflow_definition</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_rabbitmq_sever_action">
+      <field name="name">Rabbitmq Sever</field>
+      <field name="res_model">smartbiz.rabbitmq_sever</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_device_register_action">
+      <field name="name">Device Register</field>
+      <field name="res_model">smartbiz.device_register</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_workflow_state_action">
+      <field name="name">Workflow State</field>
+      <field name="res_model">smartbiz.workflow_state</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_organization_unit_action">
+      <field name="name">Organization Unit</field>
+      <field name="res_model">smartbiz.organization_unit</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_role_action">
+      <field name="name">Role</field>
+      <field name="res_model">smartbiz.role</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_position_action">
+      <field name="name">Position</field>
+      <field name="res_model">smartbiz.position</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_level_action">
+      <field name="name">Level</field>
+      <field name="res_model">smartbiz.level</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_task_definition_action">
+      <field name="name">Task Definition</field>
+      <field name="res_model">smartbiz.task_definition</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_rule_action">
+      <field name="name">Rule</field>
+      <field name="res_model">smartbiz.rule</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_condition_action">
+      <field name="name">Condition</field>
+      <field name="res_model">smartbiz.condition</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_resource_action">
+      <field name="name">Resource</field>
+      <field name="res_model">smartbiz.resource</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_action_action">
+      <field name="name">Action</field>
+      <field name="res_model">smartbiz.action</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_function_action">
+      <field name="name">Function</field>
+      <field name="res_model">smartbiz.function</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_task_action">
+      <field name="name">Task</field>
+      <field name="res_model">smartbiz.task</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_work_log_action">
+      <field name="name">Work Log</field>
+      <field name="res_model">smartbiz.work_log</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_notification_condition_action">
+      <field name="name">Notification Condition</field>
+      <field name="res_model">smartbiz.notification_condition</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_transfer_condition_action">
+      <field name="name">Transfer Condition</field>
+      <field name="res_model">smartbiz.transfer_condition</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_notification_log_action">
+      <field name="name">Notification Log</field>
+      <field name="res_model">smartbiz.notification_log</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_transfer_log_action">
+      <field name="name">Transfer Log</field>
+      <field name="res_model">smartbiz.transfer_log</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+<!-- Menu -->
+
+<!-- Top menu item -->
+
+    <menuitem name="SmartBiz" 
+       id="menu_smartbiz_2"
+       sequence ="2"
+    />
+    <record id="menu_smartbiz_2" model="ir.ui.menu">
+       <field name="parent_id" ref="base.menu_custom"/>
+    </record>
+
+    <record id="menu_smartbiz_2" model="ir.ui.menu">
+         <field name="groups_id" eval="[(6, 0, [ref('smartbiz.group_roles_administrator_2'),])]"/>
+    </record>
+
+<!-- Menu item action -->
+
+    <menuitem name="Workflow Definition" 
+       id="smartbiz_workflow_definition_menuitem"
+       action ="smartbiz_workflow_definition_action"
+       parent ="menu_smartbiz_2"
+       sequence ="22"
+    />
+    <menuitem name="Rabbitmq Sever" 
+       id="smartbiz_rabbitmq_sever_menuitem"
+       action ="smartbiz_rabbitmq_sever_action"
+       parent ="menu_smartbiz_2"
+       sequence ="25"
+    />
+    <menuitem name="Device Register" 
+       id="smartbiz_device_register_menuitem"
+       action ="smartbiz_device_register_action"
+       parent ="menu_smartbiz_2"
+       sequence ="26"
+    />
+    <menuitem name="Workflow State" 
+       id="smartbiz_workflow_state_menuitem"
+       action ="smartbiz_workflow_state_action"
+       parent ="menu_smartbiz_2"
+       sequence ="32"
+    />
+    <menuitem name="Organization Unit" 
+       id="smartbiz_organization_unit_menuitem"
+       action ="smartbiz_organization_unit_action"
+       parent ="menu_smartbiz_2"
+       sequence ="34"
+    />
+    <menuitem name="Role" 
+       id="smartbiz_role_menuitem"
+       action ="smartbiz_role_action"
+       parent ="menu_smartbiz_2"
+       sequence ="35"
+    />
+    <menuitem name="Position" 
+       id="smartbiz_position_menuitem"
+       action ="smartbiz_position_action"
+       parent ="menu_smartbiz_2"
+       sequence ="36"
+    />
+    <menuitem name="Level" 
+       id="smartbiz_level_menuitem"
+       action ="smartbiz_level_action"
+       parent ="menu_smartbiz_2"
+       sequence ="37"
+    />
+    <menuitem name="Task Definition" 
+       id="smartbiz_task_definition_menuitem"
+       action ="smartbiz_task_definition_action"
+       parent ="menu_smartbiz_2"
+       sequence ="39"
+    />
+    <menuitem name="Rule" 
+       id="smartbiz_rule_menuitem"
+       action ="smartbiz_rule_action"
+       parent ="menu_smartbiz_2"
+       sequence ="40"
+    />
+    <menuitem name="Condition" 
+       id="smartbiz_condition_menuitem"
+       action ="smartbiz_condition_action"
+       parent ="menu_smartbiz_2"
+       sequence ="41"
+    />
+    <menuitem name="Resource" 
+       id="smartbiz_resource_menuitem"
+       action ="smartbiz_resource_action"
+       parent ="menu_smartbiz_2"
+       sequence ="42"
+    />
+    <menuitem name="Action" 
+       id="smartbiz_action_menuitem"
+       action ="smartbiz_action_action"
+       parent ="menu_smartbiz_2"
+       sequence ="43"
+    />
+    <menuitem name="Function" 
+       id="smartbiz_function_menuitem"
+       action ="smartbiz_function_action"
+       parent ="menu_smartbiz_2"
+       sequence ="44"
+    />
+    <menuitem name="Task" 
+       id="smartbiz_task_menuitem"
+       action ="smartbiz_task_action"
+       parent ="menu_smartbiz_2"
+       sequence ="45"
+    />
+    <menuitem name="Work Log" 
+       id="smartbiz_work_log_menuitem"
+       action ="smartbiz_work_log_action"
+       parent ="menu_smartbiz_2"
+       sequence ="46"
+    />
+    <menuitem name="Notification Condition" 
+       id="smartbiz_notification_condition_menuitem"
+       action ="smartbiz_notification_condition_action"
+       parent ="menu_smartbiz_2"
+       sequence ="47"
+    />
+    <menuitem name="Transfer Condition" 
+       id="smartbiz_transfer_condition_menuitem"
+       action ="smartbiz_transfer_condition_action"
+       parent ="menu_smartbiz_2"
+       sequence ="48"
+    />
+    <menuitem name="Notification Log" 
+       id="smartbiz_notification_log_menuitem"
+       action ="smartbiz_notification_log_action"
+       parent ="menu_smartbiz_2"
+       sequence ="49"
+    />
+    <menuitem name="Transfer Log" 
+       id="smartbiz_transfer_log_menuitem"
+       action ="smartbiz_transfer_log_action"
+       parent ="menu_smartbiz_2"
+       sequence ="50"
+    />
+
+</odoo>

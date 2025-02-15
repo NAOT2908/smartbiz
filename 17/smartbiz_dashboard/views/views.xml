@@ -1,0 +1,26 @@
+<odoo>
+
+  <!-- Menu -->
+  <!-- <record id="smartbiz_dashboard" model="ir.actions.client">
+    <field name="name">Dashboard</field>
+    <field name="tag">smartbiz_dashboard.WorkOrderDashboard</field>
+  </record> -->
+
+
+  <record model="ir.actions.client" id="smartbiz_dashboard_action">
+    <field name="name">SmartBiz Dashboard</field>
+    <field name="tag">smartbiz_dashboard</field>
+    <field name="target">fullscreen</field>
+  </record>
+
+  <!-- Menu -->
+
+  <!-- Top menu item -->
+
+  <menuitem name="SmartBiz Dashboard"
+    id="menu_smartbiz_dashboard"
+    action="smartbiz_dashboard_action"
+    sequence="1"
+    web_icon="smartbiz_dashboard,static/description/dashboard.png"
+  />
+</odoo>

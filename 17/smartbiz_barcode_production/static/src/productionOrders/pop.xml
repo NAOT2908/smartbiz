@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="ProductOrderDetail">
+        <div class="pop-header">
+            <nav class="pop_nav">
+                <nav class="pop_nav_left">
+                    <button t-on-click="exit" class="pop_nav-link">
+                        <i class="oi oi-chevron-left" />
+                    </button>
+                    <div class="pop_nav_title"> <span class="s_nav_title" t-out="state.detailTitle"></span>
+                        <div class="pop_search-box" t-if="state.search">
+                            <input class="pop_search-input" t-on-input="handleInput" t-att-value="state.searchInput"
+                                placeholder="Tìm kiếm" />
+                        </div>
+                    </div>
+                </nav>
+                <nav class="pop_nav_right">
+                    <div class="pop_nav-link" t-on-click="searchClick">
+                        <i class="fa fa-search" />
+                    </div>
+                    <div class="pop_nav-link" t-on-click="openManualScanner">
+                        <i class="fa fa-barcode" />
+                    </div>
+                    <div class="pop_nav-link" t-on-click="toggleMenu">
+                        <i class="fa fa-bars"></i>
+                    </div>
+                </nav>
+            </nav>
+        </div>
+        <div t-if="state.menuVisible" class="menu-overlay" t-on-click="toggleMenu"></div>
+        <div t-if="state.menuVisible" class="menu">
+            <div class="menu-header">
+                <span class="close-icon" t-on-click="toggleMenu">
+                    <i class="fa fa-times"></i>
+                </span>
+            </div>
+            <div class="menu-items">
+                <button t-on-click="() => this.openSelector(9)" >Chia Package</button>
+                <button t-on-click="() => this.openSelector(8)" >Đóng Package loạt</button>
+            </div>
+        </div>
+        <div>
+            <div t-if="state.isEditing ==='orderdetails'" class="orderdetails">
+                <div class="tabs"><div t-attf-class="menutab #{state.activeTab === 'MODetail' ? 'active' : ''}" t-on-click="() => this.changeTab('MODetail')">
+                        Chi tiết lệnh
+                    </div>
+                    <div t-attf-class="menutab #{state.activeTab === 'ProductOrderDetail' ? 'active' : ''}" t-on-click="() => this.changeTab('ProductOrderDetail')">
+                        Sản phẩm
+                    </div>
+                    <div t-attf-class="menutab #{state.activeTab === 'ingredients' ? 'active' : ''}" t-on-click="() => this.changeTab('ingredients')">
+                        Nguyên liệu
+                    </div>
+                </div>
+                <div t-if="state.activeTab === 'MODetail'" class="content">
+                    <div class="order_detail">
+                        <div >Sản phẩm: <t t-esc="state.order.product_id[1] || '-'"/></div>
+                        <div >Thời gian bắt đầu: <t t-esc="state.order.date_start || '-'"/></div>
+                        <div >Thời gian kết thúc: <t t-esc="state.order.date_finished || '-'"/></div>
+                        <div >Yêu cầu: <t t-esc="state.order.product_uom_qty || '-'"/></div>
+                        <div >Đang sản xuất: <t t-esc="state.order.qty_producing || '-'"/></div>
+                        <div >Đã hoàn thành: <t t-esc="state.order.qty_produced || '-'" /></div>
+                        <div >Người phụ trách: <t t-esc="state.order.user_id[1] || '-'" /></div>
+                    </div>
+                    <div class="s_detail_button">
+                        <button class="s_detail_button_function" t-on-click="() => this.cancelOrder()" ><i class="fa fa-clipboard-check" aria-hidden="true"></i>Hủy</button>
+                        <button class="s_detail_button_function" t-on-click="() => this.validate()" ><i class="fa fa-clipboard-check" aria-hidden="true"></i>Xác nhận</button>
+                    </div>
+                </div>
+                <div t-if="state.activeTab === 'ProductOrderDetail'" class="content">
+                    <div >
+                        <FinishedMoves t-props="{
+                            finishedMoves: state.finishedMoves,
+                            selectedFinished: state.selectedFinished,
+                            finishedMoveClick: finishedMoveClick,
+                            selectItem: selectItem,
+                        }" />
+                    </div>
+                </div>
+                <div t-if="state.activeTab === 'ingredients'" class="content">
+                    <div>
+                        <MaterialMoves t-props="{
+                            materialMoves: state.materialMoves,
+                            selectedMaterial: state.selectedMaterial,
+                            materialMoveClick: materialMoveClick,
+                            selectItem: selectItem,
+                        }" />
+                    </div>
+                </div>
+            </div>
+            <div t-if="state.isEditing === 'editMove'">
+                <div class="edit-finishedMoves">
+                        <OrderDetail t-props="{
+                        order: state.order,
+                        detailMoveLine: state.detailMoveLine,
+                        quantity: state.quantity,
+                        locations: state.locations,
+                        lots: state.lots,
+                        selectedButton: state.selectedButton,
+                        handleButtonClick: handleButtonClick,
+                        saveOrder: saveOrder,
+                        packMoveLine: packMoveLine,
+                        validate: validate,
+                        print: print,
+                        createLot: createLot,
+                        editQuantityClick: editQuantityClick,
+                        openSelector: openSelector,
+                        clearResultPackage:clearResultPackage,
+                        buttonStatus:state.buttonStatus,
+                        resetDetailMoveLine:resetDetailMoveLine
+                    }" />
+                    <MoveLines t-props="{
+                            moveLines: state.moveLines,
+                            selectedMoveLine: state.selectedMoveLine,
+                            moveLineClick: moveLineClick,
+                            deleteMoveLine: deleteMoveLine
+                        }" />
+                        <EditQuantityModal t-if="state.showEditQuantityModal" t-props="{   
+                    detailMoveLine: state.detailMoveLine,
+                    closeQuantityModal: closeQuantityModal,          
+                    }" />
+                    <Selector t-if="state.showSelector" t-props="{
+                        records:records,
+                        multiSelect:multiSelect,
+                        closeSelector:closeSelector,
+                        title:selectorTitle,
+                        isSelector:state.isSelector,
+                        move: move,
+                    }"/>
+                </div>
+            </div>
+            <div t-if="state.isEditing === 'editMaterial'">
+                <div class="edit-finishedMoves">
+                    <OrderDetail t-props="{
+                        order: state.order,
+                        detailMoveLine: state.detailMoveLine,
+                        quantity: state.quantity,
+                        locations: state.locations,
+                        lots: state.lots,
+                        selectedButton: state.selectedButton,
+                        handleButtonClick: handleButtonClick,
+                        saveOrder: saveOrder,
+                        packMoveLine: packMoveLine,
+                        validate: validate,
+                        print: print,
+                        createLot: createLot,
+                        editQuantityClick: editQuantityClick,
+                        openSelector: openSelector,
+                        clearResultPackage:clearResultPackage,
+                        buttonStatus: state.buttonStatus,
+                        resetDetailMoveLine:resetDetailMoveLine
+                    }" />
+                    <MoveLines t-props="{
+                            moveLines: state.moveLines,
+                            selectedMoveLine: state.selectedMoveLine,
+                            moveLineClick: moveLineClick,
+                            deleteMoveLine: deleteMoveLine
+                        }" />
+                    <EditQuantityModal t-if="state.showEditQuantityModal" t-props="{   
+                    detailMoveLine: state.detailMoveLine,
+                    closeQuantityModal: closeQuantityModal,          
+                    }" />
+                    <Selector t-if="state.showSelector" t-props="{
+                        records:records,
+                        multiSelect:multiSelect,
+                        closeSelector:closeSelector,
+                        title:selectorTitle,
+                        isSelector:state.isSelector,
+                        move: move,
+                    }"/>
+                </div>
+            </div>
+        </div>
+    </t>
+   
+    <t t-name="MoveLines">
+        <div >
+            <div class="section_header">Chi tiết dịch chuyển</div>
+            <div class="move_line-items">
+                <div t-foreach="props.moveLines" t-as="item" t-key="item.id" t-on-click="()=>props.moveLineClick(item.id)">
+                    <div class="item" t-att-class="{selected: item.id == props.selectedMoveLine}">
+                        <div style="font-size: 20px" t-esc="item.product_name"/>
+                        <div>Số lượng hoàn thành:</div>
+                        <div>
+                            <div style="color: red; float: left;">
+                                <t t-esc="item.quantity"/> <t t-esc="item.product_uom"/>
+                            </div>
+                            <div style="float: right;">
+                                <i class="fa fa-trash" aria-hidden="true" t-on-click.stop="()=>props.deleteMoveLine(item.id)" style="cursor: pointer;"></i>
+                            </div>
+                        </div>
+                        <div style="color: red;">.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

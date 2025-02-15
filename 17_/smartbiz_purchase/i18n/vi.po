@@ -1,0 +1,602 @@
+msgid ""
+msgstr ""
+
+#. module: smartbiz_purchase
+#: model:res_groups,name:smartbiz_purchase.group_roles_purchase_requester_1
+msgid "Purchase Requester"
+msgstr "Người yêu cầu"
+
+#. module: smartbiz_purchase
+#: model:res_groups,name:smartbiz_purchase.group_roles_purchaser_2
+msgid "Purchaser"
+msgstr "Người mua"
+
+#. module: smartbiz_purchase
+#: model:res_groups,name:smartbiz_purchase.group_roles_purchase_approver_3
+msgid "Purchase Approver"
+msgstr "Người phê duyệt mua hàng"
+
+#. module: smartbiz_purchase
+#: model:res_groups,name:smartbiz_purchase.group_roles_purchase_requester_approver_4
+msgid "Purchase Requester Approver"
+msgstr "Người phê duyệt người yêu cầu mua hàng"
+
+#. module: smartbiz_purchase
+#: model:res_groups,name:smartbiz_purchase.group_roles_purchase_admin_5
+msgid "Purchase Admin"
+msgstr "Quản trị viên mua hàng"
+
+#. module: smartbiz_purchase
+#: model:res_groups,name:smartbiz_purchase.group_roles_budget_admin_6
+msgid "Budget Admin"
+msgstr "Quản trị ngân sách"
+
+#. module: smartbiz_purchase
+#: model:res_groups,name:smartbiz_purchase.group_roles_budget_report_7
+msgid "Budget Report"
+msgstr "Báo cáo ngân sách"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_res_users
+#: model:ir.ui.menu,name:smartbiz_purchase.res_users_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.res_users_action
+msgid "Users"
+msgstr "Người dùng"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_res_partner
+#: model:ir.ui.menu,name:smartbiz_purchase.res_partner_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.res_partner_action
+msgid "Partner"
+msgstr "Đối tác"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_res_employee
+#: model:ir.ui.menu,name:smartbiz_purchase.res_employee_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.res_employee_action
+msgid "Employee"
+msgstr "Người lao động"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_ir_attachment
+#: model:ir.ui.menu,name:smartbiz_purchase.ir_attachment_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.ir_attachment_action
+msgid "Attachment"
+msgstr "Tệp đính kèm"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_uom_uom
+#: model:ir.ui.menu,name:smartbiz_purchase.uom_uom_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.uom_uom_action
+msgid "uom"
+msgstr "Đơn vị"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_res_currency
+#: model:ir.ui.menu,name:smartbiz_purchase.res_currency_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.res_currency_action
+msgid "currency"
+msgstr "Tiền tệ"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_purchase_order
+#: model:ir.ui.menu,name:smartbiz_purchase.purchase_order_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.purchase_order_action
+msgid "order"
+msgstr "Đơn hàng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_purchase_order__purchase_requisition_id
+msgid "Purchase Requisition"
+msgstr "Yêu cầu mua hàng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_purchase_order__quotation_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__quotation_ids
+#: model:ir.model,name:smartbiz_purchase.model_smartbiz_purchase_quotation
+#: model:ir.ui.menu,name:smartbiz_purchase.smartbiz_purchase_quotation_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.smartbiz_purchase_quotation_action
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation_line__quotation_id
+msgid "Quotation"
+msgstr "Báo giá"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_purchase_order_line
+#: model:ir.ui.menu,name:smartbiz_purchase.purchase_order_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.purchase_order_line_action
+msgid "order.line"
+msgstr "dòng đặt hàng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_purchase_order_line__requisition_line_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request_line__requisition_line_id
+#: model:ir.model,name:smartbiz_purchase.model_smartbiz_purchase_requisition_line
+#: model:ir.ui.menu,name:smartbiz_purchase.smartbiz_purchase_requisition_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.smartbiz_purchase_requisition_line_action
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation_line__requisition_line_id
+msgid "Requisition Line"
+msgstr "Chi tiết yêu cầu"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_purchase_order_line__request_line_id
+#: model:ir.model,name:smartbiz_purchase.model_smartbiz_purchase_request_line
+#: model:ir.ui.menu,name:smartbiz_purchase.smartbiz_purchase_request_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.smartbiz_purchase_request_line_action
+msgid "Request Line"
+msgstr "Chi tiết yêu cầu"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_purchase_order_line__quotation_line_id
+#: model:ir.model,name:smartbiz_purchase.model_smartbiz_purchase_quotation_line
+#: model:ir.ui.menu,name:smartbiz_purchase.smartbiz_purchase_quotation_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.smartbiz_purchase_quotation_line_action
+msgid "Quotation Line"
+msgstr "Dòng báo giá"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_product_product
+#: model:ir.ui.menu,name:smartbiz_purchase.product_product_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.product_product_action
+msgid "product"
+msgstr "Sản phẩm"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_project_project
+#: model:ir.ui.menu,name:smartbiz_purchase.project_project_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.project_project_action
+msgid "project"
+msgstr "Dự án"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_smartbiz_organization_unit
+#: model:ir.ui.menu,name:smartbiz_purchase.smartbiz_organization_unit_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.smartbiz_organization_unit_action
+msgid "organization_unit"
+msgstr "Đơn vị tổ chức"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_smartbiz_purchase_request
+#: model:ir.ui.menu,name:smartbiz_purchase.smartbiz_purchase_request_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.smartbiz_purchase_request_action
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request__name
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request_line__request_id
+msgid "Request"
+msgstr "Yêu cầu"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request__requester_id
+msgid "Requester"
+msgstr "Người yêu cầu"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request__organization_unit_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget__organization_unit_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_line__organization_unit_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_order__organization_unit_id
+msgid "Organization Unit"
+msgstr "Đơn vị tổ chức"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request__request_category_id
+#: model:ir.model,name:smartbiz_purchase.model_smartbiz_purchase_request_category
+#: model:ir.ui.menu,name:smartbiz_purchase.smartbiz_purchase_request_category_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.smartbiz_purchase_request_category_action
+msgid "Request Category"
+msgstr "Danh mục yêu cầu"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request__date
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__date
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation__date
+msgid "Date"
+msgstr "Ngày"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request__budget_period_id
+#: model:ir.model,name:smartbiz_purchase.model_smartbiz_purchase_budget_period
+#: model:ir.ui.menu,name:smartbiz_purchase.smartbiz_purchase_budget_period_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.smartbiz_purchase_budget_period_action
+msgid "Budget Period"
+msgstr "Kỳ ngân sách"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request__budget_remain
+msgid "Budget Remain"
+msgstr "Ngân sách còn lại"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request__request_amount
+msgid "Request Amount"
+msgstr "Số tiền yêu cầu"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request__lines_ids
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__lines_ids
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation__lines_ids
+msgid "Lines"
+msgstr "Dòng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request__description
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request_line__description
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request_category__description
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__description
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_category__description
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation_line__description
+msgid "Description"
+msgstr "Miêu tả"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request__requisition_id
+#: model:ir.model,name:smartbiz_purchase.model_smartbiz_purchase_requisition
+#: model:ir.ui.menu,name:smartbiz_purchase.smartbiz_purchase_requisition_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.smartbiz_purchase_requisition_action
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__requisition_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation__requisition_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation_line__requisition_id
+msgid "Requisition"
+msgstr "Yêu cầu mua"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request__state
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__state
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation__state
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_line__state
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_order__state
+msgid "State"
+msgstr "Tình trạng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request_line__name
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__name
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__name
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_category__name
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation__name
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation_line__name
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget__name
+msgid "Name"
+msgstr "Tên"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request_line__product_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__product_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation_line__product_id
+msgid "Product"
+msgstr "Sản phẩm"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request_line__quantity
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__quantity
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation_line__quantity
+msgid "Quantity"
+msgstr "Số lượng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request_line__uom_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__uom_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation_line__uom_id
+msgid "UoM"
+msgstr "Đơn vị"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request_line__unit_price
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__unit_price
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation_line__unit_price
+msgid "Unit Price"
+msgstr "Đơn giá"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request_line__total_price
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__total_price
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation_line__total_price
+msgid "Total Price"
+msgstr "Tổng tiền"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request_line__delivery_date
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__delivery_date
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__delivery_date
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation__delivery_date
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation_line__delivery_date
+msgid "Delivery Date"
+msgstr "Ngày giao hàng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_request_category__name
+msgid "Category"
+msgstr "Loại"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__curency_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation__curency_id
+msgid "Curency"
+msgstr "Tiền tệ"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__requisition_amount
+msgid "Requisition Amount"
+msgstr "Số tiền yêu cầu"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__order_amount
+msgid "Order Amount"
+msgstr "Số tiền đặt hàng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__requests_ids
+msgid "Requests"
+msgstr "Yêu cầu"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__quotations
+msgid "Quotations"
+msgstr "Báo giá"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__purchase_order_ids
+msgid "Purchase Order"
+msgstr "Đơn đặt hàng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__purchase_orders
+msgid "Purchase Orders"
+msgstr "Đơn đặt hàng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__quotation_lines_ids
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition__quotation_lines
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__quotation_lines_ids
+msgid "Quotation Lines"
+msgstr "Dòng báo giá"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__request_quantity
+msgid "Request Quantity"
+msgstr "Số lượng yêu cầu"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__request_price
+msgid "Request Price"
+msgstr "Đơn giá"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__request_total
+msgid "Request Total"
+msgstr "Tổng tiền"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__order_quantity
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation_line__order_quantity
+msgid "Order Quantity"
+msgstr "Số lượng đặt hàng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_requisition_line__request_lines_ids
+msgid "Request Lines"
+msgstr "Dòng yêu cầu"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_smartbiz_purchase_requisition_category
+#: model:ir.ui.menu,name:smartbiz_purchase.smartbiz_purchase_requisition_category_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.smartbiz_purchase_requisition_category_action
+msgid "Requisition Category"
+msgstr "Danh mục yêu cầu"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_quotation__supplier_id
+msgid "Supplier"
+msgstr "Nhà cung cấp"
+
+#. module: smartbiz_purchase
+#: model:ir.model,name:smartbiz_purchase.model_smartbiz_purchase_budget
+#: model:ir.ui.menu,name:smartbiz_purchase.smartbiz_purchase_budget_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.smartbiz_purchase_budget_action
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_line__budget_id
+msgid "Budget"
+msgstr "Ngân sách"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget__period_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_line__period_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_order__period_id
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_period__name
+msgid "Period"
+msgstr "Kỳ ngân sách"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget__budget_amount
+msgid "Budget Amount"
+msgstr "Ngân sách"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget__used_amount
+msgid "Used Amount"
+msgstr "Ngân sách đã dùng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget__remain_amount
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_order__remain_amount
+msgid "Remain Amount"
+msgstr "Ngân sách còn lại"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget__budget_line_ids
+#: model:ir.model,name:smartbiz_purchase.model_smartbiz_purchase_budget_line
+#: model:ir.ui.menu,name:smartbiz_purchase.smartbiz_purchase_budget_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.smartbiz_purchase_budget_line_action
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_order__budget_line_ids
+msgid "Budget Line"
+msgstr "Dòng ngân sách"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_line__type
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_order__type
+msgid "Type"
+msgstr "Kiểu"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_line__amount
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_order__amount
+msgid "Amount"
+msgstr "Số tiền"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_line__budget_order_id
+#: model:ir.model,name:smartbiz_purchase.model_smartbiz_purchase_budget_order
+#: model:ir.ui.menu,name:smartbiz_purchase.smartbiz_purchase_budget_order_menuitem
+#: model:ir.actions.act_window,name:smartbiz_purchase.smartbiz_purchase_budget_order_action
+msgid "Budget Order"
+msgstr "Lệnh điều chỉnh"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_order__name
+msgid "Order"
+msgstr "Đơn"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_order__destination_period_id
+msgid "Destination Period"
+msgstr "Kỳ đích"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_order__destination_organization_unit_id
+msgid "Destination Organization Unit"
+msgstr "Đơn vị đích"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields,field_description:smartbiz_purchase.field_smartbiz_purchase_budget_period__active
+msgid "Active"
+msgstr "Kích hoạt"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_request__state__draft
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_requisition__state__draft
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_quotation__state__draft
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_budget_order__state__draft
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_budget_line__state__draft
+msgid "Draft"
+msgstr "Bản nháp"
+
+#. module: smartbiz_purchase
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_request_form
+msgid "Send to Approve"
+msgstr "Gửi để phê duyệt"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_request__state__processing
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_quotation__state__processing
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_budget_order__state__processing
+msgid "Processing"
+msgstr "Đang thực hiện"
+
+#. module: smartbiz_purchase
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_request_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_requisition_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_quotation_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_budget_order_form
+msgid "Approve"
+msgstr "Phê duyệt"
+
+#. module: smartbiz_purchase
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_request_form
+msgid "Reject"
+msgstr "Từ chối"
+
+#. module: smartbiz_purchase
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_request_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_requisition_form
+msgid "ReDo"
+msgstr "Làm lại"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_request__state__approved
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_quotation__state__approved
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_budget_order__state__approved
+msgid "Approved"
+msgstr "Đã phê duyệt"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_request__state__rejected
+msgid "Rejected"
+msgstr "Bị từ chối"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_request__state__ordering
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_quotation__state__ordering
+msgid "Ordering"
+msgstr "Đang đặt hàng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_request__state__ordered
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_requisition__state__ordered
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_quotation__state__ordered
+msgid "Ordered"
+msgstr "Đã đặt hàng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_request__state__cancel
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_request_form
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_requisition__state__cancel
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_requisition_form
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_quotation__state__cancel
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_quotation_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_budget_order_form
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_budget_order__state__cancel
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_budget_line__state__cancel
+msgid "Cancel"
+msgstr "Hủy bỏ"
+
+#. module: smartbiz_purchase
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_requisition_form
+msgid "Create Product"
+msgstr "Tạo sản phẩm"
+
+#. module: smartbiz_purchase
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_requisition_form
+msgid "Send for Approve"
+msgstr "Gửi để phê duyệt"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_requisition__state__pr processing
+msgid "PR Processing"
+msgstr "Xử lý PR"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_requisition__state__pr approved
+msgid "PR Approved"
+msgstr "PR đã được phê duyệt"
+
+#. module: smartbiz_purchase
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_requisition_form
+msgid "Create RFQ"
+msgstr "Tạo RFQ"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_requisition__state__po processing
+msgid "PO Processing"
+msgstr "Xử lý đơn hàng"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_requisition__state__po approved
+msgid "PO Approved"
+msgstr "PO đã được phê duyệt"
+
+#. module: smartbiz_purchase
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_quotation_form
+msgid "Send to Supplier"
+msgstr "Gửi cho nhà cung cấp"
+
+#. module: smartbiz_purchase
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_budget_order_form
+msgid "Confirm"
+msgstr "Xác nhận"
+
+#. module: smartbiz_purchase
+#: model_terms:ir.ui.view,arch_db:smartbiz_purchase.smartbiz_purchase_budget_line_form
+msgid "Post"
+msgstr "Ghi nhận"
+
+#. module: smartbiz_purchase
+#: model:ir.model.fields.selection,name:smartbiz_purchase.selection__smartbiz_purchase_budget_line__state__posted
+msgid "Posted"
+msgstr "Đã ghi"

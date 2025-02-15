@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">smartbiz_barcode.config.settings.view.form</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="30"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <app data-string="Smartbiz Barcode" string="Smartbiz Barcode" name="smartbiz_barcode">
+                        <block title="Stock" name="operations_setting_container">
+                            <setting id="barcode_stockpicking" string="SmartBiz Barcode" help="Enable barcode scanning for stock picking operations">
+                                <field name="module_smartbiz_barcode"/>
+                            </setting>
+                            <setting id="barcode_stockpicking_batch" string="Barcode Stock" help="Enable barcode scanning for stock picking batch operations">
+                                <field name="module_smartbiz_barcode_stock"/>
+                            </setting>
+                        </block>
+                        <block title="Manufacturing" name="operations_setting_container">
+                            <setting id="barcode_production_order" string="Barcode Production Order" help="Enable barcode scanning for production orders">
+                                <field name="module_smartbiz_barcode_production"/>
+                            </setting>
+                            <setting id="barcode_work_order" string="Barcode Workorder" help="Enable barcode scanning for work orders">
+                                <field name="module_smartbiz_barcode_workorder"/>
+                            </setting>
+                            <setting id="dashboard" string="Dashboard Workorder" help="View Dashboard">
+                                <field name="module_smartbiz_dashboard"/>
+                            </setting>
+                        </block>
+                        <block title="Operations" name="operations_setting_container">
+                            <setting id="barcode_stock_order" string="Barcode Barcode Stock" help="Enable barcode scanning for production orders">
+                                <field name="show_smartbiz_barcode_stock"/>
+                            </setting>
+                            <setting id="barcode_production" string="Barcode Production" help="Enable barcode scanning for Production orders">
+                                <field name="show_smartbiz_barcode_production"/>
+                            </setting>
+                            <setting id="barcode_work_order" string="Barcode Workorder" help="Enable barcode scanning for work orders">
+                                <field name="show_smartbiz_barcode_workorder"/>
+                            </setting>
+                        </block>
+                    </app>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="action_smartbiz_barocde_config_settings" model="ir.actions.act_window">
+            <field name="name">Settings</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">{'module' : 'smartbiz_barcode', 'bin_size': False}</field>
+        </record>
+
+        <!-- <menuitem id="menu_stock_config_settings" name="Configuration" parent="menu_stock_root"
+            sequence="100" groups="group_stock_manager"/>
+        <menuitem id="menu_stock_general_settings" name="Settings" parent="menu_stock_config_settings"
+            sequence="0" action="action_stock_config_settings" groups="base.group_system"/> -->
+    </data>
+</odoo>
