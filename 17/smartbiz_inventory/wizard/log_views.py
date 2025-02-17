@@ -16,7 +16,26 @@ class InventoryConfirmWizard(models.TransientModel):
             return {'type': 'ir.actions.act_window_close'}
         else:
             return {'type': 'ir.actions.act_window_close'}
-
     def action_cancel(self):
         """Hủy, không làm gì cả"""
+        
+        return {'type': 'ir.actions.act_window_close'}
+    
+class InventoryCancelWizard(models.TransientModel):
+    _name = 'smartbiz.inventory.cancel.wizard'
+    _description = 'Hủy kiểm kê'
+
+    inventory_id = fields.Many2one('smartbiz.inventory', string='Phiếu kiểm kê', required=True)
+
+
+    def action_confirm(self):
+        """Hủy, không làm gì cả"""
+        """Gọi action_cancel để thực hiện hủy kiểm kê"""
+        
+        self.inventory_id.action_cancel()
+        return {'type': 'ir.actions.act_window_close'}
+    
+    def action_cancel(self):
+        """Hủy, không làm gì cả"""
+        
         return {'type': 'ir.actions.act_window_close'}

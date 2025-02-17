@@ -35,10 +35,16 @@ class Inventory(models.Model):
     inventory_period_id = fields.Many2one('smartbiz.inventory.period', string="Inventory Period", required=True)
     inventory_location_ids = fields.Many2many('stock.location', string="Inventory Locations")
     line_ids = fields.One2many('smartbiz.inventory.line', 'inventory_id', string="Inventory Lines")
+    set_count = fields.Selection([
+        ('empty', 'Empty'),
+        ('set', 'Set Quantity'),
+    ], string="Số lượng", default='empty')
+    
     state = fields.Selection([
         ('draft', 'Draft'),
         ('in_progress', 'In Progress'),
         ('done', 'Done'),
+        ('cancel', 'Cancel'),
     ], string="State", default='draft')
 
     def action_start(self):
@@ -46,6 +52,11 @@ class Inventory(models.Model):
         self.state = 'in_progress'
         self.line_ids.unlink()
         self._generate_inventory_lines()
+    
+    def action_cancel(self):
+        """ Bắt đầu kiểm kê - lọc danh sách kiểm kê theo location nếu có """
+        self.state = 'cancel'
+        self.line_ids.unlink()
 
     def _generate_inventory_lines(self):
         """ Tạo danh sách kiểm kê dựa trên location nếu có """
@@ -55,6 +66,8 @@ class Inventory(models.Model):
 
         quants = self.env['stock.quant'].search(domain)
         for quant in quants:
+            quantity_counted = 0 if self.set_count == 'empty' else quant.quantity
+            
             self.env['smartbiz.inventory.line'].create({
                 'inventory_id': self.id,
                 'product_id': quant.product_id.id,
@@ -63,7 +76,7 @@ class Inventory(models.Model):
                 'location_id': quant.location_id.id,
                 'company_id': self.company_id.id,  
                 'quantity_before': quant.quantity,
-                'quantity_counted': quant.quantity,
+                'quantity_counted': quantity_counted,
                 'quant_id': quant.id,
             })
 
@@ -73,6 +86,7 @@ class Inventory(models.Model):
         for line in self.line_ids:
             self.env['smartbiz.inventory.history'].create({
                 'inventory_id': self.id,
+                'name': self.name,
                 'product_id': line.product_id.id,
                 'lot_id': line.lot_id.id if line.lot_id else False,
                 'package_id': line.package_id.id if line.package_id else False,
@@ -111,6 +125,15 @@ class Inventory(models.Model):
             'context': {'default_inventory_id': self.id},
         } 
     
+    def open_cancel_wizard(self):
+        return {
+            'name': 'Hủy kiểm kê',
+            'type': 'ir.actions.act_window',
+            'res_model': 'smartbiz.inventory.cancel.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_inventory_id': self.id},
+        }
     def get_order(self):
         """Lấy danh sách các phiếu kiểm kê đang thực hiện, kèm theo chi tiết dòng kiểm kê"""
         

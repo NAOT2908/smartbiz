@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="seq_smartbiz_mes_package" model="ir.sequence">
+    <record id="seq_smartbiz_inventory_history" model="ir.sequence">
         <field name="name">smartbiz inventory history</field>
         <field name="code">smartbiz.inventory.history</field>
         <field name="prefix">%(year)s%(month)s%(day)s/KK/</field>
         <field name="padding">7</field>
     </record>
+
+    <!-- <record id="seq_smartbiz_inventory" model="ir.sequence">
+        <field name="name">smartbiz inventory history</field>
+        <field name="code">smartbiz.inventory</field>
+        <field name="prefix">%(year)s%(month)s%(day)s/KK/</field>
+        <field name="padding">7</field>
+    </record> -->
 
     <record id="view_inventory_history_tree" model="ir.ui.view">
         <field name="name">smartbiz.inventory.history.tree</field>
@@ -73,9 +80,11 @@
             <form string="Inventory">
                 <header>
                     <button name="action_start" type="object" string="Start Inventory"
-                        class="btn-primary" invisible="state in 'done'"/>
+                        class="btn-primary" invisible="state in ['done', 'cancel']"/>
                     <button name="open_confirm_wizard" type="object" string="Validate"
-                        class="btn-success" invisible="state in 'done'"/>
+                        class="btn-success" invisible="state in ['done', 'cancel']"/>
+                    <button name="open_cancel_wizard" type="object" string="Cancel"
+                        class="btn-secondary" invisible="state in ['done', 'cancel']"/>
                     <field name="state" widget="statusbar" />
                 </header>
                 <sheet>
@@ -84,9 +93,10 @@
                             <field name="name" />
                             <field name="date" />
                             <field name="company_id" />
+                            <field name="set_count" widget="radio" field_id="set_count_0"/>
                         </group>
                         <group>
-                            <field name="user_id" />
+                            <field name="user_id" widget="many2one_avatar_user" domain="[('share', '=', False)]" readonly="state in ['cancel', 'done']"/>
                             <field name="inventory_period_id" />
                             <field name="inventory_location_ids" widget="many2many_tags" />
                         </group>
@@ -116,9 +126,9 @@
                 <field name="name" />
                 <field name="date" />
                 <field name="company_id" />
-                <field name="user_id" />
+                <field name="user_id" widget="many2one_avatar_user" readonly="state in ['cancel', 'done']"/>
                 <field name="inventory_period_id" />
-                <field name="state" />
+                <field name="state" widget="badge" decoration-danger="state=='cancel'" decoration-info="state== 'in_progress'" decoration-muted="state == 'draft'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','in_progress')"/>
             </tree>
         </field>
     </record>

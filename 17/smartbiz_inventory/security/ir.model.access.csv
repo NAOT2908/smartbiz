@@ -4,3 +4,4 @@ access_smartbiz_inventory_period,user_rights,model_smartbiz_inventory_period,bas
 access_smartbiz_inventory_line,user_rights,model_smartbiz_inventory_line,base.group_user,1,1,1,1
 access_smartbiz_inventory_history,user_rights,model_smartbiz_inventory_history,base.group_user,1,1,1,1
 access_smartbiz_inventory_confirm_wizard,user_rights,model_smartbiz_inventory_confirm_wizard,base.group_user,1,1,1,1
+access_smartbiz_inventory_cancel_wizard,user_rights,model_smartbiz_inventory_cancel_wizard,base.group_user,1,1,1,1
