@@ -27,6 +27,8 @@ class mrp_Production(models.Model):
             'search_default_product_id': self.product_id.id if self.product_id else False,
             'default_product_id': self.product_id.id if self.product_id else False,
             'default_company_id': self.company_id.id,
+            'search_default_workcenter_id': self.workcenter_id.id if self.workcenter_id else False,
+            'search_default_production_line_id': self.production_line_id.id if self.production_line_id else False,
         }
         
         action = {
@@ -165,7 +167,7 @@ class mrp_Production(models.Model):
             parsed_results = nomenclature.parse_barcode(barcode)
             if parsed_results:
                 for result in parsed_results[::-1]:
-                    if result['rule'].type in ('product', 'lot', 'workcenter'):
+                    if result['rule'].type in ('product', 'lot', 'workcenter', 'production'):
                         barcode_type = result['rule'].type
                         break
 
@@ -196,6 +198,13 @@ class mrp_Production(models.Model):
             if workcenter:
                 production_nums = self.search_count(production_domain + [('workcenter_id', '=', workcenter.id)])
                 additional_context['search_default_workcenter_id'] = workcenter.id
+        
+        # Kiểm tra barcode production
+        if barcode_type == 'production' or (not barcode_type and not production_nums):
+            production = self.env['smartbiz_mes.production_line'].search([('code', '=', barcode)], limit=1)
+            if production:
+                production_nums = self.search_count(production_domain + [('production_line_id', '=', production.id)])
+                additional_context['search_default_production_line_id'] = production.id
 
         # Nếu không tìm thấy theo barcode, thử tìm theo tên đơn sản xuất
         if not barcode_type and not production_nums:

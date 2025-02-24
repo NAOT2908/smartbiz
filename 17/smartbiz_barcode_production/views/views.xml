@@ -72,7 +72,21 @@
       <field name="domain">[]</field>
       <field name="context">{}</field>
     </record>
-<!-- Menu -->
-
+<!-- Menu search-->
+    <record id="inherit_mrp_production_search" model="ir.ui.view">
+        <field name="name">mrp.production.search.inherit.production_line</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='workcenter_id']" position="after">
+                <field name="production_line_id" string="Dây chuyền sản xuất"
+                    filter_domain="[('production_line_id', 'ilike', self)]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Dây chuyền sản xuất" name="group_production_line"
+                        domain="[]" context="{'group_by': 'production_line_id'}"/>
+            </xpath>
+        </field>
+    </record>
 
 </odoo>

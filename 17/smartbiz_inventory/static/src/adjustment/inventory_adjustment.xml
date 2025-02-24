@@ -3,31 +3,63 @@
     <t t-name="CustomInventoryViewTemplate">
         <div class="inventory-header">
             <nav class="inventory_nav">
-            <nav class="inventory_nav_left">
-                <button t-on-click="exit" class="inventory_nav-link">
-                    <i class="oi oi-chevron-left" />
-                </button>
-                (<t t-esc="this.state.data.length"/>) 
-                <div class="inventory_nav_title"> Điều chỉnh tồn kho
-                    <div class="inventory_search-box" t-if="state.search">
-                        <input class="inventory_search-input" t-on-input="handleInput" t-att-value="state.searchInput"
-                            placeholder="Tìm kiếm" />
+                <nav class="inventory_nav_left">
+                    <button t-on-click="exit" class="inventory_nav-link">
+                        <i class="oi oi-chevron-left" />
+                    </button>
+                    <!-- (
+                    <t t-esc="this.state.data.length" />) -->
+                    <div class="inventory_nav_title"> Điều chỉnh tồn kho
+                        
                     </div>
-                </div>
-                
+
+                </nav>
+                <nav class="inventory_nav_right">
+                    <!-- <div class="inventory_nav-link" t-on-click="searchClick">
+                        <i class="fa fa-search" />
+                    </div> -->
+                    <div class="inventory_search-box" >
+                            <!-- <input class="inventory_search-input" 
+                                 placeholder="Tìm kiếm" /> -->
+                                
+                            <div class="input-wrapper">
+                            <button class="icon">
+                                <svg
+                                width="25px"
+                                height="25px"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                >
+                                <path
+                                    d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+                                    stroke="#fff"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                ></path>
+                                <path
+                                    d="M22 22L20 20"
+                                    stroke="#fff"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                ></path>
+                                </svg>
+                            </button>
+                            <input type="text" name="text" class="input" placeholder="Tìm kiếm..." t-model="state.search"
+                                t-on-change="onSearchChange"
+                            />
+                            </div>
+                        </div>
+                    <div class="inventory_nav-link" t-on-click="openManualScanner">
+                        <i class="fa fa-barcode" />
+                    </div>
+                    <div class="inventory_nav-link" t-on-click="toggleMenu">
+                        <i class="fa fa-bars"></i>
+                    </div>
+                </nav>
             </nav>
-            <nav class="inventory_nav_right">
-                <div class="inventory_nav-link" t-on-click="searchClick">
-                    <i class="fa fa-search" />
-                </div>
-                <div class="inventory_nav-link" t-on-click="openManualScanner">
-                    <i class="fa fa-barcode" />
-                </div>
-                <div class="inventory_nav-link" t-on-click="toggleMenu">
-                    <i class="fa fa-bars"></i>
-                </div>
-            </nav>
-        </nav>
         </div>
 
         <!-- Apply the class based on menu visibility -->
@@ -53,62 +85,75 @@
                 <button t-on-click="cancelOrder">ZZZ</button>
             </div>
         </div>
-        
+
         <div t-if="state.view === 'AdjustmentInventory'">
             <div>
                 <div t-foreach="state.data" t-as="item" t-key="item.id" class="inventory-item">
-                        <div class="info-item">
-                            <div>
-                                <t t-esc="item.name"/>
-                            </div>
-                            <div>
-                                <t t-esc="item.state" />
-                            </div>
-                            <div>
-                                <t t-esc="item.date" />
-                            </div>
+                    <div class="info-item">
+                        <div>
+                            <t t-esc="item.name" />
                         </div>
-                        <div class="btn-item o_line_buttons">
-                            <button t-on-click="() => this.selectOrder(item.id)" class="o_line_button o_edit btn btn-secondary">
-                                <i
-                                    class="fa fa-pencil"></i>
-                            </button>
+                        <div>
+                            <t t-esc="item.state" />
+                        </div>
+                        <div>
+                            <t t-esc="item.date" />
                         </div>
                     </div>
+                    <div class="btn-item">
+                        <!-- <button t-on-click="() => this.selectOrder(item.id)"
+                            class="o_line_button o_edit btn btn-secondary">
+                            <i class="fa fa-pencil"></i>
+                        </button> -->
+                        <!-- From Uiverse.io by Li-Deheng --> 
+                        <button t-on-click="() => this.selectOrder(item.id)">
+                            <svg width="15" height="15" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linejoin="round" stroke-linecap="round"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <div t-if="state.view === 'DetailInventory'" class="inventory-content">
-                <div class="list-items">
-                    <div t-foreach="state.lines" t-as="item" t-key="item.id" class="inventory-item">
-                        <div class="info-item">
-                            <div>
-                                <t t-esc="item.location_name"/>
-                            </div>
-                            <div>
-                                <t t-esc="item.product_name" />
-                            </div>
-                            <div t-if="item.lot_id">
-                                <t t-esc="item.lot_name" />
-                            </div>
-                            <div t-if="item.package_id">
-                                <t t-esc="item.package_name" />
-                            </div>
-                            <div>
-                                <t t-esc="item.inventory_quantity" /> / <t t-esc="item.quantity" />
-                            </div>
+            <div class="list-items">
+                <div t-foreach="state.lines" t-as="item" t-key="item.id" class="inventory-item">
+                    <div class="info-item">
+                        <div>
+                            <t t-esc="item.location_name" />
                         </div>
-                        <div class="btn-item o_line_buttons">
-                            <button class="o_line_button o_edit btn btn-secondary">
-                                <i
-                                    class="fa fa-pencil"></i>
-                            </button>
-                            <button class="o_line_button btn btn-secondary">
-                                <i
-                                    class="fa fa-trash"></i>
-                            </button>
+                        <div>
+                            <t t-esc="item.product_name" />
+                        </div>
+                        <div t-if="item.lot_id">
+                            <t t-esc="item.lot_name" />
+                        </div>
+                        <div t-if="item.package_id">
+                            <t t-esc="item.package_name" />
+                        </div>
+                        <div>
+                            <t t-esc="item.quantity_counted" /> /
+                            <t t-esc="item.quantity_before" />
                         </div>
                     </div>
+                    <div class="o_line_buttons py-1 text-end">
+                        <span class="d-inline-block my-1">
+                            <button class="o_line_button o_edit btn btn-secondary">
+                                <i class="fa fa-pencil"></i>
+                            </button>
+                            <button class="o_line_button o_set btn ms-2"></button>
+                        </span>
+                        <span class="d-inline-block my-1">
+                            <button name="decrementButton" 
+                                class="o_line_button o_remove_unit d-inline-block btn btn-primary ms-2"
+                                >-1</button>
+                            <button name="incrementButton"
+                                    class="o_line_button o_add_quantity d-inline-block btn btn-primary ms-2">+1</button>
+
+                            </span>
+                    </div>
                 </div>
+            </div>
         </div>
     </t>
 </templates>

@@ -17,8 +17,8 @@ from openpyxl import load_workbook
 class mrp_Production(models.Model):
     _inherit = ['mrp.production']
     production_line_id = fields.Many2one('smartbiz_mes.production_line', string='Production Line')
-    name = fields.Char(store='True', readonly=False)
-    production_request_id = fields.Many2one('smartbiz_mes.production_request', string='Production Request')
+    name = fields.Char(store='True', readonly=False, default = '')
+    production_request_id = fields.Many2one('smartbiz_mes.request', string='Production Request')
 
 
     def _get_fields(self,model):
@@ -1117,7 +1117,7 @@ class mrp_Workorder(models.Model):
 class mrp_BoM(models.Model):
     _inherit = ['mrp.bom']
     components_ids = fields.One2many('smartbiz_mes.bom_components', 'bom_id')
-    checkpoints_ids = fields.One2many('smartbiz_mes.quality_point', 'bom_id')
+
 
 class mrp_bomline(models.Model):
     _inherit = ['mrp.bom.line']
@@ -1133,38 +1133,41 @@ class mrp_bombyproduct(models.Model):
     _inherit = ['mrp.bom.byproduct']
     components_ids = fields.One2many('smartbiz_mes.bom_components', 'product_id')
 
-class smartbiz_mes_ProductionLineType(models.Model):
-    _name = "smartbiz_mes.production_line_type"
-    _description = "Production Line Type"
-    name = fields.Char(string='Name')
-
 
 class Stock_picking(models.Model):
     _inherit = ['stock.picking']
-    production_request_id = fields.Many2one('smartbiz_mes.production_request', string='Production Request')
+    production_request_id = fields.Many2one('smartbiz_mes.request', string='Production Request')
 
 
-class purchase_order(models.Model):
-    _inherit = ['purchase.order']
-    production_request_id = fields.Many2one('smartbiz_mes.production_request', string='Production Request')
+    @api.model
+    def create(self, vals):
+        picking = super(Stock_picking, self).create(vals)
+        
+        # Nếu có đơn mua (purchase order) và purchase order có trường production_request_id thì gán cho picking
+        if picking.purchase_id and picking.purchase_id.production_request_id:
+            picking.production_request_id = picking.purchase_id.production_request_id.id
 
+        return picking
 
 class smartbiz_mes_Package(models.Model):
     _name = "smartbiz_mes.package"
     _description = "Package"
-
-    name = fields.Char(string='Name', default='New')
+    name = fields.Char(string='Name', default = 'New')
     current_step = fields.Char(string='Current Step')
     current_component_id = fields.Many2one('smartbiz_mes.bom_components', string='Current Component')
-    last_qty = fields.Float(string='Last Quantity', default=0.0)
-    current_workorder_id = fields.Many2one('mrp.workorder', string='Locked by WorkOrder')  # Mới thêm
+    last_qty = fields.Float(string='Last Qty')
+    current_workorder_id = fields.Many2one('product.product', string='Current Workorder')
 
 
     @api.model
     def create(self, values):
         if values.get('name', 'New') == 'New':
            values['name'] = self.env['ir.sequence'].next_by_code('smartbiz_mes.package') or 'New'
+
+
         res = super().create(values)
+
+
         return res
 
 class smartbiz_mes_Factory(models.Model):
@@ -1172,19 +1175,18 @@ class smartbiz_mes_Factory(models.Model):
     _description = "Factory"
     name = fields.Char(string='Name')
     company_id = fields.Many2one('res.company', string='Company')
-    production_lines_ids = fields.One2many('smartbiz_mes.production_line', 'type_id')
+    production_lines_ids = fields.One2many('smartbiz_mes.production_line', 'code')
 
 
 class smartbiz_mes_ProductionLine(models.Model):
     _name = "smartbiz_mes.production_line"
     _description = "Production Line"
     name = fields.Char(string='Name')
+    code = fields.Char(string='Code')
     type_id = fields.Many2one('smartbiz_mes.production_line_type', string='Type')
-    source_location_id = fields.Many2one('stock.location', string='Source Location')
-    destination_location_id = fields.Many2one('stock.location', string='Destination Location')
+    picking_type_id = fields.Many2one('stock.picking.type', string='Picking Type')
     factory_id = fields.Many2one('smartbiz_mes.factory', string='Factory')
     work_centers_ids = fields.One2many('mrp.workcenter', 'production_line_id')
-    capacity = fields.Float(string='Capacity')
 
 
 class smartbiz_mes_ProductionActivity(models.Model):
@@ -1232,34 +1234,14 @@ class smartbiz_mes_BoMComponents(models.Model):
     product_id = fields.Many2one('mrp.bom.byproduct', string='Product')
     bom_id = fields.Many2one('mrp.bom', string='BoM')
     operations_ids = fields.Many2many('mrp.routing.workcenter', 'routing_bom_components_rel1', 'operations_ids', 'components_ids', string='Operations')
-    check_points_ids = fields.One2many('smartbiz_mes.quality_point', 'bom_id')
     package_quantity = fields.Float(string='Package Quantity')
     print_label = fields.Boolean(string='Print Label')
-    
-    
-class smartbiz_mes_QualityPoint(models.Model):
-    _name = "smartbiz_mes.quality_point"
-    _description = "Quality Point"
-    name = fields.Char(string='Name')
-    bom_id = fields.Many2one('mrp.bom', string='BoM')
-    component_id = fields.Many2one('smartbiz_mes.bom_components', string='Component')
-    operation_id = fields.Many2one('mrp.routing.workcenter', string='Operation')
-    type = fields.Selection([('measure','Đo lường'),('check','Kiểm tra'),], string='Type')
-    instruction_ids = fields.Many2many('smartbiz_mes.instruction', 'quality_point_instruction_rel1', 'instruction_ids', 'quality_point_id', string='Instruction')
 
 
-class smartbiz_mes_QualityCheck(models.Model):
-    _name = "smartbiz_mes.quality_check"
-    _description = "Quality Check"
+class smartbiz_mes_ProductionLineType(models.Model):
+    _name = "smartbiz_mes.production_line_type"
+    _description = "Production Line Type"
     name = fields.Char(string='Name')
-    check_point_id = fields.Many2one('smartbiz_mes.quality_point', string='Check Point')
-    check_scope = fields.Float(string='Check Scope')
-    check_type = fields.Selection([('',''),], string='Check Type')
-    picking_id = fields.Many2one('stock.picking', string='Picking')
-    production_id = fields.Many2one('mrp.production', string='Production')
-    team = fields.Char(string='Team')
-    user_id = fields.Many2one('res.partner', string='User')
-    measure_ids = fields.Many2many('smartbiz_mes.measure', 'quality_check_measure_rel1', 'measure_ids', 'quality_check_id', string='Measure')
 
 
 class smartbiz_mes_ProductionReport(models.Model):
@@ -1375,21 +1357,6 @@ class smartbiz_mes_ProductionReport(models.Model):
             )
         """)
 
-class smartbiz_mes_Measure(models.Model):
-    _name = "smartbiz_mes.measure"
-    _description = "Measure"
-    name = fields.Char(string='Name')
-    quality_check_id = fields.Many2one('smartbiz_mes.quality_check', string='Quality Check')
-    type = fields.Selection([('',''),], string='Type')
-
-
-class smartbiz_mes_Instruction(models.Model):
-    _name = "smartbiz_mes.instruction"
-    _description = "Instruction"
-    name = fields.Char(string='Name')
-    quality_point_id = fields.Many2one('smartbiz_mes.quality_point', string='Quality Point')
-
-
 class smartbiz_mes_Process(models.Model):
     _name = "smartbiz_mes.process"
     _description = "Process"
@@ -1404,15 +1371,17 @@ class smartbiz_mes_Operation(models.Model):
     name = fields.Char(string='Name')
     process_id = fields.Many2one('smartbiz_mes.process', string='Process')
     production_line_type_id = fields.Many2one('smartbiz_mes.production_line_type', string='Production Line Type')
-    bom_id = fields.Many2one('mrp.bom', string='BoM')
-
-
-class smartbiz_mes_ProductionRequest(models.Model):
-    _name = "smartbiz_mes.production_request"
-    _description = "Production Request"
-    name = fields.Char(string='Name')
-    process_id = fields.Many2one('smartbiz_mes.process', string='Process')
     product_id = fields.Many2one('product.product', string='Product')
+    bom_id = fields.Many2one('mrp.bom', string='BOM')
+
+
+class smartbiz_mes_Request(models.Model):
+    _name = "smartbiz_mes.request"
+    _inherit = ['smartbiz.workflow_base', 'mail.thread', 'mail.activity.mixin']
+    _description = "Request"
+    name = fields.Char(string='Name')
+    product_id = fields.Many2one('product.product', string='Product')
+    process_id = fields.Many2one('smartbiz_mes.process', string='Process')
     quantity = fields.Float(string='Quantity')
     processing_quantity = fields.Float(string='Processing Quantity')
     done_quantity = fields.Float(string='Done Quantity')
@@ -1423,73 +1392,109 @@ class smartbiz_mes_ProductionRequest(models.Model):
     plan_finish = fields.Datetime(string='Plan Finish')
     schedule_finish = fields.Datetime(string='Schedule Finish')
     finish = fields.Datetime(string='Finish')
-    request_product_ids = fields.One2many('smartbiz_mes.request_product', 'production_request_id')
-    request_byproduct_ids = fields.One2many('smartbiz_mes.request_byproduct', 'production_request_id')
-    request_material_ids = fields.One2many('smartbiz_mes.request_material', 'production_request_id')
     production_ids = fields.One2many('mrp.production', 'production_request_id')
     picking_ids = fields.One2many('stock.picking', 'production_request_id')
     purchase_ids = fields.One2many('purchase.order', 'production_request_id')
-    request_product = fields.Integer(string='Request Product')
-    request_byproduct = fields.Integer(string='Request ByProduct')
-    request_material = fields.Integer(string='Request Material')
-    production = fields.Integer(string='Production')
-    picking = fields.Integer(string='Picking')
-    purchase = fields.Integer(string='Purchase')
+    move_ids = fields.One2many('stock.move', 'production_request_id')
+    production = fields.Integer(string='Production', compute='_compute_production', store=False)
+    picking = fields.Integer(string='Picking', compute='_compute_picking', store=False)
+    purchase = fields.Integer(string='Purchase', compute='_compute_purchase', store=False)
+    move = fields.Integer(string='Move', compute='_compute_move', store=False)
+    state = fields.Selection([('draft','Draft'),('confirmed','Confirmed'),('processing','Processing'),('done','Done'),('cancel','Cancel'),], string= 'Status', readonly= False, copy = True, index = False, default = 'draft')
 
 
-class smartbiz_mes_RequestMaterial(models.Model):
-    _name = "smartbiz_mes.request_material"
-    _description = "Request Material"
-    production_request_id = fields.Many2one('', string='Production Request')
-    product_id = fields.Many2one('product.product', string='Product')
-    bom_id = fields.Many2one('mrp.bom', string='BoM')
-    quantity = fields.Float(string='Quantity')
-    available_quantity = fields.Float(string='Available Quantity')
-    reserved_quantity = fields.Float(string='Reserved Quantity')
-    done_quantity = fields.Float(string='Done Quantity')
-    used_quantity = fields.Float(string='Used Quantity')
+    @api.depends('production_ids')
+    def _compute_production(self):
+        for record in self:
+            count = record.production_ids.search_count([('production_request_id', '=', record.id)])
+            record.production = count
+
+    @api.depends('picking_ids')
+    def _compute_picking(self):
+        for record in self:
+            count = record.picking_ids.search_count([('production_request_id', '=', record.id)])
+            record.picking = count
+
+    @api.depends('purchase_ids')
+    def _compute_purchase(self):
+        for record in self:
+            count = record.purchase_ids.search_count([('production_request_id', '=', record.id)])
+            record.purchase = count  
+
+    @api.depends('move_ids')
+    def _compute_move(self):
+        for record in self:
+            count = record.move_ids.search_count([('production_request_id', '=', record.id)])
+            record.move = count
+
+    def action_draft_confirm(self):
+        self.write({'state': 'confirmed'})
+
+        
+        
+    def action_confirmed_create_mos(self):
+        return True
+
+        
+        
+    def action_production(self):
+        action = self.env["ir.actions.actions"]._for_xml_id("smartbiz_mes.act_smartbiz_mes_request_2_mrp_production")
+        context = eval(action['context'])
+        context.update(dict(self._context,default_production_request_id=self.id))
+        action['context'] = context
+        action['domain'] = [('production_request_id', '=', self.id)]
+
+        return action
+
+    def action_purchase(self):
+        action = self.env["ir.actions.actions"]._for_xml_id("smartbiz_mes.act_smartbiz_mes_request_2_purchase_order")
+        context = eval(action['context'])
+        context.update(dict(self._context,default_production_request_id=self.id))
+        action['context'] = context
+        action['domain'] = [('production_request_id', '=', self.id)]
+
+        return action
+
+    def action_picking(self):
+        action = self.env["ir.actions.actions"]._for_xml_id("smartbiz_mes.act_smartbiz_mes_request_2_stock_picking")
+        context = eval(action['context'])
+        context.update(dict(self._context,default_production_request_id=self.id))
+        action['context'] = context
+        action['domain'] = [('production_request_id', '=', self.id)]
+
+        return action
+
+    def action_move(self):
+        action = self.env["ir.actions.actions"]._for_xml_id("smartbiz_mes.act_smartbiz_mes_request_2_stock_move")
+        context = eval(action['context'])
+        context.update(dict(self._context,default_production_request_id=self.id))
+        action['context'] = context
+        action['domain'] = [('production_request_id', '=', self.id)]
+
+        return action
+
+class purchase_order(models.Model):
+    _inherit = ['purchase.order']
+    production_request_id = fields.Many2one('smartbiz_mes.request', string='Production Request')
 
 
-class smartbiz_mes_RequestProduct(models.Model):
-    _name = "smartbiz_mes.request_product"
-    _description = "Request Product"
-    production_request_id = fields.Many2one('', string='Production Request')
-    product_id = fields.Many2one('product.product', string='Product')
-    bom_id = fields.Many2one('mrp.bom', string='BoM')
-    main_product = fields.Boolean(string='Main Product')
-    quantity = fields.Float(string='Quantity')
-    processing_quantity = fields.Float(string='Processing Quantity')
-    done_quantity = fields.Float(string='Done Quantity')
-    remain_quantity = fields.Float(string='Remain Quantity')
+class Stock_move(models.Model):
+    _inherit = ['stock.move']
+    production_request_id = fields.Many2one('smartbiz_mes.request', string='Production Request')
 
 
-class smartbiz_mes_RequestByProduct(models.Model):
-    _name = "smartbiz_mes.request_byproduct"
-    _description = "Request ByProduct"
-    production_request_id = fields.Many2one('', string='Production Request')
-    product_id = fields.Many2one('product.product', string='Product')
-    bom_id = fields.Many2one('mrp.bom', string='BoM')
-    quantity = fields.Float(string='Quantity')
-    processing_quantity = fields.Float(string='Processing Quantity')
-    done_quantity = fields.Float(string='Done Quantity')
-    remain_quantity = fields.Float(string='Remain Quantity')
-
-
-class smartbiz_mes_Capacity(models.Model):
-    _name = "smartbiz_mes.capacity"
-    _description = "Capacity"
-    production_line_id = fields.Many2one('smartbiz_mes.production_line', string='Production Line')
-    work_center_id = fields.Many2one('mrp.workcenter', string='Work Center')
-    product_id = fields.Many2one('product.product', string='Product')
-    capacity_per_hour = fields.Float(string='Capacity per Hour')
-
-
-class smartbiz_mes_ProductionSchedule(models.Model):
-    _name = "smartbiz_mes.production_schedule"
-    _description = "Production Schedule"
-    name = fields.Char(string='Name')
-    production_request_id = fields.Many2one('smartbiz_mes.production_request', string='Production Request')
-    depend_schedule_ids = fields.Many2many('smartbiz_mes.production_schedule', 'production_schedule_production_schedule_rel_1', 'depend_schedule_ids_1', 'depend_schedule_ids_2', string='Depend Schedule')
-    depend_type = fields.Char(string='Depend Type')
-
+    @api.model
+    def create(self, vals):
+        # Gọi hàm create của lớp cha để tạo record stock.move
+        move = super(Stock_move, self).create(vals)
+        
+        # Nếu có picking và picking có trường production_request_id thì gán cho move
+        if move.picking_id and move.picking_id.production_request_id:
+            move.production_request_id = move.picking_id.production_request_id.id
+        # Nếu không có picking, kiểm tra nếu move liên kết với mrp.production (thông qua trường raw_material_production_id)
+        # và production đó có production_request_id thì gán cho move
+        elif move.raw_material_production_id and move.raw_material_production_id.production_request_id:
+            move.production_request_id = move.raw_material_production_id.production_request_id.id
+        
+        return move
 

@@ -177,7 +177,9 @@
             <div class="section_header">Chi tiết dịch chuyển</div>
             <div class="move_line-items">
                 <div t-foreach="props.moveLines" t-as="item" t-key="item.id" t-on-click="()=>props.moveLineClick(item.id)">
-                    <div class="item" t-att-class="{selected: item.id == props.selectedMoveLine}">
+                    <div class="item" 
+                        t-att-data-id="item.id"
+                        t-att-class="(item.id === props.selectedMoveLine ? 'selected' : '') + getClass(item)">
                         <div style="font-size: 20px" t-esc="item.product_name"/>
                         <div>Số lượng hoàn thành:</div>
                         <div>

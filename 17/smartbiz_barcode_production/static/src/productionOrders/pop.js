@@ -44,6 +44,14 @@ export class MoveLines extends Component {
       selectedMoveLine: this.props.selectedMoveLine,
     });
   }
+  getClass(line) {
+    // console.log(line)
+    let cl = " ";
+    if (line.picked) {
+       cl += " bg-green";
+    }
+    return cl;
+  }
 }
 
 export class ProductOrderDetail extends Component {
@@ -242,7 +250,7 @@ export class ProductOrderDetail extends Component {
   moveLineClick = (id) => {
     this.state.selectedMoveLine = id;
     const line = this.state.moveLines.find((r) => r.id == id);
-
+    // console.log(line)
     if (this.state.isEditing === "editMaterial") {
       const move = this.state.moves.find(
         (r) => r.id == this.state.selectedMaterial
@@ -846,92 +854,109 @@ export class ProductOrderDetail extends Component {
   }
 
   async processBarcode(barcode, production_id) {
-    // console.log(this.env.model);
     var barcodeData = await this.env.model.parseBarcodeMrp(
-      barcode,
-      false,
-      false,
-      false
+      barcode, false, false, false
     );
 
     console.log(barcodeData, production_id);
     if (this.state.isEditing === "editMaterial") {
-      const line = this.state.moves.find(
-        (r) => r.id == this.state.selectedMaterial
-      );
-      const barcodeProducts = barcodeData.record.products.filter(
-        (r) => r.product_id == line.product_id
-      );
-
-      console.log(barcodeProducts, line);
-      if (barcodeProducts.length > 0) {
-        // Duyệt qua tất cả các lot liên quan
-        const newMovelineItems = [];
-
-        // Duyệt qua tất cả các barcodeProduct
-        for (const barcodeProduct of barcodeProducts) {
-          const movelineitem = {
-            id: false,
-            move_id: this.state.selectedMaterial,
-            product_id: line?.product_id || null,
-            product_name: line?.product_name || "",
-            location_id: line?.location_id || null,
-            location_name: line?.location_name || "",
-            location_dest_id: line?.location_dest_id || null,
-            location_dest_name: line?.location_dest_name || "",
-            product_uom_id: line?.product_uom_id || null,
-            product_uom: line?.product_uom || "",
-            product_uom_qty: line?.product_uom_qty || 0,
-            qty_done: line?.quantity || 0,
-            tracking: line?.product_tracking || "none",
-            quantity: barcodeProduct.quantity || 0,
-            lot_id: barcodeProduct.lot_id || null,
-            lot_name: barcodeProduct.lot_name || "",
-            package_id: barcodeData.record.id || null,
-            package_name: barcodeData.record.name || "",
-            result_package_id: line?.result_package_id || null,
-            result_package_name: line?.result_package_name || "",
-          };
-
-          // Kiểm tra nếu điều kiện số lượng và chỉ có một lot
-          if (barcodeProducts.length <= 1) {
-            if (line?.product_uom_qty >= barcodeProduct.quantity) {
-                // Nếu nhu cầu lớn hơn hoặc bằng số lượng có trong barcode
-                movelineitem.result_package_id = barcodeData.record.id || null;
-                movelineitem.result_package_name = barcodeData.record.name || "";
-                movelineitem.qty_done = barcodeProduct.quantity;
-            } else {
-                // Nếu nhu cầu nhỏ hơn số lượng barcode, chỉ lấy theo nhu cầu
-                movelineitem.qty_done = line?.product_uom_qty || 0;
-                movelineitem.quantity = line?.product_uom_qty || 0;
-                movelineitem.result_package_id = null;
-                movelineitem.result_package_name = "";
-            }
-        }
-
-          // Thêm movelineitem vào mảng tạm thời
-          newMovelineItems.push(movelineitem);
-
-          // Gọi API để lưu movelineitem
-          const savedata = await this.orm.call(
-            "mrp.production",
-            "save_order",
-            [, production_id, movelineitem],
-            {}
-          );
-          this.state.materialMoves = savedata.materials;
-          this.state.finishedMoves = savedata.finisheds;
-          this.state.moveLinesTemp = savedata.moveLines;
-        }
-
-        this.state.moveLines = this.state.moveLinesTemp.filter(
-          (r) => r.move_id == this.state.selectedMaterial
+        const line = this.state.moves.find(
+            (r) => r.id == this.state.selectedMaterial
         );
-      } else {
-        console.error("Không tìm thấy sản phẩm phù hợp trong barcodeData.");
-      }
+        const barcodeProducts = barcodeData.record.products.filter(
+            (r) => r.product_id == line.product_id
+        );
+
+        console.log(barcodeProducts, line);
+        if (barcodeProducts.length > 0) {
+            const newMovelineItems = [];
+
+            for (const barcodeProduct of barcodeProducts) {
+                // Kiểm tra xem đã có moveLine với package_id trùng chưa
+                let existingMoveline = this.state.moveLinesTemp.find(
+                    (r) => r.move_id == this.state.selectedMaterial &&
+                           r.product_id == line.product_id &&
+                           r.package_id == barcodeData.record.id
+                );
+
+                if (existingMoveline) {
+                    // Nếu đã tồn tại, chỉ cần cập nhật số lượng
+                    existingMoveline.qty_done = existingMoveline.quantity;
+                    existingMoveline.quantity = existingMoveline.quantity;
+
+                    const savedata = await this.orm.call(
+                        "mrp.production",
+                        "save_order",
+                        [, production_id, existingMoveline],
+                        {}
+                    );
+                    this.state.materialMoves = savedata.materials;
+                    this.state.finishedMoves = savedata.finisheds;
+                    this.state.moveLinesTemp = savedata.moveLines;
+                } else {
+                    // Nếu chưa tồn tại, tạo mới moveline
+                    const movelineitem = {
+                        id: false,
+                        move_id: this.state.selectedMaterial,
+                        product_id: line?.product_id || null,
+                        product_name: line?.product_name || "",
+                        location_id: line?.location_id || null,
+                        location_name: line?.location_name || "",
+                        location_dest_id: line?.location_dest_id || null,
+                        location_dest_name: line?.location_dest_name || "",
+                        product_uom_id: line?.product_uom_id || null,
+                        product_uom: line?.product_uom || "",
+                        product_uom_qty: line?.product_uom_qty || 0,
+                        qty_done: barcodeProduct.quantity,
+                        tracking: line?.product_tracking || "none",
+                        quantity: barcodeProduct.quantity || 0,
+                        lot_id: barcodeProduct.lot_id || null,
+                        lot_name: barcodeProduct.lot_name || "",
+                        package_id: barcodeData.record.id || null,
+                        package_name: barcodeData.record.name || "",
+                        result_package_id: line?.result_package_id || null,
+                        result_package_name: line?.result_package_name || "",
+                    };
+
+                    // Kiểm tra số lượng và cập nhật package
+                    if (barcodeProducts.length <= 1) {
+                        if (line?.product_uom_qty >= barcodeProduct.quantity) {
+                            movelineitem.result_package_id = barcodeData.record.id || null;
+                            movelineitem.result_package_name = barcodeData.record.name || "";
+                            movelineitem.qty_done = barcodeProduct.quantity;
+                        } else {
+                            movelineitem.qty_done = line?.product_uom_qty || 0;
+                            movelineitem.quantity = line?.product_uom_qty || 0;
+                            movelineitem.result_package_id = null;
+                            movelineitem.result_package_name = "";
+                        }
+                    }
+
+                    newMovelineItems.push(movelineitem);
+
+                    // Gọi API để lưu moveline mới
+                    const savedata = await this.orm.call(
+                        "mrp.production",
+                        "save_order",
+                        [, production_id, movelineitem],
+                        {}
+                    );
+                    this.state.materialMoves = savedata.materials;
+                    this.state.finishedMoves = savedata.finisheds;
+                    this.state.moveLinesTemp = savedata.moveLines;
+                }
+            }
+
+            // Cập nhật moveLines hiển thị
+            this.state.moveLines = this.state.moveLinesTemp.filter(
+                (r) => r.move_id == this.state.selectedMaterial
+            );
+        } else {
+            console.error("Không tìm thấy sản phẩm phù hợp trong barcodeData.");
+        }
     }
-  }
+}
+
 }
 
 registry

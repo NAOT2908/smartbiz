@@ -183,11 +183,11 @@ p {
 
 /* Detail order */
 .selected {
-    background: #7effb4;
+    // background: #7effb4;
     font-family: Arial, sans-serif;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    // border: 1px solid rgba(7, 212, 75, 0.5);
+    border: 1px solid #4574ff;
 }
 .item {
     display: block;
@@ -199,7 +199,7 @@ p {
     transition: transform 0.2s, box-shadow 0.2s;
 }
 .item:hover {
-    background-color: #7effb4;
+    // background-color: #7effb4;
     color: black;
     border: 1px solid #4574ff;
 }

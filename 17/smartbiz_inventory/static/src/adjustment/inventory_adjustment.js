@@ -29,7 +29,7 @@ export class AdjustmentInventory extends Component {
 
     this.state = useState({
       menuVisible: false,
-      search: false,
+      search: "",
       searchInput: "",
       inventoryData: [],
       data: [],
@@ -92,18 +92,20 @@ export class AdjustmentInventory extends Component {
     });
   }
 
-  handleInput(event) {
-    this.state.searchInput = event.target.value;
+  onSearchChange(event) {
+    this.state.search = event.target.value;
+    console.log(this.state.search);
     this.search();
   }
+
   search() {
-    if (this.state.searchInput !== "") {
+    if (this.state.search !== "") {
       this.state.data = this.filterArrayByString(
-        this.state.inventoryData,
-        this.state.searchInput
+        this.state.data,
+        this.state.search
       );
     } else {
-      this.state.data = this.state.inventoryData;
+      this.state.data = this.state.data;
     }
   }
   async exit(ev) {

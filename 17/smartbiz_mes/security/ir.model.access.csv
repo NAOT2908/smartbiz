@@ -1,6 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-mrp_group_mrp_user_smartbiz_mes_production_line_type,"mrp.group_mrp_user-smartbiz_mes.Production Line Type",model_smartbiz_mes_production_line_type,mrp.group_mrp_user,1,0,0,0
-mrp_group_mrp_manager_smartbiz_mes_production_line_type,"mrp.group_mrp_manager-smartbiz_mes.Production Line Type",model_smartbiz_mes_production_line_type,mrp.group_mrp_manager,1,1,1,1
 mrp_group_mrp_user_smartbiz_mes_package,"mrp.group_mrp_user-smartbiz_mes.Package",model_smartbiz_mes_package,mrp.group_mrp_user,1,0,0,0
 mrp_group_mrp_manager_smartbiz_mes_package,"mrp.group_mrp_manager-smartbiz_mes.Package",model_smartbiz_mes_package,mrp.group_mrp_manager,1,1,1,1
 mrp_group_mrp_user_smartbiz_mes_factory,"mrp.group_mrp_user-smartbiz_mes.Factory",model_smartbiz_mes_factory,mrp.group_mrp_user,1,0,0,0
@@ -11,25 +9,13 @@ mrp_group_mrp_user_smartbiz_mes_production_activity,"mrp.group_mrp_user-smartbiz
 mrp_group_mrp_manager_smartbiz_mes_production_activity,"mrp.group_mrp_manager-smartbiz_mes.Production Activity",model_smartbiz_mes_production_activity,mrp.group_mrp_manager,1,1,1,1
 mrp_group_mrp_user_smartbiz_mes_bom_components,"mrp.group_mrp_user-smartbiz_mes.BoM Components",model_smartbiz_mes_bom_components,mrp.group_mrp_user,1,0,0,0
 mrp_group_mrp_manager_smartbiz_mes_bom_components,"mrp.group_mrp_manager-smartbiz_mes.BoM Components",model_smartbiz_mes_bom_components,mrp.group_mrp_manager,1,1,1,1
-mrp_group_mrp_user_smartbiz_mes_quality_point,"mrp.group_mrp_user-smartbiz_mes.Quality Point",model_smartbiz_mes_quality_point,mrp.group_mrp_user,1,0,0,0
-mrp_group_mrp_manager_smartbiz_mes_quality_point,"mrp.group_mrp_manager-smartbiz_mes.Quality Point",model_smartbiz_mes_quality_point,mrp.group_mrp_manager,1,1,1,1
-mrp_group_mrp_user_smartbiz_mes_quality_check,"mrp.group_mrp_user-smartbiz_mes.Quality Check",model_smartbiz_mes_quality_check,mrp.group_mrp_user,1,0,0,0
-mrp_group_mrp_manager_smartbiz_mes_quality_check,"mrp.group_mrp_manager-smartbiz_mes.Quality Check",model_smartbiz_mes_quality_check,mrp.group_mrp_manager,1,1,1,1
+mrp_group_mrp_user_smartbiz_mes_production_line_type,"mrp.group_mrp_user-smartbiz_mes.Production Line Type",model_smartbiz_mes_production_line_type,mrp.group_mrp_user,1,0,0,0
+mrp_group_mrp_manager_smartbiz_mes_production_line_type,"mrp.group_mrp_manager-smartbiz_mes.Production Line Type",model_smartbiz_mes_production_line_type,mrp.group_mrp_manager,1,1,1,1
 mrp_group_mrp_user_smartbiz_mes_production_report,"mrp.group_mrp_user-smartbiz_mes.Production Report",model_smartbiz_mes_production_report,mrp.group_mrp_user,1,0,0,0
 mrp_group_mrp_manager_smartbiz_mes_production_report,"mrp.group_mrp_manager-smartbiz_mes.Production Report",model_smartbiz_mes_production_report,mrp.group_mrp_manager,1,1,1,1
 mrp_group_mrp_user_smartbiz_mes_process,"mrp.group_mrp_user-smartbiz_mes.Process",model_smartbiz_mes_process,mrp.group_mrp_user,1,0,0,0
 mrp_group_mrp_manager_smartbiz_mes_process,"mrp.group_mrp_manager-smartbiz_mes.Process",model_smartbiz_mes_process,mrp.group_mrp_manager,1,1,1,1
 mrp_group_mrp_user_smartbiz_mes_operation,"mrp.group_mrp_user-smartbiz_mes.Operation",model_smartbiz_mes_operation,mrp.group_mrp_user,1,0,0,0
 mrp_group_mrp_manager_smartbiz_mes_operation,"mrp.group_mrp_manager-smartbiz_mes.Operation",model_smartbiz_mes_operation,mrp.group_mrp_manager,1,1,1,1
-mrp_group_mrp_user_smartbiz_mes_production_request,"mrp.group_mrp_user-smartbiz_mes.Production Request",model_smartbiz_mes_production_request,mrp.group_mrp_user,1,0,0,0
-mrp_group_mrp_manager_smartbiz_mes_production_request,"mrp.group_mrp_manager-smartbiz_mes.Production Request",model_smartbiz_mes_production_request,mrp.group_mrp_manager,1,1,1,1
-mrp_group_mrp_user_smartbiz_mes_request_material,"mrp.group_mrp_user-smartbiz_mes.Request Material",model_smartbiz_mes_request_material,mrp.group_mrp_user,1,0,0,0
-mrp_group_mrp_manager_smartbiz_mes_request_material,"mrp.group_mrp_manager-smartbiz_mes.Request Material",model_smartbiz_mes_request_material,mrp.group_mrp_manager,1,1,1,1
-mrp_group_mrp_user_smartbiz_mes_request_product,"mrp.group_mrp_user-smartbiz_mes.Request Product",model_smartbiz_mes_request_product,mrp.group_mrp_user,1,0,0,0
-mrp_group_mrp_manager_smartbiz_mes_request_product,"mrp.group_mrp_manager-smartbiz_mes.Request Product",model_smartbiz_mes_request_product,mrp.group_mrp_manager,1,1,1,1
-mrp_group_mrp_user_smartbiz_mes_request_byproduct,"mrp.group_mrp_user-smartbiz_mes.Request ByProduct",model_smartbiz_mes_request_byproduct,mrp.group_mrp_user,1,0,0,0
-mrp_group_mrp_manager_smartbiz_mes_request_byproduct,"mrp.group_mrp_manager-smartbiz_mes.Request ByProduct",model_smartbiz_mes_request_byproduct,mrp.group_mrp_manager,1,1,1,1
-mrp_group_mrp_user_smartbiz_mes_capacity,"mrp.group_mrp_user-smartbiz_mes.Capacity",model_smartbiz_mes_capacity,mrp.group_mrp_user,1,0,0,0
-mrp_group_mrp_manager_smartbiz_mes_capacity,"mrp.group_mrp_manager-smartbiz_mes.Capacity",model_smartbiz_mes_capacity,mrp.group_mrp_manager,1,1,1,1
-mrp_group_mrp_user_smartbiz_mes_production_schedule,"mrp.group_mrp_user-smartbiz_mes.Production Schedule",model_smartbiz_mes_production_schedule,mrp.group_mrp_user,1,0,0,0
-mrp_group_mrp_manager_smartbiz_mes_production_schedule,"mrp.group_mrp_manager-smartbiz_mes.Production Schedule",model_smartbiz_mes_production_schedule,mrp.group_mrp_manager,1,1,1,1
+mrp_group_mrp_user_smartbiz_mes_request,"mrp.group_mrp_user-smartbiz_mes.Request",model_smartbiz_mes_request,mrp.group_mrp_user,1,0,0,0
+mrp_group_mrp_manager_smartbiz_mes_request,"mrp.group_mrp_manager-smartbiz_mes.Request",model_smartbiz_mes_request,mrp.group_mrp_manager,1,1,1,1

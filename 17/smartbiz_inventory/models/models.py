@@ -26,6 +26,7 @@ class InventoryPeriod(models.Model):
 
 class Inventory(models.Model):
     _name = 'smartbiz.inventory'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Stock Inventory'
 
     name = fields.Char(string="Inventory Name", required=True, default=lambda self: self.env['ir.sequence'].next_by_code('smartbiz.inventory'))
@@ -181,25 +182,25 @@ class Inventory(models.Model):
     def get_data(self, inventory_id):
         """Lấy dữ liệu kiểm kê chi tiết theo ID"""
         inventory = self.browse(inventory_id)
-        if not inventory:
-            return {}
+        if not inventory.exists():
+            return {'error': 'Inventory not found'}
 
         lines = inventory.line_ids
         products = lines.mapped('product_id')
-        lots = lines.mapped('lot_id')
+        lots = lines.mapped('lot_id').filtered(lambda l: l)
         locations = lines.mapped('location_id')
-        packages = lines.mapped('package_id')
+        packages = lines.mapped('package_id').filtered(lambda p: p)
 
         data = {
-            'inventory': inventory.read(['id', 'name', 'state', 'company_id', 'user_id', 'date']),
+            'inventory': inventory.read(['id', 'name', 'state', 'company_id', 'user_id', 'date'])[0],
             'lines': lines.read([
                 'id', 'product_id', 'lot_id', 'location_id', 'package_id',
                 'quantity_before', 'quantity_counted', 'difference'
             ]),
-            'products': products.read(['id', 'name', 'barcode', 'default_code', 'uom_id']),
-            'lots': lots.read(['id', 'name', 'product_id']),
-            'locations': locations.read(['id', 'name', 'barcode']),
-            'packages': packages.read(['id', 'name']),
+            'products': products.read(['id', 'name', 'barcode', 'default_code', 'uom_id']) if products else [],
+            'lots': lots.read(['id', 'name', 'product_id']) if lots else [],
+            'locations': locations.read(['id', 'name', 'barcode']) if locations else [],
+            'packages': packages.read(['id', 'name']) if packages else [],
             'company_id': inventory.company_id.id,
             'user_id': inventory.user_id.id,
         }
@@ -306,6 +307,38 @@ class Inventory(models.Model):
 
         return {'barcode': barcode, 'match': False, 'barcodeType': barcodeType, 'record': False, 'fromCache': False}
      
+    def save_order(self, inventory_id, data):
+        """Cập nhật hoặc tạo mới dòng kiểm kê"""
+        
+        quantity = float(data['quantity_before'])
+        line_obj = self.env['smartbiz.inventory.line']
+
+        if data.get('id'):  # Nếu đã có ID, cập nhật bản ghi
+            line = line_obj.browse(data['id'])
+            if line.exists():
+                line.write({
+                    'quantity': quantity,
+                    'location_id': data['location_id'],
+                    'lot_id': data['lot_id'],
+                    'package_id': data.get('package_id', False),
+                    'state': 'pending',
+                    'quantity_counted': data.get('quantity_counted', line.quantity_counted)  # Cập nhật nếu có giá trị mới
+                })
+            else:
+                return {'success': False, 'message': 'Inventory line not found'}
+        else:  # Nếu chưa có ID, tạo mới bản ghi
+            line = line_obj.create({
+                'product_id': data['product_id'],
+                'product_uom_id': data['product_uom_id'],
+                'quantity': quantity,
+                'location_id': data['location_id'],
+                'lot_id': data['lot_id'],
+                'package_id': data.get('package_id', False),
+                'state': 'pending',
+                'quantity_counted': data.get('quantity_counted', 0)  # Mặc định bằng 0 nếu không có giá trị
+            })
+
+        return self.get_data(inventory_id)
     
 class InventoryLine(models.Model):
     _name = 'smartbiz.inventory.line'
@@ -317,7 +350,7 @@ class InventoryLine(models.Model):
     package_id = fields.Many2one('stock.quant.package', string="Package")
     location_id = fields.Many2one('stock.location', string="Location", required=True)
     company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company)
-    quantity_before = fields.Float(string="Before Inventory", readonly=True)
+    quantity_before = fields.Float(string="Inventory Quantity", readonly=True)
     quantity_counted = fields.Float(string="Counted Quantity")
     difference = fields.Float(string="Difference", compute="_compute_difference")
 
