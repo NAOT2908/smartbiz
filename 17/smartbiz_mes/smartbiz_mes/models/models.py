@@ -23,7 +23,7 @@ class mrp_Production(models.Model):
 
     def _get_fields(self,model):
         if model == 'mrp.production':
-            return ['name','state','product_id','lot_producing_id','product_uom_id','product_uom_qty','qty_produced','qty_producing','date_start','date_deadline','date_finished','company_id','user_id']
+            return ['name','state','product_id','product_uom_id','product_uom_qty','qty_produced','qty_producing','date_start','date_deadline','date_finished','company_id','user_id']
         if model == 'stock.move':
             return ['state','date','date_deadline','product_id','product_uom','product_uom_qty','quantity','product_qty','location_id','location_dest_id']
         if model == 'stock.move.line':

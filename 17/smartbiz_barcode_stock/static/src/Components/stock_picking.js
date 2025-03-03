@@ -870,8 +870,8 @@ class StockPicking extends Component {
                         }
                         else {
                             if (this.env.model.data.picking_type_code != "incoming" && (this.env.model.data.state != 'done' && this.env.model.data.state != 'cancel')) {
-                                if(await this.orm.call('stock.picking', 'check_package_location', [,barcodeData.record.id,this.env.model.data.location_id],{})) 
-                                {
+                                // if(await this.orm.call('stock.picking', 'check_package_location', [,barcodeData.record.id,this.env.model.data.location_id],{})) 
+                                // {
                                     var values = {}
                                     for (var product of barcodeData.record.products) {
                                         
@@ -892,11 +892,11 @@ class StockPicking extends Component {
                                         this.env.model.data = data
                                         this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
                                     }
-                                }
-                                else{
-                                    const message = _t(`${barcode}: Không đang ở vị trí ${this.env.model.data.location_name} !`);
-                                    this.notification.add(message, { type: "warning" });
-                                }
+                                // }
+                                // else{
+                                //     const message = _t(`${barcode}: Không đang ở vị trí ${this.env.model.data.location_name} !`);
+                                //     this.notification.add(message, { type: "warning" });
+                                // }
                                 
                             }
                             else{

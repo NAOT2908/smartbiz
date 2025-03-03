@@ -23,7 +23,7 @@ class mrp_Production(models.Model):
         """ Mở Kanban view cho MRP Production """
         view_id = self.env.ref('smartbiz_barcode_production.mrp_production_kanban').id  # Đổi module nếu cần
         context = {
-            'search_default_state': ['confirmed', 'progress'],  # Lọc trạng thái đơn sản xuất đang chạy
+            'search_default_state': ['confirmed', 'progress', 'to_close'],  # Lọc trạng thái đơn sản xuất đang chạy
             'search_default_product_id': self.product_id.id if self.product_id else False,
             'default_product_id': self.product_id.id if self.product_id else False,
             'default_company_id': self.company_id.id,
@@ -218,9 +218,12 @@ class mrp_Production(models.Model):
                     'message': _('Scan a product, lot, workcenter, or production name to filter the manufacturing orders.'),
                 }
             }
-
+        # Thêm điều kiện lọc theo trạng thái
+        production_domain.append(('state', 'in', ['confirmed', 'progress', 'to_close']))
+        
         # Mở view Kanban cho MRP Production
         action = self.open_mrp_kanban()
+        action['domain'] = production_domain
         action['context'] = additional_context
         return {'action': action}
         

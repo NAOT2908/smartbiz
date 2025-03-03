@@ -1,6 +1,6 @@
 <templates>
     <t t-name="Selector">
-        <div class="s_selector-modal">
+        <div class="s_selector-modals">
             <div class="s_selector-modal-content">
                 <div class="s_selector-header">
                     <h2><t t-esc="props.title" /></h2>

@@ -32,6 +32,19 @@ class Inventory(models.Model):
     name = fields.Char(string="Inventory Name", required=True, default=lambda self: self.env['ir.sequence'].next_by_code('smartbiz.inventory'))
     date = fields.Datetime(string="Inventory Date", default=fields.Datetime.now, required=True)
     company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company)
+    product_ids = fields.Many2many('product.product', string="Products",
+                                   default=lambda self: self.env[
+                                       'product.product'].search([], limit=1),
+                                   help="Select multiple products "
+                                        "from the list.")
+    category_ids = fields.Many2many('product.category', string="Category",
+                                    default=lambda self: self._default_categ_ids(),
+                                    help="Select multiple categories "
+                                         "from the list")
+    warehouse_ids = fields.Many2many('stock.warehouse', string="Warehouse",
+                                     default=lambda self: self._default_warehouse_ids(),
+                                     help="Select multiple warehouses "
+                                          "from the list.")
     user_id = fields.Many2one('res.users', string="Responsible User", default=lambda self: self.env.user)
     inventory_period_id = fields.Many2one('smartbiz.inventory.period', string="Inventory Period", required=True)
     inventory_location_ids = fields.Many2many('stock.location', string="Inventory Locations")
@@ -48,6 +61,17 @@ class Inventory(models.Model):
         ('cancel', 'Cancel'),
     ], string="State", default='draft')
 
+    def _default_categ_ids(self):
+        """Return default category to selection field."""
+        category = self.env['product.product'].search(
+            [], limit=1).product_tmpl_id.categ_id
+        return [(6, 0, [category.id])] if category else []
+
+    def _default_warehouse_ids(self):
+        """Return default warehouse to selection field."""
+        warehouse = self.env['stock.warehouse'].search([], limit=1)
+        return [(6, 0, [warehouse.id])] if warehouse else []
+    
     def action_start(self):
         """ Bắt đầu kiểm kê - lọc danh sách kiểm kê theo location nếu có """
         self.state = 'in_progress'
@@ -60,27 +84,49 @@ class Inventory(models.Model):
         self.line_ids.unlink()
 
     def _generate_inventory_lines(self):
-        """ Tạo danh sách kiểm kê dựa trên location nếu có """
+        """Tạo danh sách kiểm kê dựa trên location hoặc warehouse nếu có"""
         domain = [('company_id', '=', self.company_id.id)]
+
+        if self.product_ids:
+            domain.append(('product_id', 'in', self.product_ids.ids))
+        if self.category_ids:
+            domain.append(('product_categ_id', 'in', self.category_ids.ids))
+
+        location_domain = []
+
+        # Nếu có warehouse_ids, lấy toàn bộ vị trí con của các kho
+        if self.warehouse_ids:
+            for warehouse in self.warehouse_ids:
+                warehouse_locations = self.env['stock.location'].search([
+                    ('id', 'child_of', warehouse.view_location_id.id)
+                ]).ids
+                location_domain.extend(warehouse_locations)
+
+        # Nếu có inventory_location_ids, chỉ dùng danh sách này và bỏ qua vị trí từ kho
         if self.inventory_location_ids:
-            domain.append(('location_id', 'in', self.inventory_location_ids.ids))
+            location_domain = self.inventory_location_ids.ids
+
+        # Thêm domain lọc theo vị trí nếu có dữ liệu hợp lệ
+        if location_domain:
+            domain.append(('location_id', 'in', location_domain))
 
         quants = self.env['stock.quant'].search(domain)
-        for quant in quants:
-            quantity_counted = 0 if self.set_count == 'empty' else quant.quantity
-            
-            self.env['smartbiz.inventory.line'].create({
-                'inventory_id': self.id,
-                'product_id': quant.product_id.id,
-                'lot_id': quant.lot_id.id if quant.lot_id else False,
-                'package_id': quant.package_id.id if quant.package_id else False,
-                'location_id': quant.location_id.id,
-                'company_id': self.company_id.id,  
-                'quantity_before': quant.quantity,
-                'quantity_counted': quantity_counted,
-                'quant_id': quant.id,
-            })
 
+        vals_list = [{
+            'inventory_id': self.id,
+            'product_id': quant.product_id.id,
+            'lot_id': quant.lot_id.id if quant.lot_id else False,
+            'package_id': quant.package_id.id if quant.package_id else False,
+            'location_id': quant.location_id.id,
+            'company_id': self.company_id.id,
+            'quantity_before': quant.quantity,
+            'quantity_counted': 0 if self.set_count == 'empty' else quant.quantity,
+            'quant_id': quant.id,
+            'note': '',
+        } for quant in quants]
+
+        if vals_list:
+            self.env['smartbiz.inventory.line'].create(vals_list)
     def action_validate(self):
         """ Xác nhận kiểm kê - lưu vào lịch sử nhưng KHÔNG cập nhật stock.quant ngay """
         self.state = 'done'
@@ -98,6 +144,7 @@ class Inventory(models.Model):
                 'quantity_after': line.quantity_counted,
                 'difference': line.difference,
                 'date': fields.Datetime.now(),
+                'note': line.note,
             })
         
             quants = self.env['stock.quant'].search([('id', '=', line.quant_id.id)])
@@ -353,6 +400,7 @@ class InventoryLine(models.Model):
     quantity_before = fields.Float(string="Inventory Quantity", readonly=True)
     quantity_counted = fields.Float(string="Counted Quantity")
     difference = fields.Float(string="Difference", compute="_compute_difference")
+    note = fields.Html(string="Note")
 
     quant_id = fields.Many2one('stock.quant', string="Related Stock Quant")
     state = fields.Selection([
@@ -385,7 +433,7 @@ class InventoryHistory(models.Model):
     lot_id = fields.Many2one("stock.lot", string="Lot/Serial Number")
     package_id = fields.Many2one("stock.quant.package", string="Package")
     company_id = fields.Many2one("res.company", string="Company", required=True, default=lambda self: self.env.company)
-    
+    note = fields.Html(string="Ghi chú")
     @api.model
     def create(self, vals):
         if vals.get("name", _("New")) == _("New"):

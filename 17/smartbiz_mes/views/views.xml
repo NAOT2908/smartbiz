@@ -1,917 +1,982 @@
 <odoo>
 
-  <!-- Forms -->
+<!-- Forms -->
 
-  <record model="ir.ui.view" id="mrp_production_form">
-    <field name="name">mrp_production_form</field>
-    <field name="model">mrp.production</field>
-    <field name="priority" eval="7" />
-    <field name="inherit_id" ref="mrp.mrp_production_form_view" />
-    <field name="arch" type="xml">
+    <record model="ir.ui.view" id="mrp_production_form">
+      <field name="name">mrp_production_form</field>
+      <field name="model">mrp.production</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="mrp.mrp_production_form_view" />
+      <field name="arch" type="xml">
 
-      <xpath expr="//field[@name='user_id']" position="after">
-        <field name="production_line_id" />
-        <field name="production_request_id" />
-      </xpath>
-    </field>
-  </record>
+     <xpath expr="//field[@name='user_id']" position="after">
+        <field name="production_line_id"  readonly="state != 'draft'" />
+        <field name="production_request_id"  readonly="state != 'draft'" />
+       </xpath>
+      </field>
+    </record>
 
-  <record model="ir.ui.view" id="mrp_workcenter_form">
-    <field name="name">mrp_workcenter_form</field>
-    <field name="model">mrp.workcenter</field>
-    <field name="priority" eval="7" />
-    <field name="inherit_id" ref="mrp.mrp_workcenter_view" />
-    <field name="arch" type="xml">
-      <xpath expr="//field[@name='resource_calendar_id']" position="after">
-        <field name="production_line_id" />
-      </xpath>
-    </field>
-  </record>
+    <record model="ir.ui.view" id="mrp_workcenter_form">
+      <field name="name">mrp_workcenter_form</field>
+      <field name="model">mrp.workcenter</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="mrp.mrp_workcenter_view" />
+      <field name="arch" type="xml">
+           <xpath expr="//field[@name='resource_calendar_id']" position="after">
+                   <field name="production_line_id"/>
+           </xpath>
+      </field>
+    </record>
 
-  <record model="ir.ui.view" id="mrp_bom_form">
-    <field name="name">mrp_bom_form</field>
-    <field name="model">mrp.bom</field>
-    <field name="priority" eval="7" />
-    <field name="inherit_id" ref="mrp.mrp_bom_form_view" />
-    <field name="arch" type="xml">
+    <record model="ir.ui.view" id="mrp_bom_form">
+      <field name="name">mrp_bom_form</field>
+      <field name="model">mrp.bom</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="mrp.mrp_bom_form_view" />
+      <field name="arch" type="xml">
 
-      <xpath expr="//page[@name='by_products']" position="after">
-        <page name="bom_components" string="Thành phần">
-          <field name="components_ids" />
-        </page>
-      </xpath>
-    </field>
-  </record>
+           <xpath expr="//page[@name='by_products']" position="after">
+                <page name="bom_components" string="Thành phần">
+                    <field name="components_ids"/>
+                </page>
+            </xpath>
+      </field>
+    </record>
 
-  <record model="ir.ui.view" id="stock_picking_form">
-    <field name="name">stock_picking_form</field>
-    <field name="model">stock.picking</field>
-    <field name="priority" eval="7" />
-    <field name="inherit_id" ref="stock.view_picking_form" />
-    <field name="arch" type="xml">
+    <record model="ir.ui.view" id="stock_picking_form">
+      <field name="name">stock_picking_form</field>
+      <field name="model">stock.picking</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_picking_form" />
+      <field name="arch" type="xml">
 
-      <xpath expr="//field[@name='location_dest_id']" position="after">
-        <field name="production_request_id" />
-      </xpath>
-    </field>
-  </record>
+     <xpath expr="//field[@name='location_dest_id']" position="after">
+                   <field name="production_request_id"/>
+           </xpath>
+      </field>
+    </record>
 
-  <record model="ir.ui.view" id="smartbiz_mes_package_form">
-    <field name="name">smartbiz_mes_package_form</field>
-    <field name="model">smartbiz_mes.package</field>
-    <field name="priority" eval="6" />
-    <field name="arch" type="xml">
-      <form string="Form Package">
-        <sheet>
+    <record model="ir.ui.view" id="smartbiz_mes_package_form">
+      <field name="name">smartbiz_mes_package_form</field>
+      <field name="model">smartbiz_mes.package</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Package">
+      <sheet>
           <group col="1">
-            <field name="name" />
-            <field name="current_step" />
-            <field name="current_component_id" />
-            <field name="last_qty" />
-            <field name="current_workorder_id" />
+                   <field name="name"/>
+                   <field name="current_step"/>
+                   <field name="current_component_id"/>
+                   <field name="last_qty"/>
+                   <field name="current_workorder_id"/>
           </group>
-        </sheet>
-      </form>
-    </field>
-  </record>
+      </sheet>
+        </form>
+      </field>
+    </record>
 
-  <record model="ir.ui.view" id="smartbiz_mes_factory_form">
-    <field name="name">smartbiz_mes_factory_form</field>
-    <field name="model">smartbiz_mes.factory</field>
-    <field name="priority" eval="6" />
-    <field name="arch" type="xml">
-      <form string="Form Factory">
-        <sheet>
-          <group>
-            <field name="name" />
-            <field name="company_id" />
-          </group>
-          <notebook>
+    <record model="ir.ui.view" id="smartbiz_mes_factory_form">
+      <field name="name">smartbiz_mes_factory_form</field>
+      <field name="model">smartbiz_mes.factory</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Factory">
+      <sheet>
+            <group>
+                   <field name="name"/>
+                   <field name="company_id"/>
+            </group>
+            <notebook>
             <page string="Production Lines">
-              <field name="production_lines_ids" />
+                   <field name="production_lines_ids"/>
             </page>
-          </notebook>
-        </sheet>
-      </form>
-    </field>
-  </record>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
 
-  <record model="ir.ui.view" id="smartbiz_mes_production_line_form">
-    <field name="name">smartbiz_mes_production_line_form</field>
-    <field name="model">smartbiz_mes.production_line</field>
-    <field name="priority" eval="6" />
-    <field name="arch" type="xml">
-      <form string="Form Production Line">
-        <sheet>
-          <group col="2">
+    <record model="ir.ui.view" id="smartbiz_mes_production_line_form">
+      <field name="name">smartbiz_mes_production_line_form</field>
+      <field name="model">smartbiz_mes.production_line</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Production Line">
+      <sheet>
+            <group col="2">
             <group>
-              <field name="name" />
-              <field name="code" />
+                   <field name="name"/>
+                   <field name="code"/>
             </group>
             <group>
-              <field name="type_id" />
-              <field name="picking_type_id" />
-              <field name="factory_id" />
+                   <field name="type_id"/>
+                   <field name="picking_type_id"/>
+                   <field name="factory_id"/>
             </group>
-          </group>
-          <notebook>
+            </group>
+            <notebook>
             <page string="Work Centers">
-              <field name="work_centers_ids" />
+                   <field name="work_centers_ids"/>
             </page>
-          </notebook>
-        </sheet>
-      </form>
-    </field>
-  </record>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
 
-  <record model="ir.ui.view" id="smartbiz_mes_production_activity_form">
-    <field name="name">smartbiz_mes_production_activity_form</field>
-    <field name="model">smartbiz_mes.production_activity</field>
-    <field name="priority" eval="6" />
-    <field name="arch" type="xml">
-      <form string="Form Production Activity">
-        <sheet>
+    <record model="ir.ui.view" id="smartbiz_mes_production_activity_form">
+      <field name="name">smartbiz_mes_production_activity_form</field>
+      <field name="model">smartbiz_mes.production_activity</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Production Activity">
+      <sheet>
           <group col="1">
-            <field name="work_order_id" />
-            <field name="component_id" />
-            <field name="quantity" />
-            <field name="quality" />
-            <field name="lot_id" />
-            <field name="name" />
-            <field name="package_id" />
-            <field name="start" />
-            <field name="finish" />
-            <field name="duration" />
-            <field name="status" />
+                   <field name="work_order_id"/>
+                   <field name="component_id"/>
+                   <field name="quantity"/>
+                   <field name="quality"/>
+                   <field name="lot_id"/>
+                   <field name="name"/>
+                   <field name="package_id"/>
+                   <field name="start"/>
+                   <field name="finish"/>
+                   <field name="duration"/>
+                   <field name="status"/>
           </group>
-        </sheet>
-      </form>
-    </field>
-  </record>
+      </sheet>
+        </form>
+      </field>
+    </record>
 
-  <record model="ir.ui.view" id="smartbiz_mes_bom_components_form">
-    <field name="name">smartbiz_mes_bom_components_form</field>
-    <field name="model">smartbiz_mes.bom_components</field>
-    <field name="priority" eval="6" />
-    <field name="arch" type="xml">
-      <form string="Form BoM Components">
-        <sheet>
-          <group col="2">
+    <record model="ir.ui.view" id="smartbiz_mes_bom_components_form">
+      <field name="name">smartbiz_mes_bom_components_form</field>
+      <field name="model">smartbiz_mes.bom_components</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form BoM Components">
+      <sheet>
+            <group col="2">
             <group>
-              <field name="name" />
-              <field name="type" />
-              <field name="quantity" />
+                   <field name="name"/>
+                   <field name="type"/>
+                   <field name="quantity"/>
             </group>
             <group>
-              <field name="material_id" invisible="type != 'material'"
-                domain="[('bom_id','=',bom_id)]" />
-              <field name="product_id" invisible="type != 'product'"
-                domain="[('bom_id','=',bom_id)]" />
-              <field name="bom_id" />
+                   <field name="material_id" invisible="type != 'material'" domain="[('bom_id','=',bom_id)]"/>
+                   <field name="product_id" invisible="type != 'product'" domain="[('bom_id','=',bom_id)]"/>
+                   <field name="bom_id"/>
             </group>
-          </group>
-          <notebook>
-            <page string="Công đoạn">
-              <field name="operations_ids" domain="[('bom_id','=',bom_id)]" />
+            </group>
+            <notebook>
+            <page string="Operations">
+                   <field name="operations_ids" domain="[('bom_id','=',bom_id)]"/>
             </page>
-            <page string="Đóng gói">
-              <group>
-                <field name="package_quantity" />
-                <field name="print_label" />
-              </group>
+            <page string="Pack">
+            <group>
+                   <field name="package_quantity"/>
+                   <field name="print_label"/>
+            </group>
             </page>
-          </notebook>
-        </sheet>
-      </form>
-    </field>
-  </record>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
 
-  <record model="ir.ui.view" id="smartbiz_mes_production_line_type_form">
-    <field name="name">smartbiz_mes_production_line_type_form</field>
-    <field name="model">smartbiz_mes.production_line_type</field>
-    <field name="priority" eval="6" />
-    <field name="arch" type="xml">
-      <form string="Form Production Line Type">
-        <sheet>
+    <record model="ir.ui.view" id="smartbiz_mes_production_line_type_form">
+      <field name="name">smartbiz_mes_production_line_type_form</field>
+      <field name="model">smartbiz_mes.production_line_type</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Production Line Type">
+      <sheet>
           <group col="1">
-            <field name="name" />
+                   <field name="name"/>
           </group>
-        </sheet>
-      </form>
-    </field>
-  </record>
+      </sheet>
+        </form>
+      </field>
+    </record>
 
-  <record model="ir.ui.view" id="smartbiz_mes_production_report_form">
-    <field name="name">smartbiz_mes_production_report_form</field>
-    <field name="model">smartbiz_mes.production_report</field>
-    <field name="priority" eval="6" />
-    <field name="arch" type="xml">
-      <form string="Form Production Report">
-        <sheet>
+    <record model="ir.ui.view" id="smartbiz_mes_production_report_form">
+      <field name="name">smartbiz_mes_production_report_form</field>
+      <field name="model">smartbiz_mes.production_report</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Production Report">
+      <sheet>
           <group col="1">
-            <field name="production_order_id" />
-            <field name="product_id" />
-            <field name="currency_id" />
-            <field name="date" />
-            <field name="planned_quantity" />
-            <field name="produced_quantity" />
-            <field name="remaining_quantity" />
-            <field name="yield_percentage" />
-            <field name="component_cost" />
-            <field name="operation_cost" />
-            <field name="total_cost" />
-            <field name="component_cost_per_unit" />
-            <field name="operation_cost_per_unit" />
-            <field name="cost_per_unit" />
-            <field name="expected_duration" widget="float_time" />
-            <field name="duration" widget="float_time" />
-            <field name="duration_per_unit" widget="float_time" />
-            <field name="byproduct_cost" />
+                   <field name="production_order_id"/>
+                   <field name="product_id"/>
+                   <field name="currency_id"/>
+                   <field name="date"/>
+                   <field name="planned_quantity"/>
+                   <field name="produced_quantity"/>
+                   <field name="remaining_quantity"/>
+                   <field name="yield_percentage"/>
+                   <field name="component_cost"/>
+                   <field name="operation_cost"/>
+                   <field name="total_cost"/>
+                   <field name="component_cost_per_unit"/>
+                   <field name="operation_cost_per_unit"/>
+                   <field name="cost_per_unit"/>
+                   <field name="expected_duration" widget="float_time"/>
+                   <field name="duration" widget="float_time"/>
+                   <field name="duration_per_unit" widget="float_time"/>
+                   <field name="byproduct_cost"/>
           </group>
-        </sheet>
-      </form>
-    </field>
-  </record>
+      </sheet>
+        </form>
+      </field>
+    </record>
 
-  <record model="ir.ui.view" id="smartbiz_mes_process_form">
-    <field name="name">smartbiz_mes_process_form</field>
-    <field name="model">smartbiz_mes.process</field>
-    <field name="priority" eval="6" />
-    <field name="arch" type="xml">
-      <form string="Form Process">
-        <sheet>
-          <group col="2">
+    <record model="ir.ui.view" id="smartbiz_mes_process_form">
+      <field name="name">smartbiz_mes_process_form</field>
+      <field name="model">smartbiz_mes.process</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Process">
+      <sheet>
+            <group col="2">
             <group>
-              <field name="name" />
+                   <field name="name"/>
             </group>
             <group>
-              <field name="product_id" />
+                   <field name="product_id"/>
             </group>
-          </group>
-          <notebook>
-            <page string="Công đoạn">
-              <field name="operations_ids" />
+            </group>
+            <notebook>
+            <page string="Operations">
+                   <field name="operations_ids"/>
             </page>
-          </notebook>
-        </sheet>
-      </form>
-    </field>
-  </record>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
 
-  <record model="ir.ui.view" id="smartbiz_mes_operation_form">
-    <field name="name">smartbiz_mes_operation_form</field>
-    <field name="model">smartbiz_mes.operation</field>
-    <field name="priority" eval="6" />
-    <field name="arch" type="xml">
-      <form string="Form Operation">
-        <sheet>
-          <group col="2">
+    <record model="ir.ui.view" id="smartbiz_mes_operation_form">
+      <field name="name">smartbiz_mes_operation_form</field>
+      <field name="model">smartbiz_mes.operation</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Operation">
+      <sheet>
+            <group col="2">
             <group>
-              <field name="name" />
-              <field name="process_id" />
-            </group>
-            <group>
-              <field name="production_line_type_id" />
-              <field name="product_id" />
-              <field name="bom_id" domain="[('product_id','=',product_id)]" />
-            </group>
-          </group>
-        </sheet>
-      </form>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="smartbiz_mes_request_form">
-    <field name="name">smartbiz_mes_request_form</field>
-    <field name="model">smartbiz_mes.request</field>
-    <field name="priority" eval="6" />
-    <field name="arch" type="xml">
-      <form string="Form Request">
-        <header>
-          <button name="action_draft_confirm" string="Confirm" type="object"
-            invisible="state != 'draft'" />
-          <button name="action_confirmed_create_mos" string="Create MOs" type="object"
-            invisible="state != 'confirmed'" />
-          <field name="state" widget="statusbar" />
-        </header>
-        <sheet>
-          <div class="oe_button_box" name="button_box">
-            <button name="action_production" type="object" class="oe_stat_button" icon="fa-info">
-              <field string="Production" name="production" widget="statinfo" />
-            </button>
-            <button name="action_purchase" type="object" class="oe_stat_button" icon="fa-usd">
-              <field string="Purchase" name="purchase" widget="statinfo" />
-            </button>
-            <button name="action_picking" type="object" class="oe_stat_button" icon="fa-info">
-              <field string="Picking" name="picking" widget="statinfo" />
-            </button>
-            <button name="action_move" type="object" class="oe_stat_button" icon="fa-info">
-              <field string="Move" name="move" widget="statinfo" />
-            </button>
-
-          </div>
-          <group col="2">
-            <group>
-              <field name="name" />
-              <field name="product_id" />
-              <field name="process_id" domain="[('product_id','=',product_id)]" />
+                   <field name="name"/>
+                   <field name="process_id"/>
             </group>
             <group>
-              <field name="quantity" />
-              <field name="processing_quantity" />
-              <field name="done_quantity" />
-              <field name="remain_quantity" />
+                   <field name="production_line_type_id"/>
+                            <field name="product_id" context="{'default_detailed_type': 'product'}" default_focus="1" placeholder="Product to build..."/>
+                            <field name="product_tmpl_id" invisible="1"/>
+                   <field name="bom_id" domain="[('product_tmpl_id','=',product_tmpl_id)]"/>
             </group>
-          </group>
-          <group col="2">
-            <group string="Bắt đầu">
-              <field name="plan_start" />
-              <field name="schedule_start" />
-              <field name="start" />
             </group>
-            <group string="Kết thúc">
-              <field name="plan_finish" />
-              <field name="schedule_finish" />
-              <field name="finish" />
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_request_form">
+      <field name="name">smartbiz_mes_request_form</field>
+      <field name="model">smartbiz_mes.request</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Request">
+            <header>
+                <button name="action_draft_confirm" string="Confirm" type = "object"  invisible="state != 'draft'"/>
+                <button name="action_confirmed_create_mos" string="Create MOs" type = "object"  invisible="state != 'confirmed'"/>
+                <button name="action_confirmed_create_sub_request" string="Create Sub Request" type = "object"  invisible="state != 'confirmed'"/>
+                <field name="state" widget="statusbar" />
+            </header>
+      <sheet>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_sub_request" type="object"  class="oe_stat_button" icon="fa-info"> 
+                        <field string="Sub Request" name="sub_request" widget="statinfo"/>
+                     </button>
+                    <button name="action_productions" type="object"  class="oe_stat_button" icon="fa-wrench"> 
+                        <field string="Productions" name="production" widget="statinfo"/>
+                     </button>
+                    <button name="action_purchases" type="object"  class="oe_stat_button" icon="fa-usd"> 
+                        <field string="Purchases" name="picking" widget="statinfo"/>
+                     </button>
+                    <button name="action_pickings" type="object"  class="oe_stat_button" icon="fa-truck"> 
+                        <field string="Pickings" name="purchase" widget="statinfo"/>
+                     </button>
+                    <button name="action_moves" type="object"  class="oe_stat_button" icon="fa-exchange"> 
+                        <field string="Moves" name="move" widget="statinfo"/>
+                     </button>
+
+                 </div>
+            <group string="Request" col="2">
+            <group>
+                   <field name="name"/>
+                   <field name="code"/>
+                   <field name="title"/>
             </group>
-          </group>
-        </sheet>
-        <div class="oe_chatter">
-          <field name="message_follower_ids" widget="mail_followers" />
-          <field name="activity_ids" widget="mail_activity" />
-          <field name="message_ids" widget="mail_thread" />
-        </div>
-      </form>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="purchase_order_form">
-    <field name="name">purchase_order_form</field>
-    <field name="model">purchase.order</field>
-    <field name="priority" eval="7" />
-    <field name="inherit_id" ref="purchase.purchase_order_form" />
-    <field name="arch" type="xml">
-
-      <xpath expr="//field[@name='currency_id']" position="after">
-        <field name="production_request_id" />
-      </xpath>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="stock_move_form">
-    <field name="name">stock_move_form</field>
-    <field name="model">stock.move</field>
-    <field name="priority" eval="7" />
-    <field name="inherit_id" ref="stock.view_move_form" />
-    <field name="arch" type="xml">
-
-      <xpath expr="//field[@name='reference']" position="after">
-        <field name="production_request_id" />
-      </xpath>
-    </field>
-  </record>
-
-  <!-- Trees -->
-
-  <record model="ir.ui.view" id="mrp_workcenter_tree">
-    <field name="name">mrp_workcenter_tree</field>
-    <field name="model">mrp.workcenter</field>
-    <field name="inherit_id" ref="mrp.mrp_workcenter_tree_view" />
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-      <xpath expr="//field[@name='name']" position="after">
-        <field name="production_line_id" optional="show" />
-      </xpath>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="stock_picking_tree">
-    <field name="name">stock_picking_tree</field>
-    <field name="model">stock.picking</field>
-    <field name="inherit_id" ref="stock.vpicktree" />
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-
-      <xpath expr="//field[@name='name']" position="after">
-        <field name="production_request_id" optional="show" />
-      </xpath>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="smartbiz_mes_package_tree">
-    <field name="name">smartbiz_mes_package_tree</field>
-    <field name="model">smartbiz_mes.package</field>
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-      <tree string="Tree Package">
-        <field name="name" optional="show" />
-        <field name="current_step" optional="show" />
-        <field name="current_component_id" optional="show" />
-        <field name="last_qty" optional="show" />
-        <field name="current_workorder_id" optional="show" />
-      </tree>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="smartbiz_mes_factory_tree">
-    <field name="name">smartbiz_mes_factory_tree</field>
-    <field name="model">smartbiz_mes.factory</field>
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-      <tree string="Tree Factory">
-        <field name="name" optional="show" />
-        <field name="company_id" optional="show" />
-      </tree>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="smartbiz_mes_production_line_tree">
-    <field name="name">smartbiz_mes_production_line_tree</field>
-    <field name="model">smartbiz_mes.production_line</field>
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-      <tree string="Tree Production Line">
-        <field name="name" optional="show" />
-        <field name="code" optional="show" />
-        <field name="type_id" optional="show" />
-        <field name="picking_type_id" optional="show" />
-        <field name="factory_id" optional="show" />
-        <field name="work_centers_ids" optional="show" />
-      </tree>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="smartbiz_mes_production_activity_tree">
-    <field name="name">smartbiz_mes_production_activity_tree</field>
-    <field name="model">smartbiz_mes.production_activity</field>
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-      <tree string="Tree Production Activity">
-        <field name="work_order_id" optional="show" />
-        <field name="component_id" optional="show" />
-        <field name="quantity" optional="show" />
-        <field name="quality" optional="show" />
-        <field name="lot_id" optional="show" />
-        <field name="name" optional="show" />
-        <field name="package_id" optional="show" />
-        <field name="start" optional="show" />
-        <field name="finish" optional="show" />
-        <field name="duration" optional="show" />
-        <field name="status" optional="show" />
-      </tree>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="smartbiz_mes_bom_components_tree">
-    <field name="name">smartbiz_mes_bom_components_tree</field>
-    <field name="model">smartbiz_mes.bom_components</field>
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-      <tree string="Tree BoM Components">
-        <field name="name" optional="show" />
-        <field name="type" optional="show" />
-        <field name="quantity" optional="show" />
-        <field name="material_id" invisible="type != 'material'" domain="[('bom_id','=',bom_id)]"
-          optional="show" />
-        <field name="product_id" invisible="type != 'product'" domain="[('bom_id','=',bom_id)]"
-          optional="show" />
-        <field name="bom_id" optional="show" />
-        <field name="operations_ids" domain="[('bom_id','=',bom_id)]" optional="show" />
-        <field name="package_quantity" optional="show" />
-        <field name="print_label" optional="show" />
-      </tree>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="smartbiz_mes_production_line_type_tree">
-    <field name="name">smartbiz_mes_production_line_type_tree</field>
-    <field name="model">smartbiz_mes.production_line_type</field>
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-      <tree string="Tree Production Line Type">
-        <field name="name" optional="show" />
-      </tree>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="smartbiz_mes_production_report_tree">
-    <field name="name">smartbiz_mes_production_report_tree</field>
-    <field name="model">smartbiz_mes.production_report</field>
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-      <tree string="Tree Production Report">
-        <field name="production_order_id" optional="show" />
-        <field name="product_id" optional="show" />
-        <field name="currency_id" optional="show" />
-        <field name="date" optional="show" />
-        <field name="planned_quantity" optional="show" />
-        <field name="produced_quantity" optional="show" />
-        <field name="remaining_quantity" optional="show" />
-        <field name="yield_percentage" optional="show" />
-        <field name="component_cost" optional="hire" />
-        <field name="operation_cost" optional="hire" />
-        <field name="total_cost" optional="hire" />
-        <field name="component_cost_per_unit" optional="hire" />
-        <field name="operation_cost_per_unit" optional="hire" />
-        <field name="cost_per_unit" optional="hire" />
-        <field name="expected_duration" widget="float_time" optional="show" />
-        <field name="duration" widget="float_time" optional="show" />
-        <field name="duration_per_unit" widget="float_time" optional="hire" />
-        <field name="byproduct_cost" optional="hire" />
-      </tree>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="smartbiz_mes_process_tree">
-    <field name="name">smartbiz_mes_process_tree</field>
-    <field name="model">smartbiz_mes.process</field>
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-      <tree string="Tree Process">
-        <field name="name" optional="show" />
-        <field name="product_id" optional="show" />
-        <field name="operations_ids" optional="show" />
-      </tree>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="smartbiz_mes_operation_tree">
-    <field name="name">smartbiz_mes_operation_tree</field>
-    <field name="model">smartbiz_mes.operation</field>
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-      <tree string="Tree Operation">
-        <field name="name" optional="show" />
-        <field name="process_id" optional="show" />
-        <field name="production_line_type_id" optional="show" />
-        <field name="product_id" optional="show" />
-        <field name="bom_id" domain="[('product_id','=',product_id)]" optional="show" />
-      </tree>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="smartbiz_mes_request_tree">
-    <field name="name">smartbiz_mes_request_tree</field>
-    <field name="model">smartbiz_mes.request</field>
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-      <tree string="Tree Request">
-        <field name="state" />
-        <field name="name" optional="show" />
-        <field name="product_id" optional="show" />
-        <field name="process_id" domain="[('product_id','=',product_id)]" optional="show" />
-        <field name="quantity" optional="show" />
-        <field name="processing_quantity" optional="show" />
-        <field name="done_quantity" optional="show" />
-        <field name="remain_quantity" optional="show" />
-        <field name="plan_start" optional="show" />
-        <field name="schedule_start" optional="show" />
-        <field name="start" optional="show" />
-        <field name="plan_finish" optional="show" />
-        <field name="schedule_finish" optional="show" />
-        <field name="finish" optional="show" />
-      </tree>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="purchase_order_tree">
-    <field name="name">purchase_order_tree</field>
-    <field name="model">purchase.order</field>
-    <field name="inherit_id" ref="purchase.purchase_order_view_tree" />
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-
-      <xpath expr="//field[@name='name']" position="after">
-
-        <field name="production_request_id" optional="show" />
-      </xpath>
-    </field>
-  </record>
-
-  <record model="ir.ui.view" id="stock_move_tree">
-    <field name="name">stock_move_tree</field>
-    <field name="model">stock.move</field>
-    <field name="inherit_id" ref="stock.view_move_tree" />
-    <field name="priority" eval="7" />
-    <field name="arch" type="xml">
-
-      <xpath expr="//field[@name='reference']" position="after">
-        <field name="production_request_id" optional="show" />
-      </xpath>
-    </field>
-  </record>
-
-  <!-- calendars -->
-
-  <!-- kanbans -->
-
-  <!-- pivots -->
-
-  <record model="ir.ui.view" id="smartbiz_mes_production_report_pivot">
-    <field name="name">smartbiz_mes_production_report_pivot</field>
-    <field name="model">smartbiz_mes.production_report</field>
-    <field name="arch" type="xml">
-      <pivot string="Production Report">
-        <field name="production_order_id" type="row" />
-        <field name="product_id" type="row" />
-        <field name="planned_quantity" type="measure" />
-        <field name="produced_quantity" type="measure" />
-        <field name="remaining_quantity" type="measure" />
-        <field name="yield_percentage" type="measure" />
-      </pivot>
-    </field>
-  </record>
-
-  <!-- graphs -->
-
-  <record model="ir.ui.view" id="smartbiz_mes_production_report_graph">
-    <field name="name">smartbiz_mes_production_report_graph</field>
-    <field name="model">smartbiz_mes.production_report</field>
-    <field name="arch" type="xml">
-      <graph string="Production Report" type="bar" stacked="False">
-        <field name="production_order_id" type="row" />
-        <field name="product_id" type="row" />
-        <field name="planned_quantity" type="measure" />
-        <field name="produced_quantity" type="measure" />
-        <field name="remaining_quantity" type="measure" />
-        <field name="yield_percentage" type="measure" />
-      </graph>
-    </field>
-  </record>
-
-  <!-- Gantt -->
-
-  <!-- Search -->
-
-  <!-- Modified Views -->
-
-  <!-- Modified Views Properties -->
-
-  <!-- Modified Elements Properties -->
-
-  <!-- actions opening views on models -->
-
-  <record model="ir.actions.act_window" id="mrp_production_action">
-    <field name="name">Production</field>
-    <field name="res_model">mrp.production</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="mrp_workcenter_action">
-    <field name="name">Workcenter</field>
-    <field name="res_model">mrp.workcenter</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="mrp_workorder_action">
-    <field name="name">Workorder</field>
-    <field name="res_model">mrp.workorder</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="mrp_bom_action">
-    <field name="name">BoM</field>
-    <field name="res_model">mrp.bom</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="mrp_bom_line_action">
-    <field name="name">bom.line</field>
-    <field name="res_model">mrp.bom.line</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="mrp_routing_workcenter_action">
-    <field name="name">routing.workcenter</field>
-    <field name="res_model">mrp.routing.workcenter</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="mrp_bom_byproduct_action">
-    <field name="name">bom.byproduct</field>
-    <field name="res_model">mrp.bom.byproduct</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="stock_picking_action">
-    <field name="name">picking</field>
-    <field name="res_model">stock.picking</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="smartbiz_mes_package_action">
-    <field name="name">Package</field>
-    <field name="res_model">smartbiz_mes.package</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="smartbiz_mes_factory_action">
-    <field name="name">Factory</field>
-    <field name="res_model">smartbiz_mes.factory</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="smartbiz_mes_production_line_action">
-    <field name="name">Production Line</field>
-    <field name="res_model">smartbiz_mes.production_line</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="smartbiz_mes_production_activity_action">
-    <field name="name">Production Activity</field>
-    <field name="res_model">smartbiz_mes.production_activity</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="smartbiz_mes_bom_components_action">
-    <field name="name">BoM Components</field>
-    <field name="res_model">smartbiz_mes.bom_components</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="smartbiz_mes_production_line_type_action">
-    <field name="name">Production Line Type</field>
-    <field name="res_model">smartbiz_mes.production_line_type</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="smartbiz_mes_production_report_action">
-    <field name="name">Production Report</field>
-    <field name="res_model">smartbiz_mes.production_report</field>
-    <field name="view_mode">tree,form,graph,pivot</field>
-    <field name="domain">[]</field>
-    <field name="context">{'edit':False,'delete':False,'create':False,}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="smartbiz_mes_process_action">
-    <field name="name">Process</field>
-    <field name="res_model">smartbiz_mes.process</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="smartbiz_mes_operation_action">
-    <field name="name">Operation</field>
-    <field name="res_model">smartbiz_mes.operation</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record id="act_smartbiz_mes_request_2_mrp_production" model="ir.actions.act_window">
-    <field name="name">Production</field>
-    <field name="res_model">mrp.production</field>
-    <field name="view_mode">tree,form</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record id="act_smartbiz_mes_request_2_purchase_order" model="ir.actions.act_window">
-    <field name="name">order</field>
-    <field name="res_model">purchase.order</field>
-    <field name="view_mode">tree,form</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record id="act_smartbiz_mes_request_2_stock_picking" model="ir.actions.act_window">
-    <field name="name">picking</field>
-    <field name="res_model">stock.picking</field>
-    <field name="view_mode">tree,form</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record id="act_smartbiz_mes_request_2_stock_move" model="ir.actions.act_window">
-    <field name="name">move</field>
-    <field name="res_model">stock.move</field>
-    <field name="view_mode">tree,form</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="smartbiz_mes_request_action">
-    <field name="name">Request</field>
-    <field name="res_model">smartbiz_mes.request</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="purchase_order_action">
-    <field name="name">order</field>
-    <field name="res_model">purchase.order</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <record model="ir.actions.act_window" id="stock_move_action">
-    <field name="name">move</field>
-    <field name="res_model">stock.move</field>
-    <field name="view_mode">tree,form</field>
-    <field name="domain">[]</field>
-    <field name="context">{}</field>
-  </record>
-
-  <!-- Menu -->
-
-  <!-- Top menu item -->
-
-  <menuitem name="Quality"
-    id="menu_quality_20"
-    sequence="20"
-  />
-  <record id="menu_quality_20" model="ir.ui.menu">
-    <field name="parent_id" ref="mrp.menu_mrp_root" />
-  </record>
-
-  <!-- Menu item action -->
-
-  <menuitem name="Package"
-    id="smartbiz_mes_package_menuitem"
-    action="smartbiz_mes_package_action"
-    parent="mrp.menu_mrp_configuration"
-    sequence="20"
-  />
-  <menuitem name="Factory"
-    id="smartbiz_mes_factory_menuitem"
-    action="smartbiz_mes_factory_action"
-    parent="mrp.menu_mrp_configuration"
-    sequence="21"
-  />
-  <menuitem name="Production Line"
-    id="smartbiz_mes_production_line_menuitem"
-    action="smartbiz_mes_production_line_action"
-    parent="mrp.menu_mrp_configuration"
-    sequence="22"
-  />
-  <menuitem name="Production Activity"
-    id="smartbiz_mes_production_activity_menuitem"
-    action="smartbiz_mes_production_activity_action"
-    parent="mrp.menu_mrp_manufacturing"
-    sequence="23"
-  />
-  <menuitem name="BoM Components"
-    id="smartbiz_mes_bom_components_menuitem"
-    action="smartbiz_mes_bom_components_action"
-    parent="mrp.menu_mrp_configuration"
-    sequence="24"
-  />
-  <menuitem name="Production Line Type"
-    id="smartbiz_mes_production_line_type_menuitem"
-    action="smartbiz_mes_production_line_type_action"
-    parent="mrp.menu_mrp_configuration"
-    sequence="25"
-  />
-  <menuitem name="Production Report"
-    id="smartbiz_mes_production_report_menuitem"
-    action="smartbiz_mes_production_report_action"
-    parent="mrp.menu_mrp_reporting"
-    sequence="27"
-  />
-  <menuitem name="Process"
-    id="smartbiz_mes_process_menuitem"
-    action="smartbiz_mes_process_action"
-    parent="mrp.menu_mrp_configuration"
-    sequence="30"
-  />
-  <menuitem name="Operation"
-    id="smartbiz_mes_operation_menuitem"
-    action="smartbiz_mes_operation_action"
-    parent="mrp.menu_mrp_configuration"
-    sequence="31"
-  />
-  <menuitem name="Request"
-    id="smartbiz_mes_request_menuitem"
-    action="smartbiz_mes_request_action"
-    parent="mrp.mrp_planning_menu_root"
-    sequence="32"
-  />
+            <group>
+                   <field name="partner_id"/>
+                   <field name="request_type"/>
+                   <field name="parent_request_id" domain="[('id', '!=', id),('id', 'not in', sub_request_ids)]"/>
+            </group>
+            </group>
+            <group string="Product" col="2">
+            <group>
+                   <field name="product_template_id"/>
+                   <field name="product_id" domain="[('product_tmpl_id','=',product_template_id)]"/>
+                   <field name="process_id" domain="[('product_id','=',product_template_id)]"/>
+            </group>
+            <group>
+                   <field name="quantity"/>
+                   <field name="processing_quantity"/>
+                   <field name="done_quantity"/>
+                   <field name="remain_quantity"/>
+            </group>
+            </group>
+            <group string="Time" col="2">
+            <group>
+                   <field name="plan_start"/>
+                   <field name="schedule_start"/>
+                   <field name="start"/>
+            </group>
+            <group>
+                   <field name="plan_finish"/>
+                   <field name="schedule_finish"/>
+                   <field name="finish"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Sub Requests">
+                   <field name="sub_request_ids">
+<tree string="Tree Request" >
+            <field name="state" />
+            <field name="name" optional="show"/>
+            <field name="partner_id" optional="show"/>
+            <field name="request_type" optional="show"/>          
+            <field name="product_template_id" optional="show"/>
+            <field name="product_id" optional="show"/>
+            <field name="process_id" domain="[('product_id','=',product_template_id)]" optional="show"/>
+            <field name="quantity" optional="show"/>
+            <field name="processing_quantity" optional="show"/>
+            <field name="done_quantity" optional="show"/>
+            <field name="remain_quantity" optional="show"/>
+            <field name="plan_start" optional="show"/>
+            <field name="schedule_start" optional="show"/>
+            <field name="start" optional="show"/>
+            <field name="plan_finish" optional="show"/>
+            <field name="schedule_finish" optional="show"/>
+            <field name="finish" optional="show"/>
+        </tree>
+                   </field>
+            </page>
+            </notebook>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="purchase_order_form">
+      <field name="name">purchase_order_form</field>
+      <field name="model">purchase.order</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="purchase.purchase_order_form" />
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='currency_id']" position="after">
+                   <field name="production_request_id"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_move_form">
+      <field name="name">stock_move_form</field>
+      <field name="model">stock.move</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_move_form" />
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='reference']" position="after">
+                   <field name="production_request_id"/>
+           </xpath>
+      </field>
+    </record>
+
+<!-- Trees -->
+
+    <record model="ir.ui.view" id="mrp_production_tree">
+      <field name="name">mrp_production_tree</field>
+      <field name="model">mrp.production</field>
+      <field name="inherit_id" ref="mrp.mrp_production_tree_view" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='name']" position="after">
+        <field name="production_request_id"  optional="show"/>
+        <field name="production_line_id" optional="show"/>
+       </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="mrp_workcenter_tree">
+      <field name="name">mrp_workcenter_tree</field>
+      <field name="model">mrp.workcenter</field>
+      <field name="inherit_id" ref="mrp.mrp_workcenter_tree_view" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+           <xpath expr="//field[@name='name']" position="after">
+            <field name="production_line_id" optional="show"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_picking_tree">
+      <field name="name">stock_picking_tree</field>
+      <field name="model">stock.picking</field>
+      <field name="inherit_id" ref="stock.vpicktree" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='name']" position="after">
+            <field name="production_request_id" optional="show"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_package_tree">
+      <field name="name">smartbiz_mes_package_tree</field>
+      <field name="model">smartbiz_mes.package</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Package" >
+            <field name="name" optional="show"/>
+            <field name="current_step" optional="show"/>
+            <field name="current_component_id" optional="show"/>
+            <field name="last_qty" optional="show"/>
+            <field name="current_workorder_id" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_factory_tree">
+      <field name="name">smartbiz_mes_factory_tree</field>
+      <field name="model">smartbiz_mes.factory</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Factory" >
+            <field name="name" optional="show"/>
+            <field name="company_id" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_production_line_tree">
+      <field name="name">smartbiz_mes_production_line_tree</field>
+      <field name="model">smartbiz_mes.production_line</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Production Line" >
+            <field name="name" optional="show"/>
+            <field name="code" optional="show"/>
+            <field name="type_id" optional="show"/>
+            <field name="picking_type_id" optional="show"/>
+            <field name="factory_id" optional="show"/>
+            <field name="work_centers_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_production_activity_tree">
+      <field name="name">smartbiz_mes_production_activity_tree</field>
+      <field name="model">smartbiz_mes.production_activity</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Production Activity" >
+            <field name="work_order_id" optional="show"/>
+            <field name="component_id" optional="show"/>
+            <field name="quantity" optional="show"/>
+            <field name="quality" optional="show"/>
+            <field name="lot_id" optional="show"/>
+            <field name="name" optional="show"/>
+            <field name="package_id" optional="show"/>
+            <field name="start" optional="show"/>
+            <field name="finish" optional="show"/>
+            <field name="duration" optional="show"/>
+            <field name="status" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_bom_components_tree">
+      <field name="name">smartbiz_mes_bom_components_tree</field>
+      <field name="model">smartbiz_mes.bom_components</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree BoM Components" >
+            <field name="name" optional="show"/>
+            <field name="type" optional="show"/>
+            <field name="quantity" optional="show"/>
+            <field name="material_id" invisible="type != 'material'" domain="[('bom_id','=',bom_id)]" optional="show"/>
+            <field name="product_id" invisible="type != 'product'" domain="[('bom_id','=',bom_id)]" optional="show"/>
+            <field name="bom_id" optional="show"/>
+            <field name="operations_ids" domain="[('bom_id','=',bom_id)]" optional="show"/>
+            <field name="package_quantity" optional="show"/>
+            <field name="print_label" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_production_line_type_tree">
+      <field name="name">smartbiz_mes_production_line_type_tree</field>
+      <field name="model">smartbiz_mes.production_line_type</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Production Line Type" >
+            <field name="name" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_production_report_tree">
+      <field name="name">smartbiz_mes_production_report_tree</field>
+      <field name="model">smartbiz_mes.production_report</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Production Report" >
+            <field name="production_order_id" optional="show"/>
+            <field name="product_id" optional="show"/>
+            <field name="currency_id" optional="show"/>
+            <field name="date" optional="show"/>
+            <field name="planned_quantity" optional="show"/>
+            <field name="produced_quantity" optional="show"/>
+            <field name="remaining_quantity" optional="show"/>
+            <field name="yield_percentage" optional="show"/>
+            <field name="component_cost" optional="hire"/>
+            <field name="operation_cost" optional="hire"/>
+            <field name="total_cost" optional="hire"/>
+            <field name="component_cost_per_unit" optional="hire"/>
+            <field name="operation_cost_per_unit" optional="hire"/>
+            <field name="cost_per_unit" optional="hire"/>
+            <field name="expected_duration" widget="float_time" optional="show"/>
+            <field name="duration" widget="float_time" optional="show"/>
+            <field name="duration_per_unit" widget="float_time" optional="hire"/>
+            <field name="byproduct_cost" optional="hire"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_process_tree">
+      <field name="name">smartbiz_mes_process_tree</field>
+      <field name="model">smartbiz_mes.process</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Process" >
+            <field name="name" optional="show"/>
+            <field name="product_id" optional="show"/>
+            <field name="operations_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_operation_tree">
+      <field name="name">smartbiz_mes_operation_tree</field>
+      <field name="model">smartbiz_mes.operation</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Operation" >
+            <field name="name" optional="show"/>
+            <field name="process_id" optional="show"/>
+            <field name="production_line_type_id" optional="show"/>
+                            <field name="product_id"  optional="show"/>
+                            <field name="product_tmpl_id" invisible="1"  optional="hide"/>
+            <field name="bom_id" domain="[('product_tmpl_id','=',product_tmpl_id)]" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_request_tree">
+      <field name="name">smartbiz_mes_request_tree</field>
+      <field name="model">smartbiz_mes.request</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Request" >
+            <field name="state" />
+            <field name="name" optional="show"/>
+            <field name="code" optional="show"/>
+            <field name="title" optional="show"/>
+            <field name="partner_id" optional="show"/>
+            <field name="request_type" optional="show"/>
+            <field name="parent_request_id" domain="[('id', '!=', id),('id', 'not in', sub_request_ids)]" optional="show"/>
+            <field name="product_template_id" optional="show"/>
+            <field name="product_id" domain="[('product_tmpl_id','=',product_template_id)]" optional="show"/>
+            <field name="process_id" domain="[('product_id','=',product_template_id)]" optional="show"/>
+            <field name="quantity" optional="show"/>
+            <field name="processing_quantity" optional="show"/>
+            <field name="done_quantity" optional="show"/>
+            <field name="remain_quantity" optional="show"/>
+            <field name="plan_start" optional="show"/>
+            <field name="schedule_start" optional="show"/>
+            <field name="start" optional="show"/>
+            <field name="plan_finish" optional="show"/>
+            <field name="schedule_finish" optional="show"/>
+            <field name="finish" optional="show"/>
+            <field name="sub_request_ids" optional="hire"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="purchase_order_tree">
+      <field name="name">purchase_order_tree</field>
+      <field name="model">purchase.order</field>
+      <field name="inherit_id" ref="purchase.purchase_order_view_tree" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='name']" position="after">
+
+            <field name="production_request_id" optional="show"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_move_tree">
+      <field name="name">stock_move_tree</field>
+      <field name="model">stock.move</field>
+      <field name="inherit_id" ref="stock.view_move_tree" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='reference']" position="after">
+            <field name="production_request_id" optional="show"/>
+           </xpath>
+      </field>
+    </record>
+
+<!-- calendars -->
+
+<!-- kanbans -->
+
+<!-- pivots -->
+
+    <record model="ir.ui.view" id="smartbiz_mes_production_report_pivot">
+      <field name="name">smartbiz_mes_production_report_pivot</field>
+      <field name="model">smartbiz_mes.production_report</field>
+      <field name="arch" type="xml">
+        <pivot string="Production Report">
+            <field name="production_order_id" type="row"/>
+            <field name="product_id" type="row"/>
+            <field name="planned_quantity" type="measure"/>
+            <field name="produced_quantity" type="measure"/>
+            <field name="remaining_quantity" type="measure"/>
+            <field name="yield_percentage" type="measure"/>
+        </pivot>
+      </field>
+    </record>
+
+<!-- graphs -->
+
+    <record model="ir.ui.view" id="smartbiz_mes_production_report_graph">
+      <field name="name">smartbiz_mes_production_report_graph</field>
+      <field name="model">smartbiz_mes.production_report</field>
+      <field name="arch" type="xml">
+        <graph string="Production Report" type="bar" stacked="False">
+            <field name="production_order_id" type="row"/>
+            <field name="product_id" type="row"/>
+            <field name="planned_quantity" type="measure"/>
+            <field name="produced_quantity" type="measure"/>
+            <field name="remaining_quantity" type="measure"/>
+            <field name="yield_percentage" type="measure"/>
+        </graph>
+      </field>
+    </record>
+
+<!-- Gantt -->
+
+<!-- Search -->
+
+<!-- Modified Views -->
+
+<!-- Modified Views Properties -->
+
+<!-- Modified Elements Properties -->
+
+<!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="mrp_production_action">
+      <field name="name">Production</field>
+      <field name="res_model">mrp.production</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="mrp_workcenter_action">
+      <field name="name">Workcenter</field>
+      <field name="res_model">mrp.workcenter</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="mrp_workorder_action">
+      <field name="name">Workorder</field>
+      <field name="res_model">mrp.workorder</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="mrp_bom_action">
+      <field name="name">BoM</field>
+      <field name="res_model">mrp.bom</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="mrp_bom_line_action">
+      <field name="name">bom.line</field>
+      <field name="res_model">mrp.bom.line</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="mrp_routing_workcenter_action">
+      <field name="name">routing.workcenter</field>
+      <field name="res_model">mrp.routing.workcenter</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="mrp_bom_byproduct_action">
+      <field name="name">bom.byproduct</field>
+      <field name="res_model">mrp.bom.byproduct</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_picking_action">
+      <field name="name">picking</field>
+      <field name="res_model">stock.picking</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_mes_package_action">
+      <field name="name">Package</field>
+      <field name="res_model">smartbiz_mes.package</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_mes_factory_action">
+      <field name="name">Factory</field>
+      <field name="res_model">smartbiz_mes.factory</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_mes_production_line_action">
+      <field name="name">Production Line</field>
+      <field name="res_model">smartbiz_mes.production_line</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_mes_production_activity_action">
+      <field name="name">Production Activity</field>
+      <field name="res_model">smartbiz_mes.production_activity</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_mes_bom_components_action">
+      <field name="name">BoM Components</field>
+      <field name="res_model">smartbiz_mes.bom_components</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_mes_production_line_type_action">
+      <field name="name">Production Line Type</field>
+      <field name="res_model">smartbiz_mes.production_line_type</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_mes_production_report_action">
+      <field name="name">Production Report</field>
+      <field name="res_model">smartbiz_mes.production_report</field>
+      <field name="view_mode">tree,form,graph,pivot</field>
+      <field name="domain">[]</field>
+      <field name="context">{'edit':False,'delete':False,'create':False,}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_mes_process_action">
+      <field name="name">Process</field>
+      <field name="res_model">smartbiz_mes.process</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_mes_operation_action">
+      <field name="name">Operation</field>
+      <field name="res_model">smartbiz_mes.operation</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+        <record id="act_smartbiz_mes_request_2_smartbiz_mes_request" model="ir.actions.act_window">
+            <field name="name">Request</field>
+            <field name="res_model">smartbiz_mes.request</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record id="act_smartbiz_mes_request_2_mrp_production" model="ir.actions.act_window">
+            <field name="name">Production</field>
+            <field name="res_model">mrp.production</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record id="act_smartbiz_mes_request_2_purchase_order" model="ir.actions.act_window">
+            <field name="name">order</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record id="act_smartbiz_mes_request_2_stock_picking" model="ir.actions.act_window">
+            <field name="name">picking</field>
+            <field name="res_model">stock.picking</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record id="act_smartbiz_mes_request_2_stock_move" model="ir.actions.act_window">
+            <field name="name">move</field>
+            <field name="res_model">stock.move</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+        </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_mes_request_action">
+      <field name="name">Request</field>
+      <field name="res_model">smartbiz_mes.request</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="purchase_order_action">
+      <field name="name">order</field>
+      <field name="res_model">purchase.order</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_move_action">
+      <field name="name">move</field>
+      <field name="res_model">stock.move</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+<!-- Menu -->
+
+<!-- Top menu item -->
+
+    <menuitem name="Quality" 
+       id="menu_quality_20"
+       sequence ="20"
+    />
+    <record id="menu_quality_20" model="ir.ui.menu">
+       <field name="parent_id" ref="mrp.menu_mrp_root"/>
+    </record>
+
+<!-- Menu item action -->
+
+    <menuitem name="Package" 
+       id="smartbiz_mes_package_menuitem"
+       action ="smartbiz_mes_package_action"
+       parent ="mrp.menu_mrp_configuration"
+       sequence ="20"
+    />
+    <menuitem name="Factory" 
+       id="smartbiz_mes_factory_menuitem"
+       action ="smartbiz_mes_factory_action"
+       parent ="mrp.menu_mrp_configuration"
+       sequence ="21"
+    />
+    <menuitem name="Production Line" 
+       id="smartbiz_mes_production_line_menuitem"
+       action ="smartbiz_mes_production_line_action"
+       parent ="mrp.menu_mrp_configuration"
+       sequence ="22"
+    />
+    <menuitem name="Production Activity" 
+       id="smartbiz_mes_production_activity_menuitem"
+       action ="smartbiz_mes_production_activity_action"
+       parent ="mrp.menu_mrp_manufacturing"
+       sequence ="23"
+    />
+    <menuitem name="BoM Components" 
+       id="smartbiz_mes_bom_components_menuitem"
+       action ="smartbiz_mes_bom_components_action"
+       parent ="mrp.menu_mrp_configuration"
+       sequence ="24"
+    />
+    <menuitem name="Production Line Type" 
+       id="smartbiz_mes_production_line_type_menuitem"
+       action ="smartbiz_mes_production_line_type_action"
+       parent ="mrp.menu_mrp_configuration"
+       sequence ="25"
+    />
+    <menuitem name="Production Report" 
+       id="smartbiz_mes_production_report_menuitem"
+       action ="smartbiz_mes_production_report_action"
+       parent ="mrp.menu_mrp_reporting"
+       sequence ="27"
+    />
+    <menuitem name="Process" 
+       id="smartbiz_mes_process_menuitem"
+       action ="smartbiz_mes_process_action"
+       parent ="mrp.menu_mrp_configuration"
+       sequence ="30"
+    />
+    <menuitem name="Operation" 
+       id="smartbiz_mes_operation_menuitem"
+       action ="smartbiz_mes_operation_action"
+       parent ="mrp.menu_mrp_configuration"
+       sequence ="31"
+    />
+    <menuitem name="Request" 
+       id="smartbiz_mes_request_menuitem"
+       action ="smartbiz_mes_request_action"
+       parent ="mrp.mrp_planning_menu_root"
+       sequence ="32"
+    />
 
 </odoo>

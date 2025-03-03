@@ -96,7 +96,7 @@
                 <button class="s_detail_button_function" t-on-click="()=>props.saveOrder()" >Lưu</button>
                 <button class="s_detail_button_function" t-on-click="()=>props.resetDetailMoveLine()" >Hủy</button>
                 <!-- <button class="s_detail_button_function" t-on-click="()=>props.validate()"  t-if="props.buttonStatus.validate"><i class="fas fa-clipboard-check" aria-hidden="true"></i></button> -->
-                <button class="s_detail_button_function" t-on-click="()=>props.print()" >In Nhãn</button>
+                <button class="s_detail_button_function" t-on-click="()=>props.print_lines()" >In</button>
             </div>
 
         </div>

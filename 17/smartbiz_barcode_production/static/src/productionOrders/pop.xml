@@ -100,7 +100,7 @@
                         saveOrder: saveOrder,
                         packMoveLine: packMoveLine,
                         validate: validate,
-                        print: print,
+                        print_lines: print_lines,
                         createLot: createLot,
                         editQuantityClick: editQuantityClick,
                         openSelector: openSelector,
@@ -112,7 +112,8 @@
                             moveLines: state.moveLines,
                             selectedMoveLine: state.selectedMoveLine,
                             moveLineClick: moveLineClick,
-                            deleteMoveLine: deleteMoveLine
+                            deleteMoveLine: deleteMoveLine,
+                            print: print,
                         }" />
                         <EditQuantityModal t-if="state.showEditQuantityModal" t-props="{   
                     detailMoveLine: state.detailMoveLine,
@@ -141,7 +142,7 @@
                         saveOrder: saveOrder,
                         packMoveLine: packMoveLine,
                         validate: validate,
-                        print: print,
+                        print_lines: print_lines,
                         createLot: createLot,
                         editQuantityClick: editQuantityClick,
                         openSelector: openSelector,
@@ -153,7 +154,8 @@
                             moveLines: state.moveLines,
                             selectedMoveLine: state.selectedMoveLine,
                             moveLineClick: moveLineClick,
-                            deleteMoveLine: deleteMoveLine
+                            deleteMoveLine: deleteMoveLine,
+                            print: print,
                         }" />
                     <EditQuantityModal t-if="state.showEditQuantityModal" t-props="{   
                     detailMoveLine: state.detailMoveLine,
@@ -176,7 +178,7 @@
         <div >
             <div class="section_header">Chi tiết dịch chuyển</div>
             <div class="move_line-items">
-                <div t-foreach="props.moveLines" t-as="item" t-key="item.id" t-on-click="()=>props.moveLineClick(item.id)">
+                <div t-foreach="props.moveLines" t-as="item"  t-key="item.id" t-on-click="()=>props.moveLineClick(item.id)">
                     <div class="item" 
                         t-att-data-id="item.id"
                         t-att-class="(item.id === props.selectedMoveLine ? 'selected' : '') + getClass(item)">
@@ -186,11 +188,17 @@
                             <div style="color: red; float: left;">
                                 <t t-esc="item.quantity"/> <t t-esc="item.product_uom"/>
                             </div>
-                            <div style="float: right;">
-                                <i class="fa fa-trash" aria-hidden="true" t-on-click.stop="()=>props.deleteMoveLine(item.id)" style="cursor: pointer;"></i>
-                            </div>
+                            <div class="btn-item o_line_buttons">
+                            <button class="o_line_button o_edit btn btn-secondary" t-on-click="() => props.print(item)">
+                                <i class="fa fa-print"></i>
+                            </button>
+                            <button class="o_line_button btn btn-secondary" t-on-click="()=>props.deleteMoveLine(item.id)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>  
                         </div>
-                        <div style="color: red;">.</div>
+                        <!-- <div style="color: red;">.</div> -->
+                        
                     </div>
                 </div>
             </div>

@@ -37,6 +37,7 @@ export class MoveLines extends Component {
     "selectedMoveLine",
     "moveLineClick",
     "deleteMoveLine",
+    "print",
   ];
   setup() {
     this.state = useState({
@@ -44,12 +45,22 @@ export class MoveLines extends Component {
       selectedMoveLine: this.props.selectedMoveLine,
     });
   }
+  scrollToSelectedMove() {
+    const selectedElement = document.querySelector(`[data-id="${this.state.selectedMoveLine}"]`);
+    if (selectedElement) {
+        selectedElement.scrollIntoView({
+            behavior: "smooth", // Hiệu ứng cuộn mượt
+            block: "center",    // Căn giữa màn hình
+        });
+    }
+  }
   getClass(line) {
     // console.log(line)
     let cl = " ";
     if (line.picked) {
-       cl += " bg-green";
+      cl += " bg-green";
     }
+    this.scrollToSelectedMove();
     return cl;
   }
 }
@@ -131,7 +142,7 @@ export class ProductOrderDetail extends Component {
       services
     );
     useSubEnv({ model });
-    console.log(model);
+    // console.log(model);
     onWillStart(async () => {
       await this.loadData();
     });
@@ -146,7 +157,7 @@ export class ProductOrderDetail extends Component {
         {}
       );
       this.state.data = data;
-      this.state.productionOrders = data.order;
+      this.state.productionOrders = data.order.find(x => x.id === this.production_id);
       this.state.detailTitle = data?.order[0].name;
       this.state.materialMoves = data.materials;
       this.state.finishedMoves = data.finisheds;
@@ -169,6 +180,7 @@ export class ProductOrderDetail extends Component {
       });
     }
   }
+  
   changeTab(tab) {
     if (tab === "ProductOrderDetail") {
       this.state.activeTab = "ProductOrderDetail";
@@ -228,11 +240,6 @@ export class ProductOrderDetail extends Component {
       // Nếu đang trong chế độ chỉnh sửa, quay lại chế độ hiển thị chi tiết
       this.state.isEditing = "orderdetails";
     } else if (this.state.currentView === "ProductOrderDetail") {
-      // await this.action.doAction(
-      //   "smartbiz_barcode.mrp_production_kanban"
-      // );
-
-      // Kiểm tra breadcrumbs hoặc điều hướng về màn hình chính
       if (
         this.env.config.breadcrumbs &&
         this.env.config.breadcrumbs.length > 1
@@ -340,11 +347,11 @@ export class ProductOrderDetail extends Component {
       qty_done: move.qty_done || 0,
       quantity: move.quantity || 0,
       tracking: move.product_tracking,
-      lot_id: 0,
+      lot_id: null,
       lot_name: "",
-      package_id: 0,
+      package_id: null,
       package_name: "",
-      result_package_id: 0,
+      result_package_id: null,
       result_package_name: "",
     };
   };
@@ -361,6 +368,12 @@ export class ProductOrderDetail extends Component {
     );
     const move = this.state.moves.find((r) => r.id == id);
     this.move = move;
+    if(this.state.productionOrders){
+      this.move.lot_id = this.state.productionOrders.lot_producing_id[0]
+      this.move.lot_name = this.state.productionOrders.lot_producing_id[1]
+    }
+    const order = this.state.productionOrders;
+    // console.log(order,move,this.state.moveLines)
     this.state.detailMoveLine = {
       id: false,
       move_id: id,
@@ -376,11 +389,11 @@ export class ProductOrderDetail extends Component {
       qty_done: move.qty_done || 0,
       quantity: move.quantity || 0,
       tracking: move.product_tracking,
-      lot_id: 0,
-      lot_name: "",
-      package_id: 0,
+      lot_id: order?.lot_producing_id ? order.lot_producing_id[0] : null,
+      lot_name: order?.lot_producing_id ? order.lot_producing_id[1] : "",
+      package_id: null,
       package_name: "",
-      result_package_id: 0,
+      result_package_id: null,
       result_package_name: "",
     };
   };
@@ -404,11 +417,11 @@ export class ProductOrderDetail extends Component {
         (r) => r.move_id == this.state.selectedFinished
       );
     }
+    this.resetDetailMoveLine()
   };
   saveOrder = async () => {
     try {
       console.log(this.state.detailMoveLine);
-
       if (!this.state.detailMoveLine.product_id) {
         alert("Sản phẩm không hợp lệ, vui lòng kiểm tra lại.");
         return;
@@ -419,12 +432,12 @@ export class ProductOrderDetail extends Component {
         method: "save_order",
         data: this.state.detailMoveLine,
       };
-
       await this.checkLot(data);
     } catch (error) {
       console.error("Lỗi khi lưu đơn hàng:", error);
       alert("Đã xảy ra lỗi trong quá trình lưu. Vui lòng thử lại.");
     }
+    this.resetDetailMoveLine()
   };
   createLot = async () => {
     const lotdata = await this.orm.call(
@@ -434,32 +447,63 @@ export class ProductOrderDetail extends Component {
         ,
         this.production_id,
         this.state.detailMoveLine.product_id,
-        this.state.order.company_id[0],
-        this.state.order.lot_producing_id
-          ? this.state.order.lot_producing_id[1]
+        this.state.productionOrders.company_id[0],
+        this.state.productionOrders.lot_producing_id
+          ? this.state.productionOrders.lot_producing_id[1]
           : false,
       ],
       {}
     );
-
+    this.state.lots = lotdata.lots
+    this.state.moves = lotdata.moves
     this.state.detailMoveLine.lot_id = lotdata.lot_id;
     this.state.detailMoveLine.lot_name = lotdata.lot_name;
     // console.log(lotdata);
   };
-  print = async () => {
+  print = async (id) => {
+    console.log(id)
     const printdata = await this.orm.call(
       "mrp.production",
       "print_move_line",
       [
         ,
         this.production_id,
-        this.state.detailMoveLine,
-        "ZTC-ZD230-203dpi-ZPL",
+        id,
+        "SB2",
         "tem_thanh_pham",
       ],
       {}
     );
     console.log("ok :", printdata);
+  };
+  print_lines = async () => {
+    if (this.state.isEditing === "editMaterial") {
+      this.state.moveLines = this.state.moveLinesTemp.filter(
+        (r) => r.move_id == this.state.selectedMaterial
+      );
+    } else if (this.state.isEditing === "editMove") {
+      this.state.moveLines = this.state.moveLinesTemp.filter(
+        (r) => r.move_id == this.state.selectedFinished
+      );
+    }
+    for (let item of this.state.moveLines){
+      const printdata = await this.orm.call(
+        "mrp.production",
+        "print_move_line",
+        [
+          ,
+          this.production_id,
+          item,
+          "SB2",
+          "tem_thanh_pham",
+        ],
+        {}
+      );
+      // console.log("oke nhiều :", printdata);
+    }
+    
+    
+    
   };
   packMoveLine = async () => {
     await this.checkLot({
@@ -467,8 +511,9 @@ export class ProductOrderDetail extends Component {
       method: "pack_move_line",
       data: this.state.detailMoveLine,
     });
-
+    
     // await this.loadData();
+    this.resetDetailMoveLine()
   };
   validate = () => {
     const params = {
@@ -533,6 +578,7 @@ export class ProductOrderDetail extends Component {
         this.state.finishedMoves = lotdata.finisheds;
         this.state.moveLinesTemp = lotdata.moveLines;
         this.state.order = lotdata?.order[0]
+        this.state.moves = lotdata.moves;
         if (this.state.isEditing === "editMaterial") {
           this.state.moveLines = this.state.moveLinesTemp.filter(
             (r) => r.move_id == this.state.selectedMaterial
@@ -576,17 +622,18 @@ export class ProductOrderDetail extends Component {
   };
 
   resetDetailMoveLine = () => {
-    this.state.detailMoveLine = {
-      ...this.state.detailMoveLine, // Giữ lại các giá trị hiện tại
-      qty_done: 0, // Reset giá trị
-      lot_id: null,
-      lot_name: "",
-      package_id: null,
-      package_name: "",
-      result_package_id: null,
-      result_package_name: "",
-      // Các trường khác giữ nguyên
-    };
+      this.state.detailMoveLine = {
+          ...this.state.detailMoveLine,
+          id: false,
+          lot_id: null,
+          lot_name: "",
+          package_id: null,
+          package_name: "",
+          result_package_id: null,
+          result_package_name: "",
+          quantity: 0,
+          qty_done: 0,
+      };
   };
   handleButtonClick = () => {};
 
@@ -641,14 +688,14 @@ export class ProductOrderDetail extends Component {
       this.selectorTitle = "Chọn kiện nguồn";
     } else if (option == 8) {
       // Đóng pack hàng loạt
-      this.records = this.state.moves;
+      this.records = this.move;
       this.state.isSelector = false;
       this.multiSelect = false;
       this.state.menuVisible = false;
       this.selectorTitle = "Đóng Packages loạt";
     } else if (option == 9) {
       // Chia pack hàng loạt
-      this.records = this.state.moves;
+      this.records = this.move;
       this.state.isSelector = false;
       this.state.menuVisible = false;
       this.multiSelect = false;
@@ -688,15 +735,17 @@ export class ProductOrderDetail extends Component {
             this.production_id,
             this.state.detailMoveLine.product_id,
             this.state.order.company_id[0],
-            this.state.order.lot_producing_id
-              ? this.state.order.lot_producing_id[1]
+            this.state.productionOrders.order.lot_producing_id
+              ? this.state.productionOrders.order.lot_producing_id[1]
               : false,
           ],
           {}
         );
+        this.state.lots = lotdata.lots
       } else if (this.selectorTitle == "Đóng Packages loạt") {
-        // this.state.detailMoveLine = data
-        // console.log(data,this.state.detailMoveLine)
+        
+        // this.state.detailMoveLine.lot_id = data.id;
+        // this.state.detailMoveLine.lot_name = data.display_name || data.name;
         for (var line of data) {
           const line_lot = this.state.lots.find(
             (l) =>
@@ -706,10 +755,24 @@ export class ProductOrderDetail extends Component {
           if (line_lot) {
             line.lot_id = line_lot.id; // Gán đúng ID từ object tìm được
           } else {
-            line.lot_id = this.state.order.lot_producing_id ? this.state.order.lot_producing_id[0] : null;
+            let lotdata = await this.orm.call(
+              "mrp.production",
+              "create_lot",
+              [
+                ,
+                this.production_id,
+                this.state.detailMoveLine.product_id,
+                this.state.productionOrders.company_id[0],
+                line.lot_name,
+              ],
+              {}
+            );
+            console.log(lotdata)
+            this.state.lots = lotdata.lots
+            this.state.moves = lotdata.moves
+            line.lot_id = lotdata.lot_id;
           }
 
-          console.log(line_lot, line);
           // this.state.detailMoveLine = line
           const mrpdata = await this.orm.call(
             "mrp.production",
@@ -717,7 +780,7 @@ export class ProductOrderDetail extends Component {
             [, this.production_id, line],
             {}
           );
-          console.log(data, mrpdata);
+          // console.log(data, mrpdata);
           this.state.materialMoves = mrpdata.materials;
           this.state.finishedMoves = mrpdata.finisheds;
           this.state.moveLinesTemp = mrpdata.moveLines;
@@ -853,6 +916,15 @@ export class ProductOrderDetail extends Component {
     }
   }
 
+  scrollToSelectedMove() {
+        const selectedElement = document.querySelector(`[data-id="${this.state.selectedMove}"]`);
+        if (selectedElement) {
+            selectedElement.scrollIntoView({
+                behavior: "smooth", // Hiệu ứng cuộn mượt
+                block: "center",    // Căn giữa màn hình
+            });
+        }
+    }
   async processBarcode(barcode, production_id) {
     var barcodeData = await this.env.model.parseBarcodeMrp(
       barcode, false, false, false

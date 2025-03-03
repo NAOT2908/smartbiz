@@ -26,24 +26,26 @@ export class Selector extends Component {
             searchQuery: "",
             selectedRecords: [],
             quantity:false,
-            records:this.props.records,
+            records: this.props.records,
             selectedRecord: 0,
             package:{},
             packageId:0,
             packageName:'',
             packageProductQty:'',
             qtyPerPackage:'',
-            remainingQty: 0,
+            remainingQty: this.roundToTwo(this.props.move.product_uom_qty - this.props.move.quantity),
             packageQty:'',
+            lot_name: this.props.records.lot_name,
+            lot_id: this.props.records.lot_id,
             createPackageQty: false,
             showPackageQty: true,  // Điều khiển hiển thị 'Số lượng Package mới'
             processedPackages: [],  // Danh sách các package đã xử lý
             resultPackages: [],  // Danh sách các package qu
             
         });
-        for (var r of this.state.records){
-            r.quantity_remain = 0
-        }
+        // for (var r of this.state.records){
+        //     r.quantity_remain = 0
+        // }
 
         console.log(this.props.isSelector, this.props.records, this.props.move)
         const services = {
@@ -109,6 +111,7 @@ export class Selector extends Component {
     
     async createLinesFromDemandQty(move, qtyPerPackage, packageQty, lotName) {
         const lines = [];
+        console.log(move)
         let remainingQty = this.state.remainingQty;
         const Qtypackage = this.state.createPackageQty ? packageQty : this.state.resultPackages.length;
         
@@ -344,6 +347,7 @@ export class Selector extends Component {
                 this.props.closeSelector(lines);
             }
             else if (this.props.title == 'Đóng Packages loạt') {
+                console.log(this.props.move)
                 let qtyPerPackage = parseFloat(this.state.qtyPerPackage);
                 let packageQty = parseInt(this.state.packageQty);
                 
@@ -463,8 +467,16 @@ export class Selector extends Component {
         } 
         else if (this.props.title === "Đóng Packages loạt") {
             if (!this.state.createPackageQty) {
-                this.state.resultPackages.push(packageInfo);
-                console.log(this.state.resultPackages)
+                let findpack = this.state.resultPackages.find((x) => x.id === packageInfo.id);
+                if (!findpack) {
+                    this.state.resultPackages.push(packageInfo);
+                }
+                else {
+                    const message = _t(`Pack ${packageInfo.name} đã được quét`);
+                    this.notification.add(message, { type: "warning" });
+                }
+                // this.state.resultPackages.push(packageInfo);
+                // console.log(this.state.resultPackages)
             }
         }
     }

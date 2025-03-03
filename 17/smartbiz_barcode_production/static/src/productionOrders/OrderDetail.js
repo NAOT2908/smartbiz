@@ -30,7 +30,7 @@ export class OrderDetail extends Component {
       "handleButtonClick",
       "saveOrder",
       "packMoveLine",
-      "print",
+      "print_lines",
       "createLot",
       "editQuantityClick",
       "openSelector",
