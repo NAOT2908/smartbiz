@@ -17,6 +17,7 @@
                 <field name="color"/>
                 <field name="count_picking_ready"/>
                 <field name="code"/>
+         
                 <templates>
                     <t t-name="kanban-box">
                         <div  t-attf-class="o_barcode_picking_type oe_kanban_card  oe_kanban_global_click">
@@ -45,7 +46,7 @@
       <field name="name">stock_picking_kanban</field>
       <field name="model">stock.picking</field>
       <field name="arch" type="xml">
-        <kanban string="Picking"   js_class="stock_picking_kanban_barcode" class="o_kanban_mobile" sample="1" default_order="priority desc, scheduled_date desc, id">
+        <kanban string="Picking"   js_class="smartbiz_kanban_barcode" class="o_kanban_mobile" sample="1" default_order="priority desc, scheduled_date desc, id">
                     
     <field name="name"/>
     <field name="partner_id"/>
@@ -95,7 +96,7 @@
       <field name="name">stock_picking_batch_kanban</field>
       <field name="model">stock.picking.batch</field>
       <field name="arch" type="xml">
-        <kanban string="Picking Batch"   js_class="stock_picking_kanban_barcode" class="o_kanban_mobile" sample="1" default_order= "id">
+        <kanban string="Picking Batch"   js_class="smartbiz_kanban_barcode" class="o_kanban_mobile" sample="1" default_order= "id">
                 <field name="move_line_ids"/>
                 <field name="company_id" invisible="1"/>
                 <templates>
@@ -191,13 +192,7 @@
       <field name="context">{}</field>
     </record>
 
-    <record model="ir.actions.act_window" id="mrp_production_action">
-      <field name="name">Production</field>
-      <field name="res_model">mrp.production</field>
-      <field name="view_mode">kanban,tree,form</field>
-      <field name="domain">[]</field>
-      <field name="context">{}</field>
-    </record>
+  
 <!-- Menu -->
 
 

@@ -41,9 +41,56 @@ class Stock_Picking(models.Model):
     _inherit = ['stock.picking']
     name = fields.Char(store='True')
 
+    @api.model
+    def create_new_picking_with_dest(self, picking_type, dest_location):
+        """
+        Tạo một điều chuyển mới cho picking_type đã cho với vị trí đích là dest_location.
+        
+        :param picking_type: Bản ghi của stock.picking.type
+        :param dest_location: Bản ghi của stock.location (vị trí đích)
+        :return: Bản ghi của điều chuyển mới được tạo
+        """
+        # Lấy vị trí nguồn mặc định từ warehouse của picking_type
+        default_dest, default_src = picking_type.warehouse_id._get_partner_locations()
+        if picking_type.default_location_src_id:
+            default_src = picking_type.default_location_src_id
 
+        # Sử dụng dest_location nếu có, nếu không thì dùng default_location_dest_id hoặc default_dest
+        new_dest = dest_location or picking_type.default_location_dest_id or default_dest
+
+        new_picking = self.env['stock.picking'].create({
+            'user_id': False,
+            'picking_type_id': picking_type.id,
+            'location_id': default_src.id,
+            'location_dest_id': new_dest.id,
+        })
+        return new_picking
+    
     @api.model
     def filter_base_on_barcode(self, barcode):
+        """
+        Khi quét barcode:
+        - Nếu barcode khớp với một bản ghi của stock.location thì tạo điều chuyển mới với
+            location_dest_id là bản ghi vị trí vừa quét và trả về action kiểu client để mở form tùy chỉnh.
+        - Nếu không, tiếp tục xử lý theo logic ban đầu (tìm kiếm theo sản phẩm, kiện, lô).
+        """
+        # Kiểm tra barcode có khớp với một vị trí trong kho không
+        location_rec = self.env['stock.location'].search([('barcode', '=', barcode)], limit=1)
+        if location_rec:
+            picking_type = self.env['stock.picking.type'].browse(self.env.context.get('active_id'))
+            # Tạo mới điều chuyển với hàm create_new_picking_with_dest (đã được định nghĩa riêng)
+            new_picking = self.create_new_picking_with_dest(picking_type, location_rec)
+            # Trả về action kiểu client với tag custom để JS mở form theo định nghĩa (ví dụ: smartbiz_barcode_stock.stock_picking_client_action)
+            return {
+
+                'tag': 'smartbiz_barcode_stock.stock_picking_client_action',
+                'params': {
+                    'active_id': new_picking.id,
+                    'resModel': 'stock.picking',
+                },
+            }
+            
+        
         """ Searches ready pickings for the scanned product/package/lot.
         """
         barcode_type = None
@@ -345,7 +392,7 @@ class Stock_Picking(models.Model):
             'quantity': round(mv.quantity,2),
             'product_qty':round(mv.product_qty),
             'lot_id': False,
-            # 'lot_name':mv.picking_id.lot or '',
+            'lot_name':mv.picking_id.lot,
             'location_id':mv.location_id.id,
             'location_name':mv.location_id.display_name or '',
             'location_barcode':mv.location_id.barcode or '',
@@ -354,7 +401,7 @@ class Stock_Picking(models.Model):
             'location_dest_barcode':mv.location_dest_id.barcode or '',
             'picked': mv.picked or False,
             'all_lines_picked':picked,
-            # 'lot_name':mv.picking_id.lot or '',
+            'lot_name':mv.picking_id.lot or '',
 
         })
         packs = []
@@ -383,7 +430,7 @@ class Stock_Picking(models.Model):
             'partner_name':picking.partner_id.name if not batch_id else picking[0].partner_id.name if picking else '',
             'user_id':picking.user_id.id if not batch_id else picking[0].user_id.id if picking else False,
             'user_name': picking.user_id.name if not batch_id else picking[0].user_id.name if picking else '',
-            # 'lot_name': picking.lot if not batch_id else picking[0].lot if picking else '',
+            'lot_name': picking.lot if not batch_id else picking[0].lot if picking else '',
             'location_id':picking.location_id.id if not batch_id else picking[0].location_id.id if picking else False,
             'location_name':picking.location_id.display_name if not batch_id else picking[0].location_id.display_name if picking else False,
             'location_dest_id': picking.location_dest_id.id if not batch_id else picking[0].location_dest_id.id if picking else False,
@@ -560,9 +607,9 @@ class Stock_Picking(models.Model):
 
         return self.get_data(picking_id, batch_id)
 
-    def print_line(self,move_line_id):
+    def print_line(self,move_line_id,label=False):
         line = self.env['stock.move.line'].browse(move_line_id)
-        line.print_label()
+        line.print_label(label)
 
     def check_package(self,package_id):
         package = self.env['stock.quant.package'].browse(package_id)     
@@ -699,3 +746,20 @@ class StockQuant(models.Model):
                 return {'barcode': barcode, 'match': True, 'barcodeType': 'packages', 'record': record, 'fromCache': False}
 
         return {'barcode': barcode, 'match': False, 'barcodeType': barcodeType, 'record': False, 'fromCache': False}
+
+class stock_moveline(models.Model):
+    _inherit = ['stock.move.line']
+    product_id = fields.Many2one('product.product', store='True')
+
+
+    def print_label(self,label_name = False,printer_name = False):
+        self = self.sudo()
+        if not label_name:
+            label_name = 'tem_thanh_pham' 
+        printer = self.env.user.printing_printer_id or self.env['printing.printer'].search([('name','like',printer_name)],limit=1)
+        for record in self:
+            label = self.env['printing.label.zpl2'].search([('name','=',label_name)],limit=1)               
+            if label and printer:
+                label.print_label(printer, record)
+                return True
+        return False

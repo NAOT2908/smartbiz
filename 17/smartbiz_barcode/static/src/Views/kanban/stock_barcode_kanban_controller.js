@@ -84,7 +84,7 @@ export class StockBarcodeKanbanController extends KanbanController {
                     [], { context: this.props.context }
                 );
                 if (id) {
-                    return this.actionService.doAction('smartbiz_barcode_production.stock_pop_action', {
+                    return this.actionService.doAction('smartbiz_barcode_production.mrp_production_kanban', {
                         additionalContext: { active_id: id,resModel: this.props.resModel
                          },
                     });

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  
+
+  <!-- Template EditPackageForm -->
+ <t t-name="DialogModal">
+  <div class="s_dialog-modal">
+    <div class="s_dialog-modal-content">
+      <h3><t t-esc="props.title"/></h3>
+
+        <div class="table-container" t-if="props.title = 'Chọn trạm sản xuất'">
+            <ul class="s_selector-record-list">
+                <t t-foreach="props.records" t-as="record" t-key="record.id">
+                    <li t-on-click="()=>this.selectRecord(record.id)" t-att-class="{'s_selector-selected': state.selectedRecord == record.id}">
+                        <span class="record-name"><t t-esc="record.display_name || record.name"/></span>
+                        <span t-if="state.selectedRecord == record.id" class="record-checkmark">&#10003;</span>
+                    </li>
+                </t>
+            </ul>
+        </div>
+        <div class="form-actions">
+          <button type="button" t-on-click="confirmEdit">OK</button>
+          <button type="button" t-on-click="cancel">Hủy</button>
+        </div>
+    </div>
+  </div>
+</t>
+
+
+
+
+</templates>

@@ -24,8 +24,8 @@
                             <setting id="barcode_work_order" string="Barcode Workorder" help="Enable barcode scanning for work orders">
                                 <field name="module_smartbiz_barcode_workorder"/>
                             </setting>
-                            <setting id="dashboard" string="Dashboard Workorder" help="View Dashboard">
-                                <field name="module_smartbiz_dashboard"/>
+                            <setting id="dashboard_work_order" string="Dashboard Workorder" help="View Dashboard">
+                                <field name="module_smartbiz_workorder_dashboard"/>
                             </setting>
                         </block>
                         <block title="Operations" name="operations_setting_container">

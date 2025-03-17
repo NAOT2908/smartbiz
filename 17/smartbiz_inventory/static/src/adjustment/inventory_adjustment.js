@@ -8,6 +8,7 @@ import {
   useState,
   useSubEnv,
   xml,
+  onMounted,
 } from "@odoo/owl";
 import { useService, useBus, useHistory } from "@web/core/utils/hooks";
 import * as BarcodeScanner from "@web/webclient/barcode/barcode_scanner";
@@ -18,7 +19,107 @@ import { url } from "@web/core/utils/urls";
 import { utils as uiUtils } from "@web/core/ui/ui_service";
 import SmartBizBarcodePickingModel from "@smartbiz_barcode/Models/barcode_picking";
 
+class DetailInventoryLine extends Component {
+  static template = "DetailInventoryLine";
+  static props = ["line", "closeEdit"];
+  setup() {
+    const userService = useService("user");
+    this.state = useState({
+      line: this.props.line,
+      lot_id: this.props.line.lot_id ? parseInt(this.props.line.lot_id) : null,
+      package_id: this.props.line.package_id ? parseInt(this.props.line.package_id) : null,
+      location_id: this.props.line.location_id ? parseInt(this.props.line.location_id) : null, // Thêm location_id vào state
+      packages: [],
+      lots: [],
+      locations: [],
+      Note: this.stripHtml(this.props.line.note) || '',
+      quantity: 0,
+    });
+    this.orm = useService("orm");
+    this.notification = useService("notification");
+    this.dialog = useService("dialog");
+    this.action = useService("action");
+
+    onMounted(async () => {
+      await this.fetchLots();
+      await this.fetchPackages();
+      await this.fetchLocations(); // Gọi fetchLocations()
+    });
+  }
+
+  save() {
+    const data = {
+      id: this.state.line.id,
+      lot_id: this.state.lot_id,
+      package_id: this.state.package_id,
+      quantity: this.state.quantity,
+      location_id: this.state.location_id, // Thêm location_id vào data
+      note: this.state.Note,
+    }
+    console.log(data)
+    this.props.closeEdit(data);
+  }
+
+  close() {
+    this.props.closeEdit(false);
+  }
+
+  async fetchLots() {
+    try {
+      const lots = await this.orm.searchRead("stock.lot", [], ["id", "name"]);
+      this.state.lots = lots;
+    } catch (error) {
+      this.notification.add(error.message, { type: "danger" });
+    }
+  }
+
+  async fetchPackages() {
+    try {
+      const packages = await this.orm.searchRead("stock.quant.package",  [], ["id", "name"]);
+      this.state.packages = packages;
+    } catch (error) {
+      this.notification.add(error.message, { type: "danger" });
+    }
+  }
+
+  async fetchLocations() { // Thêm hàm fetchLocations()
+    try {
+      const locations = await this.orm.searchRead("stock.location", [], ["id", "name", "barcode"]); // Hoặc model khác nếu cần
+      this.state.locations = locations;
+    } catch (error) {
+      this.notification.add(error.message, { type: "danger" });
+    }
+  }
+
+  // (Optional) Hàm để cập nhật state.line.location_id khi location_id thay đổi
+  //  Tránh cập nhật trực tiếp props.line.location_id
+  onChangeLocation(ev) {
+        this.state.location_id = parseInt(ev.target.value);
+        // console.log(this.state.location_id);
+        // Không cập nhật this.state.line.location_id ở đây!
+        // Logic lưu trữ thay đổi nên được thực hiện ở một bước riêng biệt (ví dụ, khi người dùng nhấn nút "Lưu")
+    }
+
+    stripHtml(html) {
+      if (!html) {
+        return '';
+      }
+      let tmp = document.createElement("DIV");
+      tmp.innerHTML = html;
+      return tmp.textContent || tmp.innerText || "";
+    }
+}
+
 export class AdjustmentInventory extends Component {
+  static template = "CustomInventoryViewTemplate";
+  static props = [
+    "action?",
+    "actionId?",
+    "className?",
+    "globalState?",
+    "resId?",
+  ];
+  static components = {DetailInventoryLine}
   setup() {
     this.rpc = useService("rpc");
     this.notification = useService("notification");
@@ -35,6 +136,9 @@ export class AdjustmentInventory extends Component {
       data: [],
       view: "AdjustmentInventory",
       lines: [],
+      line: {},
+      title: "",
+      isLoading: false,
     });
 
     this._scrollBehavior = "smooth";
@@ -58,6 +162,8 @@ export class AdjustmentInventory extends Component {
     onWillStart(async () => {
       await this.loadInventoryData();
     });
+    this.selectOrder = this.withLoading(this.selectOrder, this, 800);
+    this.editItem = this.withLoading(this.editItem, this, 800);
   }
 
   async loadInventoryData() {
@@ -115,9 +221,27 @@ export class AdjustmentInventory extends Component {
       await this.action.doAction(
         "smartbiz_barcode.smartbiz_barcode_main_menu_action"
       );
+    } else if ((this.state.view === "DetailInventoryLine")) {
+      this.state.view = "DetailInventory";
     }
   }
 
+  async closeEdit(data) {
+    console.log(data);
+    // if (data) {
+    //   const get_data = await this.orm.call(
+    //     "mrp.workorder",
+    //     "update_activity",
+    //     [, this.state.selectedWorkOrder.id, data],
+    //     {}
+    //   );
+    //   this.state.components = get_data.components;
+    //   this.state.selectedComponent = this.state.components.find(
+    //     (x) => x.id == this.state.selectedComponent.id
+    //   );
+    // }
+    this.state.view = "DetailInventory";
+  }
   toggleMenu = () => {
     this.state.menuVisible = !this.state.menuVisible;
     // console.log("object");
@@ -156,11 +280,42 @@ export class AdjustmentInventory extends Component {
     }
   }
 
-  selectOrder(id) {
-    // console.log(id)
+  async selectOrder(id) {
     this.state.view = "DetailInventory";
-    this.state.lines = this.state.data.find((x) => x.id === id).lines;
-    console.log(this.state.lines);
+      const get_data = await this.orm.call(
+        "smartbiz.inventory",
+        "get_data",
+        [, [id]],
+        {}
+      );
+      this.state.lines = get_data.lines;
+  }
+  withLoading(func, component, minLoadingTime = 500) { // Thêm tham số minLoadingTime
+    return async function (...args) {
+      component.state.isLoading = true;
+      let loadingTimeout;
+      const loadingPromise = new Promise((resolve) => {
+        loadingTimeout = setTimeout(resolve, minLoadingTime);
+      });
+  
+      try {
+        const result = await Promise.race([func.apply(this, args), loadingPromise]);
+        clearTimeout(loadingTimeout); // Hủy timeout nếu func hoàn thành trước
+        return result;
+      } catch (error) {
+        console.error("Error in async function:", error);
+        component.notification.add(error.message, { type: "danger" });
+        throw error;
+      } finally {
+        component.state.isLoading = false;
+      }
+    };
+  }
+
+  editItem(id) {
+    this.state.line = this.state.lines.find((line) => line.id === id);
+    console.log(this.state.line);
+    this.state.view = "DetailInventoryLine";
   }
 
   async processBarcode(barcode) {
@@ -218,14 +373,7 @@ export class AdjustmentInventory extends Component {
   }
 }
 
-AdjustmentInventory.template = "CustomInventoryViewTemplate";
-AdjustmentInventory.props = [
-  "action?",
-  "actionId?",
-  "className?",
-  "globalState?",
-  "resId?",
-];
+
 
 registry
   .category("actions")

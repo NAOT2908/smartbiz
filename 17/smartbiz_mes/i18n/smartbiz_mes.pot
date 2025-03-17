@@ -19,6 +19,31 @@ msgid "Users"
 msgstr ""
 
 #. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_res_users__workcenter_id
+msgid "WorkCenter"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model_terms:ir.ui.view,arch_db:smartbiz_mes.res_users_form
+msgid "SmartBiz Defaults"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model_terms:ir.ui.view,arch_db:smartbiz_mes.res_users_form
+msgid "MES"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_res_users__production_line_id
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__production_line_id
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_workcenter__production_line_id
+#: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_production_line
+#: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_production_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_production_line_action
+msgid "Production Line"
+msgstr ""
+
+#. module: smartbiz_mes
 #: model:ir.model,name:smartbiz_mes.model_res_partner
 #: model:ir.ui.menu,name:smartbiz_mes.res_partner_menuitem
 #: model:ir.actions.act_window,name:smartbiz_mes.res_partner_action
@@ -73,15 +98,6 @@ msgid "Production"
 msgstr ""
 
 #. module: smartbiz_mes
-#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__production_line_id
-#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_workcenter__production_line_id
-#: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_production_line
-#: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_production_line_menuitem
-#: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_production_line_action
-msgid "Production Line"
-msgstr ""
-
-#. module: smartbiz_mes
 #: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_package__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_factory__name
@@ -92,6 +108,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_process__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_operation__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__name
+#: model:ir.model.fields,field_description:smartbiz_mes.field_stock_move_line__name
 msgid "Name"
 msgstr ""
 
@@ -101,6 +118,23 @@ msgstr ""
 #: model:ir.model.fields,field_description:smartbiz_mes.field_purchase_order__production_request_id
 #: model:ir.model.fields,field_description:smartbiz_mes.field_stock_move__production_request_id
 msgid "Production Request"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__lot_name
+msgid "Lot Name"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__plan_start
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__plan_start
+msgid "Plan Start"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__plan_finish
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__plan_finish
+msgid "Plan Finish"
 msgstr ""
 
 #. module: smartbiz_mes
@@ -346,6 +380,11 @@ msgid "Finished"
 msgstr ""
 
 #. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__user
+msgid "User"
+msgstr ""
+
+#. module: smartbiz_mes
 #: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_bom_components
 #: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_bom_components_menuitem
 #: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_bom_components_action
@@ -563,13 +602,8 @@ msgid "Remain Quantity"
 msgstr ""
 
 #. module: smartbiz_mes
-#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__plan_start
-msgid "Plan Start"
-msgstr ""
-
-#. module: smartbiz_mes
 #: model_terms:ir.ui.view,arch_db:smartbiz_mes.smartbiz_mes_request_form
-msgid "Time"
+msgid "Planned Time"
 msgstr ""
 
 #. module: smartbiz_mes
@@ -578,13 +612,18 @@ msgid "Schedule Start"
 msgstr ""
 
 #. module: smartbiz_mes
-#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__plan_finish
-msgid "Plan Finish"
+#: model_terms:ir.ui.view,arch_db:smartbiz_mes.smartbiz_mes_request_form
+msgid "Scheduled Time"
 msgstr ""
 
 #. module: smartbiz_mes
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__schedule_finish
 msgid "Schedule Finish"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model_terms:ir.ui.view,arch_db:smartbiz_mes.smartbiz_mes_request_form
+msgid "Actual Time"
 msgstr ""
 
 #. module: smartbiz_mes
@@ -635,6 +674,13 @@ msgstr ""
 #: model:ir.ui.menu,name:smartbiz_mes.uom_uom_menuitem
 #: model:ir.actions.act_window,name:smartbiz_mes.uom_uom_action
 msgid "uom"
+msgstr ""
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_stock_move_line
+#: model:ir.ui.menu,name:smartbiz_mes.stock_move_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.stock_move_line_action
+msgid "move.line"
 msgstr ""
 
 #. module: smartbiz_mes

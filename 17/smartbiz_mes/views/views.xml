@@ -2,6 +2,24 @@
 
 <!-- Forms -->
 
+    <record model="ir.ui.view" id="res_users_form">
+      <field name="name">res_users_form</field>
+      <field name="model">res.users</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="base.view_users_form" />
+      <field name="arch" type="xml">
+
+     <xpath expr="//notebook" position="inside">
+            <page string="SmartBiz Defaults">
+            <group string="MES">
+                   <field name="workcenter_id"/>
+                   <field name="production_line_id"/>
+            </group>
+            </page>
+           </xpath>
+      </field>
+    </record>
+
     <record model="ir.ui.view" id="mrp_production_form">
       <field name="name">mrp_production_form</field>
       <field name="model">mrp.production</field>
@@ -12,7 +30,13 @@
      <xpath expr="//field[@name='user_id']" position="after">
         <field name="production_line_id"  readonly="state != 'draft'" />
         <field name="production_request_id"  readonly="state != 'draft'" />
+        <field name="lot_name"  readonly="state != 'draft'" />
        </xpath>
+     <xpath expr="//field[@name='components_availability']" position="before">
+        <field name="plan_start" />
+        <field name="plan_finish" />
+       </xpath>
+
       </field>
     </record>
 
@@ -301,10 +325,10 @@
                         <field string="Productions" name="production" widget="statinfo"/>
                      </button>
                     <button name="action_purchases" type="object"  class="oe_stat_button" icon="fa-usd"> 
-                        <field string="Purchases" name="picking" widget="statinfo"/>
+                        <field string="Purchases" name="purchase" widget="statinfo"/>
                      </button>
                     <button name="action_pickings" type="object"  class="oe_stat_button" icon="fa-truck"> 
-                        <field string="Pickings" name="purchase" widget="statinfo"/>
+                        <field string="Pickings" name="picking" widget="statinfo"/>
                      </button>
                     <button name="action_moves" type="object"  class="oe_stat_button" icon="fa-exchange"> 
                         <field string="Moves" name="move" widget="statinfo"/>
@@ -336,15 +360,17 @@
                    <field name="remain_quantity"/>
             </group>
             </group>
-            <group string="Time" col="2">
-            <group>
+            <group col="3">
+            <group string="Planned Time">
                    <field name="plan_start"/>
-                   <field name="schedule_start"/>
-                   <field name="start"/>
-            </group>
-            <group>
                    <field name="plan_finish"/>
+            </group>
+            <group string="Scheduled Time">
+                   <field name="schedule_start"/>
                    <field name="schedule_finish"/>
+            </group>
+            <group string="Actual Time">
+                   <field name="start"/>
                    <field name="finish"/>
             </group>
             </group>
@@ -421,6 +447,7 @@
      <xpath expr="//field[@name='name']" position="after">
         <field name="production_request_id"  optional="show"/>
         <field name="production_line_id" optional="show"/>
+        <field name="lot_name" optional="hide"/>
        </xpath>
       </field>
     </record>
@@ -622,10 +649,10 @@
             <field name="done_quantity" optional="show"/>
             <field name="remain_quantity" optional="show"/>
             <field name="plan_start" optional="show"/>
-            <field name="schedule_start" optional="show"/>
-            <field name="start" optional="show"/>
             <field name="plan_finish" optional="show"/>
+            <field name="schedule_start" optional="show"/>
             <field name="schedule_finish" optional="show"/>
+            <field name="start" optional="show"/>
             <field name="finish" optional="show"/>
             <field name="sub_request_ids" optional="hire"/>
         </tree>
@@ -708,6 +735,14 @@
 <!-- Modified Elements Properties -->
 
 <!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="res_users_action">
+      <field name="name">Users</field>
+      <field name="res_model">res.users</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
 
     <record model="ir.actions.act_window" id="mrp_production_action">
       <field name="name">Production</field>
@@ -899,6 +934,14 @@
     <record model="ir.actions.act_window" id="stock_move_action">
       <field name="name">move</field>
       <field name="res_model">stock.move</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_move_line_action">
+      <field name="name">move.line</field>
+      <field name="res_model">stock.move.line</field>
       <field name="view_mode">tree,form</field>
       <field name="domain">[]</field>
       <field name="context">{}</field>

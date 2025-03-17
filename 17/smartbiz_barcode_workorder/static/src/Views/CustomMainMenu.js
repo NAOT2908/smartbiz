@@ -16,20 +16,16 @@ import { MainMenu } from "@smartbiz_barcode/main_menu";
 
 export default class CustomWorkorderMenu extends MainMenu {
   static template = "CustomMainMenu";
-
+  
   setup() {
     this.actionService = useService("action");
     this.dialogService = useService("dialog");
     this.home = useService("home_menu");
     this.notificationService = useService("notification");
     this.rpc = useService("rpc");
+    this.state = useState({ displayDemoMessage: "Hello World" }); // Định nghĩa displayDemoMessage
     this.env = useEnv();
-    this.state = useState({
-      showBarcodeStock: false,
-      showBarcodeProduction: false,
-      showBarcodeWorkorder: false,
-    });
-    
-    
+    console.log('oke');
   }
+
 }

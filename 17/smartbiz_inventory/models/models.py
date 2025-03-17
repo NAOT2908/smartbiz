@@ -61,6 +61,31 @@ class Inventory(models.Model):
         ('cancel', 'Cancel'),
     ], string="State", default='draft')
 
+    
+    def _get_fields(self,model):
+        if model == 'mrp.production':
+            return ['name','state','product_id','product_uom_id','product_uom_qty','qty_produced','qty_producing','date_start','date_deadline','date_finished','company_id','user_id']
+        if model == 'stock.move':
+            return ['state','date','date_deadline','product_id','product_uom','product_uom_qty','quantity','product_qty','location_id','location_dest_id']
+        if model == 'stock.move.line':
+            return ['state','move_id','date','product_id','product_uom_id','quantity','location_id','location_dest_id','package_id','result_package_id','lot_id']
+        if model == 'product.product':
+            return ['barcode', 'default_code', 'tracking', 'display_name', 'uom_id']
+        if model == 'stock.location':
+            return ['display_name', 'barcode', 'parent_path']
+        if model == 'stock.package.type':
+            return ['barcode', 'name']
+        if model == 'stock.quant.package':
+            return ['name','location_id']
+        if model == 'stock.lot':
+            return ['name', 'ref', 'product_id','expiration_date','create_date','product_qty']
+        if model == 'uom.uom':
+            return ['name','category_id','factor','rounding',]
+        if model == 'stock.quant':
+            return ['product_id','location_id','inventory_date','inventory_quantity','inventory_quantity_set','quantity','product_uom_id','lot_id','package_id','owner_id','inventory_diff_quantity','user_id',]
+        return []
+    
+    
     def _default_categ_ids(self):
         """Return default category to selection field."""
         category = self.env['product.product'].search(
@@ -238,12 +263,25 @@ class Inventory(models.Model):
         locations = lines.mapped('location_id')
         packages = lines.mapped('package_id').filtered(lambda p: p)
 
+        lines_data = [{
+            'id': line.id,
+            'product_id': line.product_id.id if line.product_id else False,
+            'product_name': line.product_id.display_name if line.product_id else '',
+            'lot_id': line.lot_id.id if line.lot_id else False,
+            'lot_name': line.lot_id.name if line.lot_id else '',
+            'location_id': line.location_id.id if line.location_id else False,
+            'location_name': line.location_id.display_name if line.location_id else '',
+            'package_id': line.package_id.id if line.package_id else False,
+            'package_name': line.package_id.name if line.package_id else '',
+            'quantity_before': line.quantity_before,
+            'quantity_counted': line.quantity_counted,
+            'difference': line.difference,
+            'note': line.note,
+        } for line in lines]
+        
         data = {
             'inventory': inventory.read(['id', 'name', 'state', 'company_id', 'user_id', 'date'])[0],
-            'lines': lines.read([
-                'id', 'product_id', 'lot_id', 'location_id', 'package_id',
-                'quantity_before', 'quantity_counted', 'difference'
-            ]),
+            'lines': lines_data,
             'products': products.read(['id', 'name', 'barcode', 'default_code', 'uom_id']) if products else [],
             'lots': lots.read(['id', 'name', 'product_id']) if lots else [],
             'locations': locations.read(['id', 'name', 'barcode']) if locations else [],
@@ -368,8 +406,9 @@ class Inventory(models.Model):
                     'location_id': data['location_id'],
                     'lot_id': data['lot_id'],
                     'package_id': data.get('package_id', False),
-                    'state': 'pending',
-                    'quantity_counted': data.get('quantity_counted', line.quantity_counted)  # Cập nhật nếu có giá trị mới
+                    'state': 'counting',
+                    'quantity_counted': data.get('quantity_counted', line.quantity_counted),  # Cập nhật nếu có giá trị mới
+                    'note': data.note
                 })
             else:
                 return {'success': False, 'message': 'Inventory line not found'}
@@ -381,7 +420,7 @@ class Inventory(models.Model):
                 'location_id': data['location_id'],
                 'lot_id': data['lot_id'],
                 'package_id': data.get('package_id', False),
-                'state': 'pending',
+                'state': 'counting',
                 'quantity_counted': data.get('quantity_counted', 0)  # Mặc định bằng 0 nếu không có giá trị
             })
 
@@ -445,6 +484,127 @@ class InventoryHistory(models.Model):
         for rec in self:
             rec.difference = rec.quantity_after - rec.quantity_before
 
+    def unlink(self):
+        if not self.env.user.has_group('smartbiz_inventory.group_can_delete_historyline'):
+            raise UserError(_("Bạn không có quyền xóa dòng lịch sử!"))
+        return super().unlink()
     
+class StockQuant(models.Model):
+    _inherit = 'stock.quant'    
+
+    def _get_fields(self,model):
+        if model == 'mrp.production':
+            return ['name','state','product_id','product_uom_id','product_uom_qty','qty_produced','qty_producing','date_start','date_deadline','date_finished','company_id','user_id']
+        if model == 'stock.move':
+            return ['state','date','date_deadline','product_id','product_uom','product_uom_qty','quantity','product_qty','location_id','location_dest_id']
+        if model == 'stock.move.line':
+            return ['state','move_id','date','product_id','product_uom_id','quantity','location_id','location_dest_id','package_id','result_package_id','lot_id']
+        if model == 'product.product':
+            return ['barcode', 'default_code', 'tracking', 'display_name', 'uom_id']
+        if model == 'stock.location':
+            return ['display_name', 'barcode', 'parent_path']
+        if model == 'stock.package.type':
+            return ['barcode', 'name']
+        if model == 'stock.quant.package':
+            return ['name','location_id']
+        if model == 'stock.lot':
+            return ['name', 'ref', 'product_id','expiration_date','create_date','product_qty']
+        if model == 'uom.uom':
+            return ['name','category_id','factor','rounding',]
+        if model == 'stock.quant':
+            return ['product_id','location_id','inventory_date','inventory_quantity','inventory_quantity_set','quantity','product_uom_id','lot_id','package_id','owner_id','inventory_diff_quantity','user_id',]
+        return []
     
+    def get_barcode_data(self, barcode, filters=None, barcodeType=None):
+        record = None  # Khởi tạo biến record mặc định là None
+
+        if barcodeType:
+            if barcodeType == 'lots':
+                record = self.env['stock.lot'].search_read(
+                    [('name', '=', barcode), ('product_id', '=', filters.get('product_id'))],
+                    limit=1, fields=self._get_fields('stock.lot')
+                )
+            elif barcodeType == 'products':
+                record = self.env['product.product'].search_read(
+                    [('barcode', '=', barcode)],
+                    limit=1, fields=self._get_fields('product.product')
+                )
+            elif barcodeType == 'locations':
+                record = self.env['stock.location'].search_read(
+                    [('barcode', '=', barcode)],
+                    limit=1, fields=self._get_fields('stock.location')
+                )
+            elif barcodeType == 'packages':
+                record = self.env['stock.quant.package'].search_read(
+                    [('name', '=', barcode)],
+                    limit=1, fields=['id', 'name', 'location_id']
+                )
+                if record:
+                    package = record[0]
+                    prods = [
+                        {
+                            'product_id': quant.product_id.id,
+                            'product_name': quant.product_id.display_name,
+                            'location_id': quant.location_id.id,
+                            'quantity': quant.quantity,
+                            'lot_id': quant.lot_id.id,
+                            'lot_name': quant.lot_id.name,
+                            'product_uom_id': quant.product_uom_id.id,
+                            'product_uom': quant.product_uom_id.name,
+                            'location_name': quant.location_id.display_name,
+                            'available_quantity': quant.available_quantity,
+                            'expiration_date': quant.lot_id.expiration_date,
+                        }
+                        for quant in self.env['stock.quant'].search([('package_id', '=', package['id'])])
+                    ]
+                    package.update({'products': prods})
+
+        # Nếu không có barcodeType, tìm kiếm mặc định
+        if not record:
+            if filters:
+                record = self.env['stock.lot'].search_read(
+                    [('name', '=', barcode), ('product_id', '=', filters.get('product_id'))],
+                    limit=1, fields=self._get_fields('stock.lot')
+                )
+                if record:
+                    return {'barcode': barcode, 'match': True, 'barcodeType': 'lots', 'record': record[0], 'fromCache': False}
+
+            record = self.env['product.product'].search_read(
+                [('barcode', '=', barcode)], limit=1, fields=self._get_fields('product.product')
+            )
+            if record:
+                return {'barcode': barcode, 'match': True, 'barcodeType': 'products', 'record': record[0], 'fromCache': False}
+
+            record = self.env['stock.location'].search_read(
+                [('barcode', '=', barcode)], limit=1, fields=self._get_fields('stock.location')
+            )
+            if record:
+                return {'barcode': barcode, 'match': True, 'barcodeType': 'locations', 'record': record[0], 'fromCache': False}
+
+            record = self.env['stock.quant.package'].search_read(
+                [('name', '=', barcode)], limit=1, fields=['id', 'name', 'location_id']
+            )
+            if record:
+                package = record[0]
+                prods = [
+                    {
+                        'product_id': quant.product_id.id,
+                        'product_name': quant.product_id.display_name,
+                        'location_id': quant.location_id.id,
+                        'quantity': quant.quantity,
+                        'lot_id': quant.lot_id.id,
+                        'lot_name': quant.lot_id.name,
+                        'product_uom_id': quant.product_uom_id.id,
+                        'product_uom': quant.product_uom_id.name,
+                        'location_name': quant.location_id.display_name,
+                        'available_quantity': quant.available_quantity,
+                        'expiration_date': quant.lot_id.expiration_date,
+                    }
+                    for quant in self.env['stock.quant'].search([('package_id', '=', package['id'])])
+                ]
+                package.update({'products': prods})
+                return {'barcode': barcode, 'match': True, 'barcodeType': 'packages', 'record': package, 'fromCache': False}
+
+        return {'barcode': barcode, 'match': False, 'barcodeType': barcodeType, 'record': None, 'fromCache': False}
+
             

@@ -375,12 +375,15 @@ body {
     background-color: #eaeaea;
 }
 
-.s_work_order_button .active {
-    background-color: #1dd44b;
+.s_work_order_button.active {
+    background-color: #1E479F;
     color: white;
     border-color: #0056b3;
     font-weight: bold;
 }
+
+
+
 
 
 /* Ẩn nhãn khi màn hình nhỏ */

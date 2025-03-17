@@ -31,15 +31,20 @@ export class FinishedMoves extends Component {
     getClass(component) {
         console.log(component)
         let cl = " ";
-        if (component.quantity == component.product_uom_qty) {
-          cl += " bg-green";
-        } else if (component.quantity <= component.product_uom_qty
-        ) {
-          cl += " bg-yellow";
-        } else if (component.quantity >= component.product_uom_qty
-        ) {
-          cl += " bg-red";
+        if(component.state == 'confirmed')
+        {
+          if (component.quantity == component.product_uom_qty) {
+            cl += " bg-green";
+          } else if (component.quantity <= component.product_uom_qty
+          ) {
+            cl += " bg-yellow";
+          } else if (component.quantity >= component.product_uom_qty
+          ) {
+            cl += " bg-red";
+          }
         }
+
+        
         return cl;
       }
 }

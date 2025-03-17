@@ -29,12 +29,16 @@
                                         <strong class="o_kanban_record_title"><span><t t-esc="record.product_id.value"/></span></strong>
                                         
                                     </div>
-                                     <!-- <button class="btn btn-link fa fa-desktop" title="Mở phiếu lấy hàng" name="action_open_picking" type="object"/> -->
                                     <span class="float-end text-end"><t t-esc="record.product_qty.value"/> <small><t t-esc="record.product_uom_id.value"/></small></span>
                                 </div>
                                 <div class="o_kanban_record_body">
                                     <strong>
                                             <field name="origin"/>
+                                    </strong>
+                                </div>
+                                 <div class="o_kanban_record_body">
+                                    <strong>
+                                            <field name="production_request_id"/>
                                     </strong>
                                 </div>
                                 <div class="o_kanban_record_bottom">
@@ -55,6 +59,22 @@
         </field>
     </record>
 
+<!-- Inherit view mrp production line search -->
+    <record id="inherit_mrp_production_search" model="ir.ui.view">
+        <field name="name">mrp.production.search.inherit.production_line</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='workcenter_id']" position="after">
+                <field name="production_line_id" string="Dây chuyền sản xuất"
+                    filter_domain="[('production_line_id', '=', self)]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Dây chuyền sản xuất" name="group_production_line"
+                        domain="[]" context="{'group_by': 'production_line_id'}"/>
+            </xpath>
+        </field>
+    </record>
 <!-- actions opening views on models -->
 
 
@@ -72,21 +92,7 @@
       <field name="domain">[]</field>
       <field name="context">{}</field>
     </record>
-<!-- Menu search-->
-    <record id="inherit_mrp_production_search" model="ir.ui.view">
-        <field name="name">mrp.production.search.inherit.production_line</field>
-        <field name="model">mrp.production</field>
-        <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='workcenter_id']" position="after">
-                <field name="production_line_id" string="Dây chuyền sản xuất"
-                    filter_domain="[('production_line_id', 'ilike', self)]"/>
-            </xpath>
-            <xpath expr="//group" position="inside">
-                <filter string="Dây chuyền sản xuất" name="group_production_line"
-                        domain="[]" context="{'group_by': 'production_line_id'}"/>
-            </xpath>
-        </field>
-    </record>
+<!-- Menu -->
+
 
 </odoo>

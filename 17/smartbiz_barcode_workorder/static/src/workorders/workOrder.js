@@ -21,6 +21,7 @@ import { ManualBarcodeScanner } from "@smartbiz_barcode/Components/manual_barcod
 import { url } from "@web/core/utils/urls";
 import { utils as uiUtils } from "@web/core/ui/ui_service";
 import { KeyPads } from "./keypads";
+import { DialogModal } from "./dialogModal";
 import { useFileViewer } from "@web/core/file_viewer/file_viewer_hook";
 import { patch } from "@web/core/utils/patch";
 
@@ -166,7 +167,7 @@ class ProductionActivity extends owl.Component {
       ["name"]
     );
     // console.log(packages)
-    this.state.packages = packages;
+     this.state.packages = packages;
   }
 }
 
@@ -277,21 +278,13 @@ class ComponentList extends Component {
   getClasscomponet(component) {
     // console.log(component)
     let cl = " ";
-    if (
-      (component.quantity == component.ok_quantity &&
-        component.ng_quantity == 0) ||
-      component.quantity == component.ok_quantity + component.ng_quantity
-    ) {
+    if (component.quantity == component.ok_quantity && component.ng_quantity == 0 || component.quantity == (component.ok_quantity + component.ng_quantity)) {
       cl += " bg-green";
-    } else if (
-      component.quantity > component.ok_quantity &&
-      component.ok_quantity != 0
-    ) {
+    }
+    else if (component.quantity > component.ok_quantity && component.ok_quantity != 0) {
       cl += " bg-yellow";
-    } else if (
-      component.quantity < component.ok_quantity ||
-      component.quantity < component.ok_quantity + component.ng_quantity
-    ) {
+    }
+    else if (component.quantity < component.ok_quantity || component.quantity < (component.ok_quantity + component.ng_quantity)) {
       cl += " bg-red";
     }
     return cl;
@@ -329,14 +322,15 @@ class ActionDetail extends Component {
 
     //console.log(this.props);
   }
-
+  
   getClass(line) {
     // console.log(line)
     let cl = " ";
     if (line.start && !line.finish) {
-      if (!line.package_id) {
+      if (!line.package_id){
         cl += "";
-      } else cl += " bg-yellow";
+      } else
+      cl += " bg-yellow";
     }
     if (line.start && line.finish) {
       if (line.quality < 1) {
@@ -361,6 +355,7 @@ export class WorkOrder extends Component {
     ActionDocument,
     ProductionActivity,
     KeyPads,
+    DialogModal,
   };
   static template = "WorkOrder";
 
@@ -373,7 +368,8 @@ export class WorkOrder extends Component {
     this.home = useService("home_menu");
     this.fileViewer = useFileViewer();
     this.store = useService("mail.store");
-
+    this.userService = useService("user");
+    //console.log({userId:this.userService})
     this.openPDF = this.openPDF.bind(this);
     this.selectedActivity = null;
     this.state = useState({
@@ -400,18 +396,27 @@ export class WorkOrder extends Component {
       title: "",
       keyPadTitle: {},
       activeButton: null,
-      codeworkcenter: "",
-      workcentername: "",
-      username: "",
+      
       data: [],
       component: [],
       currentQuantityField: "",
       timer: "00:00:00",
       intervalId: null,
       elapsedTime: 0,
-      activeTab: "Detail",
-    });
+      activeTab : "Detail",
 
+      //Biến user và workcenter
+      workCenter: false,
+      user: "",
+
+      //Các biến Dialog
+      showDialogModal: false,
+      dialogTitle: "",
+      dialogRecords: [],
+
+    });
+    this.workCenters = []
+    this.users = []
     this._scrollBehavior = "smooth";
     this.isMobile = uiUtils.isSmall();
     this.barcodeService = useService("barcode");
@@ -439,19 +444,61 @@ export class WorkOrder extends Component {
     onWillStart(async () => {
       await this.initData();
     });
+    
+  }
+
+  showModal(title){
+    this.state.dialogTitle = title
+    if(title =='Chọn trạm sản xuất')
+    {
+      this.state.dialogRecords = this.workCenters
+    }
+    
+    this.state.showDialogModal = true
+  }
+  closeModal(modal,data){
+    console.log({modal,data})
+    if(data){
+      
+      this.state.workCenter = data;
+      this.updateState()
+    }
+    
+    this.state.dialogTitle = ''
+    this.state.dialogRecords = []
+    this.state.showDialogModal = false
+  }
+  updateState(){
+    this.state.title = (this.state.workCenter.name || '-') + ':'+ (this.state.selectedWorkOrder.name || '')
+    //console.log({user:this.state.user,workCenter:this.state.workCenter})
   }
   async initData() {
     try {
+      let domain  = [["state", "in", ["progress", "pending", "ready"]]]
+      if(this.state.workCenter)
+      {
+        domain.push(["workcenter_id","=",this.state.workCenter.id])
+      }
       const data = await this.orm.call(
         "mrp.workorder",
         "get_orders",
-        [, [["state", "in", ["progress", "pending", "ready"]]]],
+        [, domain],
         {}
       );
+      this.users = data.users
       this.state.workOrders = data.orders;
       this.state.originalData = [...data.orders];
       this.state.searchInput = "";
       this.state.data = data;
+      this.workCenters = await this.orm.searchRead('mrp.workcenter',[],['name','code']);
+      this.state.user = this.users.find(x=>x.id == this.userService.userId)
+      this.state.workCenter = this.workCenters.find(x=>x.id == this.state.user.id) || false
+      if(!this.state.workCenter)
+        {
+          this.showModal('Chọn trạm sản xuất')
+        }
+        this.state.view = "WorkOrders"
+      
     } catch (error) {
       //console.error("Error loading data:", error);
       this.notification.add("Failed to load inventory data", {
@@ -526,22 +573,19 @@ export class WorkOrder extends Component {
       {}
     );
     if (this.state.workcentername) {
+      
       this.state.workOrders = data.orders.filter(
         (x) => x.name === this.state.workcentername
       );
       this.state.title = this.state.workcentername;
-    } else {
-      this.state.workOrders = data.orders;
-      // console.log(this.state.workOrders);
+    }
+    else {
+      this.state.workOrders = data.orders
       // const message = _t(`Vui lòng quét khu vực sản xuất!`);
       // this.notification.add(message, { type: "warning" });
     }
   }
-  Resetscan() {
-    this.state.workcentername = "";
-    this.state.username = "";
-    this.initData();
-  }
+  
   handleInput(event) {
     this.state.searchInput = event.target.value;
     this.search(); // Gọi hàm tìm kiếm
@@ -666,7 +710,7 @@ export class WorkOrder extends Component {
   }
 
   async exit(ev) {
-    if (this.state.view === "ScanWorkCenter") {
+    if (this.state.view === "WorkOrders") {
       await this.action.doAction(
         "smartbiz_barcode.smartbiz_barcode_main_menu_action"
       );
@@ -679,10 +723,7 @@ export class WorkOrder extends Component {
       this.state.view = "WorkOrderDetail";
       this.state.selectedComponent = null;
       this.state.selectedActivity = null;
-    } else if (this.state.view === "WorkOrders") {
-      this.state.view = "ScanWorkCenter";
-      this.state.selectedComponent = null;
-      this.state.title = "";
+
     } else if (this.state.view === "ProductionActivity") {
       this.state.view = "ActionDetail";
     }
@@ -706,14 +747,13 @@ export class WorkOrder extends Component {
   }
 
   async activityActions(action, id) {
-    // console.log({action,id})
+    //console.log({action,id})
     if (action == "edit") {
       this.state.selectedActivity = id;
       this.state.view = "ProductionActivity";
-      // console.log(this.state.selectedActivity, id);
+      console.log(this.state.selectedActivity);
     } else if (action == "delete") {
       if (id) {
-        console.log(id)
         const get_data = await this.orm.call(
           "mrp.workorder",
           "delete_activity",
@@ -809,7 +849,7 @@ export class WorkOrder extends Component {
     //console.log(this.state.components);
     this.state.selectedWorkOrder = get_data.workOrder;
     this.state.title = this.state.selectedWorkOrder.name;
-    console.log(this.state.selectedWorkOrder);
+    // console.log(this.state.components, this.state.selectedWorkOrder);
   }
   toggleMenu = () => {
     this.state.menuVisible = !this.state.menuVisible;
@@ -1082,7 +1122,7 @@ export class WorkOrder extends Component {
   }
   async onBarcodeScanned(barcode) {
     if (barcode) {
-      await this.processBarcode(barcode, this.picking_id);
+      await this.processBarcode(barcode);
 
       if ("vibrate" in window.navigator) {
         window.navigator.vibrate(100);
@@ -1096,13 +1136,19 @@ export class WorkOrder extends Component {
   async processBarcode(barcode) {
     let barcodeData = null;
 
-    if (this.state.view === "ScanWorkCenter") {
+    if (this.state.view === "WorkOrders") {
       // Gọi parseBarcodeForWorkcenter cho chế độ ScanWorkCenter
       barcodeData = await this.env.model.parseBarcodeForWorkcenter(
         barcode,
         false,
         false,
         false
+      );
+      const backendResult = await this.orm.call(
+          'mrp.workcenter', // Model
+          'get_barcode_data',      // Method name
+          [,barcode], // Arguments
+          {}
       );
       console.log(barcodeData);
       if (barcodeData && barcodeData.match) {

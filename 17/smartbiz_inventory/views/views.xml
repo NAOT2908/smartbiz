@@ -114,6 +114,7 @@
                             <field name="quantity_before" readonly="1" />
                             <field name="quantity_counted" />
                             <field name="difference" readonly="1" />
+                            <field name="note" />
                         </tree>
                     </field>
                 </sheet>

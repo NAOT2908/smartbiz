@@ -47,7 +47,7 @@
         }">
                 <div class="workorder-header">
                     <div>
-                        <t t-esc="state.username" />
+                        <t t-esc="state.user.name" />
                     </div>
                     <span class="close-icon" t-on-click="toggleMenu">
                         <i class="fa fa-times"></i>
@@ -148,38 +148,7 @@
                     />
                 </div>
             </div>
-            <div t-if="state.view === 'ScanWorkCenter'">
-
-                <div class="scan-info">
-                    <h2>Quét Khu vực sản xuất và người thực hiện</h2>
-                    <!-- Khu vực sản xuất -->
-                    <div class="form-group-area">
-                        <label for="area">Khu vực sản xuất: </label>
-                        <span id="area"
-                            class="form-control-area"
-                            t-att-title="state.productionArea"
-                            t-on-focus="setScanTarget('productionArea')"
-                            t-esc="state.workcentername"
-                            placeholder="Nhập khu vực sản xuất" />
-                    </div>
-
-                    <!-- Người dùng -->
-                    <div class="form-group-area">
-                        <label for="username">Người thực hiện: </label>
-                        <span id="username"
-                            class="form-control-area"
-                            t-att-title="state.username"
-                            t-on-focus="setScanTarget('username')"
-                            t-esc="state.username"
-                            placeholder="Nhập tên người dùng" />
-                    </div>
-
-                    <div class="scan-button">
-                        <button class="scan-btn " t-on-click="openWorkorder">Xác nhận</button>
-                        <button class="scan-btn " t-on-click="Resetscan">Reset</button>
-                    </div>
-                </div>
-            </div>
+          
             <div t-if="state.view === 'ProductionActivity'">
                 <ProductionActivity
                     t-props="{
@@ -190,8 +159,17 @@
 
             </div>
         </div>
-        <KeyPads t-if="state.showkeypad"
-            t-props="{detailMoveLine:state.component,keyClick:keyClick,keyPadTitle:state.keyPadTitle,currentQuantityField: state.currentQuantityField}" />
+        <KeyPads t-if="state.showkeypad"  t-props="{
+            detailMoveLine:state.component,
+            keyClick:keyClick,
+            keyPadTitle:state.keyPadTitle,
+            currentQuantityField: state.currentQuantityField
+        }" />
+        <DialogModal t-if="state.showDialogModal" t-props="{
+            title:state.dialogTitle,
+            records:state.dialogRecords,
+            closeModal:closeModal.bind(this)
+        }"/>
     </t>
 
     <t t-name="WorkOrderList">
@@ -225,7 +203,6 @@
         </div>
     </t>
 
-    
     <t t-name="WorkOrderDetail">
         <div>
             <div class="section_header">Chi tiết Lệnh : <t t-esc="props.workOrder?.production_name" /></div>
@@ -289,6 +266,7 @@
             </div>
         </div>
     </t>
+
     <t t-name="ComponentList">
         <div class="components-list">
             <div
@@ -305,8 +283,7 @@
                         </div>
                         <div class="quantity">Yêu cầu: <t t-esc="component.quantity" /></div>
                         <div class="quantity" style="">Số lượng OK: <t t-esc="component.ok_quantity" /></div>
-                        <div class="quantity" style="color: #ec6c69;">Số lượng NG: <t
-                                t-esc="component.ng_quantity" /></div>
+                        <div class="quantity" style="color: #ec6c69;">Số lượng NG: <t t-esc="component.ng_quantity" /></div>
                     </div>
                     <div class="component-actions">
                         <button
@@ -343,7 +320,7 @@
                     </span>
                 </div>
                 <div class="s_detail_row">
-                    <span class="s_detail_label">Đạt:</span>
+                    <span class="s_detail_label">OK:</span>
                     <span class="s_detail_value" t-esc="props.component?.ok_quantity || '-'" />
                 </div>
                 <div class="s_detail_row">
@@ -392,16 +369,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="s_group_button">
-                    <div class="s_action_detail_buttons" t-if="props.showPrint">
-                        <button class="s_action_print_button" t-on-click="()=>props.printLabel()">
-                            <i class="fa fa-print fa-2x"></i>
-                        </button>
-                        <!-- <button class="s_action_pdf_button" t-on-click="() => props.openPDF()">
-                                <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
-                            </button> -->
-                    </div>
-                </div>
+
             </div>
             <div t-if="props.component.activities">
                 <div class="s_production_activity">
@@ -483,15 +451,7 @@
                         class="s-workorder-production-activity-form-input"
                     />
                 </div>
-                <div class="s-workorder-production-activity-form-group">
-                    <label for="quality">Quality (%)</label>
-                    <input
-                        type="number"
-                        id="quality"
-                        t-model="state.quality"
-                        class="s-workorder-production-activity-form-input"
-                    />
-                </div>
+ 
                 <div class="s-workorder-production-activity-form-group">
                     <label for="lot-id">Lot</label>
                     <select id="lot-id" t-model="state.lot_id"
@@ -503,23 +463,7 @@
                         </t>
                     </select>
                 </div>
-                <div class="s-workorder-production-activity-form-group">
-                    <label for="package-id">Package</label>
-                    <!-- <input
-                        type="text"
-                        id="package"
-                        t-model="state.package"
-                        class="s-workorder-production-activity-form-input"
-                    /> -->
-                    <select id="package-id" t-model="state.package_id"
-                        class="s-workorder-production-activity-form-input">
-                        <t t-foreach="state.packages" t-as="package" t-key="package.id">
-                            <option t-att-value="package.id">
-                                <t t-esc="package.name" />
-                            </option>
-                        </t>
-                    </select>
-                </div>
+
                 <div class="s-workorder-production-activity-form-group">
                     <label for="start">Start Time</label>
                     <input

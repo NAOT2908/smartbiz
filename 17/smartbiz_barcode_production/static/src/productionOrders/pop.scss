@@ -143,34 +143,12 @@ p {
     // padding: 10px;
 }
 
-.tabs {
-    display: flex;
-    // background-color: #f3ebeb;
-    // color: #000;
-}
 
 .s_detail_button {
     display: flex;
     justify-content: space-around;
 }
 
-.menutab {
-    padding: 10px;
-    flex: 1;
-    text-align: center;
-    color: #000;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.menutab:hover {
-    background-color: #95f1a9;
-}
-
-.menutab.active {
-    border-bottom: 2px solid #0eb609;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
 
 .content {
     padding: 20px;

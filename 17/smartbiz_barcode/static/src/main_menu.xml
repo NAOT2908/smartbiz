@@ -14,7 +14,14 @@
                     <div class="laser-animation"></div>
                 </div>
             </div>
-            
+            <!-- Phần mô tả chức năng mã vạch -->
+            <!-- <div class="feature-description" >
+                <ul>
+                    <li>Quét mã vạch sản phẩm</li>
+                    <li>Kiểm kê hàng hóa bằng mã vạch</li>
+                    <li>...</li>
+                </ul>
+            </div> -->
             <!-- Các nút chức năng -->
             <div class="main-buttons">
                 <!-- <button class="button-operations"  t-on-click="() => this.openInventory()">

@@ -30,8 +30,8 @@ export class WorkOrderDashboard extends Component {
     this.action = useService("action");
     this.home = useService("home_menu");
     this.state = useState({
-      line: "1",
-      headerValue: "38",
+      line: "5",
+      headerValue: "",
       productionDate: this.getFormattedDate(new Date()),
       shift: "1",
       dashboardData: [],
@@ -55,13 +55,13 @@ export class WorkOrderDashboard extends Component {
       );
     });
     // Gọi lại dữ liệu mỗi 1-2 giây
-    // this.intervalId = setInterval(() => {
-    //   this.data();
-    // }, 5000);
+    this.intervalId = setInterval(() => {
+      this.data();
+    }, 5000);
 
-    // onWillUnmount(() => {
-    //   clearInterval(this.intervalId);
-    // });
+    onWillUnmount(() => {
+      clearInterval(this.intervalId);
+    });
   }
 
   async data() {
@@ -82,7 +82,7 @@ export class WorkOrderDashboard extends Component {
     this.state.steps = get_dashboard_data.steps;
     this.state.faultyData = get_faulty_data;
 
-    // console.log(get_dashboard_data, get_faulty_data);
+    console.log(get_dashboard_data, get_faulty_data);
   }
 
   toggleMenu = () => {
@@ -159,6 +159,8 @@ export class WorkOrderDashboard extends Component {
     // Thực hiện logic để lấy dữ liệu từ Node-RED hoặc từ hệ thống Odoo với productionDate và shift.
   }
 
+  // Gọi hàm sau khi cập nhật dữ liệu
+
   async downloadExcel() {
     const workbook = new ExcelJS.Workbook();
 
@@ -174,15 +176,14 @@ export class WorkOrderDashboard extends Component {
       "Thời gian thực tế",
       ...this.state.steps,
     ];
-    // sheet1.addRow(headers1).font = { bold: true };
     sheet1.addRow(headers1).eachCell((cell) => {
-      cell.font = { bold: true, color: { argb: "FFFFFFFF" } }; // Chữ màu trắng
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FF008cba" }, // Màu nền xanh nhạt (#B8CCE4)
+        fgColor: { argb: "FF008cba" },
       };
-      cell.alignment = { horizontal: "center", vertical: "middle" }; // Căn giữa
+      cell.alignment = { horizontal: "center", vertical: "middle" };
     });
 
     this.state.dashboardData.forEach((row) => {
@@ -194,34 +195,56 @@ export class WorkOrderDashboard extends Component {
         row.so_luong,
         row.thoi_gian_tieu_chuan,
         row.thoi_gian_thuc_te,
-        ...this.state.steps.map((step) => row[step] || "-"),
+        ...this.state.steps.map((step) => {
+          // Kiểm tra nếu step có tồn tại và có thuộc tính duration
+          if (
+            row[step] &&
+            typeof row[step] === "object" &&
+            row[step].hasOwnProperty("duration")
+          ) {
+            return row[step].duration || "-"; // Lấy duration, nếu không có thì trả về "-"
+          } else {
+            return "-"; // Trả về "-" nếu step không tồn tại hoặc không đúng cấu trúc
+          }
+        }),
       ];
       sheet1.addRow(rowData);
     });
 
     // === Tạo worksheet "Tiến độ sản phẩm lỗi" ===
     const sheet2 = workbook.addWorksheet("Tiến độ sản phẩm lỗi");
-    if (this.state.faultyData.length > 0) {
-      const headers2 = Object.keys(this.state.faultyData[0]);
+    if (this.state.faultyData && this.state.faultyData.length > 0) {
+      // Lấy tất cả các key có thể có trong faultyData
+      const allKeys = new Set();
+      this.state.faultyData.forEach((item) => {
+        Object.keys(item).forEach((key) => allKeys.add(key));
+      });
+      const headers2 = Array.from(allKeys);
       sheet2.addRow(headers2).eachCell((cell) => {
-        cell.font = { bold: true, color: { argb: "FFFFFFFF" } }; // Chữ màu trắng
+        cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
         cell.fill = {
           type: "pattern",
           pattern: "solid",
-          fgColor: { argb: "FF008cba" }, // Màu nền xanh nhạt (#B8CCE4)
+          fgColor: { argb: "FF008cba" },
         };
-        cell.alignment = { horizontal: "center", vertical: "middle" }; // Căn giữa
+        cell.alignment = { horizontal: "center", vertical: "middle" };
       });
 
       this.state.faultyData.forEach((row) => {
-        const rowData = headers2.map((key) =>
-          row[key] === 0 ? "-" : row[key]
-        );
+        const rowData = headers2.map((key) => {
+          if (
+            typeof row[key] === "object" &&
+            row[key] !== null &&
+            row[key].hasOwnProperty("quantity")
+          ) {
+            return row[key].quantity === 0 ? "-" : row[key].quantity;
+          }
+          return row[key] === 0 ? "-" : row[key] || "-";
+        });
         sheet2.addRow(rowData);
       });
     }
 
-    
     // === Xuất file Excel ===
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
@@ -231,7 +254,7 @@ export class WorkOrderDashboard extends Component {
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = "tien_do.xlsx";
+    a.download = "Bao_cao_tien_do.xlsx";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

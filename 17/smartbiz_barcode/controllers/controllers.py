@@ -6,7 +6,6 @@ from odoo.exceptions import UserError
 from odoo.osv import expression
 from odoo.tools import pdf, split_every
 from odoo.tools.misc import file_open
-
 import base64,pytz,logging
 _logger = logging.getLogger(__name__)
 
@@ -95,15 +94,7 @@ class StockBarcodeController(http.Controller):
     # def get_inventory_data(self):
     #     inventory_data = request.env['stock.quant'].get_inventory_data()
     #     return inventory_data
-    @http.route('/smartbiz_barcode/get_permissions', type='json', auth='user')
-    def get_permissions(self):
-        _logger.debug("get_permissions called by user: %s", request.env.user.name)
-        user = request.env.user
-        return {
-            'show_barcode_stock': user.show_smartbiz_barcode_stock,
-            'show_barcode_production': user.show_smartbiz_barcode_production,
-            'show_barcode_workorder': user.show_smartbiz_barcode_workorder,
-        }
+        
         
     @http.route('/smartbiz_barcode/get_barcode_data', type='json', auth='user')
     def get_barcode_data(self, model, res_id):

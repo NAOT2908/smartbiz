@@ -23,6 +23,7 @@ import { FinishedMoves } from "./finishedMoves";
 import { OrderDetail } from "./OrderDetail";
 import { EditQuantityModal } from "./EditQuantityModal";
 import { Selector } from "./Selector";
+import { Packages,EditPackage,CreatePackages } from "./Package.js";
 import SmartBizBarcodePickingModel from "@smartbiz_barcode/Models/barcode_picking";
 
 COMMANDS["O-CMD.MAIN-MENU"] = () => {};
@@ -74,6 +75,9 @@ export class ProductOrderDetail extends Component {
     OrderDetail,
     EditQuantityModal,
     Selector,
+    Packages,
+    EditPackage,
+    CreatePackages
   };
 
   setup() {
@@ -86,7 +90,7 @@ export class ProductOrderDetail extends Component {
     if (this.props.action.res_model === "mrp.production") {
       this.production_id = this.props.action.context.active_id;
     }
-    // console.log(this.production_id);
+     console.log(this.production_id);
 
     this.state = useState({
       menuVisible: false,
@@ -119,8 +123,11 @@ export class ProductOrderDetail extends Component {
       showSelector: false,
       buttonStatus: {},
       movelineitem: {},
-      isEditing: "orderdetails",
+      view: "orderdetails",
       isSelector: true,
+      modal:'',
+      packageInfo:{},
+      unpacked_move_lines:[]
     });
     this.lines = [];
     this.move = {};
@@ -147,7 +154,74 @@ export class ProductOrderDetail extends Component {
       await this.loadData();
     });
   }
+  footerClass() {
+    var cl = "s_footer";
+    if (this.state.view === "Move") {
+        if (this.state.data.state === "done"){
+            cl += " s_footer_done";
+        }
+    }
+    return cl;
+  }
+//Các hàm sử lý Package - Start
 
+  showModal(modal,data){
+    
+    if(data && modal =="editPackage"){
+      let cl = this.state.data.finish_packages.find(x=>x.id ==data.id).lines;
+      let line = this.state.data.unpacked_move_lines;
+      line = [...cl,...line]
+      let unpacked_move_lines = []
+      console.log({modal,data,line,'state_data':this.state.data})
+      for (var l of line) 
+      {
+        var modified_quantity = l.result_package_id?l.quantity:0;
+        var package_name = l.result_package_id?l.result_package_id[1]:''
+        var package_id = l.result_package_id?l.result_package_id[0]:false
+        unpacked_move_lines.push({
+          id:l.id,product_name:l.product_id[1],
+          current_quantity:l.quantity,
+          modified_quantity:modified_quantity,
+          package_name:package_name,
+          result_package_id:package_id
+        })
+      }
+      this.state.packageInfo = data
+      this.state.unpacked_move_lines = unpacked_move_lines
+
+    }
+    if(modal =="createPackages"){
+      
+    }
+    this.state.modal = modal
+  }
+  async closeModal(modal,data){
+    console.log({modal,data})
+    if(data && modal =="editPackage")
+    {
+      let values =  await this.orm.call(
+        "mrp.production",
+        "update_package",
+        [, this.production_id,data],
+        {}
+      );
+
+      this.updateData(values)
+    }
+    if(data && modal =="createPackages")
+      {
+        let values =  await this.orm.call(
+          "mrp.production",
+          "create_packages",
+          [, this.production_id,data],
+          {}
+        );
+        this.updateData(values)
+      }
+    this.state.modal = ''
+  }
+
+//Các hàm sử lý Package - End
   async loadData() {
     try {
       const data = await this.orm.call(
@@ -168,6 +242,7 @@ export class ProductOrderDetail extends Component {
       this.state.lots = data.lots;
       this.state.locations = data.locations;
       this.state.packages = data.packages;
+      this.state.finish_packages = data.finish_packages;
       // console.log({
       //   data: this.state.data,
       //   order: this.state.productionOrders,
@@ -175,23 +250,29 @@ export class ProductOrderDetail extends Component {
       this.updateButton();
     } catch (error) {
       console.error("Error loading data:", error);
-      this.notification.add("Failed to load inventory data", {
+      this.notification.add("Failed to load inventory data" + error, {
         type: "danger",
       });
     }
   }
-  
-  changeTab(tab) {
-    if (tab === "ProductOrderDetail") {
-      this.state.activeTab = "ProductOrderDetail";
-      // console.log(this.state.detailTitle)
-    } else if (tab === "MODetail") {
-      this.state.activeTab = "MODetail";
-      // console.log(this.state.activeTab)
-    } else {
-      this.state.activeTab = "ingredients";
-      // console.log(this.state.activeTab)
-    }
+  updateData(data){
+    this.state.data = data;
+    this.state.productionOrders = data.order.find(x => x.id === this.production_id);
+    this.state.detailTitle = data?.order[0].name;
+    this.state.materialMoves = data.materials;
+    this.state.finishedMoves = data.finisheds;
+    this.state.moveLinesTemp = data.moveLines;
+    this.state.moves = data.moves;
+    this.state.products = data.products;
+    this.state.order = data?.order[0];
+    this.state.lots = data.lots;
+    this.state.locations = data.locations;
+    this.state.packages = data.packages;
+    this.state.finish_packages = data.finish_packages;
+  }
+  changeTab(tab) { 
+      this.state.activeTab = tab;
+      console.log(this.state.data)
   }
   filterArrayByString(array, queryString) {
     const queryStringLower = queryString.toLowerCase();
@@ -234,11 +315,11 @@ export class ProductOrderDetail extends Component {
   }
   async exit(ev) {
     if (
-      this.state.isEditing === "editMove" ||
-      this.state.isEditing === "editMaterial"
+      this.state.view === "editMove" ||
+      this.state.view === "editMaterial"
     ) {
       // Nếu đang trong chế độ chỉnh sửa, quay lại chế độ hiển thị chi tiết
-      this.state.isEditing = "orderdetails";
+      this.state.view = "orderdetails";
     } else if (this.state.currentView === "ProductOrderDetail") {
       if (
         this.env.config.breadcrumbs &&
@@ -258,7 +339,7 @@ export class ProductOrderDetail extends Component {
     this.state.selectedMoveLine = id;
     const line = this.state.moveLines.find((r) => r.id == id);
     // console.log(line)
-    if (this.state.isEditing === "editMaterial") {
+    if (this.state.view === "editMaterial") {
       const move = this.state.moves.find(
         (r) => r.id == this.state.selectedMaterial
       );
@@ -285,7 +366,7 @@ export class ProductOrderDetail extends Component {
         result_package_id: line.result_package_id,
         result_package_name: line.result_package_name,
       };
-    } else if (this.state.isEditing === "editMove") {
+    } else if (this.state.view === "editMove") {
       const move = this.state.moves.find(
         (r) => r.id == this.state.selectedFinished
       );
@@ -314,14 +395,14 @@ export class ProductOrderDetail extends Component {
       };
     }
 
-    // console.log(this.state.detailMoveLine, this.state.isEditing);
+    // console.log(this.state.detailMoveLine, this.state.view);
   };
   selectItem = (id) => {
     this.state.selectedMaterial = id;
     // console.log(id )
   };
   materialMoveClick = async (id) => {
-    this.state.isEditing = "editMaterial";
+    this.state.view = "editMaterial";
     this.state.selectedMaterial = id;
     // console.log(this.state.selectedMaterial);
     this.state.selectedFinished = 0;
@@ -356,7 +437,7 @@ export class ProductOrderDetail extends Component {
     };
   };
   finishedMoveClick = async (id) => {
-    this.state.isEditing = "editMove";
+    this.state.view = "editMove";
 
     this.state.selectedFinished = id;
     this.state.selectedMaterial = 0;
@@ -368,9 +449,24 @@ export class ProductOrderDetail extends Component {
     );
     const move = this.state.moves.find((r) => r.id == id);
     this.move = move;
-    if(this.state.productionOrders){
-      this.move.lot_id = this.state.productionOrders.lot_producing_id[0]
-      this.move.lot_name = this.state.productionOrders.lot_producing_id[1]
+    if(!this.move.lot_id ){
+      const lotdata = await this.orm.call(
+        "mrp.production",
+        "create_lot",
+        [
+          ,
+          this.production_id,
+          move.product_id,
+          this.state.productionOrders.company_id[0],
+          this.state.productionOrders.lot_name
+            ? this.state.productionOrders.lot_name
+            : this.state.productionOrders.lot_producing_id[1],
+        ],
+        {}
+      );
+      this.state.lots = lotdata.lots
+      this.move.lot_id = lotdata.lot_id
+      this.move.lot_name = lotdata.lot_name
     }
     const order = this.state.productionOrders;
     // console.log(order,move,this.state.moveLines)
@@ -389,8 +485,8 @@ export class ProductOrderDetail extends Component {
       qty_done: move.qty_done || 0,
       quantity: move.quantity || 0,
       tracking: move.product_tracking,
-      lot_id: order?.lot_producing_id ? order.lot_producing_id[0] : null,
-      lot_name: order?.lot_producing_id ? order.lot_producing_id[1] : "",
+      lot_id:this.move.lot_id,
+      lot_name: this.move.lot_name,
       package_id: null,
       package_name: "",
       result_package_id: null,
@@ -408,11 +504,11 @@ export class ProductOrderDetail extends Component {
     this.state.finishedMoves = deletedata.finisheds;
     this.state.moveLinesTemp = deletedata.moveLines;
 
-    if (this.state.isEditing === "editMaterial") {
+    if (this.state.view === "editMaterial") {
       this.state.moveLines = this.state.moveLinesTemp.filter(
         (r) => r.move_id == this.state.selectedMaterial
       );
-    } else if (this.state.isEditing === "editMove") {
+    } else if (this.state.view === "editMove") {
       this.state.moveLines = this.state.moveLinesTemp.filter(
         (r) => r.move_id == this.state.selectedFinished
       );
@@ -470,18 +566,18 @@ export class ProductOrderDetail extends Component {
         this.production_id,
         id,
         "SB2",
-        "tem_thanh_pham",
+        "tem_cong_doan",
       ],
       {}
     );
     console.log("ok :", printdata);
   };
   print_lines = async () => {
-    if (this.state.isEditing === "editMaterial") {
+    if (this.state.view === "editMaterial") {
       this.state.moveLines = this.state.moveLinesTemp.filter(
         (r) => r.move_id == this.state.selectedMaterial
       );
-    } else if (this.state.isEditing === "editMove") {
+    } else if (this.state.view === "editMove") {
       this.state.moveLines = this.state.moveLinesTemp.filter(
         (r) => r.move_id == this.state.selectedFinished
       );
@@ -495,7 +591,7 @@ export class ProductOrderDetail extends Component {
           this.production_id,
           item,
           "SB2",
-          "tem_thanh_pham",
+          "tem_cong_doan",
         ],
         {}
       );
@@ -526,7 +622,12 @@ export class ProductOrderDetail extends Component {
           [, this.production_id],
           {}
         );
-        // console.log(validate, "xác nhận");
+        console.log(validate, "xác nhận");
+        if (validate.type =='ir.actions.act_window')
+        {
+          await this.action.doAction(validate); 
+        }
+        console.log(validate, "xác nhận");
         const message = _t(`Lệnh sản xuất hoàn tất`);
         this.notification.add(message, { type: "success" });
       },
@@ -579,11 +680,11 @@ export class ProductOrderDetail extends Component {
         this.state.moveLinesTemp = lotdata.moveLines;
         this.state.order = lotdata?.order[0]
         this.state.moves = lotdata.moves;
-        if (this.state.isEditing === "editMaterial") {
+        if (this.state.view === "editMaterial") {
           this.state.moveLines = this.state.moveLinesTemp.filter(
             (r) => r.move_id == this.state.selectedMaterial
           );
-        } else if (this.state.isEditing === "editMove") {
+        } else if (this.state.view === "editMove") {
           this.state.moveLines = this.state.moveLinesTemp.filter(
             (r) => r.move_id == this.state.selectedFinished
           );
@@ -735,9 +836,9 @@ export class ProductOrderDetail extends Component {
             this.production_id,
             this.state.detailMoveLine.product_id,
             this.state.order.company_id[0],
-            this.state.productionOrders.order.lot_producing_id
-              ? this.state.productionOrders.order.lot_producing_id[1]
-              : false,
+            this.state.productionOrders.lot_name
+              ? this.state.productionOrders.lot_name
+              : this.state.productionOrders.lot_producing_id[1],
           ],
           {}
         );
@@ -786,11 +887,11 @@ export class ProductOrderDetail extends Component {
           this.state.moveLinesTemp = mrpdata.moveLines;
         }
 
-        if (this.state.isEditing === "editMaterial") {
+        if (this.state.view === "editMaterial") {
           this.state.moveLines = this.state.moveLinesTemp.filter(
             (r) => r.move_id == this.state.selectedMaterial
           );
-        } else if (this.state.isEditing === "editMove") {
+        } else if (this.state.view === "editMove") {
           this.state.moveLines = this.state.moveLinesTemp.filter(
             (r) => r.move_id == this.state.selectedFinished
           );
@@ -810,11 +911,11 @@ export class ProductOrderDetail extends Component {
           this.state.moveLinesTemp = mrpdata.moveLines;
         }
         
-        if (this.state.isEditing === "editMaterial") {
+        if (this.state.view === "editMaterial") {
           this.state.moveLines = this.state.moveLinesTemp.filter(
             (r) => r.move_id == this.state.selectedMaterial
           );
-        } else if (this.state.isEditing === "editMove") {
+        } else if (this.state.view === "editMove") {
           this.state.moveLines = this.state.moveLinesTemp.filter(
             (r) => r.move_id == this.state.selectedFinished
           );
@@ -931,7 +1032,7 @@ export class ProductOrderDetail extends Component {
     );
 
     console.log(barcodeData, production_id);
-    if (this.state.isEditing === "editMaterial") {
+    if (this.state.view === "editMaterial") {
         const line = this.state.moves.find(
             (r) => r.id == this.state.selectedMaterial
         );
@@ -972,8 +1073,8 @@ export class ProductOrderDetail extends Component {
                         move_id: this.state.selectedMaterial,
                         product_id: line?.product_id || null,
                         product_name: line?.product_name || "",
-                        location_id: line?.location_id || null,
-                        location_name: line?.location_name || "",
+                        location_id: barcodeProduct?.location_id || null,
+                        location_name: barcodeProduct?.location_name || "",
                         location_dest_id: line?.location_dest_id || null,
                         location_dest_name: line?.location_dest_name || "",
                         product_uom_id: line?.product_uom_id || null,

@@ -160,67 +160,7 @@ export default class SmartBizBarcodeModel extends EventBus {
             fromCache:true
         }
         console.log(result)
-        // if(barcodeType)
-        // {
-        //     if (barcodeType == "lots")
-        //     {
-        //         var record = this.data.find(x=>x.name == barcode && x.product_id.id == filters['product_id'])
-        //     }
-        //     else if(barcodeType == "products" || barcodeType == "locations" )
-        //     {
-        //         var record = this.data.find(x=>x.barcode == barcode)
-        //     }
-        //     else
-        //     {
-        //         var record = this.data.find(x=>x.name == barcode)
-        //     }
-        //     if(record)
-        //     {
-        //         result.match = true;
-        //         result.record = record
-        //         return result;
-        //     }
-            
-        // }
-        // else
-        // {
-        //     var productData = this.data['products'].find(x=>x.barcode == barcode)
-        //     if (productData)
-        //     {
-        //         result.match = true;
-        //         result.barcodeType = "products"
-        //         result.record = productData
-        //         return result;
-        //     }
-        //     var packageData = this.data['packages'].find(x=>x.name == barcode)
-        //     if (packageData)
-        //     {
-        //         result.match = true;
-        //         result.barcodeType = "packages"
-        //         result.record = packageData
-        //         return result;
-        //     }
-        //     var locationData = this.data['locations'].find(x=>x.barcode == barcode)
-        //     if (locationData)
-        //     {
-        //         result.match = true;
-        //         result.barcodeType = "locations"
-        //         result.record = locationData
-        //         return result;
-        //     }
-        //     if(filters)
-        //     {
-        //         var lotData = this.data['lots'].find(x=>x.name == barcode && x.product_id.id == filters['product_id'])
-        //         if (lotData)
-        //         {
-        //             result.match = true;
-        //             result.barcodeType = "lots"
-        //             result.record = lotData
-        //             return result;
-        //         }
-        //     }
-            
-        // }
+        
         
         if (!cacheOnly)
         {

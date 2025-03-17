@@ -19,6 +19,31 @@ msgid "Users"
 msgstr "Người dùng"
 
 #. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_res_users__workcenter_id
+msgid "WorkCenter"
+msgstr "Trạm làm việc"
+
+#. module: smartbiz_mes
+#: model_terms:ir.ui.view,arch_db:smartbiz_mes.res_users_form
+msgid "SmartBiz Defaults"
+msgstr "Thiết lập mặc định"
+
+#. module: smartbiz_mes
+#: model_terms:ir.ui.view,arch_db:smartbiz_mes.res_users_form
+msgid "MES"
+msgstr "MES"
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_res_users__production_line_id
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__production_line_id
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_workcenter__production_line_id
+#: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_production_line
+#: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_production_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_production_line_action
+msgid "Production Line"
+msgstr "Dây chuyền sản xuất"
+
+#. module: smartbiz_mes
 #: model:ir.model,name:smartbiz_mes.model_res_partner
 #: model:ir.ui.menu,name:smartbiz_mes.res_partner_menuitem
 #: model:ir.actions.act_window,name:smartbiz_mes.res_partner_action
@@ -73,15 +98,6 @@ msgid "Production"
 msgstr "Sản xuất"
 
 #. module: smartbiz_mes
-#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__production_line_id
-#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_workcenter__production_line_id
-#: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_production_line
-#: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_production_line_menuitem
-#: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_production_line_action
-msgid "Production Line"
-msgstr "Dây chuyền sản xuất"
-
-#. module: smartbiz_mes
 #: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_package__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_factory__name
@@ -92,6 +108,7 @@ msgstr "Dây chuyền sản xuất"
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_process__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_operation__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__name
+#: model:ir.model.fields,field_description:smartbiz_mes.field_stock_move_line__name
 msgid "Name"
 msgstr "Tên"
 
@@ -102,6 +119,23 @@ msgstr "Tên"
 #: model:ir.model.fields,field_description:smartbiz_mes.field_stock_move__production_request_id
 msgid "Production Request"
 msgstr "Yêu cầu sản xuất"
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__lot_name
+msgid "Lot Name"
+msgstr "Số lô/sê-ri"
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__plan_start
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__plan_start
+msgid "Plan Start"
+msgstr "Kế hoạch bắt đầu"
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__plan_finish
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__plan_finish
+msgid "Plan Finish"
+msgstr "Kế hoạch kết thúc"
 
 #. module: smartbiz_mes
 #: model:ir.model,name:smartbiz_mes.model_mrp_workcenter
@@ -346,6 +380,11 @@ msgid "Finished"
 msgstr "Hoàn thành"
 
 #. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__user
+msgid "User"
+msgstr "Người dùng"
+
+#. module: smartbiz_mes
 #: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_bom_components
 #: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_bom_components_menuitem
 #: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_bom_components_action
@@ -563,14 +602,9 @@ msgid "Remain Quantity"
 msgstr "Số lượng còn lại"
 
 #. module: smartbiz_mes
-#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__plan_start
-msgid "Plan Start"
-msgstr "Bắt đầu theo kế hoạch"
-
-#. module: smartbiz_mes
 #: model_terms:ir.ui.view,arch_db:smartbiz_mes.smartbiz_mes_request_form
-msgid "Time"
-msgstr "Lịch trình"
+msgid "Planned Time"
+msgstr "Dự kiến"
 
 #. module: smartbiz_mes
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__schedule_start
@@ -578,14 +612,19 @@ msgid "Schedule Start"
 msgstr "Bắt đầu đã lên lịch"
 
 #. module: smartbiz_mes
-#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__plan_finish
-msgid "Plan Finish"
-msgstr "Kết thúc theo kế hoạch"
+#: model_terms:ir.ui.view,arch_db:smartbiz_mes.smartbiz_mes_request_form
+msgid "Scheduled Time"
+msgstr "Đã lên lịch"
 
 #. module: smartbiz_mes
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__schedule_finish
 msgid "Schedule Finish"
 msgstr "Kết thúc đã lên lịch"
+
+#. module: smartbiz_mes
+#: model_terms:ir.ui.view,arch_db:smartbiz_mes.smartbiz_mes_request_form
+msgid "Actual Time"
+msgstr "Thực tế"
 
 #. module: smartbiz_mes
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__picking_ids
@@ -636,6 +675,13 @@ msgstr "Dịch chuyển kho"
 #: model:ir.actions.act_window,name:smartbiz_mes.uom_uom_action
 msgid "uom"
 msgstr "Đơn vị"
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_stock_move_line
+#: model:ir.ui.menu,name:smartbiz_mes.stock_move_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.stock_move_line_action
+msgid "move.line"
+msgstr "Dịch chuyển kho"
 
 #. module: smartbiz_mes
 #: model_terms:ir.ui.view,arch_db:smartbiz_mes.smartbiz_mes_request_form

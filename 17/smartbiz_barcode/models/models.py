@@ -13,14 +13,34 @@ from io import BytesIO
 import xlsxwriter
 from openpyxl import load_workbook
 
+# class Stock_PickingType(models.Model):
+#     _inherit = ['stock.picking.type']
+#     name = fields.Char(store='True')
 
-    
+
+#     def open_picking_kanban(self):       
+#         view_id = self.env.ref('smartbiz_barcode_stock.stock_picking_kanban').id       
+#         context = {
+#             'search_default_picking_type_id': [self.id],
+#             #'search_default_to_do_transfers':1,
+#             'search_default_available':1,
+#             'default_picking_type_id': self.id,
+#             'default_company_id': self.company_id.id,
+#         }       
+#         action = {
+#             'type': 'ir.actions.act_window',       
+#             'views':[(view_id,'kanban')],
+#             'name': self.display_name,
+#             'res_model': 'stock.picking',
+#             'target': 'current',
+#             'context':context
+#         }
+#         return action
+
 class Stock_Picking(models.Model):
     _inherit = ['stock.picking']
     name = fields.Char(store='True')
 
-
-    
 
     @api.model
     def filter_base_on_barcode(self, barcode):
@@ -554,19 +574,3 @@ class Stock_Picking(models.Model):
 class Stock_PickingBatch(models.Model):
     _inherit = ['stock.picking.batch']
     name = fields.Char(store='True')
-
-class stock_moveline(models.Model):
-    _inherit = ['stock.move.line']
-
-    def print_label(self,label_name = False,printer_name = False):
-        self = self.sudo()
-        if not label_name:
-            label_name = 'tem_thanh_pham'
-        printer = self.env.user.printing_printer_id or self.env['printing.printer'].search([('name','like',printer_name)],limit=1)
-        for record in self:
-            label = self.env['printing.label.zpl2'].search([('name','=',label_name)],limit=1)               
-            if label and printer:
-                label.print_label(printer, record)
-                return True
-        return False
-        

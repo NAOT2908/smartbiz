@@ -3,7 +3,10 @@
     <data noupdate="0">
 <!-- Users -->
 <!-- Groups -->
-   
+    <record id="group_can_delete_historyline" model="res.groups">
+        <field name="name">Can Delete History Line</field>
+        <field name="category_id" ref="base.module_category_inventory"/>
+    </record>
 <!-- Record Rules -->
 
     </data>

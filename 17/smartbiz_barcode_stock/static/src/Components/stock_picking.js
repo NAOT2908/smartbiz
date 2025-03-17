@@ -90,6 +90,7 @@ class StockPicking extends Component {
             menuVisible:false,
             scannedLine:false,
             isSelector: true,
+            activeTab:'OrderDetail',
         });
 
         this.records = [];
@@ -181,7 +182,9 @@ class StockPicking extends Component {
             this.state.lines = this.lines
         }
     }
-
+    changeTab(tab) { 
+        this.state.activeTab = tab;
+    }
     focusClass(item) {
         if (item === this.state.focus) {
             return "s_focus"
@@ -390,7 +393,7 @@ class StockPicking extends Component {
         this.focusCompute()
     }
     async linePrint(id){
-        await this.orm.call('stock.picking', 'print_line', [,id], {});
+        await this.orm.call('stock.picking', 'print_line', [,id,'tem_cong_doan'], {});
     }
     editLine(id) {
         var line = this.lines.find(x => x.id === id);
