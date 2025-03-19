@@ -18,56 +18,68 @@ import { ManualBarcodeScanner } from "@smartbiz_barcode/Components/manual_barcod
 import { url } from "@web/core/utils/urls";
 import { utils as uiUtils } from "@web/core/ui/ui_service";
 import SmartBizBarcodePickingModel from "@smartbiz_barcode/Models/barcode_picking";
+import { Selector }from "./Selector";
 
 class DetailInventoryLine extends Component {
   static template = "DetailInventoryLine";
   static props = ["line", "closeEdit"];
+  static components = { Selector };
+
   setup() {
-    const userService = useService("user");
-    this.state = useState({
-      line: this.props.line,
-      lot_id: this.props.line.lot_id ? parseInt(this.props.line.lot_id) : null,
-      package_id: this.props.line.package_id ? parseInt(this.props.line.package_id) : null,
-      location_id: this.props.line.location_id ? parseInt(this.props.line.location_id) : null, // Thêm location_id vào state
-      packages: [],
-      lots: [],
-      locations: [],
-      Note: this.stripHtml(this.props.line.note) || '',
-      quantity: 0,
-    });
+    this.userService = useService("user");
     this.orm = useService("orm");
     this.notification = useService("notification");
     this.dialog = useService("dialog");
     this.action = useService("action");
 
+    // Khởi tạo state với các giá trị mặc định, tránh gán trực tiếp vào props
+    this.state = useState({
+      line: { ...this.props.line },  // Chứa tất cả dữ liệu chỉnh sửa
+      products: [],
+      lots: [],
+      packages: [],
+      locations: [],
+      showSelector: false,
+      selectorTitle: "",
+      records: [],
+      multiSelect: false,
+      isSelector: true,
+      quantity: this.props.line.quantity_counted || 0,
+      Note: this.stripHtml(this.props.line.note) || "",
+    });
+
     onMounted(async () => {
-      await this.fetchLots();
-      await this.fetchPackages();
-      await this.fetchLocations(); // Gọi fetchLocations()
+      await this.loadData();
     });
   }
 
-  save() {
-    const data = {
-      id: this.state.line.id,
-      lot_id: this.state.lot_id,
-      package_id: this.state.package_id,
-      quantity: this.state.quantity,
-      location_id: this.state.location_id, // Thêm location_id vào data
-      note: this.state.Note,
+  async loadData() {
+    try {
+      await Promise.all([
+        this.fetchLots(),
+        this.fetchPackages(),
+        this.fetchLocations(),
+        this.fetchProducts()
+      ]);
+    } catch (error) {
+      this.notification.add(error.message, { type: "danger" });
     }
-    console.log(data)
-    this.props.closeEdit(data);
   }
 
-  close() {
-    this.props.closeEdit(false);
+  async fetchProducts() {
+    try {
+      const products = await this.orm.searchRead("product.product", [], ["id", "name", "display_name", "barcode", "default_code"]);
+      this.state.products = products;
+    } catch (error) {
+      this.notification.add(error.message, { type: "danger" });
+    }
   }
 
   async fetchLots() {
     try {
-      const lots = await this.orm.searchRead("stock.lot", [], ["id", "name"]);
-      this.state.lots = lots;
+      const lots = await this.orm.searchRead("stock.lot", [], ["id", "name", "product_id"]);
+
+      this.state.lots = this.state.line.product_id ? lots.filter(l => l.product_id && l.product_id[0] === this.state.line.product_id)  : lots;
     } catch (error) {
       this.notification.add(error.message, { type: "danger" });
     }
@@ -75,39 +87,94 @@ class DetailInventoryLine extends Component {
 
   async fetchPackages() {
     try {
-      const packages = await this.orm.searchRead("stock.quant.package",  [], ["id", "name"]);
+      const packages = await this.orm.searchRead("stock.quant.package", [], ["id", "name"]);
       this.state.packages = packages;
     } catch (error) {
       this.notification.add(error.message, { type: "danger" });
     }
   }
 
-  async fetchLocations() { // Thêm hàm fetchLocations()
+  async fetchLocations() {
     try {
-      const locations = await this.orm.searchRead("stock.location", [], ["id", "name", "barcode"]); // Hoặc model khác nếu cần
+      const locations = await this.orm.searchRead("stock.location", [], ["id", "name", "barcode"]);
       this.state.locations = locations;
     } catch (error) {
       this.notification.add(error.message, { type: "danger" });
     }
   }
 
-  // (Optional) Hàm để cập nhật state.line.location_id khi location_id thay đổi
-  //  Tránh cập nhật trực tiếp props.line.location_id
-  onChangeLocation(ev) {
-        this.state.location_id = parseInt(ev.target.value);
-        // console.log(this.state.location_id);
-        // Không cập nhật this.state.line.location_id ở đây!
-        // Logic lưu trữ thay đổi nên được thực hiện ở một bước riêng biệt (ví dụ, khi người dùng nhấn nút "Lưu")
-    }
+  save() {
+    this.state.line.quantity_counted = this.state.quantity
+    this.state.line.note = this.state.Note
+    this.props.closeEdit(this.state.line);
+  }
 
-    stripHtml(html) {
-      if (!html) {
-        return '';
-      }
-      let tmp = document.createElement("DIV");
-      tmp.innerHTML = html;
-      return tmp.textContent || tmp.innerText || "";
+  close() {
+    this.props.closeEdit(false);
+  }
+
+  stripHtml(html) {
+    if (!html) return "";
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  }
+
+
+  openSelector = async (option) => {
+    if (option == 1) {
+    this.records = this.state.products;
+    this.multiSelect = false;
+    this.selectorTitle = "Sản phẩm";
+    } else if (option == 2) {
+    //Chọn số Lot
+    this.records = this.state.lots
+    this.multiSelect = false;
+    this.selectorTitle = "Chọn số Lô/Sê-ri";
+    } else if (option == 3) {
+    //Địa điểm nguồn
+    this.records = this.state.locations;
+    this.multiSelect = false;
+    this.selectorTitle = "Chọn vị trí";
+    } else if (option == 4) {
+    //Chọn gói đích
+    this.records = this.state.packages;
+    this.multiSelect = false;
+    this.selectorTitle = "Chọn kiện hàng";
     }
+    this.state.showSelector = true;
+  };
+
+
+  closeSelector = async (data, title = "") => {
+    if (data) {
+        if (title === "Sản phẩm") {
+            this.state.line.product_id = data.id;
+            this.state.line.product_name = data.display_name || data.name;
+            await this.fetchLots();
+        } else if (title === "Chọn vị trí") {
+            this.state.line.location_id = data.id;
+            this.state.line.location_name = data.name;
+        } else if (title === "Chọn số Lô/Sê-ri") {
+            this.state.line.lot_id = data.id;
+            this.state.line.lot_name = data.name;
+        } else if (title === "Chọn kiện hàng") {
+            this.state.line.package_id = data.id;
+            this.state.line.package_name = data.name;
+        }
+    }
+    this.clearSelector();
+  };
+  
+
+
+  clearSelector() {
+    this.state.records = [];
+    this.state.multiSelect = false;
+    this.state.selectorTitle = "";
+    this.state.showSelector = false;
+    this.state.isSelector = true;
+  }
 }
 
 export class AdjustmentInventory extends Component {
@@ -119,7 +186,7 @@ export class AdjustmentInventory extends Component {
     "globalState?",
     "resId?",
   ];
-  static components = {DetailInventoryLine}
+  static components = { DetailInventoryLine, Selector };
   setup() {
     this.rpc = useService("rpc");
     this.notification = useService("notification");
@@ -139,7 +206,15 @@ export class AdjustmentInventory extends Component {
       line: {},
       title: "",
       isLoading: false,
+      selectedOrder: null,
+      status: "X",
+      selectedLine: null,
     });
+
+    this.stateMapping = {
+      pending: "X",
+      counting: "V",
+    };
 
     this._scrollBehavior = "smooth";
     this.isMobile = uiUtils.isSmall();
@@ -154,7 +229,7 @@ export class AdjustmentInventory extends Component {
       action: this.action,
     };
     const model = new SmartBizBarcodePickingModel(
-      "stock.quant",
+      "smartbiz.inventory",
       false,
       services
     );
@@ -215,31 +290,30 @@ export class AdjustmentInventory extends Component {
     }
   }
   async exit(ev) {
-    if ((this.state.view === "DetailInventory")) {
+    if (this.state.view === "DetailInventory") {
       this.state.view = "AdjustmentInventory";
-    } else if ((this.state.view === "AdjustmentInventory")) {
+    } else if (this.state.view === "AdjustmentInventory") {
       await this.action.doAction(
         "smartbiz_barcode.smartbiz_barcode_main_menu_action"
       );
-    } else if ((this.state.view === "DetailInventoryLine")) {
+    } else if (this.state.view === "DetailInventoryLine") {
       this.state.view = "DetailInventory";
     }
   }
 
   async closeEdit(data) {
-    console.log(data);
-    // if (data) {
-    //   const get_data = await this.orm.call(
-    //     "mrp.workorder",
-    //     "update_activity",
-    //     [, this.state.selectedWorkOrder.id, data],
-    //     {}
-    //   );
-    //   this.state.components = get_data.components;
-    //   this.state.selectedComponent = this.state.components.find(
-    //     (x) => x.id == this.state.selectedComponent.id
-    //   );
-    // }
+    // console.log(data);
+    if (data) {
+      const get_data = await this.orm.call(
+        "smartbiz.inventory",
+        "save_order",
+        [, this.state.selectedOrder, data],
+        {}
+      );
+      console.log(get_data)
+      // this.state.data = get_data.orders;
+      this.state.lines = get_data.lines;
+    }
     this.state.view = "DetailInventory";
   }
   toggleMenu = () => {
@@ -282,24 +356,30 @@ export class AdjustmentInventory extends Component {
 
   async selectOrder(id) {
     this.state.view = "DetailInventory";
-      const get_data = await this.orm.call(
-        "smartbiz.inventory",
-        "get_data",
-        [, [id]],
-        {}
-      );
-      this.state.lines = get_data.lines;
+    this.state.selectedOrder = id;
+    // console.log(id)
+    const get_data = await this.orm.call(
+      "smartbiz.inventory",
+      "get_data",
+      [, [id]],
+      {}
+    );
+    this.state.lines = get_data.lines;
   }
-  withLoading(func, component, minLoadingTime = 500) { // Thêm tham số minLoadingTime
+  withLoading(func, component, minLoadingTime = 500) {
+    // Thêm tham số minLoadingTime
     return async function (...args) {
       component.state.isLoading = true;
       let loadingTimeout;
       const loadingPromise = new Promise((resolve) => {
         loadingTimeout = setTimeout(resolve, minLoadingTime);
       });
-  
+
       try {
-        const result = await Promise.race([func.apply(this, args), loadingPromise]);
+        const result = await Promise.race([
+          func.apply(this, args),
+          loadingPromise,
+        ]);
         clearTimeout(loadingTimeout); // Hủy timeout nếu func hoàn thành trước
         return result;
       } catch (error) {
@@ -313,9 +393,82 @@ export class AdjustmentInventory extends Component {
   }
 
   editItem(id) {
-    this.state.line = this.state.lines.find((line) => line.id === id);
-    console.log(this.state.line);
+    if(id){
+      this.state.line = this.state.lines.find((line) => line.id === id);
+      console.log(this.state.line);
+    }else{
+      this.state.line = {
+        id: false,
+        product_id: null,
+        product_name: "",
+        lot_id: null,
+        lot_name: "",
+        package_id: null,
+        package_name: "",
+        location_id: null,
+        location_name: "",
+        quantity_before: 0,
+        quantity_counted: 0,
+        note: "",
+      };
+    }
     this.state.view = "DetailInventoryLine";
+  }
+  async Setquantity(id){
+    console.log(id)
+    this.state.selectedLine = id.id
+    if (!id || typeof id !== "object") {
+      console.error("Invalid id:", id);
+      return;
+    }
+
+    if (id.state === "pending") {
+        id.quantity_counted = id.quantity_before;
+        id.state = "counting";
+    } else if (id.state === "counting") {
+        id.state = "pending";
+        id.quantity_counted = 0;
+    } 
+
+      const get_data = await this.orm.call(
+          "smartbiz.inventory",
+          "save_order",
+          [,this.state.selectedOrder, id],
+          {}
+      );
+
+      if (get_data && get_data.lines) {
+          this.state.lines = get_data.lines;
+      } else {
+          console.error("Invalid response from save_order:", get_data);
+      }
+    
+  }
+  scrollToSelectedMove() {
+    const selectedElement = document.querySelector(`[data-id="${this.state.selectedLine}"]`);
+    if (selectedElement) {
+        selectedElement.scrollIntoView({
+            behavior: "smooth", // Hiệu ứng cuộn mượt
+            block: "center",    // Căn giữa màn hình
+        });
+    }
+  }
+  getClass(line) {
+    // console.log(line)
+    let cl = " ";
+    if (line.state === "counting") {
+      if (line.quantity_counted === line.quantity_before) {
+        cl += " bg-green";
+      } else if (line.quantity_counted < line.quantity_before) {
+        cl += " bg-yellow";
+      } else if (line.quantity_counted > line.quantity_before) {
+        cl += " bg-red";
+      } else {
+        cl += "";
+      }
+    }
+    this.scrollToSelectedMove();
+    return cl;
   }
 
   async processBarcode(barcode) {
@@ -372,8 +525,6 @@ export class AdjustmentInventory extends Component {
     // }
   }
 }
-
-
 
 registry
   .category("actions")

@@ -276,6 +276,7 @@ class Inventory(models.Model):
             'quantity_before': line.quantity_before,
             'quantity_counted': line.quantity_counted,
             'difference': line.difference,
+            'state': line.state,
             'note': line.note,
         } for line in lines]
         
@@ -395,37 +396,40 @@ class Inventory(models.Model):
     def save_order(self, inventory_id, data):
         """Cập nhật hoặc tạo mới dòng kiểm kê"""
         
-        quantity = float(data['quantity_before'])
+        # Đảm bảo quantity luôn có giá trị hợp lệ
+        quantity = float(data['quantity_counted']) if data.get('quantity_counted') else 0.0  
         line_obj = self.env['smartbiz.inventory.line']
 
         if data.get('id'):  # Nếu đã có ID, cập nhật bản ghi
             line = line_obj.browse(data['id'])
             if line.exists():
                 line.write({
-                    'quantity': quantity,
                     'location_id': data['location_id'],
                     'lot_id': data['lot_id'],
                     'package_id': data.get('package_id', False),
-                    'state': 'counting',
-                    'quantity_counted': data.get('quantity_counted', line.quantity_counted),  # Cập nhật nếu có giá trị mới
-                    'note': data.note
+                    'state': data.get('state', 'counting'),
+                    'quantity_counted': quantity,
+                    'note': data.get('note', line.note)  # Tránh lỗi nếu 'note' không có trong data
                 })
             else:
                 return {'success': False, 'message': 'Inventory line not found'}
         else:  # Nếu chưa có ID, tạo mới bản ghi
+            # product = self.env['product.product'].browse(data['product_id'])
             line = line_obj.create({
+                'inventory_id': inventory_id,
                 'product_id': data['product_id'],
-                'product_uom_id': data['product_uom_id'],
-                'quantity': quantity,
+                # 'product_uom_id': product.uom_id.id if product.exists() else False,
                 'location_id': data['location_id'],
                 'lot_id': data['lot_id'],
                 'package_id': data.get('package_id', False),
                 'state': 'counting',
-                'quantity_counted': data.get('quantity_counted', 0)  # Mặc định bằng 0 nếu không có giá trị
+                'quantity_before': 0,
+                'quantity_counted': data.get('quantity_counted', 0),
+                'note': data.get('note', '')  # Mặc định note là chuỗi rỗng
             })
 
         return self.get_data(inventory_id)
-    
+
 class InventoryLine(models.Model):
     _name = 'smartbiz.inventory.line'
     _description = 'Inventory Line'
@@ -488,123 +492,4 @@ class InventoryHistory(models.Model):
         if not self.env.user.has_group('smartbiz_inventory.group_can_delete_historyline'):
             raise UserError(_("Bạn không có quyền xóa dòng lịch sử!"))
         return super().unlink()
-    
-class StockQuant(models.Model):
-    _inherit = 'stock.quant'    
-
-    def _get_fields(self,model):
-        if model == 'mrp.production':
-            return ['name','state','product_id','product_uom_id','product_uom_qty','qty_produced','qty_producing','date_start','date_deadline','date_finished','company_id','user_id']
-        if model == 'stock.move':
-            return ['state','date','date_deadline','product_id','product_uom','product_uom_qty','quantity','product_qty','location_id','location_dest_id']
-        if model == 'stock.move.line':
-            return ['state','move_id','date','product_id','product_uom_id','quantity','location_id','location_dest_id','package_id','result_package_id','lot_id']
-        if model == 'product.product':
-            return ['barcode', 'default_code', 'tracking', 'display_name', 'uom_id']
-        if model == 'stock.location':
-            return ['display_name', 'barcode', 'parent_path']
-        if model == 'stock.package.type':
-            return ['barcode', 'name']
-        if model == 'stock.quant.package':
-            return ['name','location_id']
-        if model == 'stock.lot':
-            return ['name', 'ref', 'product_id','expiration_date','create_date','product_qty']
-        if model == 'uom.uom':
-            return ['name','category_id','factor','rounding',]
-        if model == 'stock.quant':
-            return ['product_id','location_id','inventory_date','inventory_quantity','inventory_quantity_set','quantity','product_uom_id','lot_id','package_id','owner_id','inventory_diff_quantity','user_id',]
-        return []
-    
-    def get_barcode_data(self, barcode, filters=None, barcodeType=None):
-        record = None  # Khởi tạo biến record mặc định là None
-
-        if barcodeType:
-            if barcodeType == 'lots':
-                record = self.env['stock.lot'].search_read(
-                    [('name', '=', barcode), ('product_id', '=', filters.get('product_id'))],
-                    limit=1, fields=self._get_fields('stock.lot')
-                )
-            elif barcodeType == 'products':
-                record = self.env['product.product'].search_read(
-                    [('barcode', '=', barcode)],
-                    limit=1, fields=self._get_fields('product.product')
-                )
-            elif barcodeType == 'locations':
-                record = self.env['stock.location'].search_read(
-                    [('barcode', '=', barcode)],
-                    limit=1, fields=self._get_fields('stock.location')
-                )
-            elif barcodeType == 'packages':
-                record = self.env['stock.quant.package'].search_read(
-                    [('name', '=', barcode)],
-                    limit=1, fields=['id', 'name', 'location_id']
-                )
-                if record:
-                    package = record[0]
-                    prods = [
-                        {
-                            'product_id': quant.product_id.id,
-                            'product_name': quant.product_id.display_name,
-                            'location_id': quant.location_id.id,
-                            'quantity': quant.quantity,
-                            'lot_id': quant.lot_id.id,
-                            'lot_name': quant.lot_id.name,
-                            'product_uom_id': quant.product_uom_id.id,
-                            'product_uom': quant.product_uom_id.name,
-                            'location_name': quant.location_id.display_name,
-                            'available_quantity': quant.available_quantity,
-                            'expiration_date': quant.lot_id.expiration_date,
-                        }
-                        for quant in self.env['stock.quant'].search([('package_id', '=', package['id'])])
-                    ]
-                    package.update({'products': prods})
-
-        # Nếu không có barcodeType, tìm kiếm mặc định
-        if not record:
-            if filters:
-                record = self.env['stock.lot'].search_read(
-                    [('name', '=', barcode), ('product_id', '=', filters.get('product_id'))],
-                    limit=1, fields=self._get_fields('stock.lot')
-                )
-                if record:
-                    return {'barcode': barcode, 'match': True, 'barcodeType': 'lots', 'record': record[0], 'fromCache': False}
-
-            record = self.env['product.product'].search_read(
-                [('barcode', '=', barcode)], limit=1, fields=self._get_fields('product.product')
-            )
-            if record:
-                return {'barcode': barcode, 'match': True, 'barcodeType': 'products', 'record': record[0], 'fromCache': False}
-
-            record = self.env['stock.location'].search_read(
-                [('barcode', '=', barcode)], limit=1, fields=self._get_fields('stock.location')
-            )
-            if record:
-                return {'barcode': barcode, 'match': True, 'barcodeType': 'locations', 'record': record[0], 'fromCache': False}
-
-            record = self.env['stock.quant.package'].search_read(
-                [('name', '=', barcode)], limit=1, fields=['id', 'name', 'location_id']
-            )
-            if record:
-                package = record[0]
-                prods = [
-                    {
-                        'product_id': quant.product_id.id,
-                        'product_name': quant.product_id.display_name,
-                        'location_id': quant.location_id.id,
-                        'quantity': quant.quantity,
-                        'lot_id': quant.lot_id.id,
-                        'lot_name': quant.lot_id.name,
-                        'product_uom_id': quant.product_uom_id.id,
-                        'product_uom': quant.product_uom_id.name,
-                        'location_name': quant.location_id.display_name,
-                        'available_quantity': quant.available_quantity,
-                        'expiration_date': quant.lot_id.expiration_date,
-                    }
-                    for quant in self.env['stock.quant'].search([('package_id', '=', package['id'])])
-                ]
-                package.update({'products': prods})
-                return {'barcode': barcode, 'match': True, 'barcodeType': 'packages', 'record': package, 'fromCache': False}
-
-        return {'barcode': barcode, 'match': False, 'barcodeType': barcodeType, 'record': None, 'fromCache': False}
-
-            
+      

@@ -134,9 +134,9 @@ export default class SmartBizBarcodeModel extends EventBus {
         if (!cacheOnly) {
             try {
                 const backendResult = await this.orm.call(
-                    'mrp.workcenter',
-                    'get_data',
-                    [barcode, filters, barcodeType]
+                    'smartbiz.inventory',
+                    'get_inventory_barcode_data',
+                    [,barcode, filters, barcodeType]
                 );
                 console.log(backendResult)
                 if (backendResult?.match) {

@@ -28,6 +28,11 @@ body {
 }
 
 .o_line_buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
     .o_set {
         border: 3px solid #357be6;
     }
@@ -70,35 +75,73 @@ body {
     /* Màu xanh sáng khi hover */
 }
 
-/* Inventory Footer */
-.inventory-footer {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 20px;
-    background-color: #4e74f1;
-    /* Màu xanh đậm */
-    color: #f3f4f6;
-    /* Màu chữ sáng */
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+/* CSS cho footer */
+.s_inventory-footer {
     position: fixed;
+    /* Cố định vị trí của footer */
     bottom: 0;
+    /* Đặt footer ở dưới cùng màn hình */
+    left: 0;
+    /* Đặt footer ở bên trái màn hình */
     width: 100%;
-    z-index: 100;
+    /* Chiếm toàn bộ chiều rộng màn hình */
+    background-color: #f8f9fa;
+    /* Màu nền nhạt, tùy chọn */
+    padding: 10px 10px;
+    /* Thêm khoảng cách xung quanh nội dung */
+    text-align: center;
+    /* Căn giữa nội dung, tùy chọn */
+    z-index: 1000;
+    /* Đảm bảo footer nằm trên cùng các thành phần khác */
+    display: flex;
+    /* Sử dụng flexbox để căn chỉnh các nút */
+    justify-content: space-around;
+    /* Phân bổ không gian đều giữa các nút */
+    align-items: center;
+    /* Căn chỉnh các nút theo chiều dọc */
 }
 
-.inventory-footer .create-product,
-.inventory-footer .apply {
-    background: #60a5fa;
-    color: white;
+/* CSS cho các nút (tùy chỉnh theo ý thích) */
+.s_inventory-footer .btn {
+    padding: 10px 20px;
+    /* Kích thước nút */
     border: none;
-    padding: 10px 15px;
+    /* Loại bỏ viền */
     border-radius: 5px;
+    /* Bo tròn góc */
     cursor: pointer;
-    transition: background 0.3s ease;
+    /* Thay đổi con trỏ chuột khi di vào */
+    font-size: 16px;
+    /* Kích thước chữ */
 }
 
-.inventory-footer button:hover {
-    background: #3b82f6;
+.s_inventory-footer .btn-primary {
+    background-color: #007bff;
+    /* Màu nền xanh dương */
+    color: white;
+    /* Chữ trắng */
+}
+
+.s_inventory-footer .btn-secondary {
+    background-color: #75b935;
+    /* Màu nền xám */
+    color: white;
+    /* Chữ trắng */
+}
+
+/* CSS cho thiết bị di động (tùy chọn) */
+@media (max-width: 768px) {
+    .s_inventory-footer {
+        padding: 10px;
+        /* Giảm padding cho thiết bị di động */
+        font-size: 14px;
+        /* Giảm kích thước chữ cho thiết bị di động */
+    }
+
+    .s_inventory-footer .btn {
+        padding: 8px 16px;
+        /* Giảm kích thước nút cho thiết bị di động */
+    }
 }
 
 /* Custom Inventory View */
@@ -115,6 +158,7 @@ body {
 
 .inventory-edit {
     height: calc(100vh - 111px);
+    overflow: auto;
 }
 
 .inventory-empty {
@@ -483,59 +527,224 @@ body {
     }
 }
 
+/* General Styles (không thay đổi nhiều) */
 .s_inventory_container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 15px;
-    margin: auto;
+    margin: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    background-color: #f9f9f9;
 }
 
 .s_inventory_item {
-    background: #fff;
     padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .s_inventory_row {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
     align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
 }
 
 .s_inventory_label {
+    flex: 0 0 40%;
+    max-width: 40%;
     font-weight: bold;
     color: #333;
-    width: 40%;
+    padding-right: 10px;
+    box-sizing: border-box;
 }
 
 .s_inventory_value {
-    width: 55%;
-    color: #666;
+    flex: 1;
+    color: #555;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .s_inventory_editable {
-    width: 55%;
-    border: 1px solid #ddd;
-    padding: 5px;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+textarea.s_inventory_editable {
+    height: 80px;
+    resize: vertical;
+}
+
+.s_detail_element_right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    /* Giữ các nút bên phải trên màn hình lớn */
+}
+
+.s_detail_element_right button {
+    margin-left: 5px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.s_detail-icon {
+    font-size: 1.2em;
+    color: #007bff;
+    transition: color 0.2s ease-in-out;
+}
+
+.s_detail-icon:hover {
+    color: #0056b3;
+}
+
+/* Button Footer (không thay đổi) */
+.s_inventory_button_footer {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 10px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+.s_inventory_button_footer button {
+    padding: 9px 35px;
+    border: none;
     border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Responsive */
-@media (max-width: 480px) {
+.s_inventory_button_footer .btn-primary {
+    background-color: #28a745;
+    color: white;
+}
+
+.s_inventory_button_footer .btn-primary:hover {
+    background-color: #218838;
+}
+
+.s_inventory_button_footer .btn-secondary {
+    background-color: #dc3545;
+    color: white;
+}
+
+.s_inventory_button_footer .btn-secondary:hover {
+    background-color: #c82333;
+}
+
+/* Responsive adjustments (điện thoại) */
+@media (max-width: 768px) {
     .s_inventory_row {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        /* Đặt lại hướng flex thành hàng */
+        align-items: center;
+        /* Căn chỉnh theo chiều dọc */
     }
 
-    .s_inventory_label,
+    .s_inventory_label {
+        flex: 0 0 auto;
+        /* Không co giãn, kích thước tự động */
+        max-width: none;
+        /* Không giới hạn chiều rộng tối đa */
+        margin-bottom: 0;
+        /* Loại bỏ khoảng cách */
+        padding-right: 5px;
+        /* Giảm khoảng cách */
+        white-space: nowrap;
+        /* Ngăn xuống dòng */
+    }
+
     .s_inventory_value {
-        width: 100%;
+        flex: 1;
+        /* Chiếm không gian còn lại */
+        text-align: left;
+        /* Căn trái nội dung */
+        overflow: hidden;
+        /* Ẩn văn bản dài */
+        text-overflow: ellipsis;
+        /* Thêm dấu ba chấm */
+        white-space: nowrap;
+        /* Ngăn xuống dòng */
+    }
+
+    .s_detail_element_right {
+        order: 1;
+        /* Đặt thứ tự hiển thị cuối cùng */
+        margin-left: auto;
+        /* Đẩy sang bên phải */
+    }
+
+    .s_inventory_button_footer {
+        padding: 10px;
+        gap: 5px;
+    }
+
+    .s_inventory_button_footer button {
+        padding: 8px 20px;
+        font-size: 14px;
     }
 }
+
+/* Select Boxes */
+.s-workorder-production-activity-form-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    appearance: none;
+    /* Loại bỏ kiểu mặc định của trình duyệt */
+    -webkit-appearance: none;
+    /* Loại bỏ kiểu mặc định của trình duyệt (cho Safari) */
+    -moz-appearance: none;
+    /* Loại bỏ kiểu mặc định của trình duyệt (cho Firefox) */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M256 294.1L383 167c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-133 133.1c-9.4 9.4-24.6 9.4-33.9 0L38.9 200.9c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0L256 294.1z'/%3E%3C/svg%3E");
+    /* Thêm icon mũi tên */
+    background-repeat: no-repeat;
+    background-position: right 8px top 50%;
+    background-size: 16px;
+    padding-right: 30px;
+    /* Đảm bảo có đủ không gian cho mũi tên */
+    box-sizing: border-box;
+}
+
+
+// .s_inventory_button_footer {
+//     display: flex;
+//     justify-content: space-evenly;
+//     gap: 10px;
+//     position: fixed;
+//     bottom: 0;
+//     width: 100%;
+
+//     button {
+//         padding: 9px 35px;
+//         border: none;
+//         border-radius: 5px;
+//         cursor: pointer;
+//         transition: background 0.3s ease;
+//     }
+// }
 
 .s_inventory_button_footer {
     display: flex;
@@ -543,15 +752,103 @@ body {
     gap: 10px;
     position: fixed;
     bottom: 0;
+    left: 0;
+    /* Thêm left: 0; để đảm bảo nó kéo dài toàn bộ chiều rộng */
     width: 100%;
+    padding: 10px;
+    /* Thêm padding để tạo khoảng cách xung quanh các nút */
+    background-color: #f8f9fa;
+    /* Màu nền nhạt cho footer */
+    border-top: 1px solid #dee2e6;
+    /* Đường viền trên để phân tách footer */
+    box-sizing: border-box;
+    /* Đảm bảo padding và border không làm tăng chiều rộng */
+    z-index: 1000;
+    /* Đảm bảo footer luôn ở trên cùng */
+}
 
-    button {
-        padding: 9px 35px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background 0.3s ease;
+.s_inventory_button_footer button {
+    padding: 9px 35px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-size: 16px;
+    /* Kích thước chữ lớn hơn */
+    font-weight: 500;
+    /* Độ đậm vừa phải */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    /* Hiệu ứng đổ bóng nhẹ */
+}
+
+/* Màu sắc tươi sáng hơn cho nút Lưu */
+.s_inventory_button_footer .btn-primary {
+    background-color: #28a745;
+    /* Màu xanh lá cây */
+    color: white;
+}
+
+.s_inventory_button_footer .btn-primary:hover {
+    background-color: #218838;
+}
+
+/* Màu sắc nhạt hơn cho nút Hủy */
+.s_inventory_button_footer .btn-secondary {
+    background-color: #dc3545;
+    /* Màu đỏ */
+    color: white;
+}
+
+.s_inventory_button_footer .btn-secondary:hover {
+    background-color: #c82333;
+}
+
+/* Responsive adjustments (điện thoại) */
+@media (max-width: 768px) {
+    .s_inventory_label {
+        flex: 0 0 100%;
+        /* Chiếm toàn bộ chiều rộng */
+        max-width: 100%;
+        margin-bottom: 5px;
+        /* Thêm khoảng cách bên dưới label */
     }
+
+    .s_inventory_value {
+        flex: 0 0 100%;
+        /* Chiếm toàn bộ chiều rộng */
+        max-width: 100%;
+    }
+
+    .s_inventory_button_footer {
+        padding: 10px;
+        /* Giảm padding trên điện thoại */
+        gap: 5px;
+        /* Giảm khoảng cách giữa các nút */
+    }
+
+    .s_inventory_button_footer button {
+        padding: 8px 20px;
+        /* Giảm padding nút trên điện thoại */
+        font-size: 14px;
+        /* Giảm kích thước chữ nút trên điện thoại */
+    }
+
+}
+
+.bg-yellow {
+    background-color: rgb(253, 253, 140);
+}
+
+.bg-green {
+    background-color: #7effb4;
+}
+
+.bg-red {
+    background-color: #ec6c69;
+}
+
+.bg-white {
+    background-color: #fff;
 }
 
 .s_loading {

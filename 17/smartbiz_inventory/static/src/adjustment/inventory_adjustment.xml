@@ -79,8 +79,8 @@
                 </span>
             </div>
             <div class="inventory-items">
-                <button t-on-click="() => this.openSelector(1)">In phiếu kiểm kê</button>
-                <button t-on-click="() => this.openSelector(8)">In hàng loạt</button>
+                <button t-on-click="() => this.openSelector()">In phiếu kiểm kê</button>
+                <button t-on-click="() => this.openSelector()">In hàng loạt</button>
                 <button t-on-click="cancelOrder">ZZZ</button>
             </div>
         </div>
@@ -221,7 +221,8 @@
         </div>
         <div t-if="state.view === 'DetailInventory'" class="inventory-content">
             <div class="list-items" t-if ="state.lines.length">
-                <div t-foreach="state.lines" t-as="item" t-key="item.id" class="inventory-item">
+                <div t-foreach="state.lines" t-as="item" t-key="item.id" class="inventory-item" t-att-data-id="item.id"
+                        t-att-class="(item.id === this.selectedLine ? 'selected' : '') + getClass(item)">
                     <div class="info-item">
                         <div>
                             <t t-esc="item.location_name" />
@@ -245,16 +246,14 @@
                             <button class="o_line_button o_edit btn btn-secondary" t-on-click="() => this.editItem(item.id)">
                                 <i class="fa fa-pencil"></i>
                             </button>
-                            <button class="o_line_button o_set btn ms-2">X</button>
+                            <button class="o_line_button o_set btn ms-2" t-on-click="() => this.Setquantity(item)"><t t-esc="this.stateMapping[item?.state] || item?.state"/></button>
                         </span>
-                        <span class="d-inline-block my-1">
-                            <button name="decrementButton" 
-                                class="o_line_button o_remove_unit d-inline-block btn btn-primary ms-2"
-                                >-1</button>
-                            <button name="incrementButton"
-                                    class="o_line_button o_add_quantity d-inline-block btn btn-primary ms-2">+1</button>
-
-                            </span>
+                        <span>
+                            <button class="btn-item btn btn-secondary s_inventory-icon"
+                                t-on-click="">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -391,6 +390,10 @@
                 </div>
 
             </div>
+            <div class="s_inventory-footer">
+                <button class="btn btn-primary" t-on-click="() =>this.editItem(false)">Mới</button>
+                <button class="btn btn-secondary" t-on-click="() =>this.validate()">Xác nhận</button>
+            </div>
         </div>
         <div t-if="state.view === 'DetailInventoryLine'" class="inventory-edit">
             <DetailInventoryLine t-props = "{line: state.line,
@@ -405,53 +408,34 @@
             <div class="s_inventory_row">
                 <div class="s_inventory_label">Sản phẩm:</div>
                 <div class="s_inventory_value" t-esc="state.line.product_name" />
+                <div class="s_detail_element_right">
+                        <button class="s_detail-icon" t-on-click="()=>this.openSelector(1)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                    </div>
             </div>
             <div class="s_inventory_row">
                 <div class="s_inventory_label">lô/Serial:</div>
-                <select
-                id="lot-id"
-                t-model="state.lot_id"
-                class="s-workorder-production-activity-form-input"
-                >
-                <option value="">Chọn lô</option>
-                <t t-foreach="state.lots" t-as="lot" t-key="lot.id">
-                    <option t-att-value="lot.id" t-att-selected="lot.id === state.line.lot_id">
-                    <t t-esc="lot.name" />
-                    </option>
-                </t>
-                </select>
+                <div class="s_inventory_value" t-esc="state.line.lot_name" />
+                <div class="s_detail_element_right">
+
+                        <button class="s_detail-icon" t-on-click="()=>this.openSelector(2)" ><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                        <button class="s_detail-icon" t-on-click="()=>this.createLot()" ><i class="fa fa-plus-circle" aria-hidden="true"></i></button>
+                    </div>
             </div>
             <div class="s_inventory_row">
                 <div class="s_inventory_label">Vị trí:</div>
-                <!-- Thay đổi thành select box -->
-                <select
-                    id="location-id"
-                    t-model="state.location_id" 
-                    class="s-workorder-production-activity-form-input"
-                    t-on-change="onChangeLocation"
-                >
-                <option value="">Chọn vị trí</option>
-                <t t-foreach="state.locations" t-as="location" t-key="location.id">
-                    <option t-att-value="location.id" t-att-selected="location.id === state.line.location_id">
-                    <t t-esc="location.name" />
-                    </option>
-                </t>
-                </select>
+                <div class="s_inventory_value" t-esc="state.line.location_name" />
+                <div class="s_detail_element_right">
+                        <button class="s_detail-icon" t-on-click="()=>this.openSelector(3)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                    </div>
             </div>
             <div class="s_inventory_row">
                 <div class="s_inventory_label">Mã gói:</div>
-                <select
-                id="package-id"
-                t-model="state.package_id"
-                class="s-workorder-production-activity-form-input"
-                >
-                <option value="">Chọn gói</option>
-                <t t-foreach="state.packages" t-as="package" t-key="package.id">
-                    <option t-att-value="package.id" t-att-selected="package.id === state.line.package_id">
-                    <t t-esc="package.name" />
-                    </option>
-                </t>
-                </select>
+                <div class="s_inventory_value" t-esc="state.line.package_name" />
+                <div class="s_detail_element_right">
+                        <button class="s_detail-icon" t-on-click="()=>this.packMoveLine()" ><i class="fa fa-plus-circle" aria-hidden="true"></i></button>
+                        <button class="s_detail-icon" t-on-click="()=>this.openSelector(4)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                        
+                    </div>
             </div>
             <div class="s_inventory_row">
                 <div class="s_inventory_label">Số lượng:</div>
@@ -477,6 +461,15 @@
         <div class="s_inventory_button_footer">
             <button class="btn btn-primary" t-on-click="save">Lưu</button>
             <button class="btn btn-secondary" t-on-click="close">Hủy</button>
+        </div>
+        <div>
+            <Selector t-if="state.showSelector" t-props="{
+                            records:records,
+                            multiSelect:multiSelect,
+                            closeSelector:closeSelector,
+                            title:selectorTitle,
+                            isSelector:state.isSelector,
+                        }"/>
         </div>
         </t>
 </templates>
