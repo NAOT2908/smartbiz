@@ -31,20 +31,18 @@
                     </nav>
                 </nav>
             </div>
-            <div
-                t-att-class="{
-            'workorder-overlay': true,
-            'open': state.menuVisible,
-            'close': !state.menuVisible
-        }"
+            <div t-att-class="{
+                    'workorder-overlay': true,
+                    'open': state.menuVisible,
+                    'close': !state.menuVisible
+                }"
                 t-on-click="toggleMenu"></div>
 
-            <div
-                t-att-class="{
-            'workorder': true,
-            'workorder-open': state.menuVisible,
-            'workorder-close': !state.menuVisible
-        }">
+            <div t-att-class="{
+                    'workorder': true,
+                    'workorder-open': state.menuVisible,
+                    'workorder-close': !state.menuVisible
+                }">
                 <div class="workorder-header">
                     <div>
                         <t t-esc="state.user.name" />
@@ -129,7 +127,7 @@
                                         showOK:state.showOK,
                                         showNG:state.showNG,
                                         showPrint:state.showPrint,
-                                        openPDF: openPDF.bind(this),
+                                        
                                         showKeypad: showKeypad,
                                         activityActions: activityActions.bind(this),
                                     
@@ -142,9 +140,7 @@
                 <div t-if="state.activeTab === 'PDF'" class="">
                     <ActionDocument
                         t-if="state.document"
-                        t-props="{ document: state.document,
-                                            closePDF: closePDF
-                                 }"
+                        t-props="{ document: state.document }"
                     />
                 </div>
             </div>
@@ -153,17 +149,13 @@
                 <ProductionActivity
                     t-props="{
                             activity: state.selectedActivity,
-                            closeActivity: closeActivity.bind(this),
-                            
+                            closeActivity: closeActivity.bind(this),                           
                         }" />
-
             </div>
         </div>
         <KeyPads t-if="state.showkeypad"  t-props="{
-            detailMoveLine:state.component,
-            keyClick:keyClick,
-            keyPadTitle:state.keyPadTitle,
-            currentQuantityField: state.currentQuantityField
+            data:state.keyPadData,
+            closeKeypad:closeKeypad,
         }" />
         <DialogModal t-if="state.showDialogModal" t-props="{
             title:state.dialogTitle,
@@ -356,7 +348,7 @@
                                 <i class="fa fa-plus"></i>
                             </button> -->
                             <div
-                                t-on-click="() => props.showKeypad({title: 'Số lượng KO ĐẠT', color: '#E6960D'},props.component, 'ng')"
+                                t-on-click="() => props.showKeypad({title: 'Số lượng không ĐẠT', color: '#E6960D'},props.component, 'ng')"
                                 t-esc="props.component?.producing_ng_quantity || '0'" />
                             <!-- <button class="s_ng_minus_button"
                                 t-on-click="()=>props.updateQuantity('ng','-')">

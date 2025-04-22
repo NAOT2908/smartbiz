@@ -1,0 +1,149 @@
+$smartbiz-primary-color: #1E479F; // Màu xanh chủ đạo cho icon
+
+$color-background: #f0f0f0; // Màu ghi xám nhạt cho nền
+$smartbiz-primary-color: #1E479F; // Màu xanh chủ đạo cho icon
+$color-text: white; // Màu chữ
+$color-nav-buttons: #021222; //
+
+/* Giao diện toàn màn hình */
+.interface-fullscreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .s_barcode_main_menu_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    max-width: 500px;
+    max-height: 800px;
+    background-color: #ffffff;
+    border: 2px solid #9aa0a6;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    position: relative;
+    text-align: center;
+  }
+  
+  .button-back {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: $smartbiz-primary-color;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  .icon-back {
+    font-size: 24px;
+  }
+  
+  .barcode-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  
+  .mobile-scanner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    position: relative;
+  }
+  
+  .button-scan {
+    cursor: pointer;
+    max-width: 200px;
+    margin-bottom: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .button-scan:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .laser-animation {
+    position: absolute;
+    width: 120%;
+    height: 4px;
+    background-color: red;
+    top: 0;
+    left: -10%;
+    box-shadow: 0 0 6px red, 0 0 15px red;
+    animation: laser-scan-once 1s linear forwards;
+  }
+  
+  @keyframes laser-scan-once {
+    0% {
+      top: 50%;
+    }
+    20% {
+        top: 50%;
+      }
+    40% {
+      top: 100%;
+    }
+    80% {
+        top: 0%;
+      }
+    100% {
+      top: 50%;
+    }
+  }
+  
+  .main-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+  }
+  
+  .button-operations
+   {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $smartbiz-primary-color;
+    color: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .button-operations:hover
+   {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .feature-description ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .feature-description li {
+    margin: 8px 0;
+    font-size: 16px;
+    
+  }
+  

@@ -4,7 +4,7 @@ from exponent_server_sdk import (
     PushMessage,
 ) 
 from requests.exceptions import ConnectionError, HTTPError
-
+from lxml import etree
 from odoo import api, fields, models, _
 import pika
 import logging
@@ -27,10 +27,12 @@ from datetime import datetime, timedelta
 import datetime as date_time
 import random
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import config, float_compare
 _logger = logging.getLogger(__name__)
 from io import BytesIO
 import xlsxwriter
 from openpyxl import load_workbook
+
 class RES_Partner(models.Model):
     _inherit = ['res.partner']
     partner_type = fields.Selection([('account','Account'),('site','Site'),('requester','Requester'),('user','User'),], string='Partner type')
@@ -66,7 +68,7 @@ class SmartBiz_WorkflowDefinition(models.Model):
 
         selections = self.env['ir.model.fields.selection'].search([('field_id','=',field.id)])
         for s in selections:
-            state = self.state_ids.search([('value','=',s.value)])
+            state = self.state_ids.search([('value','=',s.value),('workflow_definition_id','=',self.id)])
             if not state:
                 self.write({'state_ids':[[0,0,{'name':s.name,'value':s.value,'sequence':s.sequence}]]})
 
@@ -109,66 +111,6 @@ class SmartBiz_WorkflowDefinition(models.Model):
 
         
         
-    def check_task_conditions(self):
-        
-        tasks = self.env['smartbiz.task'].search([('state','not in',['done','cancel'])])
-        for task in tasks:
-            current_time = fields.Datetime.now()
-            
-            # Kiểm tra điều kiện thông báo
-            for notification in task.task_definition_id.notification_ids:
-                days_before_overdue = notification.days_before_overdue
-                time_in_day = notification.time_in_day
-                interval_hours = notification.interval_hours
-                max_notice = notification.max_notice
-                
-                # Tính thời gian đến hạn và kiểm tra
-                deadline_alert = task.deadline - timedelta(days=days_before_overdue)
-                if current_time >= deadline_alert:
-                    last_notice = task.notification_log_ids.filtered(lambda log: log.notification_condition_id == notification).sorted(key=lambda l: l.time, reverse=True)
-                    if not last_notice or (current_time - last_notice.time).total_seconds() >= interval_hours * 3600:
-                        # Gửi thông báo và ghi log
-                        template = notification.notification_template_id
-                        template.send_mail(task.id, force_send=True)
-                        
-                        self.env['smartbiz.notification_log'].create({
-                            'task_id': task.id,
-                            'notification_condition_id': notification.id,
-                            'time': current_time,
-                            'users_ids': [(6, 0, task.assignees_ids.ids)]
-                        })
-                        if len(task.notification_log_ids.filtered(lambda l: l.notification_condition_id == notification)) >= max_notice:
-                            task.state = 'cancel'
-                            
-
-            # Kiểm tra điều kiện chuyển giao
-            for transfer in task.task_definition_id.transfer_ids:
-                if transfer.overdue_transfer and current_time > task.deadline:
-                    transfer_count = len(task.transfer_log_ids.filtered(lambda l: l.transfer_condition_id == transfer))
-                    if transfer_count < transfer.max_transfer:
-                        # Ghi nhận việc chuyển giao
-                        self.env['smartbiz.transfer_log'].create({
-                            'task_id': task.id,
-                            'transfer_condition_id': transfer.id,
-                            'time': current_time,
-                            'from_user_id': self.env.uid,
-                            'to_users_ids': [(6, 0, transfer.to_users_ids.ids)]
-                        })
-                        if transfer.to_manager:
-                            manager = self.env['res.users'].search([('groups_id', '=', self.env.ref('base.group_system').id)], limit=1)
-                            transfer.to_users_ids |= manager
-                        if transfer.create_new_task:
-                            # Tạo task mới
-                            new_task = task.copy({
-                                'state': 'assigned',
-                                'start': fields.Datetime.now(),
-                                'deadline': task.deadline + timedelta(days=1),  # Đặt deadline mới
-                            })
-                            
-                    else:
-                        task.state = 'cancel'
-  
-
 class SmartBiz_RabbitmqSever(models.Model):
     _name = "smartbiz.rabbitmq_sever"
     _inherit = ['mail.thread', 'mail.activity.mixin']
@@ -375,8 +317,35 @@ class SmartBiz_WorkflowState(models.Model):
     sequence = fields.Integer(string='Sequence', default = 10)
     name = fields.Char(string='State')
     value = fields.Char(string='Value')
-    workflow_definition_id = fields.Many2one('smartbiz.workflow_definition', string='Workflow Definition')
+    workflow_definition_id = fields.Many2one('smartbiz.workflow_definition', string='Workflow Definition', ondelete='cascade')
 
+
+class SmartBiz_Delegation(models.Model):
+    _name = "smartbiz.delegation"
+    _rec_name = "delegator_id"
+    _description = "Delegation"
+    delegator_id = fields.Many2one('res.users', string='Delegator')
+    delegatee_id = fields.Many2one('res.users', string='Delegatee')
+    start_date = fields.Datetime(string='Start Date')
+    end_date = fields.Datetime(string='End Date')
+    task_type_id = fields.Many2one('smartbiz.task_type', string='Task Type')
+    active = fields.Boolean(string='Active')
+
+
+    def get_actual_assignees(self, user_ids):
+        actual_users = self.env['res.users']
+        for user in user_ids:
+            delegation = self.env['delegation'].search([
+                ('delegator_id', '=', user.id),
+                ('start_date', '<=', fields.Datetime.now()),
+                ('end_date', '>=', fields.Datetime.now()),
+                ('active', '=', True),
+            ], limit=1)
+            if delegation:
+                actual_users |= delegation.delegatee_id
+            else:
+                actual_users |= user
+        return actual_users
 
 class SmartBiz_OrganizationUnit(models.Model):
     _name = "smartbiz.organization_unit"
@@ -414,6 +383,22 @@ class SmartBiz_Level(models.Model):
     hierarchy_order = fields.Integer(string='Hierarchy Order')
 
 
+class SmartBiz_TaskType(models.Model):
+    _name = "smartbiz.task_type"
+    _description = "Task Type"
+    name = fields.Char(string='Name')
+    code = fields.Char(string='Code')
+    description = fields.Text(string='Description')
+    can_delegate = fields.Boolean(string='Can Delegate')
+    duration_type = fields.Selection([('hours','Hours'),('days','Days'),('weeks','Weeks'),('months','Months'),], string='Duration Type', default = 'days')
+    default_duration = fields.Float(string='Default Duration')
+    allowed_positions_ids = fields.Many2many('smartbiz.position', string='Allowed Positions')
+    allowed_roles_ids = fields.Many2many('smartbiz.role', string='Allowed Roles')
+    allowed_levels_ids = fields.Many2many('smartbiz.level', string='Allowed Levels')
+    allowed_organization_units_ids = fields.Many2many('smartbiz.organization_unit', 'task_type_organization_unit_rel',  string='Allowed Organization Units')
+    task_definition_ids = fields.One2many('smartbiz.task_definition', 'task_type_id')
+
+
 class SmartBiz_TaskDefinition(models.Model):
     _name = "smartbiz.task_definition"
     _description = "Task Definition"
@@ -422,6 +407,9 @@ class SmartBiz_TaskDefinition(models.Model):
     state_id = fields.Many2one('smartbiz.workflow_state', string='State')
     duration_type = fields.Selection([('hours','Hours'),('days','Days'),('weeks','Weeks'),('months','Months'),], string='Duration Type', default = 'days')
     duration = fields.Float(string='Duration')
+    can_delegate = fields.Boolean(string='Can Delegate', default = lambda self: self.task_type_id.can_delegate)
+    delegate_template_id = fields.Many2one('mail.template', string='Delegate Template')
+    task_type_id = fields.Many2one('smartbiz.task_type', string='Task Type', required=True)
     function_ids = fields.Many2many('smartbiz.function', string='Function')
     notification_ids = fields.Many2many('smartbiz.notification_condition', 'task_definition_notification_condition_rel',  string='Notification')
     transfer_ids = fields.Many2many('smartbiz.transfer_condition', 'task_definition_transfer_condition_rel',  string='Transfer')
@@ -458,7 +446,7 @@ class SmartBiz_Rule(models.Model):
     _description = "Rule"
     sequence = fields.Integer(string='Sequence', default = 10)
     name = fields.Char(string='Rule Name', required=True, default = 'New')
-    function_id = fields.Many2one('smartbiz.function', string='Function', required=True)
+    function_id = fields.Many2one('smartbiz.function', string='Function', required=True, ondelete='cascade')
     task_finish = fields.Selection([('any','Any'),('parallel','Parallel'),('sequence','Sequence'),], string='Task Finish', default = 'any')
     condition_ids = fields.One2many('smartbiz.condition', 'rule_id')
     resource_ids = fields.One2many('smartbiz.resource', 'rule_id')
@@ -480,7 +468,7 @@ class SmartBiz_Condition(models.Model):
     _description = "Condition"
     model_id = fields.Many2one('ir.model', string='Model', compute='_compute_model_id', store=True)
     name = fields.Char(string='Condition Name', compute='_compute_name', store=True)
-    rule_id = fields.Many2one('smartbiz.rule', string='Rule')
+    rule_id = fields.Many2one('smartbiz.rule', string='Rule', ondelete='cascade')
     field_id = fields.Many2one('ir.model.fields', string='Field')
     operator = fields.Selection([('=','Bằng'),('!=','Khác'),('>','Lớn hơn'),('<','Nhỏ hơn'),('>=','Lớn hơn hoặc bằng'),('<=','Nhỏ hơn hoặc bằng'),('in','Trong'),('not in','Không trong'),('like','Giống'),('ilike','Giống - ilike'),], string='Operator')
     value = fields.Char(string='Value')
@@ -501,14 +489,16 @@ class SmartBiz_Resource(models.Model):
     _description = "Resource"
     model_id = fields.Many2one('ir.model', string='Model', compute='_compute_model_id', store=False)
     name = fields.Char(string='Resource Name', compute='_compute_name', store=True)
-    rule_id = fields.Many2one('smartbiz.rule', string='Rule')
-    method = fields.Selection([('by_position','By Position'),('by_role','By Role'),('by_level','By Level'),('by_user_field','By User Field'),('by_ou_field','By OU Field'),], string='Method', required=True)
+    rule_id = fields.Many2one('smartbiz.rule', string='Rule', ondelete='cascade')
+    method = fields.Selection([('by_position','By Position'),('by_role','By Role'),('by_level','By Level'),('by_ou','By OU'),('by_user_field','By User Field'),('by_ou_field','By OU Field'),], string='Method', required=True)
     operator = fields.Selection([('and','AND'),('or','OR'),], string='Operator', default = 'or')
     position_id = fields.Many2one('smartbiz.position', string='Position')
     role_id = fields.Many2one('smartbiz.role', string='Role')
     level_id = fields.Many2one('smartbiz.level', string='Level')
     user_field_id = fields.Many2one('ir.model.fields', string='User Field')
     ou_field_id = fields.Many2one('ir.model.fields', string='OU Field')
+    organization_unit_id = fields.Many2one('smartbiz.organization_unit', string='Organization Unit')
+    organization_scope = fields.Selection([('self','Self'),('parent','Parent'),('children','Children'),('self-parent','Self-Parent'),('self-children','Self-Children'),], string='Organization Scope', default = 'self')
 
 
     @api.depends('rule_id')
@@ -516,7 +506,7 @@ class SmartBiz_Resource(models.Model):
         for record in self:
             record.model_id = record.rule_id.function_id.workflow_definition_id.model_id.id
 
-    @api.depends('method', 'position_id', 'role_id', 'level_id', 'user_field_id', 'ou_field_id')
+    @api.depends('method', 'position_id', 'role_id', 'level_id', 'user_field_id', 'ou_field_id', 'organization_unit_id')
     def _compute_name(self):
         for record in self:
             name = ''
@@ -526,6 +516,8 @@ class SmartBiz_Resource(models.Model):
                 name = 'Vai trò: ' + (record.role_id.name or '')
             if record.method == 'by_level':
                 name = 'Cấp bậc: ' + (record.level_id.name or '')
+            if record.method == 'by_ou':
+                name = 'Đơn vị tổ chức: ' + (record.organization_unit_id.name or '')
             if record.method == 'by_user_field':
                 name = 'Trường user: ' + (record.user_field_id.name or '')
             if record.method == 'by_ou_field':
@@ -537,7 +529,7 @@ class SmartBiz_Action(models.Model):
     _description = "Action"
     workflow_definition_id = fields.Many2one('smartbiz.workflow_definition', string='Workflow Definition', compute='_compute_workflow_definition_id', store=True)
     name = fields.Char(string='Action Name', compute='_compute_name', store=True)
-    function_id = fields.Many2one('smartbiz.function', string='Function')
+    function_id = fields.Many2one('smartbiz.function', string='Function', ondelete='cascade')
     type = fields.Selection([('send_notification','Send Notification'),('move_to_state','Move to State'),('run_server_action','Run Server Action'),], string='Type', index=True)
     trigger_type = fields.Selection([('on_user_assignment','On User Assignment'),('on_user_action','On User Action'),('on_task_complete','On Task Complete'),], string='Trigger Type', index=True)
     server_action_id = fields.Many2one('ir.actions.server', string='Server Action')
@@ -566,7 +558,7 @@ class SmartBiz_Function(models.Model):
     _description = "Function"
     name = fields.Char(string='Name')
     function_name = fields.Char(string='Function Name')
-    workflow_definition_id = fields.Many2one('smartbiz.workflow_definition', string='Workflow Definition')
+    workflow_definition_id = fields.Many2one('smartbiz.workflow_definition', string='Workflow Definition', ondelete='cascade')
     type = fields.Selection([('button','Button'),('system','System'),], string='Type', default = 'button')
     run_code = fields.Selection([('after','After'),('before','Before'),], string='Run Code')
     rule_ids = fields.One2many('smartbiz.rule', 'function_id')
@@ -583,14 +575,18 @@ class SmartBiz_Task(models.Model):
     task_definition_id = fields.Many2one('smartbiz.task_definition', string='Task Definition', required=True)
     deadline = fields.Datetime(string='Deadline')
     assignees_ids = fields.Many2many('res.users', 'task_users_rel',  string='Assignees')
-    actual_users_ids = fields.Many2many('res.users', 'task_users_rel_10',  string='Actual Users')
+    actual_users_ids = fields.Many2many('res.users', 'task_users_rel_12',  string='Actual Users')
     start = fields.Datetime(string='Start', default = lambda self: fields.datetime.now())
     finish = fields.Datetime(string='Finish')
     duration = fields.Float(string='Duration')
-    state = fields.Selection([('assigned','Assigned'),('processing','Processing'),('done','Done'),('cancel','Cancel'),], string='State', default = 'assigned')
+    state = fields.Selection([('assigned','Assigned'),('processing','Processing'),('overdue','Overdue'),('done','Done'),('cancel','Cancel'),], string='State', default = 'assigned')
     work_log_ids = fields.One2many('smartbiz.work_log', 'task_id')
     notification_log_ids = fields.One2many('smartbiz.notification_log', 'task_id')
     transfer_log_ids = fields.One2many('smartbiz.transfer_log', 'task_id')
+    state_iteration = fields.Integer(string='State Iteration', default = 0)
+    document_state = fields.Char(string='Document State')
+    pending_users_ids = fields.Many2many('res.users', 'task_users_rel_11',  string='Pending Users')
+    completed_users_ids = fields.Many2many('res.users', 'task_users_rel_10',  string='Completed Users')
 
 
     @api.depends('document_name', 'task_definition_id')
@@ -603,15 +599,133 @@ class SmartBiz_Task(models.Model):
         for record in self:
             record.document_name =  self.env[record.model].browse(record.res_id).display_name
 
+    def check_task_conditions(self):
+        tasks = self.env['smartbiz.task'].search([('state', 'not in', ['done', 'cancel'])])
+        current_time = fields.Datetime.now()
+        for task in tasks:
+            # Kiểm tra điều kiện thông báo
+            for notification in task.task_definition_id.notification_ids:
+                days_before_overdue = notification.days_before_overdue
+                interval_hours = notification.interval_hours
+                max_notice = notification.max_notice
+
+                # Tính thời gian cảnh báo
+                deadline_alert = task.deadline - timedelta(days=days_before_overdue)
+                if current_time >= deadline_alert:
+                    last_notice = task.notification_log_ids.filtered(
+                        lambda log: log.notification_condition_id == notification
+                    ).sorted(key=lambda l: l.time, reverse=True)
+                    if not last_notice or (current_time - last_notice[0].time).total_seconds() >= interval_hours * 3600:
+                        # Gửi thông báo và ghi log
+                        template = notification.notification_template_id
+                        if template:
+                            template.send_mail(task.id, force_send=True)
+
+                        reason = 'Thông báo trước hạn' if current_time < task.deadline else 'Quá hạn'
+                        self.env['smartbiz.notification_log'].create({
+                            'task_id': task.id,
+                            'notification_condition_id': notification.id,
+                            'time': current_time,
+                            'users_ids': [(6, 0, task.assignees_ids.ids)],
+                            'reason': reason,
+                        })
+                        # Không hủy task khi đạt max_notice
+
+            # Kiểm tra điều kiện điều chuyển
+            for transfer in task.task_definition_id.transfer_ids:
+                if transfer.overdue_transfer and current_time > task.deadline:
+                    transfer_count = len(task.transfer_log_ids.filtered(
+                        lambda l: l.transfer_condition_id == transfer
+                    ))
+                    if transfer_count < transfer.max_transfer:
+                        # Xác định người nhận điều chuyển
+                        to_users = self.env['res.users']
+                        if transfer.to_manager:
+                            # Tìm manager của người dùng hiện tại
+                            current_user = task.assignees_ids and task.assignees_ids[0] or False
+                            if current_user:
+                                manager = self.get_manager(current_user)
+                                if manager:
+                                    to_users |= manager
+                                else:
+                                    _logger.warning("Không tìm thấy manager cho người dùng hiện tại.")
+                            else:
+                                _logger.warning("Không xác định được người dùng hiện tại để tìm manager.")
+                        else:
+                            # Sử dụng người dùng được chỉ định
+                            to_users = transfer.to_users_ids
+
+                        if to_users:
+                            # Ghi log điều chuyển
+                            self.env['smartbiz.transfer_log'].create({
+                                'task_id': task.id,
+                                'transfer_condition_id': transfer.id,
+                                'time': current_time,
+                                'from_user_id': task.assignees_ids and task.assignees_ids[0].id or False,
+                                'to_users_ids': [(6, 0, to_users.ids)],
+                                'reason': 'Điều chuyển do quá hạn',
+                            })
+                            # Cập nhật người thực hiện task
+                            task.assignees_ids = [(6, 0, to_users.ids)]
+                            # Gửi thông báo
+                            if transfer.notification_template_id:
+                                transfer.notification_template_id.send_mail(task.id, force_send=True)
+
+                            if transfer.create_new_task:
+                                # Tạo task mới nếu cần
+                                new_task = task.copy({
+                                    'state': 'assigned',
+                                    'start': fields.Datetime.now(),
+                                    'deadline': task.deadline + timedelta(days=1),
+                                })
+                        else:
+                            _logger.warning("Không có người dùng để điều chuyển task.")
+                    else:
+                        task.state = 'cancel'
+
+    def get_manager(self, user):
+        """Tìm manager của người dùng dựa trên mô hình tổ chức."""
+        if not user:
+            return False
+        # Giả sử mỗi người dùng liên kết với một vị trí (position)
+        positions = self.env['smartbiz.position'].search([('users_ids', 'in', user.id)])
+        if positions:
+            # Lấy vị trí quản lý (reports_to_ids)
+            manager_positions = positions.mapped('reports_to_ids')
+            if manager_positions:
+                # Lấy người dùng trong vị trí quản lý
+                managers = manager_positions.mapped('users_ids')
+                return managers
+        return False
+    
+    def transfer_task(self, to_user, reason):
+        self.ensure_one()
+        # Cập nhật người thực hiện
+        self.assignees_ids = [(4, to_user.id)]
+        # Ghi log điều chuyển
+        self.env['smartbiz.transfer_log'].create({
+            'task_id': self.id,
+            'time': fields.Datetime.now(),
+            'from_user_id': self.env.uid,
+            'to_users_ids': [(6, 0, [to_user.id])],
+            'reason': reason,
+        })
+        # Gửi thông báo
+        template = self.task_definition_id.delegate_template_id
+        if template:
+            template.send_mail(self.id, force_send=True)
+
 class SmartBiz_WorkLog(models.Model):
     _name = "smartbiz.work_log"
     _description = "Work Log"
     name = fields.Char(string='Name')
-    task_id = fields.Many2one('smartbiz.task', string='Task')
+    task_id = fields.Many2one('smartbiz.task', string='Task', ondelete='cascade')
     function_id = fields.Many2one('smartbiz.function', string='Function')
     rule_id = fields.Many2one('smartbiz.rule', string='Rule')
     user_id = fields.Many2one('res.users', string='User')
     date = fields.Datetime(string='Date', default = lambda self: fields.datetime.now())
+    state_iteration = fields.Integer(string='State Iteration')
+    document_state = fields.Char(string='Document State')
 
 
 class SmartBiz_NotificationCondition(models.Model):
@@ -643,20 +757,22 @@ class SmartBiz_NotificationLog(models.Model):
     _name = "smartbiz.notification_log"
     _rec_name = "notification_condition_id"
     _description = "Notification Log"
-    task_id = fields.Many2one('smartbiz.task', string='Task')
+    task_id = fields.Many2one('smartbiz.task', string='Task', ondelete='cascade')
     notification_condition_id = fields.Many2one('smartbiz.notification_condition', string='Notification Condition')
     time = fields.Datetime(string='Time')
     users_ids = fields.Many2many('res.users', 'notification_log_users_rel',  string='Users')
+    reason = fields.Char(string='Reason')
 
 
 class SmartBiz_TransferLog(models.Model):
     _name = "smartbiz.transfer_log"
     _rec_name = "transfer_condition_id"
     _description = "Transfer Log"
-    task_id = fields.Many2one('smartbiz.task', string='Task')
+    task_id = fields.Many2one('smartbiz.task', string='Task', ondelete='cascade')
     transfer_condition_id = fields.Many2one('smartbiz.transfer_condition', string='Transfer Condition')
     time = fields.Datetime(string='Time')
     from_user_id = fields.Many2one('res.users', string='From User')
     to_users_ids = fields.Many2many('res.users', 'transfer_log_users_rel',  string='To Users')
+    reason = fields.Char(string='Reason')
 
 

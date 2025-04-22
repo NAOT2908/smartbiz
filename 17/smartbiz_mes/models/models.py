@@ -1,11 +1,17 @@
+def remove_accents_and_upper(text):
+    if not text:
+        return ""
+    # unidecode sẽ chuyển chữ có dấu (Unicode) sang ASCII tương đương
+    text_noaccent = unidecode.unidecode(text)
+    # chuyển sang chữ in hoa
+    return text_noaccent.upper()
 # -*- coding: utf-8 -*-
 
 from odoo.osv import expression
 from odoo import models, fields, api, exceptions,_, tools
 import os
-import base64,pytz,logging
+import base64,pytz,logging,unidecode
 from datetime import datetime, timedelta
-import datetime as date_time
 import random
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import config, float_compare
@@ -21,15 +27,85 @@ class RES_Users(models.Model):
 
 
 class mrp_Production(models.Model):
-    _inherit = ['mrp.production']
+    _inherit = ['mrp.production', 'smartbiz.workflow_base']
+    _name = 'mrp.production'
     production_line_id = fields.Many2one('smartbiz_mes.production_line', string='Production Line')
     name = fields.Char(store='True', readonly=False)
     production_request_id = fields.Many2one('smartbiz_mes.request', string='Production Request')
     lot_name = fields.Char(string='Lot Name')
     plan_start = fields.Datetime(string='Plan Start', default = lambda self: fields.Datetime.now())
     plan_finish = fields.Datetime(string='Plan Finish', default = lambda self: fields.Datetime.now() + timedelta(days=1))
+    shift_id = fields.Many2one('smartbiz_mes.shift', string='Shift')
+    activities_created = fields.Boolean(string='Activities Created', compute='_compute_activities_created', store=True)
+    activities_printed = fields.Boolean(string='Activities Printed')
+    production_activities_ids = fields.One2many('smartbiz_mes.production_activity', 'production_id')
+    production_activities = fields.Integer(string='Production Activities', compute='_compute_production_activities', store=True)
+    production_packages_ids = fields.One2many('smartbiz_mes.package', 'production_id')
+    production_packages = fields.Integer(string='Production Packages', compute='_compute_production_packages', store=True)
 
 
+    @api.depends('workorder_ids', 'workorder_ids.production_activity_ids')
+    def _compute_activities_created(self):
+        for record in self:
+            if record.workorder_ids.production_activity_ids:
+                record.activities_created = True
+            else:
+                record.activities_created = False
+
+    @api.depends('production_activities_ids')
+    def _compute_production_activities(self):
+        for record in self:
+            count = record.production_activities_ids.search_count([('production_id', '=', record.id)])
+            record.production_activities = count
+
+    @api.depends('production_packages_ids')
+    def _compute_production_packages(self):
+        for record in self:
+            count = record.production_packages_ids.search_count([('production_id', '=', record.id)])
+            record.production_packages = count
+
+    def action_create_activities(self):
+        """
+        1. Kiểm tra xem có workorder nào pack_method == 'external_list' không.
+           - Nếu không có -> gọi create_activities() trực tiếp.
+           - Nếu có -> mở wizard để cho phép nhập package theo từng component.
+        """
+        self.ensure_one()
+        # Tìm xem có WO dạng external_list ko
+        wos_external = self.workorder_ids.filtered(
+            lambda w: w.operation_id and w.operation_id.pack_method == 'external_list'
+        )
+        if wos_external:
+            # Mở wizard
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'smartbiz_mes.external_list_wizard',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {
+                    'default_production_id': self.id,
+                }
+            }
+        else:
+            # Tạo activity luôn
+            self.workorder_ids.create_activities()
+            return True
+
+        
+        
+    def action_print_activities(self):
+        for record in self:
+            record.workorder_ids.print_activities()
+            record.activities_printed = True
+
+        
+        
+    def action_reprint_activities(self):
+        for record in self:
+            record.workorder_ids.print_activities()
+
+        
+        
     def _get_fields(self,model):
         if model == 'mrp.production':
             return ['name','state','product_id','product_uom_id','lot_producing_id','lot_name','product_uom_qty','qty_produced','qty_producing','date_start','date_deadline','date_finished','company_id','user_id']
@@ -52,7 +128,6 @@ class mrp_Production(models.Model):
         if model == 'stock.quant':
             return ['product_id','location_id','inventory_date','inventory_quantity','inventory_quantity_set','quantity','product_uom_id','lot_id','package_id','owner_id','inventory_diff_quantity','user_id',]
         return []
- 
     
     def get_orders(self,domain):
         orders = self.search(domain)
@@ -67,7 +142,7 @@ class mrp_Production(models.Model):
         }
         return data
             
-    def validate(self, production_id):
+    def validate(self, production_id, create_backorder=True):
         production = self.browse(production_id)
         if not production:
             raise UserError("MO không tồn tại.")
@@ -76,22 +151,22 @@ class mrp_Production(models.Model):
             raise UserError("Số lượng cần sản xuất của MO = 0 => dữ liệu sai.")
 
         # -------------------------------------------------------------------------
-        # 0. Hai biến cục bộ (hardcode cho ví dụ). Sau này bạn lấy từ config, v.v.
+        # 0. Các biến cục bộ (hardcode cho ví dụ). Sau này có thể lấy từ config, v.v.
         # -------------------------------------------------------------------------
         require_packing = True  # Bắt buộc đóng gói
         free_ratio = False      # Tỉ lệ tự do
 
         # -------------------------------------------------------------------------
-        # A. Kiểm tra bắt buộc đóng gói: nếu require_packing=True,
-        #    mọi move line (raw + finished) đều phải có package_id
+        # A. Kiểm tra bắt buộc đóng gói
+                                                                          
         # -------------------------------------------------------------------------
         if require_packing:
-            # Lấy toàn bộ move (nguyên liệu + thành phẩm) chưa done/cancel
+                                                                                      
             all_moves = (production.move_finished_ids).filtered(lambda m: m.state not in ('done','cancel'))
-            # Tương tự cho move line chưa done/cancel
+                                                          
             all_lines = all_moves.mapped('move_line_ids').filtered(lambda ml: ml.state not in ('done','cancel'))
 
-            # Nếu bất kỳ line nào không có package => raise
+                                                                    
             any_line_missing_package = any(not ml.result_package_id for ml in all_lines)
             if any_line_missing_package:
                 raise UserError(_(
@@ -100,7 +175,7 @@ class mrp_Production(models.Model):
                 ))
 
         # -------------------------------------------------------------------------
-        # B. Lấy/tạo move line cho SP chính (Step 1) => partial_qty, ratio
+        # B. Lấy/tạo move line cho SP chính (Step 1)
         # -------------------------------------------------------------------------
         finished_moves = production.move_finished_ids.filtered(lambda m: m.product_id == production.product_id)
         if finished_moves:
@@ -108,7 +183,7 @@ class mrp_Production(models.Model):
             if finished_lines:
                 partial_qty = sum(finished_lines.mapped('quantity'))
             else:
-                # Có move nhưng chưa có line => đặt partial_qty = product_qty
+                                                                                    
                 partial_qty = production.product_qty
                 finished_moves.write({'product_uom_qty': partial_qty})
                 self.env['stock.move.line'].create({
@@ -121,7 +196,7 @@ class mrp_Production(models.Model):
                     'state': 'assigned',
                 })
         else:
-            # Chưa có move thành phẩm => tạo mới
+                                                         
             partial_qty = production.product_qty
             new_fin_move = self.env['stock.move'].create({
                 'production_id': production.id,
@@ -142,19 +217,20 @@ class mrp_Production(models.Model):
 
         # Tính ratio
         ratio = partial_qty / production.product_qty if production.product_qty else 1.0
-
+        if ratio > 0.9:
+            create_backorder = False
         # -------------------------------------------------------------------------
-        # C. Tự động tạo line cho BYPRODUCT nếu chưa có line (theo ratio)
-        #    (Áp dụng khi BOM có byproduct, user chưa tạo line -> ta tạo)
+        # C. Tự động tạo line cho BYPRODUCT nếu chưa có (Step 4)
+                                                                                  
         # -------------------------------------------------------------------------
         byproducts = production.move_finished_ids.filtered(lambda m: m.product_id != production.product_id and m.state not in ('done','cancel'))
         for byp_move in byproducts:
             existing_lines = byp_move.move_line_ids.filtered(lambda ml: ml.state not in ('done','cancel'))
             sum_lines = sum(existing_lines.mapped('quantity'))
             if sum_lines <= 0:
-                # Tính qty theo BOM * ratio
+                                            
                 qty_create = byp_move.product_uom_qty * ratio
-                # Tạo 1 move line, state='assigned' (nếu sp phụ là inbound, bạn chỉnh logic tuỳ ý)
+                                                                                                                
                 self.env['stock.move.line'].create({
                     'move_id': byp_move.id,
                     'product_id': byp_move.product_id.id,
@@ -170,60 +246,71 @@ class mrp_Production(models.Model):
         # -------------------------------------------------------------------------
         from odoo.tools.float_utils import float_compare
 
-        for move in production.move_raw_ids.filtered(lambda mv: mv.state not in ('done','cancel')):
+        for move in production.move_raw_ids.filtered(lambda mv: mv.state not in ('done', 'cancel')):
             old_demand = move.product_uom_qty
             new_demand = old_demand * ratio
-
             existing_lines = move.move_line_ids.filtered(lambda ml: ml.state not in ('done','cancel'))
-            sum_lines = sum(existing_lines.mapped('quantity'))
+            sum_lines = sum(existing_lines.mapped('quantity'))                                                                                                   
+            diff = sum_lines - new_demand                                           
+            diff_percent = diff / new_demand                                   
+            if diff < 0:  # Thiếu nguyên liệu
+                missing = new_demand - sum_lines
+                taken_quantity = move._update_reserved_quantity(
+                    need=missing,
+                    location_id=move.location_id,
+                    lot_id=False,
+                    package_id=False,
+                    owner_id=False,
+                    strict=False
+                )
 
-            if abs(sum_lines - new_demand)/new_demand >= 0.1:
-                if sum_lines > new_demand:
-                    diff = sum_lines - new_demand
-                    for ml in reversed(existing_lines):
-                        if diff <= 0:
-                            break
-                        if ml.quantity <= diff:
-                            diff -= ml.quantity
-                            ml.unlink()
-                        else:
-                            ml.write({'quantity': ml.quantity - diff})
-                            diff = 0
-                elif sum_lines < new_demand:
-                    missing = new_demand - sum_lines
-                    taken_quantity = move._update_reserved_quantity(
-                        need=missing,
-                        location_id=move.location_id,
-                        lot_id=False,
-                        package_id=False,
-                        owner_id=False,
-                        strict=False
-                    )
-                    if float_compare(taken_quantity, missing, precision_rounding=move.product_uom.rounding) < 0:
-                        raise UserError(_(
-                            "Không đủ tồn kho cho sản phẩm '%s' tại kho/lô xuất '%s'.\n"
-                            "Cần thêm: %.2f, khả dụng: %.2f."
-                        ) % (move.product_id.display_name,
-                            move.location_id.display_name,
-                            missing,
-                            taken_quantity))
+                if float_compare(taken_quantity, missing, precision_rounding=move.product_uom.rounding) < 0:
+                    raise UserError(_(
+                        "Không đủ tồn kho cho sản phẩm '%s' tại kho/lô xuất '%s'.\n"
+                        "Cần thêm: %.2f, khả dụng: %.2f."
+                    ) % (move.product_id.display_name,
+                        move.location_id.display_name,
+                        missing,
+                        taken_quantity))
+
+            elif diff > 0:  # Dư nguyên liệu
+                for ml in reversed(existing_lines):
+                    if diff <= 0:
+                        break
+                    if ml.quantity <= diff:
+                        diff -= ml.quantity
+                        ml.unlink()
+                    else:
+                        ml.write({'quantity': ml.quantity - diff})
+                        diff = 0
+                # if diff_percent > 0.1:
+                #     raise UserError(_(
+                #         "Lượng tiêu thụ cho sản phẩm '%s' tại kho/lô xuất '%s' vượt tiêu chuẩn quá 10%%.\n"
+                #         "Thừa: %.2f%%."
+                #     ) % (move.product_id.display_name,
+                #         move.location_id.display_name,
+                #         diff_percent * 100))
+                # else:
+                #     pass
+            else:
+                pass
 
         # -------------------------------------------------------------------------
-        # E. Kiểm tra byproduct theo yêu cầu "free_ratio" hay BOM strict/flexible
-        #    (Step 4)
+        # E. Kiểm tra byproduct theo yêu cầu "free_ratio" hay BOM strict/flexible (Step 4)
+                     
         # -------------------------------------------------------------------------
         for byp_move in byproducts:
             byp_done = sum(byp_move.mapped('quantity'))
             expected = byp_move.product_uom_qty * ratio
 
-            # 1) free_ratio=True => cấm lệch
+                                                
             if free_ratio:
                 if abs(byp_done - expected) > 1e-4:
                     raise UserError(_(
                         "Byproduct %s lệch tỉ lệ khi 'tỉ lệ tự do' đang bật.\n"
                         "Đã = %.3f, Kỳ vọng = %.3f (ratio=%.2f)."
                     ) % (byp_move.product_id.display_name, byp_done, expected, ratio))
-            # 2) free_ratio=False => logic BOM cũ
+                                                  
             else:
                 if abs(byp_done - expected) > 1e-4:
                     if production.bom_id and production.bom_id.consumption == 'strict':
@@ -231,7 +318,7 @@ class mrp_Production(models.Model):
                             "Byproduct %s không khớp tỉ lệ (strict BOM).\n"
                             "Đã=%.3f, Kỳ vọng=%.3f (ratio=%.2f)."
                         ) % (byp_move.product_id.display_name, byp_done, expected, ratio))
-                    # flexible => cho qua
+                    # Với BOM flexible thì bỏ qua
 
         # -------------------------------------------------------------------------
         # F. Đảm bảo move line chính >= partial_qty (Step 5)
@@ -252,7 +339,7 @@ class mrp_Production(models.Model):
                     'state': 'assigned',
                 })
             else:
-                # Thực ra trường hợp này hiếm, vì ở trên ta đã tạo finished_moves nếu chưa có
+                                                                                                                   
                 new_fin_move2 = self.env['stock.move'].create({
                     'production_id': production.id,
                     'product_id': production.product_id.id,
@@ -278,10 +365,10 @@ class mrp_Production(models.Model):
             byproduct_expected_map[byp.product_id.id] = byp.product_uom_qty
 
         # -------------------------------------------------------------------------
-        # H. Tách backorder nếu partial (Step 8) + Step 6 cài qty_producing
+        # H. Tách backorder nếu partial (Step 8)
         # -------------------------------------------------------------------------
         backorders = self.env['mrp.production']
-        if 0 < partial_qty < production.product_qty:
+        if create_backorder and (0 < partial_qty < production.product_qty):
             splitted = production._split_productions(
                 amounts={production: [partial_qty, production.product_qty - partial_qty]},
                 cancel_remaining_qty=False,
@@ -289,24 +376,31 @@ class mrp_Production(models.Model):
             )
             backorders = splitted - production
 
-            # Step 6: Cập nhật qty_producing
+            # Cập nhật qty_producing cho MO gốc
             production.write({
                 'qty_producing': partial_qty + production.qty_produced,
             })
 
             # Xử lý byproduct trong backorder
             for bo in backorders:
-                # Bỏ move line cũ
+                                    
                 bo.move_finished_ids.move_line_ids.unlink()
                 for bo_byp in bo.move_finished_ids.filtered(lambda m: m.product_id != production.product_id):
                     product_id = bo_byp.product_id.id
                     expected_goc = byproduct_expected_map.get(product_id, bo_byp.product_uom_qty)
-                    # Tính sp phụ đã sản xuất
+                                                      
                     goc_byp_moves = production.move_finished_ids.filtered(lambda m: m.product_id.id == product_id)
                     produced_qty = sum(goc_byp_moves.mapped('quantity'))
                     new_qty = max(0, expected_goc - produced_qty)
                     bo_byp.write({'product_uom_qty': new_qty})
-                    # Nếu muốn auto tạo line byproduct cho backorder, có thể tạo move line ở đây
+                    # Nếu cần tự tạo move line cho backorder, thêm code tại đây
+        else:
+            # Nếu không tạo backorder nhưng partial_qty < product_qty,
+            # bạn có thể cập nhật MO gốc để đánh dấu toàn bộ đã hoàn thành (hoặc xử lý theo nghiệp vụ yêu cầu)
+            if partial_qty < production.product_qty:
+                production.write({
+                    'qty_producing': partial_qty + production.qty_produced,
+                })
 
         # -------------------------------------------------------------------------
         # I. _post_inventory (Step 9)
@@ -320,6 +414,7 @@ class mrp_Production(models.Model):
             'date_finished': fields.Datetime.now(),
             'is_locked': True,
             'state': 'done',
+            'qty_producing': partial_qty
         })
 
         # -------------------------------------------------------------------------
@@ -381,28 +476,18 @@ class mrp_Production(models.Model):
             
         return self.get_data(production_id)
         
-    def print_move_line(self,production_id,data,printer_name,label_name):
+    def print_move_line(self,production_id,data,printer_name):
         quantity = float(data['quantity'])
         if data['id']:
             record = self.env['stock.move.line'].browse(data['id'])
         else:
             record = self.env['stock.move.line'].create({'move_id':data['move_id'],'product_id':data['product_id'],'product_uom_id':data['product_uom_id'],'quantity':quantity,'location_id':data['location_id'],'location_dest_id':data['location_dest_id'],'lot_id':data['lot_id'],'picked':True})
 
-        printer = self.env.user.printing_printer_id or self.env['printing.printer'].search([('name','like',printer_name)],limit=1)
-        
-        label = self.env['printing.label.zpl2'].search([('name','=',label_name)],limit=1)
-        #return {'printer':printer,'label':label}
-        if label and printer:
-            label.print_label(printer, record)
+        printer = self.env.user.printing_printer_id or self.env['printing.printer'].search([('name','like',printer_name)],limit=1)      
+        label = self.env['printing.label.zpl2']
+        label.print_label_auto(printer, record)
         return self.get_data(production_id)
         
-    def print_move(self,move_id,printer_name,label_name):
-        move = self.env['stock.move'].browse(move_id)
-        printer = self.env.user.printing_printer_id or self.env['printing.printer'].search([('name','like',printer_name)],limit=1)      
-        label = self.env['printing.label.zpl2'].search([('name','=',label_name)],limit=1)
-        if label and printer:
-            for ml in move.filtered(lambda ml: ml.result_package_id):
-                label.print_label(printer, ml)
 
     def delete_move_line(self,production_id,move_line_id):
         ml = self.env['stock.move.line'].browse(move_line_id)
@@ -678,7 +763,7 @@ class mrp_Production(models.Model):
             })
         return quants
         
-    def create_production_return(self, production_id, quants, label_name=''):
+    def create_production_return(self, production_id, quants, print_lable=False):
         transfer_groups = {}
         # Lấy các materials từ production order
         production_order = self.env['mrp.production'].browse(production_id)
@@ -763,11 +848,10 @@ class mrp_Production(models.Model):
                 line = self.env['stock.move.line'].create(move_line_vals)
 
                 # Kiểm tra và in nhãn nếu có
-                if label_name != '':
+                if print_lable:
                     printer = self.env.user.printing_printer_id or self.env['printing.printer'].search([('name', 'like', 'ZTC-ZD230-203dpi-ZPL')], limit=1)
-                    label = self.env['printing.label.zpl2'].search([('name', '=', label_name)], limit=1)
-                    if label and printer:
-                        label.print_label(printer, line)
+                    label = self.env['printing.label.zpl2']
+                    label.print_label_auto(printer, line)
 
             # Xác nhận picking để thực hiện chuyển kho
             picking.action_confirm()
@@ -793,6 +877,89 @@ class mrp_Production(models.Model):
 
         return res
 
+    def action_confirm(self):
+        super().action_confirm()
+        self.write({'date_start':datetime.now()})
+
+    def multi_create_activities(self):
+        """
+        Khi chọn nhiều production order, hàm sẽ kiểm tra:
+        - Nếu workorder nào pack_method != 'external_list' => tạo activity luôn (tương tự action_create_activities).
+        - Nếu workorder có pack_method = 'external_list' => tự sinh external_data với package mặc định,
+          rồi gọi create_activities(external_data=...) mà không mở wizard.
+        """
+
+        for production in self:
+            # Xác định các WO dạng external_list
+            wos_external = production.workorder_ids.filtered(
+                lambda w: w.operation_id and w.operation_id.pack_method == 'external_list'
+            )
+
+            if wos_external:
+                # Build external_data giống logic wizard action_confirm
+                external_data = {}
+                for wo in wos_external:
+                    bom = wo.production_id.bom_id
+                    if not bom:
+                        continue
+
+                    # Lặp BOM components, kiểm tra component nào thuộc operation này
+                    for comp in bom.components_ids:
+                        if wo.operation_id.id not in comp.operations_ids.ids:
+                            continue
+                        comp_quantity = (production.product_qty / (bom.product_qty or 1.0)) * comp.quantity
+                        if comp_quantity <= 0:
+                            continue
+
+                        # Ở đây ta mặc định pack_quantity = 1, rồi chia ra số package
+                        pack_quantity = 1.0
+                        num_packages = int(math.ceil(comp_quantity / pack_quantity))
+                        
+                        # Tên WO, Component (viết gọn, có thể bỏ dấu...)
+                        wo_name = wo.name or 'WO'
+                        comp_name = comp.name or 'COMP'
+                        
+                        package_names = []
+                        for i in range(1, num_packages + 1):
+                            pkg_name = f"{wo_name}-{comp_name}-{i}"
+                            package_names.append(pkg_name)
+
+                        list_package_tuples = [(pkg, pack_quantity) for pkg in package_names]
+                        external_data.setdefault(wo.id, {})[comp.id] = list_package_tuples
+
+                # Sau khi có external_data, gọi create_activities cho nhóm WO external
+                wos_external.create_activities(external_data=external_data)
+
+                # Ngoài các WO external_list, nếu có WO khác (pack_method khác),
+                # bạn vẫn muốn gọi create_activities() cho chúng:
+                wos_non_external = production.workorder_ids - wos_external
+                if wos_non_external:
+                    wos_non_external.create_activities()
+            else:
+                # Nếu không có WO external_list nào => giống như action_create_activities
+                production.workorder_ids.create_activities()
+
+        # Kết thúc
+        return True
+
+    def action_production_activities(self):
+        action = self.env["ir.actions.actions"]._for_xml_id("smartbiz_mes.act_mrp_production_2_smartbiz_mes_production_activity")
+        context = eval(action['context'])
+        context.update(dict(self._context,default_production_id=self.id))
+        action['context'] = context
+        action['domain'] = [('production_id', '=', self.id)]
+
+        return action
+
+    def action_production_packages(self):
+        action = self.env["ir.actions.actions"]._for_xml_id("smartbiz_mes.act_mrp_production_2_smartbiz_mes_package")
+        context = eval(action['context'])
+        context.update(dict(self._context,default_production_id=self.id))
+        action['context'] = context
+        action['domain'] = [('production_id', '=', self.id)]
+
+        return action
+
     @api.onchange('production_line_id')
     def _onchange_production_line_id(self):
         for record in self:
@@ -806,12 +973,14 @@ class mrp_Workcenter(models.Model):
 
 class mrp_Workorder(models.Model):
     _inherit = ['mrp.workorder']
-    product_quality_ids = fields.One2many('smartbiz_mes.production_activity', 'work_order_id')
+    production_activity_ids = fields.One2many('smartbiz_mes.production_activity', 'work_order_id')
+    name = fields.Char(store='True')
 
 
     def get_orders(self,domain):
         orders = self.search(domain)
-        users = self.env['res.users'].search([]).read(['name','barcode','workcenter_id','production_line_id'], load=False)
+        users = self.env['res.users'].search([]).read(['name','barcode','workcenter_id','production_line_id','employee_id'], load=False)
+        employees = self.env['hr.employee'].search([]).read(['name','barcode'], load=False)
         order_data = []
         for order in orders:
             order_data.append({
@@ -820,13 +989,15 @@ class mrp_Workorder(models.Model):
                 'production_id':order.production_id.id,
                 'production_name':order.production_id.name,
                 'product_id':order.product_id.id,
+                'workcenter_id':order.workcenter_id.id,
                 'product_name':order.product_id.name,
                 'quantity':order.qty_production,
                 'state':order.state
             })
         data = {
             'orders':order_data,
-            'users':users
+            'users':users,
+            'employees':employees
         }
         return data
     
@@ -1001,8 +1172,8 @@ class mrp_Workorder(models.Model):
             else:
                 self.start_workorder(work_order_id)
         return data
-        
-    def handle_package_scan(self, workorder_id, component_id, qr_code,
+
+    def handle_package_scan(self, workorder_id, component_id, qr_code,employee_id,
                             button_type=False, force=False, quantity=None):
         """
         - Nếu qr_code rỗng + button_type='ok_action' => Tìm OK đang mở => finish với quantity 
@@ -1067,23 +1238,36 @@ class mrp_Workorder(models.Model):
                         'finish': now,
                         'quantity': final_quantity,   # Ghi nhận quantity do người dùng truyền
                     })
+                    act_ok_open.package_id.write({
+                        'current_step': workorder.operation_id.name if workorder.operation_id else '',
+                        'current_component_id': False,
+                        'last_qty': act_ok_open.quantity,
+                        'current_workorder_id': False,
+                    })
                 else:
                     # Không thấy => tạo package + activity => finish ngay
+                    mo_name = remove_accents_and_upper(workorder.production_id.name or "MO")
+                    comp_name = remove_accents_and_upper(bom_component.name or f"COMP-{bom_component.id}")
+                    package_name = f"OK-{mo_name}-{comp_name}"
                     new_pkg = Package.create({
-                        'name': 'New-OK',
+                        'name': package_name,
                         'current_step': workorder.operation_id.name if workorder.operation_id else '',
                         'current_component_id': bom_component.id,
                         'last_qty': final_quantity,
                         'current_workorder_id': workorder.id,
+                        'production_id':workorder.production_id.id
                     })
                     new_act_ok = Activity.create({
                         'work_order_id': workorder.id,
                         'component_id': bom_component.id,
                         'package_id': new_pkg.id,
                         'start': now,
-                        'finish': now,
+                        #'finish': now,
                         'quantity': final_quantity,  # quantity do người dùng truyền
                         'quality': 1, 
+                        'employee_id':employee_id,
+                        'shift_id':workorder.production_id.shift_id.id,
+                        'product_id':workorder.production_id.product_id.id
                     })
 
                 data = self.get_data(workorder_id)
@@ -1115,12 +1299,16 @@ class mrp_Workorder(models.Model):
                     })
                 else:
                     # Tạo package + activity NG => finish ngay
-                    new_pkg = Package.create({
-                        'name': 'New-NG',
+                    mo_name = remove_accents_and_upper(workorder.production_id.name or "MO")
+                    comp_name = remove_accents_and_upper(bom_component.name or f"COMP-{bom_component.id}")
+                    package_name = f"NG-{mo_name}-{comp_name}"
+                    new_pkg = Package.create({      
+                        'name': package_name,
                         'current_step': workorder.operation_id.name if workorder.operation_id else '',
                         'current_component_id': bom_component.id,
                         'last_qty': final_quantity,
                         'current_workorder_id': workorder.id,
+                        'production_id':workorder.production_id.id
                     })
                     Activity.create({
                         'work_order_id': workorder.id,
@@ -1130,6 +1318,9 @@ class mrp_Workorder(models.Model):
                         'finish': now,
                         'quantity': final_quantity,
                         'quality': 0.8,
+                        'employee_id':employee_id,
+                        'shift_id':workorder.production_id.shift_id.id,
+                        'product_id':workorder.production_id.product_id.id
                     })
 
                 # Trừ OK
@@ -1147,44 +1338,33 @@ class mrp_Workorder(models.Model):
                     act_ok_open.write({'quantity': act_ok_open.quantity - final_quantity})
 
                 data = self.get_data(workorder_id)
-                # Kiểm tra finish workorder
-                workorder_remain = sum(c['remain_quantity'] for c in data['components'])
-                workorder_producing = sum(c['producing_quantity'] for c in data['components'])
-                if not workorder_remain and not workorder_producing:
-                    self.finish_workorder(workorder_id)
-                else:
-                    self.start_workorder(workorder_id)
-                return data
 
-        #-----------------------------------------------
-        # TH 1: qr_code = "" => Tạo package & activity OK (bắt đầu)
-        # (KHÔNG có button_type)
-        #-----------------------------------------------
-        if not qr_code:
-            new_package = Package.create({
-                'name': 'New',
-                'current_step': workorder.operation_id.name if workorder.operation_id else '',
-                'current_component_id': bom_component.id,
-                'last_qty': final_quantity,
-                'current_workorder_id': workorder.id, 
-            })
-            Activity.create({
-                'work_order_id': workorder.id,
-                'component_id': bom_component.id,
-                'package_id': new_package.id,
-                'start': now,
-                'quantity': final_quantity,
-                'quality': 1,
-            })
-            data = self.get_data(workorder_id)
-
-            workorder_remain = sum(c['remain_quantity'] for c in data['components'])
-            workorder_producing = sum(c['producing_quantity'] for c in data['components'])
-            if not workorder_remain and not workorder_producing:
-                self.finish_workorder(workorder_id) 
+        if not qr_code.startswith("OK") and not qr_code.startswith("NG") and not button_type:
+            package = Package.search([('name', '=', qr_code)], limit=1)
+            if not package:
+                raise UserError("Số serial %s không có trong lệnh!" % qr_code)
             else:
-                self.start_workorder(workorder_id)
-            return data
+                # Tùy logic, final_quantity <= package.last_qty?
+                final_quantity = min(final_quantity, package.last_qty)
+
+            lock_package(package, workorder.id, bom_component.id)
+
+            act_ok_open = Activity.search([
+                ('work_order_id', '=', workorder.id),
+                ('component_id', '=', component_id),
+                ('package_id', '=', package.id),
+                ('quality', '>=', 0.9),
+                ('finish', '=', False),
+            ], limit=1)
+
+            if act_ok_open:
+                act_ok_open.write({
+                    'start':now,
+                    'finish': now,
+                    # 'quantity': final_quantity, # Tùy logic, có thể ghi đè
+                })
+    
+            data = self.get_data(workorder_id)
 
         #-----------------------------------------------
         # TH 2: qr_code.startswith("OK")
@@ -1197,6 +1377,7 @@ class mrp_Workorder(models.Model):
                     'current_step': workorder.operation_id.name if workorder.operation_id else '',
                     'current_component_id': bom_component.id,
                     'last_qty': final_quantity,
+                    'production_id':workorder.production_id.id
                 })
             else:
                 # Tùy logic, final_quantity <= package.last_qty?
@@ -1214,22 +1395,35 @@ class mrp_Workorder(models.Model):
             ], limit=1)
 
             if act_ok_open:
-                # => Finish
-                time_spent = (now - (act_ok_open.start or now)).total_seconds() / 60.0
-                if time_spent < 0.1 and not force:
-                    raise UserError(_("Thời gian quá ngắn (%.2f phút). force=True để bỏ qua.") % time_spent)
+                if not act_ok_open.start:
+                    mo = self.env['mrp.production'].browse(act_ok_open.work_order_id.production_id.id)
+                    lot_id =  self.env['stock.lot'].search([('name','=',mo.lot_name),('product_id','=',mo.product_id.id)],limit=1)
+                    if not lot_id:
+                        lot_id = self.env['stock.lot'].create({'product_id':mo.product_id.id,'name':mo.lot_name})
+                    lot_id = mo.lot_producing_id or lot_id
+                    lot_id = lot_id.id if lot_id else False
+                    act_ok_open.write({
+                        'start': now,
+                        'employee_id':employee_id,
+                        'lot_id':lot_id
+                    })
+                else:
+                    # => Finish
+                    time_spent = (now - (act_ok_open.start or now)).total_seconds() / 60.0
+                    if time_spent < 0.1 and not force:
+                        raise UserError(_("Thời gian quá ngắn (%.2f phút). force=True để bỏ qua.") % time_spent)
 
-                old_qty = act_ok_open.quantity
-                act_ok_open.write({
-                    'finish': now,
-                    # 'quantity': final_quantity, # Tùy logic, có thể ghi đè
-                })
-                package.write({
-                    'current_step': workorder.operation_id.name if workorder.operation_id else '',
-                    'current_component_id': bom_component.id,
-                    'last_qty': act_ok_open.quality,
-                    'current_workorder_id': False,
-                })
+                    old_qty = act_ok_open.quantity
+                    act_ok_open.write({
+                        'finish': now,
+                        # 'quantity': final_quantity, # Tùy logic, có thể ghi đè
+                    })
+                    package.write({
+                        'current_step': workorder.operation_id.name if workorder.operation_id else '',
+                        'current_component_id': bom_component.id,
+                        'last_qty': act_ok_open.quantity,
+                        'current_workorder_id': False,
+                    })
                 data = self.get_data(workorder_id)
             else:
                 # => Bắt đầu
@@ -1251,6 +1445,9 @@ class mrp_Workorder(models.Model):
                     'start': now,
                     'quantity': final_quantity,
                     'quality': 1,
+                    'employee_id':employee_id,
+                    'shift_id':workorder.production_id.shift_id.id,
+                    'product_id':workorder.production_id.product_id.id
                 })
                 package.write({
                     'current_step': workorder.operation_id.name if workorder.operation_id else '',
@@ -1260,13 +1457,6 @@ class mrp_Workorder(models.Model):
                 })
                 data = self.get_data(workorder_id)
 
-            workorder_remain = sum(c['remain_quantity'] for c in data['components'])
-            workorder_producing = sum(c['producing_quantity'] for c in data['components'])
-            if not workorder_remain and not workorder_producing:
-                self.finish_workorder(workorder_id) 
-            else:
-                self.start_workorder(workorder_id)
-            return data
 
         #-----------------------------------------------
         # TH 3: qr_code.startswith("NG")
@@ -1280,6 +1470,7 @@ class mrp_Workorder(models.Model):
                     'current_step': workorder.operation_id.name if workorder.operation_id else '',
                     'current_component_id': bom_component.id,
                     'last_qty': 0.0,
+                    'production_id':workorder.production_id.id
                 })
             lock_package(package, workorder.id, bom_component.id)
 
@@ -1300,6 +1491,9 @@ class mrp_Workorder(models.Model):
                     'start': now,
                     'quantity': 0.0,
                     'quality': 0.8,
+                    'employee_id':employee_id,
+                    'shift_id':workorder.production_id.shift_id.id,
+                    'product_id':workorder.production_id.product_id.id
                 })
             else:
                 if act_ng.finish and not force:
@@ -1335,176 +1529,23 @@ class mrp_Workorder(models.Model):
             })
 
             data = self.get_data(workorder_id)
-            workorder_remain = sum(c['remain_quantity'] for c in data['components'])
-            workorder_producing = sum(c['producing_quantity'] for c in data['components'])
-            if not workorder_remain and not workorder_producing:
-                self.finish_workorder(workorder_id)
-            else:
-                self.start_workorder(workorder_id)
-            return data
+        workorder_remain = sum(c['remain_quantity'] for c in data['components'])
+        workorder_producing = sum(c['producing_quantity'] for c in data['components'])
+        if not workorder_remain and not workorder_producing:
+            self.finish_workorder(workorder_id)
+        else:
+            self.start_workorder(workorder_id)
+        return data 
 
-        #-----------------------------------------------
-        # ELSE => không hợp lệ
-        #-----------------------------------------------
-        raise UserError(_(
-            "Mã '%s' không hợp lệ. Vui lòng để trống, hoặc bắt đầu bằng 'OK'/'NG'."
-        ) % qr_code)
-        
     def print_label(self,workorder_id,activity_id):
         self = self.sudo()
         printer = self.env.user.printing_printer_id or self.env['printing.printer'].search([('name','like','ZTC-ZD230-203dpi-ZPL')],limit=1)
-        pa = self.env['smartbiz_mes.production_activity'].browse(activity_id)
-        
-        
-        if pa and printer:
-            if pa.component_id.type == 'product':
-                label = self.env['printing.label.zpl2'].search([('name','=','tem_san_pham')],limit=1)
-            else:
-                label = self.env['printing.label.zpl2'].search([('name','=','tem_dau_vao_mes')],limit=1)
-            label.print_label(printer, pa)
-            label = self.env['printing.label.zpl2'].search([('name','=','tem_dau_vao_mes')],limit=1)
-            #return {'pa':pa.read(),'label':label.read(),'printer':printer.read()} 
-        
+        pa = self.env['smartbiz_mes.production_activity'].browse(activity_id)    
+        if pa:
+            label = self.env['printing.label.zpl2']
+            label.print_label_auto(printer, pa)      
         return self.get_data(workorder_id)
     
-    def get_dashboard_data(self, date):
-        # Lấy tất cả các lệnh sản xuất trong ngày với trạng thái khác 'draft' và 'cancel'
-        production_orders = self.env['mrp.production'].search([
-            ('date_start', '>=', date + ' 00:00:00'),
-            ('date_start', '<=', date + ' 23:59:59'),
-            ('state', 'not in', ['draft', 'cancel'])
-        ])
-
-        # Khởi tạo dữ liệu tổng hợp
-        dashboard_data = []
-        stt = 1
-
-        # Thu thập tất cả các công đoạn từ work orders
-        all_steps = set()
-        for order in production_orders:
-            for wo in order.workorder_ids:
-                step_name = wo.workcenter_id.name.strip().lower()
-                all_steps.add(step_name)
-
-        # Sắp xếp và chuẩn hóa các công đoạn
-        all_steps = sorted(all_steps)
-        step_display_names = {step: step.capitalize() for step in all_steps}
-
-        for order in production_orders:
-            # Lấy thông tin công đoạn
-            work_orders = order.workorder_ids
-            step_data = {}  # Dữ liệu cho từng công đoạn (thời gian, trạng thái)
-
-            for step in all_steps:
-                step_data[step_display_names[step]] = {
-                    'duration': 0.0,
-                    'state': 'pending'  # Mặc định là 'pending'
-                }
-
-            for wo in work_orders:
-                step_name = wo.workcenter_id.name.strip().lower()
-                display_name = step_display_names[step_name]
-
-                if display_name in step_data:
-                    step_data[display_name]['duration'] = wo.duration
-                    step_data[display_name]['state'] = wo.state  # Lấy trạng thái thực tế
-
-            # Tạo dòng dữ liệu cho bảng tổng hợp
-            row = {
-                'stt': stt,
-                'kh': order.origin,
-                'lot': order.name,
-                'item': order.product_id.name,
-                'so_luong': order.product_qty,
-                'thoi_gian_tieu_chuan': round(order.duration_expected, 2),
-                'thoi_gian_thuc_te': round(sum(step_data[step]['duration'] for step in step_display_names.values()), 2),
-            }
-
-            # Thêm dữ liệu từng công đoạn
-            for step in step_display_names.values():
-                row[step] = step_data[step]  # Lưu trữ cả thời gian và trạng thái
-
-            dashboard_data.append(row)
-            stt += 1
-
-        return {
-            'steps': [step_display_names[step] for step in all_steps],
-            'data': dashboard_data
-        }
-
-    def get_faulty_data(self, date):
-        # Lấy các công đoạn sản xuất từ tất cả work orders trong ngày
-        production_orders = self.env['mrp.production'].search([
-            ('date_start', '>=', f"{date} 00:00:00") if date else (),
-            ('date_start', '<=', f"{date} 23:59:59") if date else (),
-            ('state', 'not in', ['draft', 'cancel'])
-        ])
-
-        # Tạo danh sách các bước sản xuất (chuẩn hóa tên)
-        all_steps = set()
-        for order in production_orders:
-            for wo in order.workorder_ids:
-                step_name = wo.workcenter_id.name.strip().lower()
-                all_steps.add(step_name)
-        all_steps = sorted(all_steps)
-        step_display_names = {step: step.capitalize() for step in all_steps}
-
-        # Khởi tạo dữ liệu lỗi gộp theo `lot` và `component`
-        grouped_faulty_data = {}
-
-        for order in production_orders:
-            lot_key = order.name  # Sử dụng `lot` làm key để gộp
-            if lot_key not in grouped_faulty_data:
-                grouped_faulty_data[lot_key] = {
-                    'kh': order.origin,
-                    'lot': order.name,
-                    'item': order.product_id.name,
-                    'components': {},  # Chứa lỗi từng component
-                }
-
-            for wo in order.workorder_ids:
-                # Lọc các hoạt động lỗi cho work order này
-                faulty_activities = self.env['smartbiz_mes.production_activity'].search([
-                    ('work_order_id', '=', wo.id),
-                    ('quality', '<', 0.9),
-                    ('start', '!=', False),
-                    ('finish', '!=', False)
-                ])
-
-                for activity in faulty_activities:
-                    component = activity.component_id
-                    step_name = wo.workcenter_id.name.strip().lower()
-                    step_display_name = step_display_names.get(step_name, step_name.capitalize())
-
-                    # Gộp lỗi vào component
-                    if component.id not in grouped_faulty_data[lot_key]['components']:
-                        grouped_faulty_data[lot_key]['components'][component.id] = {
-                            'component_name': component.name,
-                            'total_faulty': 0,
-                            **{step: {'quantity': 0, 'state': 'pending'} for step in step_display_names.values()} #them state vao
-                        }
-
-                    component_data = grouped_faulty_data[lot_key]['components'][component.id]
-                    component_data['total_faulty'] += activity.quantity
-                    component_data[step_display_name]['quantity'] += activity.quantity
-                    component_data[step_display_name]['state'] = wo.state #Lay state cua work order
-
-        # Chuyển dữ liệu từ dictionary sang danh sách
-        faulty_data = []
-        stt = 1
-        for lot_data in grouped_faulty_data.values():
-            for component_data in lot_data['components'].values():
-                faulty_row = {
-                    'stt': stt,
-                    'kh': lot_data['kh'],
-                    'lot': lot_data['lot'],
-                    'item': lot_data['item'],
-                    **component_data,
-                }
-                faulty_data.append(faulty_row)
-                stt += 1
-
-        return faulty_data
 
     def start_workorder(self,workorder_id):
         order = self.browse(workorder_id)
@@ -1521,6 +1562,169 @@ class mrp_Workorder(models.Model):
         order.button_finish()
         return self.get_data(workorder_id)
 
+    def create_activities(self, external_data=None):
+        """
+        Tạo mới các production_activity cho từng component trong Workorder,
+        tùy theo pack_method của operation:
+          - 'order'
+          - 'order-component'
+          - 'external_list': Tạo dựa trên external_data do wizard cung cấp
+        external_data (nếu có) có format:
+            {
+              workorder_id: {
+                 component_id: [(package_name, quantity), (package_name2, quantity2), ...],
+                 ...
+              },
+              ...
+            }
+        """
+
+        if external_data is None:
+            external_data = {}
+
+        Package = self.env['smartbiz_mes.package']
+        Activity = self.env['smartbiz_mes.production_activity']
+
+        for workorder in self:
+            bom = workorder.production_id.bom_id
+            if not bom:
+                continue
+
+            operation = workorder.operation_id
+            if not operation:
+                continue
+
+            pack_method = operation.pack_method or 'order'
+            product_qty = workorder.production_id.product_qty
+            bom_qty = bom.product_qty or 1.0
+            mo_name = remove_accents_and_upper(workorder.production_id.name or "MO")
+            wc_id = workorder.workcenter_id.id if workorder.workcenter_id else False
+
+            # Lặp các component
+            for comp in bom.components_ids:
+                # Chỉ tạo hoạt động nếu operation có chứa comp
+                if operation.id not in comp.operations_ids.ids:
+                    continue
+
+                # Kiểm tra nếu đã có activity (workorder + comp) thì bỏ qua (tuỳ nghiệp vụ)
+                existing_act = Activity.search([
+                    ('work_order_id', '=', workorder.id),
+                    ('component_id', '=', comp.id),
+                ], limit=1)
+                if existing_act:
+                    continue
+
+                # Số lượng cần
+                comp_quantity = (product_qty / bom_qty) * comp.quantity
+                if comp_quantity <= 0:
+                    continue
+
+                if pack_method == 'order':
+                    # Tạo 1 package + 1 activity
+                    comp_name = remove_accents_and_upper(comp.name or f"COMP-{comp.id}")
+                    package_name = f"OK-{mo_name}-{comp_name}"
+
+                    existing_pkg = Package.search([('name', '=', package_name)], limit=1)
+                    if existing_pkg:
+                        pkg = existing_pkg
+                    else:
+                        pkg = Package.create({'name': package_name,'production_id':workorder.production_id.id})
+
+                    Activity.create({
+                        'work_order_id':  workorder.id,
+                        'component_id':   comp.id,
+                        'product_id':     workorder.production_id.product_id.id,
+                        'workcenter_id':  wc_id,
+                        'quantity':       comp_quantity,
+                        'quality':        1.0,
+                        'package_id':     pkg.id,
+                        'shift_id':       workorder.production_id.shift_id.id,
+                    })
+
+                elif pack_method == 'order-component':
+                    # Tạo nhiều package + activity, mỗi cái quantity=comp.package_quantity (trừ cuối)
+                    remaining_qty = comp_quantity
+                    index = 1
+                    while remaining_qty > 0:
+                        activity_qty = min(comp.package_quantity, remaining_qty) if comp.package_quantity else remaining_qty
+
+                        comp_name = remove_accents_and_upper(comp.name or f"COMP-{comp.id}")
+                        package_name = f"OK-{mo_name}-{comp_name}-{index}"
+
+                        existing_pkg = Package.search([('name', '=', package_name)], limit=1)
+                        if existing_pkg:
+                            pkg = existing_pkg
+                        else:
+                            pkg = Package.create({'name': package_name,'production_id':workorder.production_id.id})
+
+                        Activity.create({
+                            'work_order_id':  workorder.id,
+                            'component_id':   comp.id,
+                            'product_id':     workorder.production_id.product_id.id,
+                            'workcenter_id':  wc_id,
+                            'quantity':       activity_qty,
+                            'quality':        1.0,
+                            'package_id':     pkg.id,
+                            'shift_id':       workorder.production_id.shift_id.id,
+                        })
+
+                        remaining_qty -= activity_qty
+                        index += 1
+
+                elif pack_method == 'external_list':
+                    # Dựa vào external_data
+                    comp_data = external_data.get(workorder.id, {}).get(comp.id, [])
+                    if not comp_data:
+                        # Không có dữ liệu wizard -> bỏ qua (hoặc raise tùy ý)
+                        continue
+
+                    for (pkg_name, pkg_qty) in comp_data:
+                        existing_pkg = Package.search([('name', '=', pkg_name)], limit=1)
+                        if existing_pkg:
+                            pkg = existing_pkg
+                        else:
+                            pkg = Package.create({'name': pkg_name,'production_id':workorder.production_id.id})
+
+                        Activity.create({
+                            'work_order_id':  workorder.id,
+                            'component_id':   comp.id,
+                            'product_id':     workorder.production_id.product_id.id,
+                            'workcenter_id':  wc_id,
+                            'quantity':       pkg_qty,
+                            'quality':        1.0,
+                            'package_id':     pkg.id,
+                            'shift_id':       workorder.production_id.shift_id.id,
+                        })
+
+                else:
+                    # Nếu pack_method không xác định thì xử lý như 'order' (hoặc tuỳ ý)
+                    comp_name = remove_accents_and_upper(comp.name or f"COMP-{comp.id}")
+                    package_name = f"OK-{mo_name}-{comp_name}"
+
+                    existing_pkg = Package.search([('name', '=', package_name)], limit=1)
+                    if existing_pkg:
+                        pkg = existing_pkg
+                    else:
+                        pkg = Package.create({'name': package_name,'production_id':workorder.production_id.id})
+
+                    Activity.create({
+                        'work_order_id':  workorder.id,
+                        'component_id':   comp.id,
+                        'product_id':     workorder.production_id.product_id.id,
+                        'workcenter_id':  wc_id,
+                        'quantity':       comp_quantity,
+                        'quality':        1.0,
+                        'package_id':     pkg.id,
+                        'shift_id':       workorder.production_id.shift_id.id,
+                    })
+
+    def print_activities(self):
+        printer = self.env.user.printing_printer_id or self.env['printing.printer'].search([('name','like','ZTC-ZD230-203dpi-ZPL')],limit=1)
+        label = self.env['printing.label.zpl2']
+        for record in self:
+            for act in record.production_activity_ids.filtered(lambda a: a.work_order_id.operation_id.print_label):
+                label.print_label_auto(printer, act)
+
 class mrp_BoM(models.Model):
     _inherit = ['mrp.bom']
     components_ids = fields.One2many('smartbiz_mes.bom_components', 'bom_id')
@@ -1534,6 +1738,11 @@ class mrp_bomline(models.Model):
 class mrp_routingworkcenter(models.Model):
     _inherit = ['mrp.routing.workcenter']
     components_ids = fields.Many2many('smartbiz_mes.bom_components', 'routing_bom_components_rel1', 'components_ids', 'operations_ids', string='Components')
+    pack_method = fields.Selection([('order','Order'),('order-component','Order-Component'),('external_list','External List'),], string='Pack Method')
+    duration_check_method = fields.Selection([('estimated_duration','Estimated Duration'),('no_check','No Check'),], string='Duration Check Method')
+    deviation = fields.Float(string='Deviation')
+    print_label = fields.Boolean(string='Print Label')
+    start_dependency = fields.Selection([('none','None'),('start_to_start','Start to Start'),('start_to_finish','Start to Finish'),('finish_to_start','Finish to Start'),('finish_to_finish','Finish to Finish'),], string='Start Dependency', default = 'none')
 
 
 class mrp_bombyproduct(models.Model):
@@ -1563,7 +1772,8 @@ class smartbiz_mes_Package(models.Model):
     current_step = fields.Char(string='Current Step')
     current_component_id = fields.Many2one('smartbiz_mes.bom_components', string='Current Component')
     last_qty = fields.Float(string='Last Qty')
-    current_workorder_id = fields.Many2one('product.product', string='Current Workorder')
+    current_workorder_id = fields.Many2one('mrp.workorder', string='Current Workorder')
+    production_id = fields.Many2one('mrp.production', string='Production')
 
 
     @api.model
@@ -1582,7 +1792,7 @@ class smartbiz_mes_Factory(models.Model):
     _description = "Factory"
     name = fields.Char(string='Name')
     company_id = fields.Many2one('res.company', string='Company')
-    production_lines_ids = fields.One2many('smartbiz_mes.production_line', 'code')
+    production_lines_ids = fields.One2many('smartbiz_mes.production_line', 'factory_id')
 
 
 class smartbiz_mes_ProductionLine(models.Model):
@@ -1599,17 +1809,23 @@ class smartbiz_mes_ProductionLine(models.Model):
 class smartbiz_mes_ProductionActivity(models.Model):
     _name = "smartbiz_mes.production_activity"
     _description = "Production Activity"
-    work_order_id = fields.Many2one('mrp.workorder', string='Work Order')
-    component_id = fields.Many2one('smartbiz_mes.bom_components', string='Component')
+    product_id = fields.Many2one('product.product', string='Product')
+    workcenter_id = fields.Many2one('mrp.workcenter', string='Workcenter', index=True)
+    work_order_id = fields.Many2one('mrp.workorder', string='Work Order', index=True)
+    shift_id = fields.Many2one('smartbiz_mes.shift', string='Shift')
+    employee_id = fields.Many2one('hr.employee', string='Employee')
+    component_id = fields.Many2one('smartbiz_mes.bom_components', string='Component', index=True)
+    name = fields.Char(string='Name', compute='_compute_name', store=True)
     quantity = fields.Float(string='Quantity')
     quality = fields.Float(string='Quality')
     lot_id = fields.Many2one('stock.lot', string='Lot')
-    name = fields.Char(string='Name', compute='_compute_name', store=True)
     package_id = fields.Many2one('smartbiz_mes.package', string='Package')
     start = fields.Datetime(string='Start')
     finish = fields.Datetime(string='Finish')
     duration = fields.Float(string='Duration', compute='_compute_duration', store=True)
-    status = fields.Selection([('new','New'),('started','Started'),('paused','Paused'),('finished','Finished'),], string='Status', default = 'new')
+    status = fields.Selection([('new','New'),('started','Started'),('paused','Paused'),('finished','Finished'),], string='Status', compute='_compute_status', store=True, default = 'new')
+    note = fields.Text(string='Note')
+    production_id = fields.Many2one('mrp.production', string='Production', compute='_compute_production_id', store=True)
 
 
     @api.depends('work_order_id', 'component_id')
@@ -1631,6 +1847,24 @@ class smartbiz_mes_ProductionActivity(models.Model):
             else:
                 record.duration = 0.0
 
+    @api.depends('start', 'finish')
+    def _compute_status(self):
+        for record in self:
+            if record.start and record.finish:
+                record.status = 'finished'
+            elif record.start and not record.finish:
+                record.status = 'started'
+            else:
+                record.status = 'new'
+
+    @api.depends('work_order_id')
+    def _compute_production_id(self):
+        for record in self:
+            if record.work_order_id:
+                record.production_id = record.work_order_id.production_id
+            else:
+                record.production_id = False
+
 class smartbiz_mes_BoMComponents(models.Model):
     _name = "smartbiz_mes.bom_components"
     _description = "BoM Components"
@@ -1642,13 +1876,20 @@ class smartbiz_mes_BoMComponents(models.Model):
     bom_id = fields.Many2one('mrp.bom', string='BoM')
     operations_ids = fields.Many2many('mrp.routing.workcenter', 'routing_bom_components_rel1', 'operations_ids', 'components_ids', string='Operations')
     package_quantity = fields.Float(string='Package Quantity')
-    print_label = fields.Boolean(string='Print Label')
 
 
 class smartbiz_mes_ProductionLineType(models.Model):
     _name = "smartbiz_mes.production_line_type"
     _description = "Production Line Type"
     name = fields.Char(string='Name')
+
+
+class smartbiz_mes_Shift(models.Model):
+    _name = "smartbiz_mes.shift"
+    _description = "Shift"
+    name = fields.Char(string='Name')
+    start = fields.Float(string='Start')
+    end = fields.Float(string='End')
 
 
 class smartbiz_mes_ProductionReport(models.Model):
@@ -2176,4 +2417,101 @@ class stock_moveline(models.Model):
         else:
             for request in self.env['smartbiz_mes.request'].browse(list(requests_to_update)):
                 request._update_from_mos()
+
+class smartbiz_mes_ExternalListWizard(models.TransientModel):
+    _name = "smartbiz_mes.external_list_wizard"
+    _description = "External List Wizard"
+    production_id = fields.Many2one('mrp.production', string='Production')
+    lines_ids = fields.One2many('smartbiz_mes.external_list_wizard_line', 'wizard_id')
+
+
+    def action_confirm(self):
+        """
+        Khi bấm Xác nhận, gom dữ liệu từ line_ids -> external_data
+        rồi gọi create_activities(external_data=...).
+        """
+        self.ensure_one()
+        external_data = {}
+        for line in self.lines_ids:
+            wo_id = line.workorder_id.id
+            comp_id = line.component_id.id
+            if not wo_id or not comp_id:
+                continue
+
+            # Tách danh sách package
+            package_names = []
+            if line.packages:
+                package_names = [p.strip() for p in line.packages.split(',') if p.strip()]
+            else:
+                # Nếu không nhập, tự động sinh dựa theo component_quantity và pack_quantity
+                wo_name = line.workorder_id.name or ''
+                comp_name = line.component_id.name or ''
+                total_quantity = line.component_quantity
+                pack_qty = line.pack_quantity if line.pack_quantity > 0 else 1
+
+                num_packages = int(math.ceil(total_quantity / pack_qty))
+                package_names = []
+                for i in range(1, num_packages + 1):
+                    # Ghép tên Workorder, tên Component và số thứ tự
+                    package_names.append(f"{wo_name}-{comp_name}-{i}")
+
+            list_package_tuples = [(pkg, line.pack_quantity) for pkg in package_names]
+
+            # Gom vào external_data
+            external_data.setdefault(wo_id, {})[comp_id] = list_package_tuples
+
+        # Gọi create_activities trên toàn bộ workorders (hoặc chỉ wos_external)
+        workorders = self.production_id.workorder_ids
+        workorders.create_activities(external_data=external_data)
+
+        return {'type': 'ir.actions.act_window_close'}
+
+    @api.model
+    def default_get(self, fields_list):
+        """
+        Tự động tạo line_ids tương ứng (workorder, component) cho các WO có pack_method = 'external_list'.
+        """
+        res = super(smartbiz_mes_ExternalListWizard, self).default_get(fields_list)
+        production_id = self.env.context.get('default_production_id')
+        if not production_id:
+            return res
+
+        production = self.env['mrp.production'].browse(production_id)
+        if not production:
+            return res
+
+        wos_external = production.workorder_ids.filtered(
+            lambda w: w.operation_id and w.operation_id.pack_method == 'external_list'
+        )
+
+        lines_data = []
+        for wo in wos_external:
+            bom = wo.production_id.bom_id
+            if not bom:
+                continue
+            for comp in bom.components_ids:
+                if wo.operation_id.id not in comp.operations_ids.ids:
+                    continue
+
+                comp_quantity = (wo.production_id.product_qty / (bom.product_qty or 1.0)) * comp.quantity
+                lines_data.append((0, 0, {
+                    'workorder_id':  wo.id,
+                    'component_id':  comp.id,
+                    'component_quantity':  comp_quantity,
+                }))
+
+        if lines_data:
+            res['lines_ids'] = lines_data
+        return res
+
+class smartbiz_mes_ExternalListWizardLine(models.TransientModel):
+    _name = "smartbiz_mes.external_list_wizard_line"
+    _description = "External List Wizard Line"
+    workorder_id = fields.Many2one('mrp.workorder', string='Workorder')
+    component_id = fields.Many2one('smartbiz_mes.bom_components', string='Component')
+    component_quantity = fields.Float(string='Component Quantity')
+    packages = fields.Char(string='Packages')
+    pack_quantity = fields.Float(string='Pack Quantity', default = 1)
+    wizard_id = fields.Many2one('smartbiz_mes.external_list_wizard', string='Wizard')
+
 

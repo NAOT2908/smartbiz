@@ -7,7 +7,7 @@ import { useService, useBus } from "@web/core/utils/hooks";
 import * as BarcodeScanner from '@web/webclient/barcode/barcode_scanner';
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { View } from "@web/views/view";
-import { ManualBarcodeScanner } from "./manual_barcode";
+import { ManualBarcodeScanner } from "@smartbiz_barcode/Components/manual_barcode";
 import { url } from '@web/core/utils/urls';
 import { utils as uiUtils } from "@web/core/ui/ui_service";
 import { KeyPad } from "./keypad";
@@ -393,7 +393,8 @@ class StockPicking extends Component {
         this.focusCompute()
     }
     async linePrint(id){
-        await this.orm.call('stock.picking', 'print_line', [,id,'tem_cong_doan'], {});
+        let print = await this.orm.call('stock.picking', 'print_line', [,id], {});
+        console.log({print})
     }
     editLine(id) {
         var line = this.lines.find(x => x.id === id);
@@ -451,6 +452,13 @@ class StockPicking extends Component {
             this.state.isSelector = false;
             this.state.menuVisible = false;
             this.selectorTitle = "Đóng Packages loạt";
+        }
+        if (option == 9) {
+            //Nhận theo số sê-ri
+            this.state.isSelector = false;
+            this.state.menuVisible = false;
+            this.records = this.state.lines;
+            this.selectorTitle = "Nhận theo số sê-ri";
         }
         if (option == 2)//Chọn số Lot
         {
@@ -517,6 +525,21 @@ class StockPicking extends Component {
                 this.clearSelector();
             }
             if (this.selectorTitle == "Đóng Packages loạt") {
+                for (var line of data) {
+                    //console.log(line)
+                    this.env.model.data = await this.orm.call(
+                        "stock.picking",
+                        "save_data",
+                        [, this.picking_id, line, this.batch_id],
+                        {}
+                    );
+                    this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                    this.lines = this.env.model.data.move_lines.filter((x) => x.move_id === line.move_id);
+                    this.state.lines = this.lines;
+                }
+                this.clearSelector();
+            }
+            if (this.selectorTitle == "Nhận theo số sê-ri") {
                 for (var line of data) {
                     //console.log(line)
                     this.env.model.data = await this.orm.call(
@@ -761,7 +784,16 @@ class StockPicking extends Component {
 
     async onBarcodeScanned(barcode) {
         if (barcode) {
-            await this.processBarcode(barcode, this.picking_id)
+            if(this.containsLineBreak(barcode))
+                {
+                    const normalized = barcode.replace(/\r\n|[;,]/g, '\n'); // đổi toàn bộ CRLF thành LF
+                    const lines2 = normalized.split('\n'); 
+                    for (var line of lines2){
+                        await this.processBarcode(line, this.picking_id)
+                    }
+                } else {
+                    await this.processBarcode(barcode, this.picking_id)
+                }
 
             if ("vibrate" in window.navigator) {
                 window.navigator.vibrate(100);
@@ -771,7 +803,11 @@ class StockPicking extends Component {
             this.notification.add(message, { type: "warning" });
         }
     }
-
+    containsLineBreak(text, {full = false} = {}) {
+        return full
+          ? /\r\n|[\n\r\u2028\u2029]/.test(text)   // kiểm tra toàn diện
+          : /\r?\n/.test(text);                    // đủ dùng cho hầu hết trường hợp
+      }
     async openMobileScanner() {
         const barcode = await BarcodeScanner.scanBarcode(this.env);
         await this.onBarcodeScanned(barcode);
@@ -872,41 +908,102 @@ class StockPicking extends Component {
                             }
                         }
                         else {
-                            if (this.env.model.data.picking_type_code != "incoming" && (this.env.model.data.state != 'done' && this.env.model.data.state != 'cancel')) {
-                                // if(await this.orm.call('stock.picking', 'check_package_location', [,barcodeData.record.id,this.env.model.data.location_id],{})) 
-                                // {
-                                    var values = {}
-                                    for (var product of barcodeData.record.products) {
-                                        
-                                        values.product_id = product.product_id
-                                        values.product_uom_id = product.product_uom_id
-                                        values.location_id = product.location_id
-                                        values.location_dest_id = this.env.model.data.location_dest_id
-                                        values.lot_id = product.lot_id
-                                        values.lot_name = false
-                                        values.package_id = barcodeData.record.id
-                                        values.result_package_id = barcodeData.record.id
-                                        values.quantity = product.available_quantity
-                                        values.picked = true
-                                        values.picking_id = this.picking_id
-                                        values.id = false
-                                        values.move_id = false
-                                        var data = await this.orm.call('stock.picking', 'save_data', [, picking_id, values,this.batch_id], {});
-                                        this.env.model.data = data
-                                        this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                            if ((this.env.model.data.state != 'done' && this.env.model.data.state != 'cancel')) {
+                                if (this.env.model.data.picking_type_code != "incoming") {
+                                    // if(await this.orm.call('stock.picking', 'check_package_location', [,barcodeData.record.id,this.env.model.data.location_id],{})) 
+                                    // {
+                                        var values = {}
+                                        for (var product of barcodeData.record.products) {
+                                            
+                                            values.product_id = product.product_id
+                                            values.product_uom_id = product.product_uom_id
+                                            values.location_id = product.location_id
+                                            values.location_dest_id = this.env.model.data.location_dest_id
+                                            values.lot_id = product.lot_id
+                                            values.lot_name = false
+                                            values.package_id = barcodeData.record.id
+                                            values.result_package_id = barcodeData.record.id
+                                            values.quantity = product.available_quantity
+                                            values.picked = true
+                                            values.picking_id = this.picking_id
+                                            values.id = false
+                                            values.move_id = false
+                                            var data = await this.orm.call('stock.picking', 'save_data', [, picking_id, values,this.batch_id], {});
+                                            this.env.model.data = data
+                                            this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                                        }
+                                    // }
+                                    // else{
+                                    //     const message = _t(`${barcode}: Không đang ở vị trí ${this.env.model.data.location_name} !`);
+                                    //     this.notification.add(message, { type: "warning" });
+                                    // }
+                                    
+                                }
+                                else{
+                                    var line_incoming = this.env.model.data.move_lines.find(x=>x.result_package_id == barcodeData.record.id)
+                                    var move_incoming = this.state.moves.find(x=>x.id == line_incoming.move_id) 
+                                    if(move_incoming){
+                                        this.editMove(move_incoming.id)
                                     }
-                                // }
-                                // else{
-                                //     const message = _t(`${barcode}: Không đang ở vị trí ${this.env.model.data.location_name} !`);
-                                //     this.notification.add(message, { type: "warning" });
-                                // }
-                                
+                                    else{
+                                        const message = _t(`Gói đích này: ${barcode} không có trong danh sách!`);
+                                        this.notification.add(message, { type: "warning" });
+                                    }
+                                }
                             }
                             else{
                                 const message = _t(`Đơn đã hoàn tất, không thể thêm sản phẩm vào đơn !`);
                                 this.notification.add(message, { type: "warning" });
                             }
                         }
+                    }
+                    if(barcodeData.barcodeType == "lots"){
+                       
+                        if ((this.env.model.data.state != 'done' && this.env.model.data.state != 'cancel')) {
+                            if (this.env.model.data.picking_type_code != "incoming") {
+                                let quants = await this.orm.searchRead('stock.quant', [['lot_id','=',barcodeData.record.id],['location_id.usage','=','internal']], ['id', 'available_quantity','package_id','location_id','product_id','product_uom_id']);
+                                if (quants){
+                                    for (var quant of quants){
+                                        if(quant.available_quantity >0){
+                                            var values = {}                                      
+                                            values.product_id = quant.product_id[0]
+                                            values.product_uom_id = quant.product_uom_id[0]
+                                            values.location_id =  quant.location_id[0]
+                                            values.location_dest_id = this.env.model.data.location_dest_id
+                                            values.lot_id = barcodeData.record.id
+                                            values.lot_name = barcode
+                                            values.package_id = quant.package_id[0]
+                                       
+                                            values.quantity = quant.available_quantity
+                                            values.picked = true
+                                            values.picking_id = this.picking_id
+                                            values.id = false
+                                            values.move_id = false
+                                            var data = await this.orm.call('stock.picking', 'save_data', [, picking_id, values,this.batch_id], {});
+                                            this.env.model.data = data
+                                            this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                                        }
+                                        
+                                    }
+                                    
+                                }
+                               
+                                else{
+                                    const message = _t(`${barcode}: Không có sẵn ở trong kho !`);
+                                    this.notification.add(message, { type: "warning" });
+                                }
+                                
+                            }
+                            else{                           
+                                    const message = _t(`Số lô/sê-ri ${barcode} đã có trong hệ thống!`);
+                                    this.notification.add(message, { type: "warning" });
+                            }
+                        }
+                        else{
+                            const message = _t(`Đơn đã hoàn tất, không thể thêm sản phẩm vào đơn !`);
+                            this.notification.add(message, { type: "warning" });
+                        }
+
                     }
                 }
                 else {
@@ -918,144 +1015,51 @@ class StockPicking extends Component {
                 var barcodeData = await this.env.model.parseBarcode(barcode, {'product_id':this.state.detailMoveLine.product_id}, false, false)
                 if(this.state.focus == 0)
                 {
-                    if(barcodeData.barcodeType == "packages" ) //Xử lý package Nguồn
-                    {
-                        if(this.state.scannedLine && this.state.scannedLine?.package_id !=barcodeData.record.id)
+                    if(barcodeData.match){
+                        if(barcodeData.barcodeType == "packages" ) //Xử lý package Nguồn
                         {
-                            console.log(this.state.scannedLine)
-                            if(this.state.scannedLine.result_package_name == barcodeData.barcode){
-                                var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, this.state.scannedLine,this.batch_id], {});
-                                this.env.model.data = data
-                                this.editMove(this.state.detailMoveLine.move_id)
-                                this.state.scannedLine = false
+                            if(this.state.scannedLine && this.state.scannedLine?.package_id !=barcodeData.record.id)
+                            {
+                                console.log(this.state.scannedLine)
+                                if(this.state.scannedLine.result_package_name == barcodeData.barcode){
+                                    var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, this.state.scannedLine,this.batch_id], {});
+                                    this.env.model.data = data
+                                    this.editMove(this.state.detailMoveLine.move_id)
+                                    this.state.scannedLine = false
+                                }
+                                else{
+                                    const message = _t(`Gói đích này: ${barcode} không đúng!`);
+                                    this.notification.add(message, { type: "warning" });
+                                }
+                                
                             }
                             else{
-                                const message = _t(`Gói đích này: ${barcode} không đúng!`);
-                                this.notification.add(message, { type: "warning" });
-                            }
-                            
-                        }
-                        else{
-                            if (this.env.model.data.picking_type_code != "incoming") {
-                                if (this.state.detailMoveLine.location_id == barcodeData.record.location)
-                                {
-                                    for(var prod of barcodeData.record.products.filter(x=>x.product_id == this.state.detailMoveLine.product_id))
+                                if (this.env.model.data.picking_type_code != "incoming") {
+                                    if (this.state.detailMoveLine.location_id == barcodeData.record.location)
                                     {
-                                        if(this.allowGetFullPackage)
+                                        for(var prod of barcodeData.record.products.filter(x=>x.product_id == this.state.detailMoveLine.product_id))
                                         {
-                                            if(this.state.detailMoveLine.id)
-                                            {
-                                                if(prod.product_id == this.state.detailMoveLine.product_id)
-                                                {
-                                                    console.log({prod,lots:this.props.lots})
-                                                    var lot = this.env.model.data.lots.find(x=> x.expiration_date <  prod.expiration_date)
-                                                    if(lot){
-                                                        const message = _t(`Số lô: ${prod.lot_name} có ngày hết hạn lớn hơn ngày hết hạn của lô: ${lot.name}!`);
-                                                        this.notification.add(message, { type: "warning" });
-                                                    }
-                                                    if(this.state.detailMoveLine.lot_id)
-                                                    {
-                                                        if(prod.lot_id == this.state.detailMoveLine.lot_id)
-                                                        {
-                                                            var quantity = this.state.detailMoveLine.quantity_need + this.state.detailMoveLine.quantity
-                                                            this.state.detailMoveLine.quantity = prod.quantity > quantity ? quantity : prod.quantity
-                                                            this.state.detailMoveLine.package_id = barcodeData.record.id
-                                                            if(!this.state.detailMoveLine.result_package_id){
-                                                                this.state.detailMoveLine.result_package_id = prod.quantity <= quantity ? barcodeData.record.id : false
-                                                            }
-                                                            this.state.detailMoveLine.location_id = prod.location_id
-                                                            var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, this.state.detailMoveLine,this.batch_id], {});
-                                                            this.env.model.data = data
-                                                            this.editMove(this.state.detailMoveLine.move_id)
-                                                            
-                                                        }
-                                                        
-                                                    }
-                                                    else{
-                                                        var quantity = this.state.detailMoveLine.quantity_need + this.state.detailMoveLine.quantity
-                                                        this.state.detailMoveLine.quantity = prod.quantity > quantity ? quantity : prod.quantity
-                                                        this.state.detailMoveLine.package_id = barcodeData.record.id
-                                                        if(!this.state.detailMoveLine.result_package_id){
-                                                            this.state.detailMoveLine.result_package_id = prod.quantity <= quantity ? barcodeData.record.id : false
-                                                        }
-                                                        this.state.detailMoveLine.location_id = prod.location_id
-                                                        this.state.detailMoveLine.lot_id = prod.lot_id
-                                                        this.state.detailMoveLine.lot_name =false
-                                                        var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, this.state.detailMoveLine,this.batch_id], {});
-                                                        this.env.model.data = data
-                                                        this.editMove(this.state.detailMoveLine.move_id)
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                console.log({prod,lots:this.env.model.data.lots})
-                                                    var lot = this.env.model.data.lots.find(x=> x.expiration_date <  prod.expiration_date)
-                                                    if(lot){
-                                                        const message = _t(`Số lô: ${prod.lot_name} có ngày hết hạn lớn hơn ngày hết hạn của lô: ${lot.name}!`);
-                                                        this.notification.add(message, { type: "warning" });
-                                                    }
-                                                var line = this.lines.find(x=>x.package_id == barcodeData.record.id && x.lot_id == prod.lot_id)
-                                                console.log({line,lines:this.lines,record:barcodeData.record})
-                                                if (line)
-                                                {
-                                                    var quantity = this.state.detailMoveLine.quantity_need + line.quantity
-                                                    line.quantity = prod.quantity > quantity ? quantity : prod.quantity
-                                                    line.lot_id = prod.lot_id
-                                                    line.lot_name =false
-                                                    line.package_id = barcodeData.record.id
-                                                    line.package_name = barcodeData.record.name
-                                                    if(!line.result_package_id){
-                                                        line.result_package_id = prod.quantity <= quantity ? barcodeData.record.id : false
-                                                    }
-                                                    line.location_id = prod.location_id
-        
-                                                    if(line.result_package_name.includes("MOVE") || line.result_package_name.includes("CUT")){
-                                                        this.state.scannedLine = line
-                                                    }
-                                                    else{
-                                                        var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, line,this.batch_id], {});
-                                                        this.env.model.data = data
-                                                        this.editMove(this.state.detailMoveLine.move_id)
-                                                    }
-                                                    
-                                                   
-                                                    
-                                                  
-                                                }
-                                                else
-                                                {
-                                                    var quantity = this.state.detailMoveLine.quantity_need
-                                                    this.state.detailMoveLine.quantity = prod.quantity > quantity ? quantity : prod.quantity
-                                                    this.state.detailMoveLine.lot_id = prod.lot_id
-                                                    this.state.detailMoveLine.lot_name =''
-                                                    this.state.detailMoveLine.package_id = barcodeData.record.id
-                                                    this.state.detailMoveLine.package_name = barcodeData.record.name
-                                                    if(!this.state.detailMoveLine.result_package_id){
-                                                        this.state.detailMoveLine.result_package_id = prod.quantity <= quantity ? barcodeData.record.id : false
-                                                    }
-                                                    this.state.detailMoveLine.location_id = prod.location_id
-        
-                                                    this.save()
-                                                }
-                                            }
-                                        }
-                                        else{
-                                            if(prod.available_quantity > 0)
+                                            if(this.allowGetFullPackage)
                                             {
                                                 if(this.state.detailMoveLine.id)
                                                 {
                                                     if(prod.product_id == this.state.detailMoveLine.product_id)
                                                     {
+                                                        console.log({prod,lots:this.props.lots})
+                                                        var lot = this.env.model.data.lots.find(x=> x.expiration_date <  prod.expiration_date)
+                                                        if(lot){
+                                                            const message = _t(`Số lô: ${prod.lot_name} có ngày hết hạn lớn hơn ngày hết hạn của lô: ${lot.name}!`);
+                                                            this.notification.add(message, { type: "warning" });
+                                                        }
                                                         if(this.state.detailMoveLine.lot_id)
                                                         {
                                                             if(prod.lot_id == this.state.detailMoveLine.lot_id)
                                                             {
                                                                 var quantity = this.state.detailMoveLine.quantity_need + this.state.detailMoveLine.quantity
-                                                                this.state.detailMoveLine.quantity = prod.available_quantity > this.state.detailMoveLine.quantity_need ? quantity : prod.available_quantity + this.state.detailMoveLine.quantity
+                                                                this.state.detailMoveLine.quantity = prod.quantity > quantity ? quantity : prod.quantity
                                                                 this.state.detailMoveLine.package_id = barcodeData.record.id
-                                                                if(!this.state.detailMoveLine.result_package_id && prod.available_quantity == prod.quantity){
-                                                                    this.state.detailMoveLine.result_package_id = prod.available_quantity <= this.state.detailMoveLine.quantity_need ? barcodeData.record.id : false
+                                                                if(!this.state.detailMoveLine.result_package_id){
+                                                                    this.state.detailMoveLine.result_package_id = prod.quantity <= quantity ? barcodeData.record.id : false
                                                                 }
                                                                 this.state.detailMoveLine.location_id = prod.location_id
                                                                 var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, this.state.detailMoveLine,this.batch_id], {});
@@ -1063,13 +1067,14 @@ class StockPicking extends Component {
                                                                 this.editMove(this.state.detailMoveLine.move_id)
                                                                 
                                                             }
+                                                            
                                                         }
                                                         else{
                                                             var quantity = this.state.detailMoveLine.quantity_need + this.state.detailMoveLine.quantity
-                                                            this.state.detailMoveLine.quantity = prod.available_quantity > this.state.detailMoveLine.quantity_need ? quantity : prod.available_quantity + this.state.detailMoveLine.quantity
+                                                            this.state.detailMoveLine.quantity = prod.quantity > quantity ? quantity : prod.quantity
                                                             this.state.detailMoveLine.package_id = barcodeData.record.id
-                                                            if(!this.state.detailMoveLine.result_package_id && prod.available_quantity == prod.quantity){
-                                                                this.state.detailMoveLine.result_package_id = prod.available_quantity <= this.state.detailMoveLine.quantity_need  ? barcodeData.record.id : false
+                                                            if(!this.state.detailMoveLine.result_package_id){
+                                                                this.state.detailMoveLine.result_package_id = prod.quantity <= quantity ? barcodeData.record.id : false
                                                             }
                                                             this.state.detailMoveLine.location_id = prod.location_id
                                                             this.state.detailMoveLine.lot_id = prod.lot_id
@@ -1082,104 +1087,250 @@ class StockPicking extends Component {
                                                 }
                                                 else
                                                 {
+                                                    console.log({prod,lots:this.env.model.data.lots})
+                                                        var lot = this.env.model.data.lots.find(x=> x.expiration_date <  prod.expiration_date)
+                                                        if(lot){
+                                                            const message = _t(`Số lô: ${prod.lot_name} có ngày hết hạn lớn hơn ngày hết hạn của lô: ${lot.name}!`);
+                                                            this.notification.add(message, { type: "warning" });
+                                                        }
                                                     var line = this.lines.find(x=>x.package_id == barcodeData.record.id && x.lot_id == prod.lot_id)
                                                     console.log({line,lines:this.lines,record:barcodeData.record})
                                                     if (line)
                                                     {
                                                         var quantity = this.state.detailMoveLine.quantity_need + line.quantity
-                                                        line.quantity = prod.available_quantity > this.state.detailMoveLine.quantity_need ? quantity : prod.available_quantity + line.quantity
+                                                        line.quantity = prod.quantity > quantity ? quantity : prod.quantity
                                                         line.lot_id = prod.lot_id
                                                         line.lot_name =false
                                                         line.package_id = barcodeData.record.id
                                                         line.package_name = barcodeData.record.name
-                                                        if(!line.result_package_id && prod.available_quantity == prod.quantity){
-                                                            line.result_package_id = prod.available_quantity <= this.state.detailMoveLine.quantity_need ? barcodeData.record.id : false
+                                                        if(!line.result_package_id){
+                                                            line.result_package_id = prod.quantity <= quantity ? barcodeData.record.id : false
                                                         }
                                                         line.location_id = prod.location_id
-                                                        console.log({'prod':prod,line})
-                                                        var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, line,this.batch_id], {});
-                                                        this.env.model.data = data
-                                                        this.editMove(this.state.detailMoveLine.move_id)
-                                                        //console.log({'detailMoveLine':this.state.detailMoveLine,'prod':prod,line})
+            
+                                                        if(line.result_package_name.includes("MOVE") || line.result_package_name.includes("CUT")){
+                                                            this.state.scannedLine = line
+                                                        }
+                                                        else{
+                                                            var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, line,this.batch_id], {});
+                                                            this.env.model.data = data
+                                                            this.editMove(this.state.detailMoveLine.move_id)
+                                                        }
+                                                        
+                                                       
+                                                        
+                                                      
                                                     }
                                                     else
                                                     {
                                                         var quantity = this.state.detailMoveLine.quantity_need
-                                                        this.state.detailMoveLine.quantity = prod.available_quantity > quantity ? quantity : prod.available_quantity
+                                                        this.state.detailMoveLine.quantity = prod.quantity > quantity ? quantity : prod.quantity
                                                         this.state.detailMoveLine.lot_id = prod.lot_id
                                                         this.state.detailMoveLine.lot_name =''
                                                         this.state.detailMoveLine.package_id = barcodeData.record.id
                                                         this.state.detailMoveLine.package_name = barcodeData.record.name
-                                                        if(!this.state.detailMoveLine.result_package_id && prod.available_quantity == prod.quantity){
-                                                            this.state.detailMoveLine.result_package_id = prod.available_quantity <= this.state.detailMoveLine.quantity_need ? barcodeData.record.id : false
+                                                        if(!this.state.detailMoveLine.result_package_id){
+                                                            this.state.detailMoveLine.result_package_id = prod.quantity <= quantity ? barcodeData.record.id : false
                                                         }
                                                         this.state.detailMoveLine.location_id = prod.location_id
-                                                        //console.log({'detailMoveLine':this.state.detailMoveLine,'prod':prod})
+            
                                                         this.save()
                                                     }
                                                 }
                                             }
                                             else{
-                                                const message = _t(`Package: "${barcode}" không còn đủ số lượng khả dụng`);
-                                                this.notification.add(message, { type: "warning" });
+                                                if(prod.available_quantity > 0)
+                                                {
+                                                    if(this.state.detailMoveLine.id)
+                                                    {
+                                                        if(prod.product_id == this.state.detailMoveLine.product_id)
+                                                        {
+                                                            if(this.state.detailMoveLine.lot_id)
+                                                            {
+                                                                if(prod.lot_id == this.state.detailMoveLine.lot_id)
+                                                                {
+                                                                    var quantity = this.state.detailMoveLine.quantity_need + this.state.detailMoveLine.quantity
+                                                                    this.state.detailMoveLine.quantity = prod.available_quantity > this.state.detailMoveLine.quantity_need ? quantity : prod.available_quantity + this.state.detailMoveLine.quantity
+                                                                    this.state.detailMoveLine.package_id = barcodeData.record.id
+                                                                    if(!this.state.detailMoveLine.result_package_id && prod.available_quantity == prod.quantity){
+                                                                        this.state.detailMoveLine.result_package_id = prod.available_quantity <= this.state.detailMoveLine.quantity_need ? barcodeData.record.id : false
+                                                                    }
+                                                                    this.state.detailMoveLine.location_id = prod.location_id
+                                                                    var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, this.state.detailMoveLine,this.batch_id], {});
+                                                                    this.env.model.data = data
+                                                                    this.editMove(this.state.detailMoveLine.move_id)
+                                                                    
+                                                                }
+                                                            }
+                                                            else{
+                                                                var quantity = this.state.detailMoveLine.quantity_need + this.state.detailMoveLine.quantity
+                                                                this.state.detailMoveLine.quantity = prod.available_quantity > this.state.detailMoveLine.quantity_need ? quantity : prod.available_quantity + this.state.detailMoveLine.quantity
+                                                                this.state.detailMoveLine.package_id = barcodeData.record.id
+                                                                if(!this.state.detailMoveLine.result_package_id && prod.available_quantity == prod.quantity){
+                                                                    this.state.detailMoveLine.result_package_id = prod.available_quantity <= this.state.detailMoveLine.quantity_need  ? barcodeData.record.id : false
+                                                                }
+                                                                this.state.detailMoveLine.location_id = prod.location_id
+                                                                this.state.detailMoveLine.lot_id = prod.lot_id
+                                                                this.state.detailMoveLine.lot_name =false
+                                                                var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, this.state.detailMoveLine,this.batch_id], {});
+                                                                this.env.model.data = data
+                                                                this.editMove(this.state.detailMoveLine.move_id)
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        var line = this.lines.find(x=>x.package_id == barcodeData.record.id && x.lot_id == prod.lot_id)
+                                                        console.log({line,lines:this.lines,record:barcodeData.record})
+                                                        if (line)
+                                                        {
+                                                            var quantity = this.state.detailMoveLine.quantity_need + line.quantity
+                                                            line.quantity = prod.available_quantity > this.state.detailMoveLine.quantity_need ? quantity : prod.available_quantity + line.quantity
+                                                            line.lot_id = prod.lot_id
+                                                            line.lot_name =false
+                                                            line.package_id = barcodeData.record.id
+                                                            line.package_name = barcodeData.record.name
+                                                            if(!line.result_package_id && prod.available_quantity == prod.quantity){
+                                                                line.result_package_id = prod.available_quantity <= this.state.detailMoveLine.quantity_need ? barcodeData.record.id : false
+                                                            }
+                                                            line.location_id = prod.location_id
+                                                            console.log({'prod':prod,line})
+                                                            var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, line,this.batch_id], {});
+                                                            this.env.model.data = data
+                                                            this.editMove(this.state.detailMoveLine.move_id)
+                                                            //console.log({'detailMoveLine':this.state.detailMoveLine,'prod':prod,line})
+                                                        }
+                                                        else
+                                                        {
+                                                            var quantity = this.state.detailMoveLine.quantity_need
+                                                            this.state.detailMoveLine.quantity = prod.available_quantity > quantity ? quantity : prod.available_quantity
+                                                            this.state.detailMoveLine.lot_id = prod.lot_id
+                                                            this.state.detailMoveLine.lot_name =''
+                                                            this.state.detailMoveLine.package_id = barcodeData.record.id
+                                                            this.state.detailMoveLine.package_name = barcodeData.record.name
+                                                            if(!this.state.detailMoveLine.result_package_id && prod.available_quantity == prod.quantity){
+                                                                this.state.detailMoveLine.result_package_id = prod.available_quantity <= this.state.detailMoveLine.quantity_need ? barcodeData.record.id : false
+                                                            }
+                                                            this.state.detailMoveLine.location_id = prod.location_id
+                                                            //console.log({'detailMoveLine':this.state.detailMoveLine,'prod':prod})
+                                                            this.save()
+                                                        }
+                                                    }
+                                                }
+                                                else{
+                                                    const message = _t(`Package: "${barcode}" không còn đủ số lượng khả dụng`);
+                                                    this.notification.add(message, { type: "warning" });
+                                                }
                                             }
+            
+                                            
+                                            
+                                            
                                         }
-        
-                                        
-                                        
-                                        
                                     }
+                                    else
+                                    {
+                                        const message = _t(`Package: "${barcode}" không nằm ở vị trí: "${this.state.detailMoveLine.location_name}". Nó đang nằm ở vị trí: "${barcodeData.record.location_name}"`);
+                                        this.notification.add(message, { type: "warning" });
+                                    }
+                                    
                                 }
                                 else
                                 {
-                                    const message = _t(`Package: "${barcode}" không nằm ở vị trí: "${this.state.detailMoveLine.location_name}". Nó đang nằm ở vị trí: "${barcodeData.record.location_name}"`);
-                                    this.notification.add(message, { type: "warning" });
+                                    var incoming_line = this.state.lines.find(x=>x.result_package_id == barcodeData.record.id)
+                                    if(incoming_line){
+                                        var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, incoming_line,this.batch_id], {});
+                                        this.env.model.data = data
+                                        this.editMove(this.state.detailMoveLine.move_id)
+                                        
+                                    }
+                                    else{
+                                        const message = _t(`Gói đích này: ${barcode} không có trong danh sách!`);
+                                        this.notification.add(message, { type: "warning" });
+                                    }
                                 }
-                                
                             }
+                            
                         }
-                        
-                    }
-                    else if(barcodeData.barcodeType == "lots" && barcodeData.record.product_id[0] == this.state.detailMoveLine.product_id){
-                        this.state.detailMoveLine.lot_name = barcodeData.barcode
-                        this.state.detailMoveLine.lot_id = barcodeData.record.id
-                        this.state.detailMoveLine.quantity += 1
-
-                    }
-                    else if(barcodeData.barcodeType == "locations"){
-                        if(this.state.detailMoveLine.picking_type_code == 'incoming')
-                        {
-                            this.state.detailMoveLine.location_dest_id = barcodeData.record.id
-                            this.state.detailMoveLine.location_dest_name = barcodeData.record.display_name
+                        else if(barcodeData.barcodeType == "lots" && barcodeData.record.product_id[0] == this.state.detailMoveLine.product_id){
+                            if(this.state.detailMoveLine.product_tracking == "lot"){
+                                this.state.detailMoveLine.lot_name = barcodeData.barcode
+                                this.state.detailMoveLine.lot_id = barcodeData.record.id
+                                this.state.detailMoveLine.quantity += 1
+                            }
+                            else if(this.state.detailMoveLine.product_tracking == "serial"){
+                                let line_serial = this.state.lines.find(x=>x.lot_name == barcode)
+                                if(line_serial){
+                                    var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, line_serial,this.batch_id], {});
+                                    this.env.model.data = data
+                                    this.editMove(this.state.detailMoveLine.move_id)
+                                }
+                                else{
+                                    let quant = await this.orm.searchRead('stock.quant', [['lot_id','=',barcodeData.record.id],['location_id.usage','=','internal'],['available_quantity','>',0]], ['id', 'available_quantity','package_id','location_id']);
+                                    if (quant){
+                                        
+                                        this.state.detailMoveLine.quantity = 1
+                                        this.state.detailMoveLine.lot_id = barcodeData.record.id
+                                        this.state.detailMoveLine.lot_name =''
+                                        this.state.detailMoveLine.package_id = quant[0].package_id[0]
+                                        this.state.detailMoveLine.package_name =  quant[0].package_id[1]
+                                        
+                                        this.state.detailMoveLine.location_id = quant[0].location_id[0]
+    
+                                        this.save()
+                                    }
+                                }
+                            }
+    
                         }
-                        else if(this.state.detailMoveLine.picking_type_code == 'outgoing')
-                        {
-                            this.state.detailMoveLine.location_id = barcodeData.record.id
-                            this.state.detailMoveLine.location_name = barcodeData.record.display_name
-                        }
-                        else
-                        {
-                            if(this.move.location_id == this.state.detailMoveLine.location_id)
+                        else if(barcodeData.barcodeType == "locations"){
+                            if(this.state.detailMoveLine.picking_type_code == 'incoming')
+                            {
+                                this.state.detailMoveLine.location_dest_id = barcodeData.record.id
+                                this.state.detailMoveLine.location_dest_name = barcodeData.record.display_name
+                            }
+                            else if(this.state.detailMoveLine.picking_type_code == 'outgoing')
                             {
                                 this.state.detailMoveLine.location_id = barcodeData.record.id
                                 this.state.detailMoveLine.location_name = barcodeData.record.display_name
                             }
                             else
                             {
-                                this.state.detailMoveLine.location_dest_id = barcodeData.record.id
-                                this.state.detailMoveLine.location_dest_name = barcodeData.record.display_name
+                                if(this.move.location_id == this.state.detailMoveLine.location_id)
+                                {
+                                    this.state.detailMoveLine.location_id = barcodeData.record.id
+                                    this.state.detailMoveLine.location_name = barcodeData.record.display_name
+                                }
+                                else
+                                {
+                                    this.state.detailMoveLine.location_dest_id = barcodeData.record.id
+                                    this.state.detailMoveLine.location_dest_name = barcodeData.record.display_name
+                                }
                             }
+    
                         }
-
-                    }
-                    else if(!isNaN(Number(barcodeData.barcode)))
-                    {
-                        this.state.detailMoveLine.quantity= Number(barcodeData.barcode)
                     }
                     else{
-                        const message = _t(`Không tìm thấy barcode: "${barcode}" trong hệ thống!`);
-                        this.notification.add(message, { type: "warning" });
+                        if(this.state.detailMoveLine.picking_type_code == 'incoming'){
+                            let line_serial = this.state.lines.find(x=>x.lot_name == barcode)
+                            if(line_serial){
+                                var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, line_serial,this.batch_id], {});
+                                this.env.model.data = data
+                                this.editMove(this.state.detailMoveLine.move_id)
+                            }
+                            else{ 
+                                this.state.detailMoveLine.quantity = 1                              
+                                this.state.detailMoveLine.lot_name =barcode          
+                                this.save() 
+                            }
+                        }
+                        
+                        else{ 
+                            const message = _t(`Không tìm thấy barcode: "${barcode}" trong hệ thống!`);
+                            this.notification.add(message, { type: "warning" });
+                        }
                     }
+                    
                 }
                 else if (this.state.focus == 1)
                 {

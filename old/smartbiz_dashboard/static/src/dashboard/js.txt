@@ -1,0 +1,214 @@
+    <div class="workorder_dashboard_section workorder_dashboard_production">
+                <div class="workorder_dashboard_section_header">1.1 Tiến độ sản xuất</div>
+                <div class="workorder_dashboard_table_container">
+                    <table class="workorder_dashboard_table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>KH</th>
+                                <th>Lot</th>
+                                <th>Sản phẩm</th>
+                                <th>Số lượng</th>
+                                <th>Thời gian tiêu chuẩn</th>
+                                <th>Thời gian thực tế</th>
+                                <th>Flash</th>
+                                <th>Sizer &amp; dán cạnh</th>
+                                <th>Panelsaw</th>
+                                <th>Insert boring</th>
+                                <th>Nc boring</th>
+                                <th>Kumi đầu chuyền</th>
+                                <th>Kumi cuối chuyền</th>
+                                <th>QC</th>
+                                <th>SL Đóng gói</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="state.dashboardData">
+                                <t t-foreach="state.dashboardData" t-as="row" t-key="row.stt">
+                                    <tr>
+                                        <td><t t-esc="row.stt"/></td>
+                                        <td><t t-esc="row.kh ? row.kh : ''"/></td>
+                                        <td><t t-esc="row.lot"/></td>
+                                        <td><t t-esc="row.item"/></td>
+                                        <td><t t-esc="row.so_luong"/></td>
+                                        <td><t t-esc="formatFloatToTime(row.thoi_gian_tieu_chuan)"/></td>
+                                        <td><t t-esc="formatFloatToTime(row.thoi_gian_thuc_te)"/></td>
+
+                                        <td t-attf-class="
+                                            {{row.Flash ? 'highlighted-step' : ''}}
+                                            {{row.Flash and row.Flash.state == 'done' ? ' done-step' : ''}}
+                                            {{row.Flash and row.Flash.state == 'progress' ? ' progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row.Flash ? row.Flash.duration === 0 ? ' ' : formatFloatToTime(row.Flash.duration) : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{row['Sizer &amp; dán cạnh'] ? 'highlighted-step' : ''}}
+                                            {{row['Sizer &amp; dán cạnh'] and row['Sizer &amp; dán cạnh'].state == 'done' ? ' done-step' : ''}}
+                                            {{row['Sizer &amp; dán cạnh'] and row['Sizer &amp; dán cạnh'].state == 'progress' ? ' progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row['Sizer &amp; dán cạnh'] ? row['Sizer &amp; dán cạnh'].duration === 0 ? ' ' : formatFloatToTime(row['Sizer &amp; dán cạnh'].duration) : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{row.Panelsaw ? 'highlighted-step' : ''}}
+                                            {{row.Panelsaw and row.Panelsaw.state == 'done' ? ' done-step' : ''}}
+                                            {{row.Panelsaw and row.Panelsaw.state == 'progress' ? ' progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row.Panelsaw ? row.Panelsaw.duration === 0 ? ' ' : formatFloatToTime(row.Panelsaw.duration) : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{row['Insert boring'] ? 'highlighted-step' : ''}}
+                                            {{row['Insert boring'] and row['Insert boring'].state == 'done' ? ' done-step' : ''}}
+                                            {{row['Insert boring'] and row['Insert boring'].state == 'progress' ? ' progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row['Insert boring'] ? row['Insert boring'].duration === 0 ? ' ' : formatFloatToTime(row['Insert boring'].duration) : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{row['Nc boring'] ? 'highlighted-step' : ''}}
+                                            {{row['Nc boring'] and row['Nc boring'].state == 'done' ? ' done-step' : ''}}
+                                            {{row['Nc boring'] and row['Nc boring'].state == 'progress' ? ' progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row['Nc boring'] ? row['Nc boring'].duration === 0 ? ' ' : formatFloatToTime(row['Nc boring'].duration) : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{row['Kumi đầu chuyền'] ? 'highlighted-step' : ''}}
+                                            {{row['Kumi đầu chuyền'] and row['Kumi đầu chuyền'].state == 'done' ? ' done-step' : ''}}
+                                            {{row['Kumi đầu chuyền'] and row['Kumi đầu chuyền'].state == 'progress' ? ' progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row['Kumi đầu chuyền'] ? row['Kumi đầu chuyền'].duration === 0 ? ' ' : formatFloatToTime(row['Kumi đầu chuyền'].duration) : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{row['Kumi cuối chuyền'] ? 'highlighted-step' : ''}}
+                                            {{row['Kumi cuối chuyền'] and row['Kumi cuối chuyền'].state == 'done' ? ' done-step' : ''}}
+                                            {{row['Kumi cuối chuyền'] and row['Kumi cuối chuyền'].state == 'progress' ? ' progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row['Kumi cuối chuyền'] ? row['Kumi cuối chuyền'].duration === 0 ? ' ' : formatFloatToTime(row['Kumi cuối chuyền'].duration) : ' '"/>
+                                        </td>
+                                        <td t-attf-class="{{row.QC ? 'highlighted-step' : ''}}">
+                                            <t t-esc="(typeof row.QC === 'number' &amp;&amp; row.QC !== 0) ? formatFloatToTime(row.QC) : (row.QC === 0 ? ' ' : (row.QC || ' '))"/>
+                                        </td>
+                                        <td t-attf-class="{{'highlighted-pack'}}">
+                                            <t t-esc="(typeof row['SL Đóng gói'] === 'number' &amp;&amp; row['SL Đóng gói'] !== 0) ? formatFloatToTime(row['SL Đóng gói']) : (row['SL Đóng gói'] === 0 ? ' ' : (row['SL Đóng gói'] || ' '))"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+                <div class="workorder_dashboard_section workorder_dashboard_inventory">
+                <div class="workorder_dashboard_section_header">1.2 Tiến độ sản phẩm lỗi</div>
+                <div class="workorder_dashboard_table_container">
+                    <table class="workorder_dashboard_table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>KH</th>
+                                <th>Lot</th>
+                                <th>Item</th>
+                                <th>Bộ phận</th>
+                                <th>SL lỗi</th>
+                                <th>Flash</th>
+                                <th>Sizer &amp; dán cạnh</th>
+                                <th>Panelsaw</th>
+                                <th>Insert boring</th>
+                                <th>Nc boring</th>
+                                <th>Kumi đầu chuyền</th>
+                                <th>Kumi cuối chuyền</th>
+                                <th>QC</th>
+                                <th>SL Đóng gói</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="state.faultyData">
+                                <t t-foreach="state.faultyData" t-as="row" t-key="row.stt">
+                                    <tr>
+                                        <td><t t-esc="row.stt"/></td>
+                                        <td><t t-esc="row.kh ? row.kh : ''"/></td>
+                                        <td><t t-esc="row.lot"/></td>
+                                        <td><t t-esc="row.item"/></td>
+                                        <td><t t-esc="row.component_name"/></td>
+                                        <td><t t-esc="row.total_faulty"/></td>
+
+                                        <td t-attf-class="
+                                            {{row.Flash and row.Flash.quantity != 0 ? 'highlighted-cell ' : ''}}
+                                            {{row.Flash and row.Flash.state == 'done' ? 'done-step ' : ''}}
+                                            {{row.Flash and row.Flash.state == 'progress' ? 'progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row.Flash ? row.Flash.quantity === 0 ? ' ' : row.Flash.quantity : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{row['Sizer &amp; dán cạnh'] and row['Sizer &amp; dán cạnh'].quantity != 0 ? 'highlighted-cell ' : ''}}
+                                            {{row['Sizer &amp; dán cạnh'] and row['Sizer &amp; dán cạnh'].state == 'done' ? 'done-step ' : ''}}
+                                            {{row['Sizer &amp; dán cạnh'] and row['Sizer &amp; dán cạnh'].state == 'progress' ? 'progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row['Sizer &amp; dán cạnh'] ? row['Sizer &amp; dán cạnh'].quantity === 0 ? ' ' : row['Sizer &amp; dán cạnh'].quantity : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{row.Panelsaw and row.Panelsaw.quantity != 0 ? 'highlighted-cell ' : ''}}
+                                            {{row.Panelsaw and row.Panelsaw.state == 'done' ? 'done-step ' : ''}}
+                                            {{row.Panelsaw and row.Panelsaw.state == 'progress' ? 'progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row.Panelsaw ? row.Panelsaw.quantity === 0 ? ' ' : row.Panelsaw.quantity : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{row['Insert boring'] and row['Insert boring'].quantity != 0 ? 'highlighted-cell ' : ''}}
+                                            {{row['Insert boring'] and row['Insert boring'].state == 'done' ? 'done-step ' : ''}}
+                                            {{row['Insert boring'] and row['Insert boring'].state == 'progress' ? 'progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row['Insert boring'] ? row['Insert boring'].quantity === 0 ? ' ' : row['Insert boring'].quantity : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{row['Nc boring'] and row['Nc boring'].quantity != 0 ? 'highlighted-cell ' : ''}}
+                                            {{row['Nc boring'] and row['Nc boring'].state == 'done' ? 'done-step ' : ''}}
+                                            {{row['Nc boring'] and row['Nc boring'].state == 'progress' ? 'progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row['Nc boring'] ? row['Nc boring'].quantity === 0 ? ' ' : row['Nc boring'].quantity : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{row['Kumi đầu chuyền'] and row['Kumi đầu chuyền'].quantity != 0 ? 'highlighted-cell ' : ''}}
+                                            {{row['Kumi đầu chuyền'] and row['Kumi đầu chuyền'].state == 'done' ? 'done-step ' : ''}}
+                                            {{row['Kumi đầu chuyền'] and row['Kumi đầu chuyền'].state == 'progress' ? 'progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row['Kumi đầu chuyền'] ? row['Kumi đầu chuyền'].quantity === 0 ? ' ' : row['Kumi đầu chuyền'].quantity : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{row['Kumi cuối chuyền'] and row['Kumi cuối chuyền'].quantity != 0 ? 'highlighted-cell ' : ''}}
+                                            {{row['Kumi cuối chuyền'] and row['Kumi cuối chuyền'].state == 'done' ? 'done-step ' : ''}}
+                                            {{row['Kumi cuối chuyền'] and row['Kumi cuối chuyền'].state == 'progress' ? 'progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row['Kumi cuối chuyền'] ? row['Kumi cuối chuyền'].quantity === 0 ? ' ' : row['Kumi cuối chuyền'].quantity : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{row['QC'] and row['QC'].quantity != 0 ? 'highlighted-cell ' : ''}}
+                                            {{row['QC'] and row['QC'].state == 'done' ? 'done-step ' : ''}}
+                                            {{row['QC'] and row['QC'].state == 'progress' ? 'progress-step' : ''}}
+                                        ">
+                                            <t t-esc="row['QC'] ? row['QC'].quantity === 0 ? ' ' : row['QC'].quantity : ' '"/>
+                                        </td>
+
+                                        <td t-attf-class="
+                                            {{'highlighted-pack'}}
+                                        ">
+                                            <t t-esc="row['Đóng gói'] ? row['Đóng gói'].quantity === 0 ? ' ' : row['Đóng gói'].quantity : ' '"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </div>

@@ -1,2 +1,884 @@
 msgid ""
 msgstr ""
+
+#. module: smartbiz
+#: model:res_groups,name:smartbiz.group_roles_user_1
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__user
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_device_register__user_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__user_id
+msgid "User"
+msgstr ""
+
+#. module: smartbiz
+#: model:res_groups,name:smartbiz.group_roles_administrator_2
+msgid "Administrator"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_res_users
+#: model:ir.ui.menu,name:smartbiz.res_users_menuitem
+#: model:ir.actions.act_window,name:smartbiz.res_users_action
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__users_ids
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_position__users_ids
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_log__users_ids
+msgid "Users"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_res_partner
+#: model:ir.ui.menu,name:smartbiz.res_partner_menuitem
+#: model:ir.actions.act_window,name:smartbiz.res_partner_action
+msgid "Partner"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__partner_type
+msgid "Partner type"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__account_id
+msgid "Account"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__site_id
+msgid "Site"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__sites_ids
+msgid "Sites"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__requesters_ids
+msgid "Requesters"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__invoice_name
+msgid "Invoice Name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_hr_employee
+#: model:ir.ui.menu,name:smartbiz.hr_employee_menuitem
+#: model:ir.actions.act_window,name:smartbiz.hr_employee_action
+msgid "Employee"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_ir_attachment
+#: model:ir.ui.menu,name:smartbiz.ir_attachment_menuitem
+#: model:ir.actions.act_window,name:smartbiz.ir_attachment_action
+msgid "Attachment"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_ir_model
+#: model:ir.ui.menu,name:smartbiz.ir_model_menuitem
+#: model:ir.actions.act_window,name:smartbiz.ir_model_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_condition__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__model
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__model_id
+msgid "Model"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_mail_template
+#: model:ir.ui.menu,name:smartbiz.mail_template_menuitem
+#: model:ir.actions.act_window,name:smartbiz.mail_template_action
+#: model:ir.model,name:smartbiz.model_product_template
+#: model:ir.ui.menu,name:smartbiz.product_template_menuitem
+#: model:ir.actions.act_window,name:smartbiz.product_template_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__template_id
+msgid "Template"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_res_groups
+#: model:ir.ui.menu,name:smartbiz.res_groups_menuitem
+#: model:ir.actions.act_window,name:smartbiz.res_groups_action
+msgid "Groups"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_res_groups__type
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__type
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__type
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__type
+msgid "Type"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_ir_model_fields
+#: model:ir.ui.menu,name:smartbiz.ir_model_fields_menuitem
+#: model:ir.actions.act_window,name:smartbiz.ir_model_fields_action
+msgid "Model.Fields"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_product_product
+#: model:ir.ui.menu,name:smartbiz.product_product_menuitem
+#: model:ir.actions.act_window,name:smartbiz.product_product_action
+msgid "Product"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_uom_uom
+#: model:ir.ui.menu,name:smartbiz.uom_uom_menuitem
+#: model:ir.actions.act_window,name:smartbiz.uom_uom_action
+msgid "UOM"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_resource_resource
+#: model:ir.ui.menu,name:smartbiz.resource_resource_menuitem
+#: model:ir.actions.act_window,name:smartbiz.resource_resource_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rule__resource_ids
+#: model:ir.model,name:smartbiz.model_smartbiz_resource
+#: model:ir.ui.menu,name:smartbiz.smartbiz_resource_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_resource_action
+msgid "Resource"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_resource_calendar
+#: model:ir.ui.menu,name:smartbiz.resource_calendar_menuitem
+#: model:ir.actions.act_window,name:smartbiz.resource_calendar_action
+msgid "Calendar"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_ir_actions_server
+#: model:ir.ui.menu,name:smartbiz.ir_actions_server_menuitem
+#: model:ir.actions.act_window,name:smartbiz.ir_actions_server_action
+msgid "Actions.Server"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_ir_cron
+#: model:ir.ui.menu,name:smartbiz.ir_cron_menuitem
+#: model:ir.actions.act_window,name:smartbiz.ir_cron_action
+msgid "Cron"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_workflow_definition
+#: model:ir.ui.menu,name:smartbiz.smartbiz_workflow_definition_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_workflow_definition_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_state__workflow_definition_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__workflow_definition_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__workflow_definition_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__workflow_definition_id
+msgid "Workflow Definition"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_device_register__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__name
+msgid "Name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__version
+msgid "Version"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__task_definition_ids
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__task_definition_ids
+#: model:ir.model,name:smartbiz.model_smartbiz_task_definition
+#: model:ir.ui.menu,name:smartbiz.smartbiz_task_definition_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_task_definition_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__task_definition_id
+msgid "Task Definition"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__state_ids
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__state
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__state
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_state__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__state_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__state_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__state
+msgid "State"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__function_ids
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__function_ids
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rule__function_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__function_id
+#: model:ir.model,name:smartbiz.model_smartbiz_function
+#: model:ir.ui.menu,name:smartbiz.smartbiz_function_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_function_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__function_id
+msgid "Function"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__auto_job_ids
+msgid "Auto Job"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_rabbitmq_sever
+#: model:ir.ui.menu,name:smartbiz.smartbiz_rabbitmq_sever_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_rabbitmq_sever_action
+msgid "Rabbitmq Sever"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__host
+msgid "Host"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__password
+msgid "Password"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__port
+msgid "Port"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__channel_number
+msgid "Channel Number"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__routing_key
+msgid "Routing key"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__exchange
+msgid "Exchange"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__queue_name
+msgid "Queue name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__exchange_type
+msgid "Exchange Type"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__passive
+msgid "Passive"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__durable
+msgid "Durable"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__auto_delete
+msgid "Auto Delete"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__internal
+msgid "Internal"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__code
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__code
+msgid "Code"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_device_register
+#: model:ir.ui.menu,name:smartbiz.smartbiz_device_register_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_device_register_action
+msgid "Device Register"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_device_register__token
+msgid "Token"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_device_register__active_date
+msgid "Active Date"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_workflow_base
+#: model:ir.ui.menu,name:smartbiz.smartbiz_workflow_base_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_workflow_base_action
+msgid "Workflow Base"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_workflow_state
+#: model:ir.ui.menu,name:smartbiz.smartbiz_workflow_state_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_workflow_state_action
+msgid "Workflow State"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_state__sequence
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rule__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_state__value
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_condition__value
+msgid "Value"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_delegation
+#: model:ir.ui.menu,name:smartbiz.smartbiz_delegation_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_delegation_action
+msgid "Delegation"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_delegation__delegator_id
+msgid "Delegator"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_delegation__delegatee_id
+msgid "Delegatee"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_delegation__start_date
+msgid "Start Date"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_delegation__end_date
+msgid "End Date"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_delegation__task_type_id
+#: model:ir.model,name:smartbiz.model_smartbiz_task_type
+#: model:ir.ui.menu,name:smartbiz.smartbiz_task_type_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_task_type_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__task_type_id
+msgid "Task Type"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_delegation__active
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_workflow_definition__state__active
+msgid "Active"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_organization_unit
+#: model:ir.ui.menu,name:smartbiz.smartbiz_organization_unit_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_organization_unit_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_position__organization_unit_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__organization_unit_id
+msgid "Organization Unit"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_organization_unit__name
+msgid "Unit Name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_organization_unit__parent_unit_id
+msgid "Parent Unit"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_organization_unit__child_units_ids
+msgid "Child Units"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_organization_unit__position_ids
+#: model:ir.model,name:smartbiz.model_smartbiz_position
+#: model:ir.ui.menu,name:smartbiz.smartbiz_position_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_position_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__position_id
+msgid "Position"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_organization_unit__established_date
+msgid "Established Date"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_organization_unit__history
+msgid "History"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_role
+#: model:ir.ui.menu,name:smartbiz.smartbiz_role_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_role_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__role_id
+msgid "Role"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_role__name
+msgid "Role Name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_role__level_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_position__level_id
+#: model:ir.model,name:smartbiz.model_smartbiz_level
+#: model:ir.ui.menu,name:smartbiz.smartbiz_level_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_level_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__level_id
+msgid "Level"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_position__name
+msgid "Position Name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_position__roles_ids
+msgid "Roles"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_position__reports_to_ids
+msgid "Reports To"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_level__name
+msgid "Level Name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_level__hierarchy_order
+msgid "Hierarchy Order"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__description
+msgid "Description"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__can_delegate
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__can_delegate
+msgid "Can Delegate"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__duration_type
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__duration_type
+msgid "Duration Type"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__default_duration
+msgid "Default Duration"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__allowed_positions_ids
+msgid "Allowed Positions"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__allowed_roles_ids
+msgid "Allowed Roles"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__allowed_levels_ids
+msgid "Allowed Levels"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__allowed_organization_units_ids
+msgid "Allowed Organization Units"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__name
+msgid "Task Name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__duration
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__duration
+msgid "Duration"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__delegate_template_id
+msgid "Delegate Template"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__notification_ids
+msgid "Notification"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__transfer_ids
+msgid "Transfer"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_rule
+#: model:ir.ui.menu,name:smartbiz.smartbiz_rule_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_rule_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_condition__rule_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__rule_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__rule_ids
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__rule_id
+msgid "Rule"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rule__name
+msgid "Rule Name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rule__task_finish
+msgid "Task Finish"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rule__condition_ids
+#: model:ir.model,name:smartbiz.model_smartbiz_condition
+#: model:ir.ui.menu,name:smartbiz.smartbiz_condition_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_condition_action
+msgid "Condition"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_condition__name
+msgid "Condition Name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_condition__field_id
+msgid "Field"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_condition__operator
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__operator
+msgid "Operator"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__name
+msgid "Resource Name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__method
+msgid "Method"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__user_field_id
+msgid "User Field"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__ou_field_id
+msgid "OU Field"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__organization_scope
+msgid "Organization Scope"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_action
+#: model:ir.ui.menu,name:smartbiz.smartbiz_action_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_action_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__action_ids
+msgid "Action"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__name
+msgid "Action Name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__trigger_type
+msgid "Trigger Type"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__server_action_id
+msgid "Server Action"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__function_name
+msgid "Function Name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__run_code
+msgid "Run Code"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_task
+#: model:ir.ui.menu,name:smartbiz.smartbiz_task_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_task_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__task_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_log__task_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_log__task_id
+msgid "Task"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__res_id
+msgid "Res ID"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__document_name
+msgid "Document Name"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__deadline
+msgid "Deadline"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__assignees_ids
+msgid "Assignees"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__actual_users_ids
+msgid "Actual Users"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__start
+msgid "Start"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__finish
+msgid "Finish"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__work_log_ids
+#: model:ir.model,name:smartbiz.model_smartbiz_work_log
+#: model:ir.ui.menu,name:smartbiz.smartbiz_work_log_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_work_log_action
+msgid "Work Log"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__notification_log_ids
+#: model:ir.model,name:smartbiz.model_smartbiz_notification_log
+#: model:ir.ui.menu,name:smartbiz.smartbiz_notification_log_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_notification_log_action
+msgid "Notification Log"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__transfer_log_ids
+#: model:ir.model,name:smartbiz.model_smartbiz_transfer_log
+#: model:ir.ui.menu,name:smartbiz.smartbiz_transfer_log_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_transfer_log_action
+msgid "Transfer Log"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__state_iteration
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__state_iteration
+msgid "State Iteration"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__document_state
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__document_state
+msgid "Document State"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__pending_users_ids
+msgid "Pending Users"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__completed_users_ids
+msgid "Completed Users"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__date
+msgid "Date"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log___
+msgid " "
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_notification_condition
+#: model:ir.ui.menu,name:smartbiz.smartbiz_notification_condition_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_notification_condition_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_log__notification_condition_id
+msgid "Notification Condition"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__days_before_overdue
+msgid "Days before Overdue"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__time_in_day
+msgid "Time in day"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__interval_hours
+msgid "Interval Hours"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__max_notice
+msgid "Max Notice"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__notification_template_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__notification_template_id
+msgid "Notification Template"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_transfer_condition
+#: model:ir.ui.menu,name:smartbiz.smartbiz_transfer_condition_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_transfer_condition_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_log__transfer_condition_id
+msgid "Transfer Condition"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__overdue_transfer
+msgid "Overdue Transfer"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__max_transfer
+msgid "Max Transfer"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__to_manager
+msgid "To Manager"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__to_users_ids
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_log__to_users_ids
+msgid "To Users"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__create_new_task
+msgid "Create New Task"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_log__time
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_log__time
+msgid "Time"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_log__reason
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_log__reason
+msgid "Reason"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_log__from_user_id
+msgid "From User"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_rabbitmq_sever__state__stopped
+msgid "Stopped"
+msgstr ""
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_rabbitmq_sever_form
+msgid "Run"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_rabbitmq_sever__state__running
+msgid "Running"
+msgstr ""
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_workflow_definition_form
+msgid "Create State"
+msgstr ""
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_workflow_definition_form
+msgid "Create Function"
+msgstr ""
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_workflow_definition_form
+msgid "Deactivate"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_workflow_definition__state__inactive
+msgid "Inactive"
+msgstr ""
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_workflow_definition_form
+msgid "Reactivate"
+msgstr ""

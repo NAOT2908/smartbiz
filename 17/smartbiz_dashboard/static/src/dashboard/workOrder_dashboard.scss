@@ -113,7 +113,7 @@
 .workorder_dashboard_table td {
     border: 1px solid #ddd;
     padding: 12px;
-    text-align: right;
+    text-align: left;
 }
 
 .workorder_dashboard_table th {
@@ -209,7 +209,7 @@
 
 .s_dashboard_btn {
     margin-left: auto;
-
+    
     .Btn {
         width: 50px;
         height: 50px;
@@ -266,99 +266,4 @@
         }
     }
 
-}
-
-@keyframes blink {
-    50% {
-        background-color: #ffdddd;
-    }
-}
-
-.new-ng-row {
-    animation: blink 1s infinite;
-}
-
-
-.highlighted-step {
-    font-weight: bold;
-    // background-color: #82bcfb !important;
-    color: white;
-}
-
-.done-step {
-    background-color: #82bcfb !important;
-    /* Xanh dương nhạt */
-}
-
-.progress-step {
-    background-color: #3060c7 !important;
-    /* Xanh nhạt */
-}
-
-.workorder_dashboard_table {
-    .done-step {
-        background-color: #82bcfb !important;
-        /* Màu xanh nhạt cho trạng thái 'done' */
-    }
-
-    .progress-step {
-        background-color: #3060c7 !important;
-        /* Màu xanh lá cây nhạt cho trạng thái 'progress' */
-    }
-
-    .highlighted-cell {
-        font-weight: bold;
-        /* In đậm số lượng */
-        background-color: #3060c7 !important;
-        color: white;
-    }
-}
-
-.highlighted-pack {
-    background-color: #f2fd5c !important;
-    color: black;
-}
-
-.workorder_dashboard_overview {
-    display: flex;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    width: 400px;
-    margin-left: auto;
-
-    .workorder_dashboard_target,
-    .workorder_dashboard_quantity,
-    .workorder_dashboard_line {
-        flex: 1;
-        /* Equal distribution of space */
-        padding: 10px;
-        /* Add padding inside each cell */
-        text-align: center;
-        border-right: 1px solid #ccc;
-        /* Optional vertical separators */
-        box-sizing: border-box;
-        /* Important for padding and border */
-    }
-
-    .workorder_dashboard_target:last-child,
-    .workorder_dashboard_quantity:last-child,
-    .workorder_dashboard_line:last-child {
-        border-right: none;
-        /* Remove border on the last cell */
-    }
-
-    .workorder_dashboard_label {
-        font-size: 14px;
-        color: #333;
-        margin-bottom: 5px;
-        border-bottom: 1px solid #000;
-    }
-
-    .workorder_dashboard_value {
-        font-size: 24px;
-        /* Adjust as needed */
-        font-weight: bold;
-        color: #000;
-        /* Adjust as needed */
-    }
 }

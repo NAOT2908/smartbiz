@@ -1,2 +1,759 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* smartbiz_dashboard
+#
 msgid ""
 msgstr ""
+"Project-Id-Version: Odoo Server 17.0-20250318\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-03-25 04:32+0000\n"
+"PO-Revision-Date: 2025-03-25 04:32+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "(All)"
+msgstr "(Tất cả)"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid ""
+"(Last\n"
+"                    Maintenance:"
+msgstr ""
+"(Lần bảo trì\n"
+"                    gần nhất:"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "(Progress:"
+msgstr "(Tiến độ:"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "(Resolution:"
+msgstr "(Giải pháp:"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "(Status:"
+msgstr "(Trạng thái:"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "- Hours Worked:"
+msgstr "- Số giờ làm việc:"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "1.1 Production Progress"
+msgstr "1.1 Tiến độ sản xuất"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "1.1 Tiến độ sản xuất"
+msgstr "1.1 Tiến độ sản xuất"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "1.2 Faulty Products"
+msgstr "1.2 Sản phẩm lỗi"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "1.2 Tiến độ sản phẩm lỗi"
+msgstr "1.2 Tiến độ sản phẩm lỗi"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Actual Time"
+msgstr "Thời gian thực tế"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Analytics"
+msgstr "Phân tích"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Average Time per Unit"
+msgstr "Thời gian trung bình trên mỗi đơn vị"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Bottleneck Index"
+msgstr "Chỉ số nút thắt"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "BÁO CÁO TIẾN ĐỘ"
+msgstr "BÁO CÁO TIẾN ĐỘ"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Ca:"
+msgstr "Ca:"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Completion (%)"
+msgstr "Hoàn thành (%)"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Completion Rate"
+msgstr "Tỷ lệ hoàn thành"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Component"
+msgstr "Thành phần"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Component Name"
+msgstr "Tên thành phần"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Customer"
+msgstr "Khách hàng"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Dashboard"
+msgstr "Bảng điều khiển"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Date"
+msgstr "Ngày"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Defects by Workcenter & Shift"
+msgstr "Lỗi theo trung tâm làm việc & ca làm việc"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "Doughnut"
+msgstr "Biểu đồ Doughnut"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Downtime"
+msgstr "Thời gian ngừng hoạt động"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Downtime Rate (%)"
+msgstr "Tỷ lệ thời gian ngừng hoạt động (%)"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Export Analytics"
+msgstr "Xuất báo cáo phân tích"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Export WorkOrder"
+msgstr "Xuất lệnh sản xuất"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Good"
+msgstr "Tốt"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Idle"
+msgstr "Nhàn rỗi"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Index"
+msgstr "Chỉ số"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Item"
+msgstr "Mặt hàng"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "KH"
+msgstr "KH"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Labor Productivity"
+msgstr "Năng suất lao động"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Late"
+msgstr "Trễ"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Line"
+msgstr "Dây chuyền"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Loss"
+msgstr "Tổn thất"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Lot"
+msgstr "Lô"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Machine Utilization (%)"
+msgstr "Mức độ sử dụng máy (%)"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "Machines"
+msgstr "Máy móc"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Marketing"
+msgstr "Tiếp thị"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "Materials"
+msgstr "Nguyên vật liệu"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "NG"
+msgstr "NG"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "NG Qty"
+msgstr "Số lượng NG"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Ngày sx:"
+msgstr "Ngày sx:"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "No data"
+msgstr "Không có dữ liệu"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "No."
+msgstr "STT"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "OEE (%)"
+msgstr "OEE (%)"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "OEE Analysis"
+msgstr "Phân tích OEE"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "OK"
+msgstr "OK"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "OK Qty"
+msgstr "Số lượng OK"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "On-Time"
+msgstr "Đúng hạn"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "On-Time Delivery (%)"
+msgstr "Tỷ lệ giao hàng đúng hạn (%)"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "PolarArea"
+msgstr "Biểu đồ PolarArea"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Product"
+msgstr "Sản phẩm"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "Production Dashboard"
+msgstr "Bảng điều khiển sản xuất"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "Production Orders"
+msgstr "Đơn đặt hàng sản xuất"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "Production Progress"
+msgstr "Tiến độ sản xuất"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Production date"
+msgstr "Ngày sản xuất"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Productivity (%)"
+msgstr "Năng suất (%)"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Productivity by Shift & Employee"
+msgstr "Năng suất theo ca & nhân viên"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Quality (OK vs NG)"
+msgstr "Chất lượng (OK so với NG)"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "Quality Issues"
+msgstr "Vấn đề chất lượng"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Quantity"
+msgstr "Số lượng"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Remaining"
+msgstr "Còn lại"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Rework"
+msgstr "Làm lại"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Rework (%)"
+msgstr "Tỷ lệ làm lại (%)"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Rework Rate"
+msgstr "Tỷ lệ làm lại"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "SEO"
+msgstr "SEO"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "STT"
+msgstr "STT"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Scrap"
+msgstr "Phế phẩm"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Scrap Rate (%)"
+msgstr "Tỷ lệ phế phẩm (%)"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Search"
+msgstr "Tìm kiếm"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Setup"
+msgstr "Thiết lập"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Setup Efficiency (%)"
+msgstr "Hiệu quả thiết lập (%)"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Shift"
+msgstr "Ca làm việc"
+
+#. module: smartbiz_dashboard
+#: model:ir.actions.client,name:smartbiz_dashboard.smartbiz_dashboard_action
+#: model:ir.ui.menu,name:smartbiz_dashboard.menu_smartbiz_dashboard
+msgid "SmartBiz Dashboard"
+msgstr "Bảng điều khiển SmartBiz"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "Std. Time"
+msgstr "Thời gian tiêu chuẩn"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Sản phẩm"
+msgstr "Sản phẩm"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Số lượng"
+msgstr "Số lượng"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Throughput"
+msgstr "Thông lượng"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Throughput Rate"
+msgstr "Tỷ lệ thông lượng"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Thời gian thực tế"
+msgstr "Thời gian thực tế"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Thời gian tiêu chuẩn"
+msgstr "Thời gian tiêu chuẩn"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Time (min/unit)"
+msgstr "Thời gian (phút/đơn vị)"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Total Faulty"
+msgstr "Tổng số lỗi"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Tìm kiếm ..."
+msgstr "Tìm kiếm ..."
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Units/hour"
+msgstr "Đơn vị/giờ"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Uptime"
+msgstr "Thời gian hoạt động"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Utilization"
+msgstr "Mức độ sử dụng"
+
+#. module: smartbiz_dashboard
+#: model:ir.model,name:smartbiz_dashboard.model_mrp_workorder
+msgid "Work Order"
+msgstr "Lệnh sản xuất"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.xml:0
+#, python-format
+msgid "WorkOrder"
+msgstr "Lệnh sản xuất"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "Workers"
+msgstr "Công nhân"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/workOrder_dashboard.xml:0
+#, python-format
+msgid "Workorder Dashboard"
+msgstr "Bảng điều khiển lệnh sản xuất"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Yield"
+msgstr "Tỷ lệ sản phẩm đạt"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/AllInOneDashboard.js:0
+#, python-format
+msgid "Yield Rate (%)"
+msgstr "Tỷ lệ thành phẩm (%)"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "[[ step ]]"
+msgstr "[[ step ]]"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "at"
+msgstr "tại"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "so_luong"
+msgstr "so_luong"
+
+#. module: smartbiz_dashboard
+#. odoo-javascript
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#: code:addons/smartbiz_dashboard/static/src/dashboard/Dashboard.xml:0
+#, python-format
+msgid "thoi_gian_thuc_te"
+msgstr "thoi_gian_thuc_te"

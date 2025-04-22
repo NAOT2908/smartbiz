@@ -49,6 +49,7 @@ class Inventory(models.Model):
     inventory_period_id = fields.Many2one('smartbiz.inventory.period', string="Inventory Period", required=True)
     inventory_location_ids = fields.Many2many('stock.location', string="Inventory Locations")
     line_ids = fields.One2many('smartbiz.inventory.line', 'inventory_id', string="Inventory Lines")
+    line_count = fields.Integer(string="Line Count", compute="_compute_line_count")
     set_count = fields.Selection([
         ('empty', 'Empty'),
         ('set', 'Set Quantity'),
@@ -61,6 +62,20 @@ class Inventory(models.Model):
         ('cancel', 'Cancel'),
     ], string="State", default='draft')
 
+    @api.depends('line_ids')
+    def _compute_line_count(self):
+        for record in self:
+            count = record.line_ids.search_count([('inventory_id', '=', record.id)])
+            record.line_count = count
+    
+    def action_lines(self):
+        action = self.env["ir.actions.actions"]._for_xml_id("smartbiz_inventory.action_smartbiz_inventory_line")
+        context = eval(action['context'])
+        context.update(dict(self._context,default_inventory_id=self.id))
+        action['context'] = context
+        action['domain'] = [('inventory_id', '=', self.id)]
+
+        return action
     
     def _get_fields(self,model):
         if model == 'mrp.production':
@@ -156,6 +171,7 @@ class Inventory(models.Model):
         """ Xác nhận kiểm kê - lưu vào lịch sử nhưng KHÔNG cập nhật stock.quant ngay """
         self.state = 'done'
         for line in self.line_ids:
+            line.write({'state': 'done'})
             self.env['smartbiz.inventory.history'].create({
                 'inventory_id': self.id,
                 'name': self.name,
@@ -177,6 +193,8 @@ class Inventory(models.Model):
             if quants:
                 for quant in quants:
                     quant.inventory_quantity = line.quantity_counted
+                    if line.package_id:
+                        quant.package_id = line.package_id.id
             else:
                 quant = self.env['stock.quant'].create({
                     'product_id': line.product_id.id,
@@ -188,6 +206,23 @@ class Inventory(models.Model):
                 })
                 quant.inventory_quantity = line.quantity_counted
     
+    def apply_inventory(self, inventory_id, data):
+        
+        inventory = self.browse(inventory_id)
+        if not inventory:
+            return  
+
+        data_ids = [item["id"] for item in data]  
+        lines_to_update = inventory.line_ids.filtered(
+            lambda l: l.state == 'counting' and l.id in data_ids
+        )
+
+        if lines_to_update:
+            lines_to_update.write({'state': 'done'})
+        
+        return self.get_data(inventory_id)
+
+        
     def open_confirm_wizard(self):
         return {
             'name': 'Xác nhận kiểm kê',
@@ -210,16 +245,25 @@ class Inventory(models.Model):
     def get_order(self):
         """Lấy danh sách các phiếu kiểm kê đang thực hiện, kèm theo chi tiết dòng kiểm kê"""
         
-        inventories = self.env['smartbiz.inventory'].search([('state', '=', 'in_progress')])
+        current_user = self.env.user
+        inventories = self.env['smartbiz.inventory'].search([('state', '=', 'in_progress'),'|',
+        ('user_id', '=', current_user.id),
+        ('user_id', '=', False),])
         users = self.env['res.users'].search([]).read(['name','barcode'], load=False)
         result = []
         for inventory in inventories:
+            if not inventory.user_id:
+                inventory.user_id = current_user
+            
             lines = []
             for line in inventory.line_ids:
                 lines.append({
                     'id': line.id,
                     'product_id': line.product_id.id,
                     'product_name': line.product_id.display_name,
+                    'product_image': line.product_id.image_1920,
+                    'product_uom_id': line.product_id.uom_id.id if line.product_id else False,
+                    'product_uom_name': line.product_id.uom_id.name if line.product_id else '',
                     'lot_id': line.lot_id.id if line.lot_id else False,
                     'lot_name': line.lot_id.name if line.lot_id else '',
                     'package_id': line.package_id.id if line.package_id else False,
@@ -240,7 +284,7 @@ class Inventory(models.Model):
                 'company_name': inventory.company_id.name,
                 'date': inventory.date,
                 'user_id': inventory.user_id.id,
-                'lines': lines,  # Danh sách các dòng kiểm kê
+                'lines': lines,
             })
             
         data = {
@@ -267,6 +311,9 @@ class Inventory(models.Model):
             'id': line.id,
             'product_id': line.product_id.id if line.product_id else False,
             'product_name': line.product_id.display_name if line.product_id else '',
+            'product_image': line.product_id.image_1920 if line.product_id else False,
+            'product_uom_id': line.product_id.uom_id.id if line.product_id else False,
+            'product_uom_name': line.product_id.uom_id.name if line.product_id else '',
             'lot_id': line.lot_id.id if line.lot_id else False,
             'lot_name': line.lot_id.name if line.lot_id else '',
             'location_id': line.location_id.id if line.location_id else False,
@@ -392,7 +439,75 @@ class Inventory(models.Model):
                 return {'barcode': barcode, 'match': True, 'barcodeType': 'packages', 'record': record, 'fromCache': False}
 
         return {'barcode': barcode, 'match': False, 'barcodeType': barcodeType, 'record': False, 'fromCache': False}
-     
+
+    def process_barcode_scan(self, inventory_id, barcode_data):
+        """
+        Xử lý khi quét barcode trong kiểm kê kho.
+        barcode_data gồm:
+        - barcode: mã vạch quét
+        - barcodeType: loại barcode (packages, locations, products, lots)
+        - record: dữ liệu liên quan
+        """
+        inventory = self.env["smartbiz.inventory"].browse(inventory_id)
+        if not inventory.exists():
+            return {"error": "Inventory not found!"}
+
+        scanned_type = barcode_data.get("barcodeType")
+        record = barcode_data.get("record")
+
+        if not scanned_type or not record:
+            return {"error": "Dữ liệu barcode không hợp lệ!"}
+
+        # Xử lý khi quét Package
+        if scanned_type == "packages":
+            package_id = record.get("id")
+            package_products = record.get("products", [])
+
+            for product in package_products:
+                # Kiểm tra từng product có trong inventory chưa
+                existing_product_line = inventory.line_ids.filtered(
+                    lambda l: l.inventory_id.id == inventory_id
+                    and l.product_id.id == product["product_id"]
+                    and l.location_id.id == product["location_id"]
+                    and l.package_id.id == package_id
+                    # and l.state not in ["done", "counting"]
+                )
+
+                if existing_product_line:
+                    existing_product_line.filtered(lambda l: l.state not in ["done", "counting"]).write({
+                        "quantity_counted": product["quantity"],
+                        "state": "counting",
+                    })
+                else:
+                    inventory.line_ids.create({
+                        "inventory_id": inventory.id,
+                        "product_id": product["product_id"],
+                        "location_id": product["location_id"],
+                        "quantity_before": product["quantity"],
+                        "quantity_counted": product["quantity"],  # Cộng dồn số lượng
+                        "lot_id": product["lot_id"],
+                        "package_id": package_id,
+                        "state": "counting",
+                    })
+
+            return self.get_data(inventory_id)
+        
+        # if scanned_type == "products":
+        #     product_id = record.get("id")
+            
+        #     inventory.line_ids.create({
+        #         "inventory_id": inventory.id,
+        #         "product_id": product_id,
+        #         "location_id": location_id,
+        #         "quantity_before": 1,
+        #         "quantity_counted": 1,
+        #         "state": "counting",
+        #     })
+
+        #     return self.get_data(inventory_id)
+
+        return {"error": "Loại barcode không được hỗ trợ!"}  
+  
     def save_order(self, inventory_id, data):
         """Cập nhật hoặc tạo mới dòng kiểm kê"""
         
@@ -430,6 +545,25 @@ class Inventory(models.Model):
 
         return self.get_data(inventory_id)
 
+    def create_lot(self,inventory_id,product_id,company_id,lot_name = False):
+        if lot_name:
+            lot_id = self.env['stock.lot'].search([['product_id','=',product_id],['name','=',lot_name],['company_id','=',company_id]],limit=1)
+            if not lot_id:
+                lot_id = self.env['stock.lot'].create({'product_id':product_id,'name':lot_name,'company_id':company_id})
+        else:
+            lot_id = self.env['stock.lot'].create({'product_id':product_id,'company_id':company_id})
+        data = self.get_data(inventory_id)
+        data['lot_id'] = lot_id.id
+        data['lot_name'] = lot_id.name
+        return data
+    
+    def delete_inventory_line(self,inventory_id,inventory_line_id):
+        ml = self.env['smartbiz.inventory.line'].browse(inventory_line_id)
+        if ml.exists():
+            ml.unlink()
+        return self.get_data(inventory_id)
+        
+    
 class InventoryLine(models.Model):
     _name = 'smartbiz.inventory.line'
     _description = 'Inventory Line'

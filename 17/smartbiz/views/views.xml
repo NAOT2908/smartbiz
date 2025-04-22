@@ -170,6 +170,36 @@
       </field>
     </record>
 
+    <record model="ir.ui.view" id="smartbiz_delegation_form">
+      <field name="name">smartbiz_delegation_form</field>
+      <field name="model">smartbiz.delegation</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Delegation">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="delegator_id"/>
+                   <field name="delegatee_id"/>
+            </group>
+            <group>
+                   <field name="start_date"/>
+                   <field name="end_date"/>
+            </group>
+            </group>
+            <group col="2">
+            <group>
+                   <field name="task_type_id"/>
+            </group>
+            <group>
+                   <field name="active"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
     <record model="ir.ui.view" id="smartbiz_organization_unit_form">
       <field name="name">smartbiz_organization_unit_form</field>
       <field name="model">smartbiz.organization_unit</field>
@@ -276,6 +306,45 @@
       </field>
     </record>
 
+    <record model="ir.ui.view" id="smartbiz_task_type_form">
+      <field name="name">smartbiz_task_type_form</field>
+      <field name="model">smartbiz.task_type</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Task Type">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+                   <field name="code"/>
+                   <field name="description"/>
+            </group>
+            <group>
+                   <field name="can_delegate"/>
+                   <field name="duration_type"/>
+                   <field name="default_duration"/>
+            </group>
+            </group>
+            <group col="2">
+            <group>
+                   <field name="allowed_positions_ids"/>
+                   <field name="allowed_roles_ids"/>
+            </group>
+            <group>
+                   <field name="allowed_levels_ids"/>
+                   <field name="allowed_organization_units_ids"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Tash Definition">
+                   <field name="task_definition_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
     <record model="ir.ui.view" id="smartbiz_task_definition_form">
       <field name="name">smartbiz_task_definition_form</field>
       <field name="model">smartbiz.task_definition</field>
@@ -293,6 +362,11 @@
                    <field name="duration_type"/>
                    <field name="duration"/>
             </group>
+            </group>
+            <group>
+                   <field name="can_delegate"/>
+                   <field name="delegate_template_id" domain="[('model_id','=',model_id)]" context="{'default_model_id':model_id}"/>
+                   <field name="task_type_id"/>
             </group>
             <notebook>
             <page string="Function">
@@ -389,6 +463,8 @@
                    <field name="level_id" invisible="method != 'by_level'"/>
                    <field name="user_field_id" invisible="method != 'by_user_field'" domain="[('relation', '=', 'res.users'),('model_id', '=', model_id),('ttype', '=', 'many2one')]"/>
                    <field name="ou_field_id" invisible="method != 'by_ou_field'" domain="[('relation', '=', 'smartbiz.organization_unit'),('model_id', '=', model_id),('ttype', '=', 'many2one')]"/>
+                   <field name="organization_unit_id" invisible="method != 'by_ou'"/>
+                   <field name="organization_scope"/>
             </group>
             </group>
       </sheet>
@@ -499,6 +575,14 @@
             <page string="Transfer Log">
                    <field name="transfer_log_ids"/>
             </page>
+            <page string="Mics">
+            <group>
+                   <field name="state_iteration"/>
+                   <field name="document_state"/>
+                   <field name="pending_users_ids"/>
+                   <field name="completed_users_ids"/>
+            </group>
+            </page>
             </notebook>
       </sheet>
         </form>
@@ -524,6 +608,8 @@
                    <field name="rule_id"/>
                    <field name="user_id"/>
                    <field name="date"/>
+                   <field name="state_iteration"/>
+                   <field name="document_state"/>
             </group>
             </group>
       </sheet>
@@ -594,6 +680,7 @@
                    <field name="notification_condition_id"/>
                    <field name="time"/>
                    <field name="users_ids"/>
+                   <field name="reason"/>
           </group>
       </sheet>
         </form>
@@ -613,6 +700,7 @@
                    <field name="time"/>
                    <field name="from_user_id"/>
                    <field name="to_users_ids"/>
+                   <field name="reason"/>
           </group>
       </sheet>
         </form>
@@ -705,6 +793,22 @@
       </field>
     </record>
 
+    <record model="ir.ui.view" id="smartbiz_delegation_tree">
+      <field name="name">smartbiz_delegation_tree</field>
+      <field name="model">smartbiz.delegation</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Delegation" >
+            <field name="delegator_id" optional="show"/>
+            <field name="delegatee_id" optional="show"/>
+            <field name="start_date" optional="show"/>
+            <field name="end_date" optional="show"/>
+            <field name="task_type_id" optional="show"/>
+            <field name="active" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
     <record model="ir.ui.view" id="smartbiz_organization_unit_tree">
       <field name="name">smartbiz_organization_unit_tree</field>
       <field name="model">smartbiz.organization_unit</field>
@@ -761,6 +865,27 @@
       </field>
     </record>
 
+    <record model="ir.ui.view" id="smartbiz_task_type_tree">
+      <field name="name">smartbiz_task_type_tree</field>
+      <field name="model">smartbiz.task_type</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Task Type" >
+            <field name="name" optional="show"/>
+            <field name="code" optional="show"/>
+            <field name="description" optional="show"/>
+            <field name="can_delegate" optional="show"/>
+            <field name="duration_type" optional="show"/>
+            <field name="default_duration" optional="show"/>
+            <field name="allowed_positions_ids" optional="show"/>
+            <field name="allowed_roles_ids" optional="show"/>
+            <field name="allowed_levels_ids" optional="show"/>
+            <field name="allowed_organization_units_ids" optional="show"/>
+            <field name="task_definition_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
     <record model="ir.ui.view" id="smartbiz_task_definition_tree">
       <field name="name">smartbiz_task_definition_tree</field>
       <field name="model">smartbiz.task_definition</field>
@@ -772,6 +897,9 @@
             <field name="state_id" optional="show"/>
             <field name="duration_type" optional="show"/>
             <field name="duration" optional="show"/>
+            <field name="can_delegate" optional="show"/>
+            <field name="delegate_template_id" context="{'default_model_id':model_id}" domain="[('model_id','=',model_id)]" optional="show"/>
+            <field name="task_type_id" optional="show"/>
             <field name="function_ids" domain="[('workflow_definition_id','=',workflow_definition_id)]" optional="show"/>
             <field name="notification_ids" context="{'default_model_id':model_id}" domain="[('model_id','=',model_id)]" optional="show"/>
             <field name="transfer_ids" context="{'default_model_id':model_id}" domain="[('model_id','=',model_id)]" optional="show"/>
@@ -828,6 +956,8 @@
             <field name="level_id" invisible="method != 'by_level'" optional="show"/>
             <field name="user_field_id" invisible="method != 'by_user_field'" domain="[('relation', '=', 'res.users'),('model_id', '=', model_id),('ttype', '=', 'many2one')]" optional="show"/>
             <field name="ou_field_id" invisible="method != 'by_ou_field'" domain="[('relation', '=', 'smartbiz.organization_unit'),('model_id', '=', model_id),('ttype', '=', 'many2one')]" optional="show"/>
+            <field name="organization_unit_id" invisible="method != 'by_ou'" optional="show"/>
+            <field name="organization_scope" optional="show"/>
         </tree>
       </field>
     </record>
@@ -889,6 +1019,10 @@
             <field name="work_log_ids" optional="show"/>
             <field name="notification_log_ids" optional="show"/>
             <field name="transfer_log_ids" optional="show"/>
+            <field name="state_iteration" optional="show"/>
+            <field name="document_state" optional="show"/>
+            <field name="pending_users_ids" optional="show"/>
+            <field name="completed_users_ids" optional="show"/>
         </tree>
       </field>
     </record>
@@ -905,6 +1039,8 @@
             <field name="rule_id" optional="show"/>
             <field name="user_id" optional="show"/>
             <field name="date" optional="show"/>
+            <field name="state_iteration" optional="show"/>
+            <field name="document_state" optional="show"/>
         </tree>
       </field>
     </record>
@@ -954,6 +1090,7 @@
             <field name="notification_condition_id" optional="show"/>
             <field name="time" optional="show"/>
             <field name="users_ids" optional="show"/>
+            <field name="reason" optional="show"/>
         </tree>
       </field>
     </record>
@@ -969,6 +1106,7 @@
             <field name="time" optional="show"/>
             <field name="from_user_id" optional="show"/>
             <field name="to_users_ids" optional="show"/>
+            <field name="reason" optional="show"/>
         </tree>
       </field>
     </record>
@@ -1098,6 +1236,14 @@
       <field name="context">{}</field>
     </record>
 
+    <record model="ir.actions.act_window" id="smartbiz_delegation_action">
+      <field name="name">Delegation</field>
+      <field name="res_model">smartbiz.delegation</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
     <record model="ir.actions.act_window" id="smartbiz_organization_unit_action">
       <field name="name">Organization Unit</field>
       <field name="res_model">smartbiz.organization_unit</field>
@@ -1125,6 +1271,14 @@
     <record model="ir.actions.act_window" id="smartbiz_level_action">
       <field name="name">Level</field>
       <field name="res_model">smartbiz.level</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_task_type_action">
+      <field name="name">Task Type</field>
+      <field name="res_model">smartbiz.task_type</field>
       <field name="view_mode">tree,form</field>
       <field name="domain">[]</field>
       <field name="context">{}</field>
@@ -1268,6 +1422,12 @@
        parent ="menu_smartbiz_2"
        sequence ="32"
     />
+    <menuitem name="Delegation" 
+       id="smartbiz_delegation_menuitem"
+       action ="smartbiz_delegation_action"
+       parent ="menu_smartbiz_2"
+       sequence ="33"
+    />
     <menuitem name="Organization Unit" 
        id="smartbiz_organization_unit_menuitem"
        action ="smartbiz_organization_unit_action"
@@ -1291,6 +1451,12 @@
        action ="smartbiz_level_action"
        parent ="menu_smartbiz_2"
        sequence ="37"
+    />
+    <menuitem name="Task Type" 
+       id="smartbiz_task_type_menuitem"
+       action ="smartbiz_task_type_action"
+       parent ="menu_smartbiz_2"
+       sequence ="38"
     />
     <menuitem name="Task Definition" 
        id="smartbiz_task_definition_menuitem"

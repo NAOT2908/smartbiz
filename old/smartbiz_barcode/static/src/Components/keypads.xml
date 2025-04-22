@@ -1,0 +1,51 @@
+<templates xml:space="preserve">
+    <t t-name="smartbiz_barcode.keypadss">
+        <div class="s_modal s_show_modal">
+            <div class="s_modal_content">
+                <div>
+                    <h3 t-att-style="'color: ' + props.data.color">
+                        <t t-esc="props.data.title" />
+                    </h3>
+                </div>
+                <div class="s_input_container">
+                 
+                    <input type="text" t-model="state.quantity" placeholder="0" class="s_input" readonly="1"/>
+                    <button class="s_demand_button" t-if="props.data?.remain_quantity" t-on-click="()=> this.keyClick('++')">
+                        <t t-esc="props.data?.remain_quantity"/>
+                    </button>
+                </div>
+                <div class="s_keypad">
+                    <div class="s_keypad_row">
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('7')">7</button>
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('8')">8</button>
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('9')">9</button>
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('+1')">+1</button>
+                    </div>
+                    <div class="s_keypad_row">
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('4')">4</button>
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('5')">5</button>
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('6')">6</button>
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('-1')">-1</button>
+                    </div>
+                    <div class="s_keypad_row">
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('1')">1</button>
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('2')">2</button>
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('3')">3</button>
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('+')">+</button>
+                    </div>
+                    <div class="s_keypad_row">
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('.')">.</button>
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('0')">0</button>
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('C')">C</button>
+                        <button class="s_num_button" t-on-click="()=> this.keyClick('DEL')">DEL</button>
+                    </div>
+                </div>
+                <div class="s_buttons_confirm">
+                    <button class="s_button_cancel" t-on-click="()=> this.cancel()">Huỷ</button>
+                    <button class="s_button_confirm" t-on-click="()=> this.confirm()">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
+     

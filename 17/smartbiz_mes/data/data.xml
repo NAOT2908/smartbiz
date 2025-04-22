@@ -5,10 +5,10 @@
 <!-- Record SMS Template -->
 <!-- Record Mobile Template -->
 <!-- Record Notifications -->
-        <record model="ir.sequence" id="seq_smartbiz_mes_package_pack">
+        <record model="ir.sequence" id="seq_smartbiz_mes_package_ok">
             <field name="name">Package</field>
             <field name="code">smartbiz_mes.package</field>
-            <field name="prefix">PACK</field>
+            <field name="prefix">OK</field>
             <field name="padding">5</field>
             <field name="company_id" eval = "False" />
         </record>

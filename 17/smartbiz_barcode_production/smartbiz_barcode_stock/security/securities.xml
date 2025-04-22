@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+<!-- Users -->
+<!-- Groups -->
+   <record model="ir.module.category" id="security_category">
+    <field name = "name">SmartBiz SMARTBIZ_BARCODE</field>
+    <field name = "description" >User Access level for SMARTBIZ_BARCODE</field>
+    <field name = "sequence" > 3 </field>
+    </record>
+<!-- Record Rules -->
+
+    </data>
+</odoo>

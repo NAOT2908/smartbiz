@@ -26,20 +26,48 @@
       <field name="priority" eval="7"/>
       <field name="inherit_id" ref="mrp.mrp_production_form_view" />
       <field name="arch" type="xml">
+            <xpath expr="//header" position ="inside">
+                <button name="action_create_activities" string="Create Activities" type = "object" class="oe_highlight" invisible="(state not in [ 'draft', 'confirmed'] or bool(activities_created) == True)"/>
+                <button name="action_print_activities" string="Print Activities" type = "object" class="oe_highlight" invisible="(state not in [ 'draft', 'confirmed'] or bool(activities_created) == False or bool(activities_printed) == True)"/>
+                <button name="action_reprint_activities" string="RePrint Activities" type = "object"  invisible="(state not in [ 'draft', 'confirmed'] or bool(activities_created) == False or bool(activities_printed) == False)"/>
+            </xpath>
 
-     <xpath expr="//field[@name='user_id']" position="after">
+       <xpath expr="//sheet/group/group" position="inside">
         <field name="production_line_id"  readonly="state != 'draft'" />
+        <field name="shift_id"  readonly="state != 'draft'" />
+        <field name="lot_name" readonly="state != 'draft'"/>
+       </xpath>
+     <xpath expr="//field[@name='user_id']" position="after">
         <field name="production_request_id"  readonly="state != 'draft'" />
-        <field name="lot_name"  readonly="state != 'draft'" />
        </xpath>
      <xpath expr="//field[@name='components_availability']" position="before">
         <field name="plan_start" />
         <field name="plan_finish" />
+        <field name="activities_printed" invisible="1"/>
+        <field name="activities_created" invisible="1"/>     
        </xpath>
 
       </field>
     </record>
 
+        <record id="mrp_production_view_buttons" model="ir.ui.view">
+            <field name="name">mrp.production.view.buttons</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view" />
+            <field name="priority" eval="7"/>
+            <field name="arch" type="xml">
+                <div name="button_box" position="inside">
+                    <button name="action_production_activities" type="object"  class="oe_stat_button" icon="fa-exchange"> 
+                        <field string="Production Activities" name="production_activities" widget="statinfo"/>
+                     </button>
+
+                    <button name="action_production_packages" type="object"  class="oe_stat_button" icon="fa-truck"> 
+                        <field string="Production Packages" name="production_packages" widget="statinfo"/>
+                     </button>
+
+                </div>
+            </field>
+        </record>
     <record model="ir.ui.view" id="mrp_workcenter_form">
       <field name="name">mrp_workcenter_form</field>
       <field name="model">mrp.workcenter</field>
@@ -60,10 +88,37 @@
       <field name="arch" type="xml">
 
            <xpath expr="//page[@name='by_products']" position="after">
-                <page name="bom_components" string="Thành phần">
-                    <field name="components_ids"/>
-                </page>
-            </xpath>
+
+            <page string="Components">
+                   <field name="components_ids"/>
+            </page>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="mrp_routing_workcenter_form">
+      <field name="name">mrp_routing_workcenter_form</field>
+      <field name="model">mrp.routing.workcenter</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="mrp.mrp_routing_workcenter_form_view" />
+      <field name="arch" type="xml">
+
+           <xpath expr="//page[@name='worksheet']" position="after">
+
+            <page string="Operation Settings">
+            <group col="2">
+            <group>
+                   <field name="pack_method"/>
+                   <field name="duration_check_method"/>
+                   <field name="deviation" invisible="duration_check_method != 'estimated_duration'"/>
+            </group>
+            <group>
+                   <field name="print_label"/>
+                   <field name="start_dependency"/>
+            </group>
+            </group>
+            </page>
+           </xpath>
       </field>
     </record>
 
@@ -93,6 +148,7 @@
                    <field name="current_component_id"/>
                    <field name="last_qty"/>
                    <field name="current_workorder_id"/>
+                   <field name="production_id"/>
           </group>
       </sheet>
         </form>
@@ -155,19 +211,41 @@
       <field name="arch" type="xml">
         <form string="Form Production Activity">
       <sheet>
-          <group col="1">
+            <group col="2">
+            <group>
+                   <field name="product_id"/>
+                   <field name="workcenter_id"/>
                    <field name="work_order_id"/>
+            </group>
+            <group>
+                   <field name="shift_id"/>
+                   <field name="employee_id"/>
                    <field name="component_id"/>
+            </group>
+            </group>
+            <group col="2">
+            <group>
+                   <field name="name"/>
                    <field name="quantity"/>
                    <field name="quality"/>
+            </group>
+            <group>
                    <field name="lot_id"/>
-                   <field name="name"/>
                    <field name="package_id"/>
+            </group>
+            </group>
+            <group col="2">
+            <group>
                    <field name="start"/>
                    <field name="finish"/>
                    <field name="duration"/>
+            </group>
+            <group>
                    <field name="status"/>
-          </group>
+                   <field name="note"/>
+                   <field name="production_id"/>
+            </group>
+            </group>
       </sheet>
         </form>
       </field>
@@ -199,7 +277,6 @@
             <page string="Pack">
             <group>
                    <field name="package_quantity"/>
-                   <field name="print_label"/>
             </group>
             </page>
             </notebook>
@@ -218,6 +295,27 @@
           <group col="1">
                    <field name="name"/>
           </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_shift_form">
+      <field name="name">smartbiz_mes_shift_form</field>
+      <field name="model">smartbiz_mes.shift</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Shift">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+            </group>
+            <group>
+                   <field name="start" widget="float_time"/>
+                   <field name="end" widget="float_time"/>
+            </group>
+            </group>
       </sheet>
         </form>
       </field>
@@ -374,31 +472,7 @@
                    <field name="finish"/>
             </group>
             </group>
-            <notebook>
-            <page string="Sub Requests">
-                   <field name="sub_request_ids">
-<tree string="Tree Request" >
-            <field name="state" />
-            <field name="name" optional="show"/>
-            <field name="partner_id" optional="show"/>
-            <field name="request_type" optional="show"/>          
-            <field name="product_template_id" optional="show"/>
-            <field name="product_id" optional="show"/>
-            <field name="process_id" domain="[('product_id','=',product_template_id)]" optional="show"/>
-            <field name="quantity" optional="show"/>
-            <field name="processing_quantity" optional="show"/>
-            <field name="done_quantity" optional="show"/>
-            <field name="remain_quantity" optional="show"/>
-            <field name="plan_start" optional="show"/>
-            <field name="schedule_start" optional="show"/>
-            <field name="start" optional="show"/>
-            <field name="plan_finish" optional="show"/>
-            <field name="schedule_finish" optional="show"/>
-            <field name="finish" optional="show"/>
-        </tree>
-                   </field>
-            </page>
-            </notebook>
+                   <field name="sub_request_ids" invisible="1"/>
       </sheet>
       <div class="oe_chatter">
              <field name = "message_follower_ids" widget="mail_followers"/>
@@ -432,6 +506,49 @@
      <xpath expr="//field[@name='reference']" position="after">
                    <field name="production_request_id"/>
            </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_external_list_wizard_form">
+      <field name="name">smartbiz_mes_external_list_wizard_form</field>
+      <field name="model">smartbiz_mes.external_list_wizard</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form External List Wizard">
+      <sheet>
+            <group>
+                   <field name="production_id"/>
+            </group>
+            <notebook>
+            <page string="Lines">
+                   <field name="lines_ids" context="{'delete':False,'create':False}"/>
+            </page>
+            </notebook>
+ <footer>
+                <button name="action_confirm" string="Xác nhận" type="object" class="btn-primary"/>
+                <button string="Hủy" class="btn-secondary" special="cancel"/>
+            </footer>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_external_list_wizard_line_form">
+      <field name="name">smartbiz_mes_external_list_wizard_line_form</field>
+      <field name="model">smartbiz_mes.external_list_wizard_line</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form External List Wizard Line">
+      <sheet>
+          <group col="1">
+                   <field name="workorder_id"/>
+                   <field name="component_id"/>
+                   <field name="component_quantity"/>
+                   <field name="packages"/>
+                   <field name="pack_quantity"/>
+          </group>
+      </sheet>
+        </form>
       </field>
     </record>
 
@@ -488,6 +605,7 @@
             <field name="current_component_id" optional="show"/>
             <field name="last_qty" optional="show"/>
             <field name="current_workorder_id" optional="show"/>
+            <field name="production_id" optional="show"/>
         </tree>
       </field>
     </record>
@@ -526,17 +644,23 @@
       <field name="priority" eval="7"/>
       <field name="arch" type="xml">
         <tree string="Tree Production Activity" >
+            <field name="product_id" optional="show"/>
+            <field name="workcenter_id" optional="show"/>
             <field name="work_order_id" optional="show"/>
+            <field name="shift_id" optional="show"/>
+            <field name="employee_id" optional="show"/>
             <field name="component_id" optional="show"/>
+            <field name="name" optional="show"/>
             <field name="quantity" optional="show"/>
             <field name="quality" optional="show"/>
             <field name="lot_id" optional="show"/>
-            <field name="name" optional="show"/>
             <field name="package_id" optional="show"/>
             <field name="start" optional="show"/>
             <field name="finish" optional="show"/>
             <field name="duration" optional="show"/>
             <field name="status" optional="show"/>
+            <field name="note" optional="show"/>
+            <field name="production_id" optional="show"/>
         </tree>
       </field>
     </record>
@@ -555,7 +679,6 @@
             <field name="bom_id" optional="show"/>
             <field name="operations_ids" domain="[('bom_id','=',bom_id)]" optional="show"/>
             <field name="package_quantity" optional="show"/>
-            <field name="print_label" optional="show"/>
         </tree>
       </field>
     </record>
@@ -567,6 +690,19 @@
       <field name="arch" type="xml">
         <tree string="Tree Production Line Type" >
             <field name="name" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_shift_tree">
+      <field name="name">smartbiz_mes_shift_tree</field>
+      <field name="model">smartbiz_mes.shift</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Shift" >
+            <field name="name" optional="show"/>
+            <field name="start" widget="float_time" optional="show"/>
+            <field name="end" widget="float_time" optional="show"/>
         </tree>
       </field>
     </record>
@@ -654,7 +790,7 @@
             <field name="schedule_finish" optional="show"/>
             <field name="start" optional="show"/>
             <field name="finish" optional="show"/>
-            <field name="sub_request_ids" optional="hire"/>
+            <field name="sub_request_ids" invisible="1"/>
         </tree>
       </field>
     </record>
@@ -683,6 +819,21 @@
      <xpath expr="//field[@name='reference']" position="after">
             <field name="production_request_id" optional="show"/>
            </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_external_list_wizard_line_tree">
+      <field name="name">smartbiz_mes_external_list_wizard_line_tree</field>
+      <field name="model">smartbiz_mes.external_list_wizard_line</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree External List Wizard Line" editable="bottom" >
+            <field name="workorder_id" />
+            <field name="component_id" optional="show"/>
+            <field name="component_quantity" optional="show"/>
+            <field name="packages" optional="show"/>
+            <field name="pack_quantity" optional="show"/>
+        </tree>
       </field>
     </record>
 
@@ -743,6 +894,20 @@
       <field name="domain">[]</field>
       <field name="context">{}</field>
     </record>
+
+        <record id="act_mrp_production_2_smartbiz_mes_production_activity" model="ir.actions.act_window">
+            <field name="name">Production Activity</field>
+            <field name="res_model">smartbiz_mes.production_activity</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record id="act_mrp_production_2_smartbiz_mes_package" model="ir.actions.act_window">
+            <field name="name">Package</field>
+            <field name="res_model">smartbiz_mes.package</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+        </record>
 
     <record model="ir.actions.act_window" id="mrp_production_action">
       <field name="name">Production</field>
@@ -856,6 +1021,14 @@
       <field name="context">{}</field>
     </record>
 
+    <record model="ir.actions.act_window" id="smartbiz_mes_shift_action">
+      <field name="name">Shift</field>
+      <field name="res_model">smartbiz_mes.shift</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
     <record model="ir.actions.act_window" id="smartbiz_mes_production_report_action">
       <field name="name">Production Report</field>
       <field name="res_model">smartbiz_mes.production_report</field>
@@ -947,6 +1120,22 @@
       <field name="context">{}</field>
     </record>
 
+    <record model="ir.actions.act_window" id="smartbiz_mes_external_list_wizard_action">
+      <field name="name">External List Wizard</field>
+      <field name="res_model">smartbiz_mes.external_list_wizard</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_mes_external_list_wizard_line_action">
+      <field name="name">External List Wizard Line</field>
+      <field name="res_model">smartbiz_mes.external_list_wizard_line</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{'delete':False,'create':False,}</field>
+    </record>
+
 <!-- Menu -->
 
 <!-- Top menu item -->
@@ -996,6 +1185,12 @@
        action ="smartbiz_mes_production_line_type_action"
        parent ="mrp.menu_mrp_configuration"
        sequence ="25"
+    />
+    <menuitem name="Shift" 
+       id="smartbiz_mes_shift_menuitem"
+       action ="smartbiz_mes_shift_action"
+       parent ="mrp.menu_mrp_configuration"
+       sequence ="26"
     />
     <menuitem name="Production Report" 
        id="smartbiz_mes_production_report_menuitem"

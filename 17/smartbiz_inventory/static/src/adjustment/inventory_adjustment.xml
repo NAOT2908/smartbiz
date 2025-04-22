@@ -220,11 +220,23 @@
             </div>
         </div>
         <div t-if="state.view === 'DetailInventory'" class="inventory-content">
+            <div class="inventorytabs">
+                <div t-attf-class="inventorytab #{state.activeTab === 'Counting' ? 'active' : ''}"
+                    t-on-click="() => this.changeTab('Counting')">
+                    <i class="fa fa-info" aria-hidden="true"></i>
+                </div>
+                <div t-attf-class="inventorytab #{state.activeTab === 'Done' ? 'active' : ''}"
+                    t-on-click="() => this.changeTab('Done')">
+                    <i class="fa fa-check" aria-hidden="true"></i>
+                </div>
+            </div>
             <div class="list-items" t-if ="state.lines.length">
                 <div t-foreach="state.lines" t-as="item" t-key="item.id" class="inventory-item" t-att-data-id="item.id"
-                        t-att-class="(item.id === this.selectedLine ? 'selected' : '') + getClass(item)">
+                        t-att-class="(item.id === this.selectedLine ? 'selected' : '') + getClass(item)" 
+                        t-on-click="() => this.selectLine(item.id)"
+                        >
                     <div class="info-item">
-                        <div>
+                        <div t-att-class="getLocationClass(item)">
                             <t t-esc="item.location_name" />
                         </div>
                         <div style="font-size: 12px;font-weight: bold;">
@@ -250,14 +262,15 @@
                         </span>
                         <span>
                             <button class="btn-item btn btn-secondary s_inventory-icon"
-                                t-on-click="">
+                                t-on-click="() => this.deleteItem(item.id)">
                                 <i class="fa fa-trash" aria-hidden="true"></i>
                             </button>
                         </span>
                     </div>
                 </div>
+            
             </div>
-            <div t-if="!state.lines.length" class="inventory-empty">
+            <div t-if="!state.lines || !state.lines.length" class="inventory-empty">
                 Quét để vị trí, sản phẩm, kiện hàng để kiểm kê
                 <div class="loader">
                 <div class="truckWrapper">
@@ -405,71 +418,98 @@
     <t t-name="DetailInventoryLine">
         <div class="s_inventory_container">
             <div class="s_inventory_item">
-            <div class="s_inventory_row">
-                <div class="s_inventory_label">Sản phẩm:</div>
-                <div class="s_inventory_value" t-esc="state.line.product_name" />
-                <div class="s_detail_element_right">
-                        <button class="s_detail-icon" t-on-click="()=>this.openSelector(1)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                <div class="s_inventory_row">
+                    <div class="s_inventory_label">Sản phẩm:</div>
+                    <div class="s_inventory_value" t-esc="state.line.product_name" />
+                    
+                    <div t-if="!state.line?.product_id" class="s_detail_element_right">
+                        <button class="s_detail-icon" t-on-click="()=>this.openSelector(1)">
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                        </button>
                     </div>
-            </div>
-            <div class="s_inventory_row">
-                <div class="s_inventory_label">lô/Serial:</div>
-                <div class="s_inventory_value" t-esc="state.line.lot_name" />
-                <div class="s_detail_element_right">
-
-                        <button class="s_detail-icon" t-on-click="()=>this.openSelector(2)" ><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                        <button class="s_detail-icon" t-on-click="()=>this.createLot()" ><i class="fa fa-plus-circle" aria-hidden="true"></i></button>
+                    <div class="s_product_image_container" t-if="state.line.product_id">
+                        <img t-if="state.line.product_image" class="s_product_image ImageField" t-att-src="'data:image/png;base64,' + state.line.product_image" alt="Hình sản phẩm"/>
+                        <div t-else="" class="s_product_image_placeholder">
+                            <i class="fa fa-camera" aria-hidden="true"></i>
+                            <span>Chưa có hình</span>
+                        </div>
                     </div>
-            </div>
-            <div class="s_inventory_row">
-                <div class="s_inventory_label">Vị trí:</div>
-                <div class="s_inventory_value" t-esc="state.line.location_name" />
-                <div class="s_detail_element_right">
-                        <button class="s_detail-icon" t-on-click="()=>this.openSelector(3)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                </div>
+                
+                <div class="s_inventory_row">
+                    <div class="s_inventory_label">Lô/Serial:</div>
+                    <div class="s_inventory_value" t-esc="state.line.lot_name" />
+                    <div class="s_detail_element_right">
+                        <button class="s_detail-icon" t-on-click="()=>this.openSelector(2)">
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                        </button>
+                        <button class="s_detail-icon" t-on-click="()=>this.createLot()">
+                            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                        </button>
                     </div>
-            </div>
-            <div class="s_inventory_row">
-                <div class="s_inventory_label">Mã gói:</div>
-                <div class="s_inventory_value" t-esc="state.line.package_name" />
-                <div class="s_detail_element_right">
-                        <button class="s_detail-icon" t-on-click="()=>this.packMoveLine()" ><i class="fa fa-plus-circle" aria-hidden="true"></i></button>
-                        <button class="s_detail-icon" t-on-click="()=>this.openSelector(4)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                        
+                </div>
+                
+                <div class="s_inventory_row">
+                    <div class="s_inventory_label">Vị trí:</div>
+                    <div class="s_inventory_value" t-esc="state.line.location_name" />
+                    <div class="s_detail_element_right">
+                        <button class="s_detail-icon" t-on-click="()=>this.openSelector(3)">
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                        </button>
                     </div>
-            </div>
-            <div class="s_inventory_row">
-                <div class="s_inventory_label">Số lượng:</div>
-                <div class="s_inventory_value" t-esc="state.line.quantity_before" />
-            </div>
-            <div class="s_inventory_row">
-                <div class="s_inventory_label">Số lượng đếm:</div>
-                <input
-                type="number"
-                class="s_inventory_value s_inventory_editable"
-                t-model="state.quantity"
-                />
-            </div>
-            <div class="s_inventory_row">
-                <div class="s_inventory_label">Ghi chú:</div>
-                <textarea
-                class="s_inventory_value s_inventory_editable"
-                t-model="state.Note"
-                />
-            </div>
+                </div>
+                
+                <div class="s_inventory_row">
+                    <div class="s_inventory_label">Mã gói:</div>
+                    <div class="s_inventory_value" t-esc="state.line.package_name" />
+                    <div class="s_detail_element_right">
+                        <button class="s_detail-icon" t-on-click="()=>this.packMoveLine()">
+                            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                        </button>
+                        <button class="s_detail-icon" t-on-click="()=>this.openSelector(4)">
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="s_inventory_row">
+                    <div class="s_inventory_label">Số lượng:</div>
+                    <div class="s_inventory_value" t-esc="state.line.quantity_before" />
+                </div>
+                
+                <div class="s_inventory_row">
+                    <div class="s_inventory_label">Số lượng đếm:</div>
+                    <input
+                        type="number"
+                        class="s_inventory_value s_inventory_editable"
+                        t-model="state.quantity"
+                    />
+                </div>
+                
+                <div class="s_inventory_row">
+                    <div class="s_inventory_label">Ghi chú:</div>
+                    <textarea
+                        class="s_inventory_value s_inventory_editable"
+                        t-model="state.Note"
+                        placeholder="Nhập ghi chú..."
+                    />
+                </div>
             </div>
         </div>
+        
         <div class="s_inventory_button_footer">
             <button class="btn btn-primary" t-on-click="save">Lưu</button>
             <button class="btn btn-secondary" t-on-click="close">Hủy</button>
         </div>
+        
         <div>
             <Selector t-if="state.showSelector" t-props="{
-                            records:records,
-                            multiSelect:multiSelect,
-                            closeSelector:closeSelector,
-                            title:selectorTitle,
-                            isSelector:state.isSelector,
-                        }"/>
+                records: records,
+                multiSelect: multiSelect,
+                closeSelector: closeSelector,
+                title: selectorTitle,
+                isSelector: state.isSelector,
+            }"/>
         </div>
-        </t>
+    </t>
 </templates>

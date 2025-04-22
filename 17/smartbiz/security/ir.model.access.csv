@@ -7,6 +7,8 @@ user_smartbiz_device_register,"User-SmartBiz.Device Register",model_smartbiz_dev
 administrator_smartbiz_device_register,"Administrator-SmartBiz.Device Register",model_smartbiz_device_register,smartbiz.group_roles_administrator_2,1,1,1,1
 user_smartbiz_workflow_state,"User-SmartBiz.Workflow State",model_smartbiz_workflow_state,smartbiz.group_roles_user_1,1,1,1,0
 administrator_smartbiz_workflow_state,"Administrator-SmartBiz.Workflow State",model_smartbiz_workflow_state,smartbiz.group_roles_administrator_2,1,1,1,1
+user_smartbiz_delegation,"User-SmartBiz.Delegation",model_smartbiz_delegation,smartbiz.group_roles_user_1,1,1,1,0
+administrator_smartbiz_delegation,"Administrator-SmartBiz.Delegation",model_smartbiz_delegation,smartbiz.group_roles_administrator_2,1,1,1,1
 user_smartbiz_organization_unit,"User-SmartBiz.Organization Unit",model_smartbiz_organization_unit,smartbiz.group_roles_user_1,1,1,1,0
 administrator_smartbiz_organization_unit,"Administrator-SmartBiz.Organization Unit",model_smartbiz_organization_unit,smartbiz.group_roles_administrator_2,1,1,1,1
 user_smartbiz_role,"User-SmartBiz.Role",model_smartbiz_role,smartbiz.group_roles_user_1,1,1,1,0
@@ -15,6 +17,8 @@ user_smartbiz_position,"User-SmartBiz.Position",model_smartbiz_position,smartbiz
 administrator_smartbiz_position,"Administrator-SmartBiz.Position",model_smartbiz_position,smartbiz.group_roles_administrator_2,1,1,1,1
 user_smartbiz_level,"User-SmartBiz.Level",model_smartbiz_level,smartbiz.group_roles_user_1,1,1,1,0
 administrator_smartbiz_level,"Administrator-SmartBiz.Level",model_smartbiz_level,smartbiz.group_roles_administrator_2,1,1,1,1
+user_smartbiz_task_type,"User-SmartBiz.Task Type",model_smartbiz_task_type,smartbiz.group_roles_user_1,1,1,1,0
+administrator_smartbiz_task_type,"Administrator-SmartBiz.Task Type",model_smartbiz_task_type,smartbiz.group_roles_administrator_2,1,1,1,1
 user_smartbiz_task_definition,"User-SmartBiz.Task Definition",model_smartbiz_task_definition,smartbiz.group_roles_user_1,1,1,1,0
 administrator_smartbiz_task_definition,"Administrator-SmartBiz.Task Definition",model_smartbiz_task_definition,smartbiz.group_roles_administrator_2,1,1,1,1
 user_smartbiz_rule,"User-SmartBiz.Rule",model_smartbiz_rule,smartbiz.group_roles_user_1,1,1,1,0

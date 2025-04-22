@@ -1,0 +1,268 @@
+<templates>
+    <!-- COMPONENT: ChartComponent -->
+    <t t-name="ChartComponent1">
+        <canvas t-ref="canvas" style="max-width:100%; max-height:300px;"></canvas>
+    </t>
+
+    <!-- MAIN COMPONENT: AllInOneDashboard -->
+    <t t-name="AllInOneDashboard">
+        <div class="all_in_one_dashboard">
+            <!-- THANH ĐIỀU HƯỚNG -->
+            <div class="dashboard_nav">
+                <div class="nav_left">
+                    <button t-on-click="() => changedashboard('WorkOrder')"
+                            t-att-class="state.view==='WorkOrder' ? 'active' : ''">
+                        Lệnh SX
+                    </button>
+                    <button t-on-click="() => changedashboard('Analytics')"
+                            t-att-class="state.view==='Analytics' ? 'active' : ''">
+                        Phân tích
+                    </button>
+                </div>
+                <div class="nav_right">
+                    <t t-if="state.view==='WorkOrder'">
+                        <button class="excel_btn" t-on-click="onDownloadExcelWorkOrder">
+                            <i class="fa fa-download"></i> Xuất Lệnh SX
+                        </button>
+                    </t>
+                    <t t-if="state.view==='Analytics'">
+                        <button class="excel_btn" t-on-click="onDownloadExcelAnalytics">
+                            <i class="fa fa-download"></i> Xuất Phân tích
+                        </button>
+                    </t>
+                </div>
+            </div>
+
+            <!-- GIAO DIỆN LỆNH SX (WorkOrder) -->
+            <t t-if="state.view==='WorkOrder'">
+                <div class="workorder_filters">
+                    <div class="filter_item">
+                        <label>Dây chuyền:</label>
+                        <select t-model="state.selectedLine" t-on-change="onLineChange">
+                            <option value="">(Tất cả)</option>
+                            <t t-foreach="state.allLines" t-as="ln" t-key="ln.id">
+                                <option t-att-value="ln.id" t-esc="ln.name"/>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="filter_item">
+                        <label>Ca:</label>
+                        <select t-model="state.selectedShift" t-on-change="onShiftChange">
+                            <option value="">(Tất cả)</option>
+                            <t t-foreach="state.allShifts" t-as="sh" t-key="sh.id">
+                                <option t-att-value="sh.id" t-esc="sh.name"/>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="filter_item">
+                        <label>Ngày sản xuất:</label>
+                        <input type="date" t-model="state.productionDate" t-on-change="onProductionDateChange"/>
+                    </div>
+                    <div class="filter_item">
+                        <label>Tìm kiếm:</label>
+                        <input type="text" t-model="state.search" t-on-change="onSearchChange"/>
+                    </div>
+                </div>
+
+                <div class="card_section">
+                    <h2>1.1 Tiến độ sản xuất</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Kế hoạch</th>
+                                <th>Lô</th>
+                                <th>Sản phẩm</th>
+                                <th>Số lượng</th>
+                                <th>TG tiêu chuẩn</th>
+                                <th>TG thực tế</th>
+                                <t t-if="state.steps">
+                                    <t t-foreach="state.steps" t-as="st" t-key="st">
+                                        <th t-esc="st"/>
+                                    </t>
+                                </t>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="state.dashboardData.length">
+                                <t t-foreach="state.dashboardData" t-as="row" t-key="row.stt">
+                                    <tr>
+                                        <td t-esc="row.stt"/>
+                                        <td t-esc="row.kh || ''"/>
+                                        <td t-esc="row.lot"/>
+                                        <td t-esc="row.item"/>
+                                        <td t-esc="row.so_luong"/>
+                                        <td t-esc="row.thoi_gian_tieu_chuan"/>
+                                        <td t-esc="row.thoi_gian_thuc_te"/>
+                                        <t t-if="state.steps">
+                                            <t t-foreach="state.steps" t-as="st2" t-key="st2">
+                                                <td t-if="row[st2]" t-att-class="row[st2].status == 'done' ? 'step_done': (row[st2].status == 'working'  ? 'step_working' : '')">
+                                                    <!-- Hiển thị thời gian -->
+                                                    <!-- <t t-esc="st2"/> -->
+                                                    <t t-if="st2 != 'Đóng gói'" t-esc="row[st2].time"/>
+                                                    <t t-if="st2 == 'Đóng gói'" t-esc="row[st2].quantity"/>
+                                                </td>
+                                                <td t-else="">-</td>
+                                            </t>
+                                        </t>
+                                    </tr>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <tr>
+                                    <td colspan="10">Không có dữ liệu</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card_section">
+                    <h2>1.2 Sản phẩm lỗi</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Kế hoạch</th>
+                                <th>Lô</th>
+                                <th>Sản phẩm</th>
+                                <th>Bộ phận</th>
+                                <th>Tổng lỗi</th>
+                                <t t-if="state.steps_faulty">
+                                    <t t-foreach="state.steps_faulty" t-as="st" t-key="st">
+                                        <th t-esc="st"/>
+                                    </t>
+                                </t>
+                               
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="state.faultyData.length">
+                                <t t-foreach="state.faultyData" t-as="frow" t-key="frow.stt">
+                                    <tr>
+                                        <td t-esc="frow.stt"/>
+                                        <td t-esc="frow.kh || ''"/>
+                                        <td t-esc="frow.lot"/>
+                                        <td t-esc="frow.item"/>
+                                        <td t-esc="frow.component_name"/>
+                                        <td t-esc="frow.total_faulty"/>
+                                        <t t-foreach="state.steps" t-as="k2" t-key="k2">
+                                            
+                                                <td t-esc="frow[k2] === 0 ? '-' : frow[k2]"/>
+
+                                        </t>
+                                    </tr>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <tr>
+                                    <td colspan="10">Không có dữ liệu</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+
+            <!-- ANALYTICS VIEW -->
+            <t t-if="state.view==='Analytics'">
+                <div class="analytics_filters">
+                    <div class="filter_item">
+                        <label>Dây chuyền:</label>
+                        <select t-model="state.selectedLine" t-on-change="onLineChange">
+                            <option value="">(Tất cả)</option>
+                            <t t-foreach="state.allLines" t-as="ln" t-key="ln.id">
+                                <option t-att-value="ln.id" t-esc="ln.name"/>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="filter_item">
+                        <label>Ca:</label>
+                        <select t-model="state.selectedShift" t-on-change="onShiftChange">
+                            <option value="">(Tất cả)</option>
+                            <t t-foreach="state.allShifts" t-as="sh" t-key="sh.id">
+                                <option t-att-value="sh.id" t-esc="sh.name"/>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="filter_item">
+                        <label>Ngày:</label>
+                        <input type="date" t-model="state.dateAnalytics" t-on-change="onDateAnalyticsChange"/>
+                    </div>
+                </div>
+
+                <div class="chart_wrapper">
+                    <!-- KPI cũ -->
+                    <div class="chart_row">
+                        <div class="chart_card">
+                            <ChartComponent chartId="'qualityChart'" chartConfig="state.chartQualityConfig"/>
+                        </div>
+                        <div class="chart_card">
+                            <ChartComponent chartId="'defectChart'" chartConfig="state.chartDefectConfig"/>
+                        </div>
+                    </div>
+                    <div class="chart_row">
+                        <div class="chart_card">
+                            <ChartComponent chartId="'productivityChart'" chartConfig="state.chartProductivityConfig"/>
+                        </div>
+                        <div class="chart_card">
+                            <ChartComponent chartId="'timeChart'" chartConfig="state.chartTimeConfig"/>
+                        </div>
+                    </div>
+                    <div class="chart_row">
+                        <div class="chart_card">
+                            <ChartComponent chartId="'completionChart'" chartConfig="state.chartCompletionConfig"/>
+                        </div>
+                        <div class="chart_card">
+                            <ChartComponent chartId="'oeeChart'" chartConfig="state.chartOEEConfig"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI mới: 5 row, 2 biểu đồ mỗi row -->
+                <div class="chart_wrapper">
+                    <div class="chart_row">
+                        <div class="chart_card">
+                            <ChartComponent chartId="'downtimeChart'" chartConfig="state.chartDowntimeConfig"/>
+                        </div>
+                        <div class="chart_card">
+                            <ChartComponent chartId="'setupChart'" chartConfig="state.chartSetupEfficiencyConfig"/>
+                        </div>
+                    </div>
+                    <div class="chart_row">
+                        <div class="chart_card">
+                            <ChartComponent chartId="'scrapChart'" chartConfig="state.chartScrapRateConfig"/>
+                        </div>
+                        <div class="chart_card">
+                            <ChartComponent chartId="'yieldChart'" chartConfig="state.chartYieldRateConfig"/>
+                        </div>
+                    </div>
+                    <div class="chart_row">
+                        <div class="chart_card">
+                            <ChartComponent chartId="'throughputChart'" chartConfig="state.chartThroughputConfig"/>
+                        </div>
+                        <div class="chart_card">
+                            <ChartComponent chartId="'reworkChart'" chartConfig="state.chartReworkConfig"/>
+                        </div>
+                    </div>
+                    <div class="chart_row">
+                        <div class="chart_card">
+                            <ChartComponent chartId="'laborProductivityChart'" chartConfig="state.chartLaborProductivityConfig"/>
+                        </div>
+                        <div class="chart_card">
+                            <ChartComponent chartId="'machineUtilChart'" chartConfig="state.chartMachineUtilConfig"/>
+                        </div>
+                    </div>
+                    <div class="chart_row">
+                        <div class="chart_card">
+                            <ChartComponent chartId="'onTimeChart'" chartConfig="state.chartOnTimeDeliveryConfig"/>
+                        </div>
+                        <div class="chart_card">
+                            <ChartComponent chartId="'bottleneckChart'" chartConfig="state.chartBottleneckConfig"/>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

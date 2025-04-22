@@ -115,8 +115,51 @@ export class Selector extends Component {
     cancelSelection() {
         this.props.closeSelector(false);
     }
-    createNew() {
-        this.props.closeSelector(this.state.searchQuery,'Tạo Lô/Sê-ri');
+    async createNew() {
+        if (this.props.title === "Chọn kiện hàng") {
+            const action = {
+                type: 'ir.actions.act_window',
+                res_model: 'stock.quant.package',
+                views: [[false, 'form']],
+                target: 'new',
+            };
+        
+           await this.action.doAction(action, {
+                onClose: async (x) => {
+                        const newRecord = await this.orm.searchRead('stock.quant.package', [], ['id', 'name'],{
+                            order: "create_date desc",
+                            limit: 1
+                        });
+                        console.log(newRecord[0])
+                        this.props.closeSelector(newRecord[0], 'Chọn kiện hàng');
+                },
+            });
+        }
+        else if(this.props.title === 'Chọn số Lô/Sê-ri')
+        {
+            const action = {
+                type: 'ir.actions.act_window',
+                res_model: 'stock.lot',
+                views: [[false, 'form']],
+                context:{'default_product_id':this.props.records.product_id},
+                target: 'new',
+            };
+        
+           await this.action.doAction(action, {
+                onClose: async (x) => {
+                        const newRecord = await this.orm.searchRead('stock.lot', [], ['id', 'name'],{
+                            order: "create_date desc",
+                            limit: 1
+                        });
+                        console.log(newRecord[0])
+                        this.props.closeSelector(newRecord[0], 'Chọn số Lô/Sê-ri');
+                },
+            });
+            
+        }
+        else{
+            this.props.closeSelector(false);
+        }
     }
 
     async openMobileScanner() {

@@ -88,6 +88,11 @@
                     <field name="state" widget="statusbar" />
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_lines" type="object"  class="oe_stat_button" icon="fa-info"> 
+                            <field string="Operations" name="line_count" widget="statinfo"/>
+                        </button>
+                     </div>
                     <group>
                         <group>
                             <field name="name" />
@@ -108,13 +113,14 @@
                     <field name="line_ids" nolabel="1">
                         <tree editable="bottom">
                             <field name="location_id" optional="show"/>
-                            <field name="product_id" />
-                            <field name="lot_id" />
-                            <field name="package_id" />
+                            <field name="product_id" optional="show" />
+                            <field name="lot_id" optional="show" />
+                            <field name="package_id" optional="show" />
                             <field name="quantity_before" readonly="1" />
                             <field name="quantity_counted" />
-                            <field name="difference" readonly="1" />
-                            <field name="note" />
+                            <field name="difference" optional="show" readonly="1" />
+                            <field name="note" optional="show" />
+                            <field name="state" optional="show" widget="badge" decoration-danger="state=='error'" decoration-info="state== 'counting'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
                         </tree>
                     </field>
                 </sheet>
@@ -198,7 +204,7 @@
                 <field name="quantity_before"/>
                 <field name="quantity_counted"/>
                 <field name="difference"/>
-                <field name="state"/>
+                <field name="state" optional="show" widget="badge" decoration-danger="state=='error'" decoration-info="state== 'counting'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
             </tree>
         </field>
     </record>

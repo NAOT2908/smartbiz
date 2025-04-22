@@ -3,16 +3,7 @@ import { _t } from "@web/core/l10n/translation";
 import { COMMANDS } from "@barcodes/barcode_handlers";
 import { registry } from "@web/core/registry";
 
-import {
-  Component,
-  EventBus,
-  onPatched,
-  onWillStart,
-  useState,
-  useSubEnv,
-  xml,
-  useEnv,
-} from "@odoo/owl";
+import { Component, EventBus, onPatched, onWillStart, useState, useSubEnv, xml, useEnv } from "@odoo/owl";
 import { useService, useBus, useHistory } from "@web/core/utils/hooks";
 import * as BarcodeScanner from "@web/webclient/barcode/barcode_scanner";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
@@ -20,7 +11,7 @@ import { View } from "@web/views/view";
 import { ManualBarcodeScanner } from "@smartbiz_barcode/Components/manual_barcode";
 import { url } from "@web/core/utils/urls";
 import { utils as uiUtils } from "@web/core/ui/ui_service";
-import { KeyPads } from "./keypads";
+import { KeyPads } from "@smartbiz_barcode/Components/keypads";
 import { DialogModal } from "./dialogModal";
 import { useFileViewer } from "@web/core/file_viewer/file_viewer_hook";
 import { patch } from "@web/core/utils/patch";
@@ -63,16 +54,10 @@ class ProductionActivity extends owl.Component {
 
     // Chuyển đổi thời gian start và finish sang múi giờ người dùng
     if (this.props.activity.start) {
-      this.state.start = this.convertToInputFormat(
-        this.props.activity.start,
-        timezone
-      );
+      this.state.start = this.convertToInputFormat(this.props.activity.start, timezone);
     }
     if (this.props.activity.finish) {
-      this.state.finish = this.convertToInputFormat(
-        this.props.activity.finish,
-        timezone
-      );
+      this.state.finish = this.convertToInputFormat(this.props.activity.finish, timezone);
     }
   }
 
@@ -102,9 +87,7 @@ class ProductionActivity extends owl.Component {
   // Chuyển từ múi giờ người dùng sang UTC
   convertToOdooFormat(localDateTime, timezone) {
     const localDate = new Date(localDateTime); // Input từ người dùng
-    const utcDate = new Date(
-      localDate.getTime() - localDate.getTimezoneOffset() * 60000
-    ); // Chuyển sang UTC
+    const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000); // Chuyển sang UTC
 
     const year = utcDate.getUTCFullYear();
     const month = String(utcDate.getUTCMonth() + 1).padStart(2, "0");
@@ -136,12 +119,8 @@ class ProductionActivity extends owl.Component {
       quality: this.state.quality,
       lot_id: this.state.lot_id,
       package_id: this.state.package_id,
-      start: this.state.start
-        ? this.convertToOdooFormat(this.state.start, this.state.timezone)
-        : null,
-      finish: this.state.finish
-        ? this.convertToOdooFormat(this.state.finish, this.state.timezone)
-        : null,
+      start: this.state.start ? this.convertToOdooFormat(this.state.start, this.state.timezone) : null,
+      finish: this.state.finish ? this.convertToOdooFormat(this.state.finish, this.state.timezone) : null,
     };
 
     if (this.props.closeActivity) {
@@ -161,26 +140,15 @@ class ProductionActivity extends owl.Component {
   }
 
   async fetchPackages() {
-    const packages = await this.orm.searchRead(
-      "smartbiz_mes.package",
-      [],
-      ["name"]
-    );
+    const packages = await this.orm.searchRead("smartbiz_mes.package", [], ["name"]);
     // console.log(packages)
-     this.state.packages = packages;
+    this.state.packages = packages;
   }
 }
 
 class WorkOrderList extends Component {
   static template = "WorkOrderList";
-  static props = [
-    "workOrders",
-    "selectWorkOrder",
-    "selectedWorkOrder",
-    "searchQuery",
-    "searchWorkOrders",
-    "stateMapping",
-  ];
+  static props = ["workOrders", "selectWorkOrder", "selectedWorkOrder", "searchQuery", "searchWorkOrders", "stateMapping"];
 
   setup() {
     this.rpc = useService("rpc");
@@ -198,17 +166,7 @@ class WorkOrderList extends Component {
 
 class WorkOrderDetail extends Component {
   static template = "WorkOrderDetail";
-  static props = [
-    "workOrder",
-    "startWorkOrder",
-    "pauseWorkOrder",
-    "stopWorkOrder",
-    "showStart",
-    "showStop",
-    "showPause",
-    "activeButton",
-    "timer",
-  ];
+  static props = ["workOrder", "startWorkOrder", "pauseWorkOrder", "stopWorkOrder", "showStart", "showStop", "showPause", "activeButton", "timer"];
   setup() {
     this.rpc = useService("rpc");
     this.orm = useService("orm");
@@ -234,14 +192,10 @@ class WorkOrderDetail extends Component {
 
     const hours = Math.floor(remainingMinutesAfterDays / 60);
     const remainingMinutes = Math.floor(remainingMinutesAfterDays % 60);
-    const seconds = Math.floor(
-      (remainingMinutesAfterDays - (hours * 60 + remainingMinutes)) * 60
-    );
+    const seconds = Math.floor((remainingMinutesAfterDays - (hours * 60 + remainingMinutes)) * 60);
 
     // Định dạng chuỗi thời gian
-    let formattedTime = `${String(hours).padStart(2, "0")}:${String(
-      remainingMinutes
-    ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    let formattedTime = `${String(hours).padStart(2, "0")}:${String(remainingMinutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 
     if (days > 0) {
       formattedTime = `${days} ngày ${formattedTime}`;
@@ -253,13 +207,7 @@ class WorkOrderDetail extends Component {
 
 class ComponentList extends Component {
   static template = "ComponentList";
-  static props = [
-    "components",
-    "selectComponent",
-    "selectedComponent",
-    "closeKeypad",
-    "select",
-  ];
+  static props = ["components", "selectComponent", "selectedComponent?", "closeKeypad", "select"];
 
   setup() {
     this.rpc = useService("rpc");
@@ -278,13 +226,11 @@ class ComponentList extends Component {
   getClasscomponet(component) {
     // console.log(component)
     let cl = " ";
-    if (component.quantity == component.ok_quantity && component.ng_quantity == 0 || component.quantity == (component.ok_quantity + component.ng_quantity)) {
+    if ((component.quantity == component.ok_quantity && component.ng_quantity == 0) || component.quantity == component.ok_quantity + component.ng_quantity) {
       cl += " bg-green";
-    }
-    else if (component.quantity > component.ok_quantity && component.ok_quantity != 0) {
+    } else if (component.quantity > component.ok_quantity && component.ok_quantity != 0) {
       cl += " bg-yellow";
-    }
-    else if (component.quantity < component.ok_quantity || component.quantity < (component.ok_quantity + component.ng_quantity)) {
+    } else if (component.quantity < component.ok_quantity || component.quantity < component.ok_quantity + component.ng_quantity) {
       cl += " bg-red";
     }
     return cl;
@@ -293,19 +239,7 @@ class ComponentList extends Component {
 
 class ActionDetail extends Component {
   static template = "ActionDetail";
-  static props = [
-    "component",
-    "okAction",
-    "ngAction",
-    "updateQuantity",
-    "showOK",
-    "showNG",
-    "showPrint",
-    "printLabel",
-    "openPDF",
-    "showKeypad",
-    "activityActions",
-  ];
+  static props = ["component", "okAction", "ngAction", "updateQuantity", "showOK", "showNG", "showPrint", "printLabel", "showKeypad", "activityActions"];
   static components = { KeyPads };
 
   setup() {
@@ -322,15 +256,14 @@ class ActionDetail extends Component {
 
     //console.log(this.props);
   }
-  
+
   getClass(line) {
     // console.log(line)
     let cl = " ";
     if (line.start && !line.finish) {
-      if (!line.package_id){
+      if (!line.package_id) {
         cl += "";
-      } else
-      cl += " bg-yellow";
+      } else cl += " bg-yellow";
     }
     if (line.start && line.finish) {
       if (line.quality < 1) {
@@ -343,7 +276,7 @@ class ActionDetail extends Component {
 
 class ActionDocument extends Component {
   static template = "ActionDocument";
-  static props = ["document", "closePDF"];
+  static props = ["document"];
 }
 
 export class WorkOrder extends Component {
@@ -369,12 +302,11 @@ export class WorkOrder extends Component {
     this.fileViewer = useFileViewer();
     this.store = useService("mail.store");
     this.userService = useService("user");
-    //console.log({userId:this.userService})
-    this.openPDF = this.openPDF.bind(this);
+
     this.selectedActivity = null;
     this.state = useState({
       workOrders: [],
-      selectedWorkOrder: [],
+      selectedWorkOrder: {},
       selectedActivity: null,
       components: [],
       selectedComponent: null,
@@ -388,41 +320,39 @@ export class WorkOrder extends Component {
       showPrint: true,
       showPDF: true,
       showkeypad: false,
-      view: "ScanWorkCenter",
+      view: "",
       menuVisible: false,
       search: false,
       searchInput: "",
-      originalData: [],
+
       title: "",
-      keyPadTitle: {},
+      keyPadData: {},
       activeButton: null,
-      
+
       data: [],
-      component: [],
-      currentQuantityField: "",
+
       timer: "00:00:00",
       intervalId: null,
       elapsedTime: 0,
-      activeTab : "Detail",
+      activeTab: "Detail",
 
       //Biến user và workcenter
       workCenter: false,
-      user: "",
+      user: false,
+      employee: false,
 
       //Các biến Dialog
       showDialogModal: false,
       dialogTitle: "",
       dialogRecords: [],
-
     });
-    this.workCenters = []
-    this.users = []
-    this._scrollBehavior = "smooth";
+    this.workCenters = [];
+    this.users = [];
+    this.employees = [];
+
     this.isMobile = uiUtils.isSmall();
     this.barcodeService = useService("barcode");
-    useBus(this.barcodeService.bus, "barcode_scanned", (ev) =>
-      this.onBarcodeScanned(ev.detail.barcode)
-    );
+    useBus(this.barcodeService.bus, "barcode_scanned", (ev) => this.onBarcodeScanned(ev.detail.barcode));
     this.stateMapping = {
       progress: "Đang thực hiện",
       pending: "Đang chờ",
@@ -435,70 +365,66 @@ export class WorkOrder extends Component {
       notification: this.notification,
       action: this.action,
     };
-    const model = new SmartBizBarcodePickingModel(
-      "mrp.workorder",
-      false,
-      services
-    );
-    useSubEnv({ model });
+
     onWillStart(async () => {
       await this.initData();
     });
-    
   }
 
-  showModal(title){
-    this.state.dialogTitle = title
-    if(title =='Chọn trạm sản xuất')
-    {
-      this.state.dialogRecords = this.workCenters
+  showModal(title) {
+    this.state.dialogTitle = title;
+    if (title == "Chọn trạm sản xuất") {
+      this.state.dialogRecords = this.workCenters;
     }
-    
-    this.state.showDialogModal = true
+
+    this.state.showDialogModal = true;
   }
-  closeModal(modal,data){
-    console.log({modal,data})
-    if(data){
-      
+  closeModal(modal, data) {
+    console.log({ modal, data });
+    if (data) {
       this.state.workCenter = data;
-      this.updateState()
+      this.updateWorkOrders();
     }
-    
-    this.state.dialogTitle = ''
-    this.state.dialogRecords = []
-    this.state.showDialogModal = false
+
+    this.state.dialogTitle = "";
+    this.state.dialogRecords = [];
+    this.state.showDialogModal = false;
   }
-  updateState(){
-    this.state.title = (this.state.workCenter.name || '-') + ':'+ (this.state.selectedWorkOrder.name || '')
+  updateWorkOrders() {
+    this.state.title = (this.state.workCenter.name || "-") + ":" + (this.state.selectedWorkOrder.name || "");
+    this.state.workOrders = this.state.data.orders.filter((x) => x.workcenter_id == this.state.workCenter.id);
     //console.log({user:this.state.user,workCenter:this.state.workCenter})
+  }
+  updateSelectedWorkOrder(data) {
+    if (data.workOrder && this.state.components) {
+      this.state.selectedWorkOrder = data.workOrder;
+      this.state.components = data.components;
+      this.state.selectedComponent = this.state.components.find((x) => x.id == this.state.selectedComponent?.id);
+    }
   }
   async initData() {
     try {
-      let domain  = [["state", "in", ["progress", "pending", "ready"]]]
-      if(this.state.workCenter)
-      {
-        domain.push(["workcenter_id","=",this.state.workCenter.id])
+      let domain = [["state", "in", ["progress", "pending", "ready"]]];
+      if (this.state.workCenter) {
+        domain.push(["workcenter_id", "=", this.state.workCenter.id]);
       }
-      const data = await this.orm.call(
-        "mrp.workorder",
-        "get_orders",
-        [, domain],
-        {}
-      );
-      this.users = data.users
-      this.state.workOrders = data.orders;
-      this.state.originalData = [...data.orders];
+      const data = await this.orm.call("mrp.workorder", "get_orders", [, domain], {});
+      this.users = data.users;
+      this.employees = data.employees;
+
       this.state.searchInput = "";
       this.state.data = data;
-      this.workCenters = await this.orm.searchRead('mrp.workcenter',[],['name','code']);
-      this.state.user = this.users.find(x=>x.id == this.userService.userId)
-      this.state.workCenter = this.workCenters.find(x=>x.id == this.state.user.id) || false
-      if(!this.state.workCenter)
-        {
-          this.showModal('Chọn trạm sản xuất')
-        }
-        this.state.view = "WorkOrders"
-      
+      this.workCenters = await this.orm.searchRead("mrp.workcenter", [], ["name", "code"]);
+      this.state.user = this.users.find((x) => x.id == this.userService.userId);
+      this.state.employee = this.employees.find((x) => x.id == this.state.user.employee_id[0]) || this.employees[0];
+      this.state.workCenter = this.workCenters.find((x) => x.id == this.state.user.workcenter_id) || false;
+      console.log({ workCenters: this.workCenters, user: this.state.user, workcenter: this.state.workCenter, data });
+      if (!this.state.workCenter) {
+        console.log("OK");
+        this.showModal("Chọn trạm sản xuất");
+      }
+      this.state.workOrders = data.orders.filter((x) => x.workcenter_id == this.state.workCenter.id);
+      this.state.view = "WorkOrders";
     } catch (error) {
       //console.error("Error loading data:", error);
       this.notification.add("Failed to load inventory data", {
@@ -564,126 +490,59 @@ export class WorkOrder extends Component {
     }
   }
 
-  async openWorkorder() {
-    this.state.view = "WorkOrders";
-    const data = await this.orm.call(
-      "mrp.workorder",
-      "get_orders",
-      [, [["state", "in", ["progress", "pending", "ready"]]]],
-      {}
-    );
-    if (this.state.workcentername) {
-      
-      this.state.workOrders = data.orders.filter(
-        (x) => x.name === this.state.workcentername
-      );
-      this.state.title = this.state.workcentername;
-    }
-    else {
-      this.state.workOrders = data.orders
-      // const message = _t(`Vui lòng quét khu vực sản xuất!`);
-      // this.notification.add(message, { type: "warning" });
-    }
-  }
-  
   handleInput(event) {
     this.state.searchInput = event.target.value;
     this.search(); // Gọi hàm tìm kiếm
   }
   showKeypad = (keyPadTitle, component, type) => {
-    this.state.keyPadTitle = keyPadTitle;
-    this.state.showkeypad = true;
-    this.state.component = component;
-    this.state.currentQuantityField = type;
-    //console.log(component.producing_ok_quantity, component.ok_quantity);
-    // this.state.selectedComponent.producing_ok_quantity + this.state.selectedComponent.ok_quantity
-  };
-  keyClick = (option) => {
-    option = option.toString();
-    const quantityField =
-      this.state.currentQuantityField === "ok"
-        ? "producing_ok_quantity"
-        : "producing_ng_quantity";
-
-    if (!this.state.component[quantityField]) {
-      this.state.component[quantityField] = 0;
-    }
-    if (option == "cancel") {
-      this.state.showkeypad = false;
-    } else if (option == "confirm") {
-      this.state.showkeypad = false;
-      // this.updateButton()
-      // this.state.component[quantityField] = 0;
-    } else if (option == "DEL") {
-      this.state.component[quantityField] = "0"; // Hoặc có thể xóa ký tự
-    } else if (option == "C") {
-      var string = this.state.component[quantityField].toString();
-      this.state.component[quantityField] = string.substring(
-        0,
-        string.length - 1
-      );
-    } else if (option.includes("++")) {
-      this.state.component[quantityField] =
-        this.state.component.remain_quantity.toString();
-    } else if (option.includes("+")) {
-      this.state.component[quantityField] = (
-        parseFloat(this.state.component[quantityField]) + 1
-      ).toString();
-    } else if (option.includes("-")) {
-      this.state.component[quantityField] = (
-        parseFloat(this.state.component[quantityField]) - 1
-      ).toString();
+    var quantity = 0;
+    var remain_quantity = 0;
+    if (type == "ok") {
+      quantity = component.remain_quantity;
+      remain_quantity = component.remain_quantity;
     } else {
-      if (
-        !(
-          this.state.component[quantityField].toString().includes(".") &&
-          option == "."
-        )
-      )
-        if (this.state.component[quantityField] != 0)
-          this.state.component[quantityField] =
-            this.state.component[quantityField].toString() + option;
-        else this.state.component[quantityField] = option;
+      quantity = 1;
     }
+
+    this.state.keyPadData = {
+      title: keyPadTitle.title,
+      color: keyPadTitle.color,
+      quantity,
+      remain_quantity,
+      type,
+    };
+    this.state.showkeypad = true;
   };
-  closeKeypad = () => {
+
+  closeKeypad = (data, value) => {
+    if (value != "cancel") {
+      if (data.type == "ok") {
+        this.state.selectedComponent.producing_ok_quantity = parseFloat(value);
+      } else if (data.type == "ng") {
+        this.state.selectedComponent.producing_ng_quantity = parseFloat(value);
+      }
+    }
     this.state.showkeypad = false;
   };
   async search() {
     const query = this.state.searchInput.trim().toLowerCase();
     if (this.state.view === "WorkOrders") {
       if (this.state.workcentername) {
-        this.state.workOrders = this.state.data.orders.filter(
-          (x) => x.name === this.state.workcentername
-        );
+        this.state.workOrders = this.state.data.orders.filter((x) => x.name === this.state.workcentername);
         if (query) {
-          this.state.workOrders = this.filterArrayByString(
-            this.state.workOrders,
-            query
-          );
+          this.state.workOrders = this.filterArrayByString(this.state.workOrders, query);
         }
       } else {
         if (query) {
-          this.state.workOrders = this.filterArrayByString(
-            this.state.data.orders,
-            query
-          );
+          this.state.workOrders = this.filterArrayByString(this.state.data.orders, query);
         } else {
           this.state.workOrders = this.state.data.orders;
         }
       }
     } else if (this.state.view === "WorkOrderDetail") {
-      const data = await this.orm.call(
-        "mrp.workorder",
-        "get_data",
-        [, [this.state.selectedWorkOrder.id]],
-        {}
-      );
+      const data = await this.orm.call("mrp.workorder", "get_data", [, [this.state.selectedWorkOrder.id]], {});
       if (query) {
-        this.state.components = this.filterArrayByString(
-          data.components,
-          query
-        );
+        this.state.components = this.filterArrayByString(data.components, query);
       } else {
         this.state.components = data.components;
       }
@@ -693,7 +552,6 @@ export class WorkOrder extends Component {
   searchClick() {
     this.state.search = !this.state.search; // Bật/tắt chế độ tìm kiếm
     this.state.searchInput = ""; // Xóa dữ liệu tìm kiếm
-    // this.state.workOrders = [...this.state.originalData];
   }
 
   filterArrayByString(array, queryString) {
@@ -711,10 +569,14 @@ export class WorkOrder extends Component {
 
   async exit(ev) {
     if (this.state.view === "WorkOrders") {
-      await this.action.doAction(
-        "smartbiz_barcode.smartbiz_barcode_main_menu_action"
-      );
+      await this.action.doAction("smartbiz_barcode.smartbiz_barcode_main_menu_action");
     } else if (this.state.view === "WorkOrderDetail") {
+      let domain = [["state", "in", ["progress", "pending", "ready"]]];
+      if (this.state.workCenter) {
+        domain.push(["workcenter_id", "=", this.state.workCenter.id]);
+      }
+      const data = await this.orm.call("mrp.workorder", "get_orders", [, domain], {});
+      this.state.data = data;
       this.state.view = "WorkOrders";
       // this.stopTimer()
       // this.state.title = ""
@@ -723,25 +585,17 @@ export class WorkOrder extends Component {
       this.state.view = "WorkOrderDetail";
       this.state.selectedComponent = null;
       this.state.selectedActivity = null;
-
     } else if (this.state.view === "ProductionActivity") {
       this.state.view = "ActionDetail";
     }
+    this.updateWorkOrders();
   }
 
   async closeActivity(data) {
     console.log(data);
     if (data) {
-      const get_data = await this.orm.call(
-        "mrp.workorder",
-        "update_activity",
-        [, this.state.selectedWorkOrder.id, data],
-        {}
-      );
-      this.state.components = get_data.components;
-      this.state.selectedComponent = this.state.components.find(
-        (x) => x.id == this.state.selectedComponent.id
-      );
+      const get_data = await this.orm.call("mrp.workorder", "update_activity", [, this.state.selectedWorkOrder.id, data], {});
+      this.updateSelectedWorkOrder(get_data);
     }
     this.state.view = "ActionDetail";
   }
@@ -754,32 +608,14 @@ export class WorkOrder extends Component {
       console.log(this.state.selectedActivity);
     } else if (action == "delete") {
       if (id) {
-        const get_data = await this.orm.call(
-          "mrp.workorder",
-          "delete_activity",
-          [, this.state.selectedWorkOrder.id, id],
-          {}
-        );
-        this.state.components = get_data.components;
-        this.state.selectedWorkOrder = get_data.workOrder;
-        this.state.selectedComponent = this.state.components.find(
-          (x) => x.id == this.state.selectedComponent.id
-        );
+        const get_data = await this.orm.call("mrp.workorder", "delete_activity", [, this.state.selectedWorkOrder.id, id], {});
+        this.updateSelectedWorkOrder(get_data);
       }
       this.state.view = "ActionDetail";
     } else if (action == "print") {
       if (id) {
-        const get_data = await this.orm.call(
-          "mrp.workorder",
-          "print_label",
-          [, this.state.selectedWorkOrder.id, id],
-          {}
-        );
-        this.state.components = get_data.components;
-        this.state.selectedWorkOrder = get_data.workOrder;
-        this.state.selectedComponent = this.state.components.find(
-          (x) => x.id == this.state.selectedComponent.id
-        );
+        const get_data = await this.orm.call("mrp.workorder", "print_label", [, this.state.selectedWorkOrder.id, id], {});
+        this.updateSelectedWorkOrder(get_data);
       }
       this.state.view = "ActionDetail";
     }
@@ -796,41 +632,21 @@ export class WorkOrder extends Component {
     this.state.showNG = false;
     this.state.showPrint = false;
     if (this.state.selectedWorkOrder) {
-      if (
-        (this.state.selectedWorkOrder?.state == "progress" &&
-          !this.state.selectedWorkOrder?.is_user_working) ||
-        (this.state.selectedWorkOrder?.state != "progress" &&
-          this.state.selectedWorkOrder)
-      )
-        this.state.showStart = true;
+      if ((this.state.selectedWorkOrder?.state == "progress" && !this.state.selectedWorkOrder?.is_user_working) || (this.state.selectedWorkOrder?.state != "progress" && this.state.selectedWorkOrder)) this.state.showStart = true;
 
-      if (
-        this.state.selectedWorkOrder?.state == "progress" &&
-        this.state.selectedWorkOrder?.is_user_working
-      ) {
+      if (this.state.selectedWorkOrder?.state == "progress" && this.state.selectedWorkOrder?.is_user_working) {
         this.state.showStop = true;
         this.state.showPause = true;
       }
     }
-    if (
-      !this.state.workOrders.some(
-        (workOrder) => workOrder.id === this.state.selectedWorkOrder.id
-      )
-    ) {
+    if (!this.state.workOrders.some((workOrder) => workOrder.id === this.state.selectedWorkOrder.id)) {
       this.state.selectedWorkOrder = null;
       this.state.components = [];
     }
-    if (
-      !this.state.components.some(
-        (comp) => comp.id === this.state.selectedComponent?.id
-      )
-    ) {
+    if (!this.state.components.some((comp) => comp.id === this.state.selectedComponent?.id)) {
       this.state.selectedComponent = null;
     }
-    if (
-      this.state.selectedComponent?.remain_quantity ||
-      this.state.selectedComponent?.producing_quantity
-    ) {
+    if (this.state.selectedComponent?.remain_quantity || this.state.selectedComponent?.producing_quantity) {
       this.state.showOK = true;
       this.state.showNG = true;
       this.state.showPrint = true;
@@ -838,18 +654,9 @@ export class WorkOrder extends Component {
   }
 
   async selectWorkOrder(id) {
+    const get_data = await this.orm.call("mrp.workorder", "get_data", [, [id]], {});
+    this.updateSelectedWorkOrder(get_data);
     this.state.view = "WorkOrderDetail";
-    const get_data = await this.orm.call(
-      "mrp.workorder",
-      "get_data",
-      [, [id]],
-      {}
-    );
-    this.state.components = get_data.components;
-    //console.log(this.state.components);
-    this.state.selectedWorkOrder = get_data.workOrder;
-    this.state.title = this.state.selectedWorkOrder.name;
-    // console.log(this.state.components, this.state.selectedWorkOrder);
   }
   toggleMenu = () => {
     this.state.menuVisible = !this.state.menuVisible;
@@ -857,76 +664,35 @@ export class WorkOrder extends Component {
 
   // Khi người dùng chọn một thành phần
   selectComponent(component) {
-    this.state.view = "ActionDetail";
     this.state.selectedComponent = component;
-    //console.log(component);
-    if (component.producing_quantity == 0 && component.remain_quantity) {
-      //console.log("object is not producing");
-      // uibuilder.send({ component: component,type:'start',selectedWorkorder:this.state.selectedWorkOrder.id,
-      // this.state.components = this.state.components;
-    }
+
     const pdfUrl = `/web/content?model=mrp.workorder&field=worksheet&id=${this.state.selectedWorkOrder.id}`;
-    this.state.showPDF = true;
+    //this.state.showPDF = true;
     this.state.document = {
       type: "pdf",
-      url: `/web/static/lib/pdfjs/web/viewer.html?file=${encodeURIComponent(
-        pdfUrl
-      )}`,
+      url: `/web/static/lib/pdfjs/web/viewer.html?file=${encodeURIComponent(pdfUrl)}`,
     };
+    this.state.view = "ActionDetail";
   }
 
-  // Mở PDF khi nhấn nút, nhận `component.id` như một tham số
-  async openPDF() {
-    const pdfUrl = `/web/content?model=mrp.workorder&field=worksheet&id=${this.state.selectedWorkOrder.id}`;
-    this.state.showPDF = true;
-    this.state.document = {
-      type: "pdf",
-      url: `/web/static/lib/pdfjs/web/viewer.html?file=${encodeURIComponent(
-        pdfUrl
-      )}`,
-    };
-  }
-
-  closePDF = () => {
-    this.state.showPDF = false;
-  };
+  // closePDF = () => {
+  //   this.state.showPDF = false;
+  // };
   searchWorkOrders() {
     // Giả lập tìm kiếm công đoạn
     const query = this.state.searchQuery.toLowerCase();
-    this.state.workOrders = this.state.workOrders.filter(
-      (order) =>
-        order.name.toLowerCase().includes(query) ||
-        order.product.toLowerCase().includes(query)
-    );
+    this.state.workOrders = this.state.workOrders.filter((order) => order.name.toLowerCase().includes(query) || order.product.toLowerCase().includes(query));
     // console.log(this.state.workOrders, query);
   }
 
   async startWorkOrder() {
-    const start_workorder = await this.orm.call(
-      "mrp.workorder",
-      "start_workorder",
-      [, this.state.selectedWorkOrder?.id],
-      {}
-    );
-    // console.log(start_workorder);
-    if (start_workorder?.workOrder) {
-      this.state.selectedWorkOrder = start_workorder.workOrder;
-      // this.state.showPause = true;
-    }
+    const start_workorder = await this.orm.call("mrp.workorder", "start_workorder", [, this.state.selectedWorkOrder?.id], {});
+    this.updateSelectedWorkOrder(start_workorder);
     this.startTimer();
   }
   async pauseWorkOrder() {
-    const pause_workorder = await this.orm.call(
-      "mrp.workorder",
-      "pause_workorder",
-      [, this.state.selectedWorkOrder?.id],
-      {}
-    );
-    if (pause_workorder?.workOrder) {
-      this.state.selectedWorkOrder = pause_workorder.workOrder;
-      // this.state.showStop = true;
-    }
-    // console.log(pause_workorder);
+    const pause_workorder = await this.orm.call("mrp.workorder", "pause_workorder", [, this.state.selectedWorkOrder?.id], {});
+    this.updateSelectedWorkOrder(pause_workorder);
     this.pauseTimer();
   }
   async stopWorkOrder() {
@@ -934,15 +700,8 @@ export class WorkOrder extends Component {
       title: _t("Xác nhận đơn"),
       body: _t("Bạn có chắc chắn muốn hoàn thành."),
       confirm: async () => {
-        const finish_workorder = await this.orm.call(
-          "mrp.workorder",
-          "finish_workorder",
-          [, this.state.selectedWorkOrder?.id],
-          {}
-        );
-        if (finish_workorder?.workOrder) {
-          this.state.selectedWorkOrder = finish_workorder.workOrder;
-        }
+        const finish_workorder = await this.orm.call("mrp.workorder", "finish_workorder", [, this.state.selectedWorkOrder?.id], {});
+        this.updateSelectedWorkOrder(finish_workorder);
         const message = _t(`Công đoạn đã hoàn tất`);
         this.notification.add(message, { type: "success" });
         this.pauseTimer();
@@ -958,19 +717,12 @@ export class WorkOrder extends Component {
     // console.log(finish_workorder);
   }
   async printLabel() {
-    const print = await this.orm.call(
-      "mrp.workorder",
-      "print_label",
-      [, this.state.selectedWorkOrder?.id, this.state.selectedComponent?.id],
-      {}
-    );
+    const print = await this.orm.call("mrp.workorder", "print_label", [, this.state.selectedWorkOrder?.id, this.state.selectedComponent?.id], {});
     //console.log(print);
   }
   async okAction() {
     // Lấy số lượng OK đang “sản xuất dở”
-    const producingOkQuantity = Number(
-      this.state.selectedComponent.producing_ok_quantity
-    );
+    const producingOkQuantity = Number(this.state.selectedComponent.producing_ok_quantity);
     // Số lượng OK đã hoàn thành
     const okQuantity = Number(this.state.selectedComponent.ok_quantity);
     // Nhu cầu
@@ -987,48 +739,36 @@ export class WorkOrder extends Component {
     // Như ta thiết kế: qr_code = "", button_type = "ok_action"
     // => server logic sẽ hiểu đây là "Finish OK" (hoặc Tạo+Finish nếu chưa có).
     console.log([
-        ,
-        this.state.selectedWorkOrder.id,         // workorder_id
-        this.state.selectedComponent.id,         // component_id
-        "",                                      // qr_code
-        "ok_action",                             // button_type
-        false,                                   // force (nếu bạn muốn bấm force => true)
-        producingOkQuantity                      // quantity
-      ])
+      ,
+      this.state.selectedWorkOrder.id, // workorder_id
+      this.state.selectedComponent.id, // component_id
+      "", // qr_code
+      "ok_action", // button_type
+      false, // force (nếu bạn muốn bấm force => true)
+      producingOkQuantity, // quantity
+    ]);
     const result = await this.orm.call(
       "mrp.workorder",
       "handle_package_scan",
       [
-        ,    
-        this.state.selectedWorkOrder.id,         // workorder_id
-        this.state.selectedComponent.id,         // component_id
-        "",                                      // qr_code
-        "ok_action",                             // button_type
-        false,                                   // force (nếu bạn muốn bấm force => true)
-        producingOkQuantity                      // quantity
+        ,
+        this.state.selectedWorkOrder.id, // workorder_id
+        this.state.selectedComponent.id, // component_id
+        "",
+        this.state.employee.id, // qr_code
+        "ok_action", // button_type
+        false, // force (nếu bạn muốn bấm force => true)
+        producingOkQuantity, // quantity
       ],
       {}
     );
 
-    // Server trả về data => cập nhật state
-    if (result && result.components && result.workOrder) {
-      this.state.components = result.components;
-      this.state.selectedWorkOrder = result.workOrder;
-      // Tìm component vừa thay đổi
-      const updatedComp = result.components.find(
-        (c) => c.id === this.state.selectedComponent.id
-      );
-      if (updatedComp) {
-        this.state.selectedComponent = updatedComp;
-      }
-    }
+    this.updateSelectedWorkOrder(result);
   }
 
   async ngAction() {
     // Lấy số lượng NG mà công nhân vừa nhập
-    const producingNgQuantity = Number(
-      this.state.selectedComponent.producing_ng_quantity
-    );
+    const producingNgQuantity = Number(this.state.selectedComponent.producing_ng_quantity);
     if (producingNgQuantity <= 0) {
       const message = _t("Số lượng NG phải lớn hơn 0");
       this.notification.add(message, { type: "warning" });
@@ -1042,26 +782,18 @@ export class WorkOrder extends Component {
       "handle_package_scan",
       [
         ,
-        this.state.selectedWorkOrder.id, 
+        this.state.selectedWorkOrder.id,
         this.state.selectedComponent.id,
-        "",                // qr_code = rỗng
-        "ng_action",       // button_type
-        false,             // force
-        producingNgQuantity
+        "", // qr_code = rỗng
+        this.state.employee.id,
+        "ng_action", // button_type
+        false, // force
+        producingNgQuantity,
       ],
       {}
     );
 
-    if (result && result.components && result.workOrder) {
-      this.state.components = result.components;
-      this.state.selectedWorkOrder = result.workOrder;
-      const updatedComp = result.components.find(
-        (c) => c.id === this.state.selectedComponent.id
-      );
-      if (updatedComp) {
-        this.state.selectedComponent = updatedComp;
-      }
-    }
+    this.updateSelectedWorkOrder(result);
   }
   async updateQuantity(type, operation) {
     if (type == "ok") {
@@ -1072,12 +804,8 @@ export class WorkOrder extends Component {
         this.state.selectedComponent.producing_ok_quantity -= 1;
       }
 
-      await this.orm.call(
-        "mrp.workorder",
-        "update_component",
-        [, "ok", this.state.selectedComponent],
-        {}
-      );
+      let result = await this.orm.call("mrp.workorder", "update_component", [, "ok", this.state.selectedComponent], {});
+      this.updateSelectedWorkOrder(result);
     }
     if (type == "ng") {
       if (operation == "+") {
@@ -1086,26 +814,11 @@ export class WorkOrder extends Component {
       if (operation == "-") {
         this.state.selectedComponent.producing_ng_quantity -= 1;
       }
-      await this.orm.call(
-        "mrp.workorder",
-        "update_component",
-        [, "ng", this.state.selectedComponent],
-        {}
-      );
+      let result = await this.orm.call("mrp.workorder", "update_component", [, "ng", this.state.selectedComponent], {});
+      this.updateSelectedWorkOrder(result);
     }
   }
 
-  setScanTarget(target) {
-    this.state.scanTarget = target; // Lưu trường đang quét
-  }
-
-  updateScanValue(value) {
-    if (this.state.scanTarget === "productionArea") {
-      this.state.productionArea = value; // Cập nhật khu vực sản xuất
-    } else if (this.state.scanTarget === "username") {
-      this.state.username = value; // Cập nhật người dùng
-    }
-  }
   async openMobileScanner() {
     const barcode = await BarcodeScanner.scanBarcode(this.env);
     await this.onBarcodeScanned(barcode);
@@ -1136,101 +849,59 @@ export class WorkOrder extends Component {
   async processBarcode(barcode) {
     let barcodeData = null;
 
-    if (this.state.view === "WorkOrders") {
-      // Gọi parseBarcodeForWorkcenter cho chế độ ScanWorkCenter
-      barcodeData = await this.env.model.parseBarcodeForWorkcenter(
-        barcode,
-        false,
-        false,
-        false
-      );
-      const backendResult = await this.orm.call(
-          'mrp.workcenter', // Model
-          'get_barcode_data',      // Method name
-          [,barcode], // Arguments
-          {}
-      );
-      console.log(barcodeData);
-      if (barcodeData && barcodeData.match) {
+    barcodeData = await this.orm.call(
+      "mrp.workcenter", // Model
+      "get_barcode_data", // Method name
+      [, barcode, , { workcenter_id: this.state.workCenter.id }], // Arguments
+      {}
+    );
+
+    if (barcodeData && barcodeData.match) {
+      if (this.state.view === "WorkOrders") {
         // console.log("Barcode Data (ScanWorkCenter):", barcodeData);
         if (barcodeData.barcodeType === "employees") {
-          this.state.username = barcodeData.record.name;
+          this.state.employee = this.employees.find((x) => x.id == barcodeData.record.id);
         }
         if (barcodeData.barcodeType === "workcenters") {
-          this.state.codeworkcenter = barcodeData.barcode;
-          this.state.workcentername = barcodeData.record.name;
-          // this.state.workOrders = this.state.data.orders.filter(
-          //   (x) => x.name === barcodeData.record.name
-          // );
+          this.state.workCenter = this.workCenters.find((x) => x.id == barcodeData.record.id);
+          this.updateWorkOrders();
+        }
+        if (barcodeData.barcodeType === "production_activities") {
+          await this.selectWorkOrder(barcodeData.record.work_order_id[0]);
+          this.state.selectedComponent = this.state.components.find((x) => x.id == barcodeData.record.component_id[0]);
+          this.selectComponent(this.state.selectedComponent);
+          console.log({ selectedWorkOrder: this.state.selectedWorkOrder, selectedComponent: this.state.selectedComponent });
+          const data = await this.orm.call("mrp.workorder", "handle_package_scan", [, this.state.selectedWorkOrder.id, this.state.selectedComponent.id, barcode, this.state.employee.id], {});
+          this.updateSelectedWorkOrder(data);
+        }
+      } else if (this.state.view === "WorkOrderDetail") {
+        if (barcodeData.barcodeType === "employees") {
+          this.state.employee = this.employees.find((x) => x.id == barcodeData.record.id);
         }
 
-        // console.log(this.state.data)
-      } else {
-        this.notification.add(`Barcode: ${barcode} không hợp lệ!`, {
-          type: "warning",
-        });
-        return;
-      }
-    }
-
-    if (this.state.view === "WorkOrders") {
-      // Gọi parseBarcodeForWorkcenter cho chế độ WorkOrders
-      barcodeData = await this.env.model.parseBarcodeForWorkcenter(
-        barcode,
-        false,
-        false,
-        false
-      );
-
-      if (barcodeData && barcodeData.match) {
-        console.log("Barcode Data (WorkOrders):", barcodeData);
-        // Lọc danh sách workOrders theo record name
-        // this.state.workOrders = this.state.originalData.orders.filter(
-        //     (x) => x.name === barcodeData.record.name
-        // );
-        // const data = await this.orm.call(
-        //   "mrp.workorder",
-        //   "get_orders",
-        //   [, [["state", "in", ["progress", "pending", "ready"]]]],
-        //   {}
-        // );
-        // this.state.workOrders = data.orders.filter(
-        //   (x) => x.name === this.state.workcentername
-        // );
-        this.state.title = this.state.workcentername;
-        this.state.workcentername = barcodeData.record.name;
-        this.openWorkorder();
-        // console.log("Filtered WorkOrders:", this.state.workOrders);
-      } else {
-        this.notification.add(`Barcode: ${barcode} không hợp lệ!`, {
-          type: "warning",
-        });
-        return;
-      }
-    }
-
-    if (this.state.view === "ActionDetail") {
-      if (barcode) {
-        const data = await this.orm.call(
-          "mrp.workorder",
-          "handle_package_scan",
-          [
-            ,
-            this.state.selectedWorkOrder.id,
-            this.state.selectedComponent.id,
-            barcode,
-          ],
-          {}
-        );
-        if (data.components && data.workOrder) {
-          this.state.components = data.components;
-          this.state.selectedWorkOrder = data.workOrder;
-          this.state.selectedComponent = this.state.components.find(
-            (x) => x.id == this.state.selectedComponent.id
-          );
+        if (barcodeData.barcodeType === "production_activities") {
+          await this.selectWorkOrder(barcodeData.record.work_order_id[0]);
+          this.state.selectedComponent = this.state.components.find((x) => x.id == barcodeData.record.component_id[0]);
+          this.selectComponent(this.state.selectedComponent);
+          console.log({ selectedWorkOrder: this.state.selectedWorkOrder, selectedComponent: this.state.selectedComponent });
+          const data = await this.orm.call("mrp.workorder", "handle_package_scan", [, this.state.selectedWorkOrder.id, this.state.selectedComponent.id, barcode, this.state.employee.id], {});
+          this.updateSelectedWorkOrder(data);
         }
+      } else if (this.state.view === "ActionDetail") {
+        if (barcodeData.barcodeType === "production_activities") {
+          await this.selectWorkOrder(barcodeData.record.work_order_id[0]);
+          this.state.selectedComponent = this.state.components.find((x) => x.id == barcodeData.record.component_id[0]);
+          this.selectComponent(this.state.selectedComponent);
+          const data = await this.orm.call("mrp.workorder", "handle_package_scan", [, this.state.selectedWorkOrder.id, this.state.selectedComponent.id, barcode, this.state.employee.id], {});
+          this.updateSelectedWorkOrder(data);
+        }
+        this.state.view = "ActionDetail";
       }
-      this.state.view = "ActionDetail";
+    } else {
+      this.notification.add(`Barcode: ${barcode} không hợp lệ!`, {
+        type: "warning",
+      });
+      return;
     }
   }
 }

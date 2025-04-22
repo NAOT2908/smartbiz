@@ -787,7 +787,7 @@ button:disabled {
 }
 
 .workorder-items {
-    height: 100vh;
+    height: calc(100vh - 100px);
     /* Giới hạn chiều cao danh sách */
     overflow-y: auto;
     /* Hiển thị thanh cuộn dọc nếu danh sách quá dài */

@@ -26,6 +26,7 @@
                 <div class="s_selector-action-buttons">
                     <button t-on-click="confirmSelection">Đồng ý</button>
                     <button t-on-click="createNew" t-if="state.searchQuery &amp;&amp; props.title == 'Chọn số Lô/Sê-ri'">Tạo Mới</button>
+                    <button t-on-click="createNew" t-if="state.searchQuery &amp;&amp; props.title == 'Chọn kiện hàng'">Tạo Mới</button>
                     <button t-on-click="cancelSelection">Hủy</button>       
                 </div>
             </div>

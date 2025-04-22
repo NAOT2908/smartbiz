@@ -29,6 +29,8 @@ def check_action_permission(method):
                             ('res_id', '=', record.id),
                             ('model', '=', self._name),
                             ('state', 'not in', ['done', 'cancel']),
+                            ('state_iteration', '=', record.state_iteration),
+                            ('document_state', '=', record.state),
                         ], limit=1, order="create_date asc")
                         if not current_task:
                             deadline = task_definition.compute_deadline()
@@ -38,14 +40,15 @@ def check_action_permission(method):
                                 'model': self._name,
                                 'state': 'assigned',
                                 'assignees_ids': [(6, 0, rule_users.ids)],
-                                'deadline': deadline
+                                'pending_users_ids': [(6, 0, rule_users.ids)],
+                                'completed_users_ids': [(5, 0, 0)],
+                                'deadline': deadline,
+                                'state_iteration':record.state_iteration,
+                                'document_state': record.state,
                             })
 
-                        # Get users who have completed the action
-                        completed_users = current_task.work_log_ids.mapped('user_id') if current_task else self.env['res.users']
-
-                        # Determine pending users (users who haven't performed the action yet)
-                        pending_users = rule_users - completed_users
+                        completed_users = current_task.completed_users_ids
+                        pending_users = current_task.pending_users_ids
 
                         current_user = self.env.user
 
@@ -75,9 +78,25 @@ def check_action_permission(method):
                                 'rule_id': rule.id,
                                 'function_id': function.id,
                                 'user_id': self.env.uid,
-                                'name': current_task.name + ' - ' + function.name
+                                'name': current_task.name + ' - ' + function.name,
+                                'state_iteration':record.state_iteration,
+                                'document_state': record.state,
+                                'date': fields.Datetime.now(),
                             })]
                         })
+                        
+                        # Cập nhật completed_users_ids và pending_users_ids
+                        current_task.write({
+                            'completed_users_ids': [(4, record.env.uid)],
+                            'pending_users_ids': [(3, record.env.uid)],
+                        })
+
+                        # Kiểm tra nếu không còn pending_users_ids
+                        if not current_task.pending_users_ids:
+                            current_task.write({
+                                'state': 'done',
+                                'finish': fields.Datetime.now(),
+                            })
 
                     else:
                         # If no rule, call the original method
@@ -97,7 +116,8 @@ class SmartBiz_WorkflowBase(models.AbstractModel):
     tasks_ids = fields.One2many('smartbiz.task', 'res_id')
     model_id = fields.Many2one('ir.model', string='Model', compute='_compute_model_id', store=False)
     button_permissions = fields.Text(compute='_compute_button_permissions', store=False)
-
+    state_iteration = fields.Integer(string="State Iteration", default=0)
+    
     @api.depends('state', 'tasks_ids', 'tasks_ids.work_log_ids')
     def _compute_button_permissions(self):
         for record in self:
@@ -136,6 +156,18 @@ class SmartBiz_WorkflowBase(models.AbstractModel):
                     group.insert(0, field_element)
 
         return arch, view
+        
+    def write(self, vals):
+        if 'state' in vals:
+            for record in self:
+                vals_record = vals.copy()
+                if record.state != vals_record['state']:
+                    # Tăng `state_iteration` nếu `state` thay đổi
+                    vals_record['state_iteration'] = record.state_iteration + 1
+                super(SmartBiz_WorkflowBase, record).write(vals_record)
+            return True
+        else:
+            return super(SmartBiz_WorkflowBase, self).write(vals)
 
     def _get_buttons_info(self):
         self.ensure_one()
@@ -158,9 +190,15 @@ class SmartBiz_WorkflowBase(models.AbstractModel):
         ])
 
         for task_definition in task_definitions:
+            if task_definition.can_delegate:
+                buttons_info['action_delegate'] = {
+                    'visible': True,
+                    'button_name': 'action_delegate',
+                    'translated_name': _('Ủy quyền'),
+                }                
             for function in task_definition.function_ids:
                 function_name = function.function_name
-
+                    
                 # Mặc định nút không hiển thị
                 button_visible = False
 
@@ -182,6 +220,8 @@ class SmartBiz_WorkflowBase(models.AbstractModel):
                         ('res_id', '=', self.id),
                         ('model', '=', self._name),
                         ('state', 'not in', ['done', 'cancel']),
+                        ('state_iteration', '=', self.state_iteration),
+                        ('document_state', '=', self.state),
                     ], limit=1, order="create_date asc")
 
                     if not current_task:
@@ -192,14 +232,15 @@ class SmartBiz_WorkflowBase(models.AbstractModel):
                             'model': self._name,
                             'state': 'assigned',
                             'assignees_ids': [(6, 0, users.ids)],
-                            'deadline': deadline
+                            'pending_users_ids': [(6, 0, users.ids)],
+                            'completed_users_ids': [(5, 0, 0)],
+                            'deadline': deadline,
+                            'state_iteration':self.state_iteration,
+                            'document_state':self.state
                         })
 
-                    # Lấy danh sách người dùng đã thực hiện
-                    completed_users = current_task.work_log_ids.mapped('user_id')
-
-                    # Xác định người dùng chưa thực hiện
-                    pending_users = users - completed_users
+                    pending_users = current_task.pending_users_ids
+                    completed_users = current_task.completed_users_ids
 
                     if current_user in pending_users:
                         if rule.task_finish in ['any', 'parallel']:
@@ -212,18 +253,24 @@ class SmartBiz_WorkflowBase(models.AbstractModel):
                                 button_visible = True
                                 break
 
-                buttons_info[function_name] = button_visible
+                
+                buttons_info[function_name] = {
+                    'visible': button_visible,
+                    'button_name': function_name,
+                    'translated_name': _(function.name),
+                }
         return buttons_info
 
 
     def _check_function_permission(self, function):       
         for rule in function.rule_ids.sudo().sorted(key=lambda r: r.sequence):
-            conditions_met = all(
-                self._evaluate_condition(condition)
-                for condition in rule.condition_ids
-            )
-            if not conditions_met:
-                continue
+            if rule.condition_ids:
+                conditions_met = all(
+                    self._evaluate_condition(condition)
+                    for condition in rule.condition_ids
+                )
+                if not conditions_met:
+                    continue
 
             # Lấy danh sách người dùng
             users = self._get_users_from_rule(rule)
@@ -320,6 +367,8 @@ class SmartBiz_WorkflowBase(models.AbstractModel):
 
     def _evaluate_condition(self, condition):
         field_name = condition.field_id.name
+        if not field_name:
+            return True
         operator = condition.operator
         value = condition.value
 
@@ -365,6 +414,9 @@ class SmartBiz_WorkflowBase(models.AbstractModel):
             if resource.level_id:
                 positions = self.env['smartbiz.position'].search([('level_id', '=', resource.level_id.id)])
                 users = positions.mapped('users_ids')
+        elif resource.method == 'by_ou':
+            if resource.organization_unit_id and resource.organization_scope:
+                users = self.get_users_by_scope(resource.organization_unit_id,resource.organization_scope)
         elif resource.method == 'by_user_field':
             if resource.user_field_id:
                 user_field_name = resource.user_field_id.name
@@ -373,12 +425,8 @@ class SmartBiz_WorkflowBase(models.AbstractModel):
             if resource.role_id and resource.ou_field_id:
                 ou_field_name = resource.ou_field_id.name
                 ou = getattr(self, ou_field_name)
-                if ou:
-                    positions = self.env['smartbiz.position'].search([
-                        ('organization_unit_id', '=', ou.id),
-                        ('roles_ids', 'in', resource.role_id.id)
-                    ])
-                    users = positions.mapped('users_ids')
+                if ou and resource.organization_scope:
+                    users = self.get_users_by_scope(ou,resource.organization_scope)
         return users
 
     def _convert_value(self, value, field_type):
@@ -397,3 +445,88 @@ class SmartBiz_WorkflowBase(models.AbstractModel):
             return fields.Datetime.from_string(value)
         else:
             return value
+
+    def get_users_by_scope(self,organization_unit,organization_scope):
+        """Fetch users based on the organization_scope."""
+        users = self.env['res.users']
+        
+        if organization_scope == 'self':
+            # Lấy users trong đơn vị hiện tại
+            users |= self._get_users_in_unit(organization_unit)
+            
+        elif organization_scope == 'parent':
+            # Lấy users từ đơn vị cha (đệ quy)
+            users |= self._get_users_in_ancestors(organization_unit.parent_unit_id)
+            
+        elif organization_scope == 'children':
+            # Lấy users từ tất cả đơn vị con (đệ quy)
+            users |= self._get_users_in_descendants(organization_unit)
+            
+        elif organization_scope == 'self-parent':
+            # Lấy users từ đơn vị hiện tại và tất cả các đơn vị cha (đệ quy)
+            users |= self._get_users_in_unit(organization_unit)
+            users |= self._get_users_in_ancestors(organization_unit.parent_unit_id)
+            
+        elif organization_scope == 'self-children':
+            # Lấy users từ đơn vị hiện tại và tất cả đơn vị con (đệ quy)
+            users |= self._get_users_in_unit(organization_unit)
+            users |= self._get_users_in_descendants(organization_unit)
+        
+        return users
+
+    def _get_users_in_unit(self, unit):
+        """Lấy tất cả users trong một đơn vị cụ thể."""
+        users = self.env['res.users']
+        for position in unit.position_ids:
+            users |= position.users_ids
+        return users
+
+    def _get_users_in_ancestors(self, unit):
+        """Đệ quy lấy tất cả users từ đơn vị cha."""
+        users = self.env['res.users']
+        while unit:
+            users |= self._get_users_in_unit(unit)
+            unit = unit.parent_unit_id
+        return users
+
+    def _get_users_in_descendants(self, unit):
+        """Đệ quy lấy tất cả users từ đơn vị con."""
+        users = self.env['res.users']
+        for child_unit in unit.child_units_ids:
+            users |= self._get_users_in_unit(child_unit)
+            users |= self._get_users_in_descendants(child_unit)
+        return users    
+
+    def action_delegate(self, action, user_id=None, reason=None):
+        self.ensure_one()
+        if not reason:
+            raise ValidationError(_("Vui lòng cung cấp nguyên nhân cho việc điều chuyển hoặc từ chối."))
+        current_task = self.env['smartbiz.task'].search([
+            ('res_id', '=', self.id),
+            ('model', '=', self._name),
+            ('state', 'not in', ['done', 'cancel']),
+            ('state_iteration', '=', self.state_iteration),
+            ('document_state', '=', self.state),
+        ], limit=1)
+        if not current_task:
+            raise ValidationError(_("Không tìm thấy task hiện tại để điều chuyển."))
+
+        if action == 'transfer':
+            if not user_id:
+                raise ValidationError(_("Vui lòng chọn người dùng để điều chuyển task."))
+            user = self.env['res.users'].browse(user_id)
+            # Điều chuyển task
+            current_task.transfer_task(user, reason)
+        elif action == 'reject':
+            # Xử lý logic từ chối
+            current_task.state = 'cancel'
+            # Ghi log từ chối
+            self.env['smartbiz.transfer_log'].create({
+                'task_id': current_task.id,
+                'time': fields.Datetime.now(),
+                'from_user_id': self.env.uid,
+                'to_users_ids': [(6, 0, [])],
+                'reason': reason,
+            })
+        else:
+            raise ValidationError(_("Hành động không hợp lệ."))

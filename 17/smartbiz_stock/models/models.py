@@ -3,19 +3,33 @@
 from odoo.osv import expression
 from odoo import models, fields, api, exceptions,_, tools
 import os
-import base64,pytz,logging
+import base64,pytz,logging,unidecode
 from datetime import datetime, timedelta
-import datetime as date_time
 import random
-from odoo.tools.float_utils import float_compare
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import config, float_compare
 _logger = logging.getLogger(__name__)
 from io import BytesIO
 import xlsxwriter
 from openpyxl import load_workbook
+
 class Product_Product(models.Model):
     _inherit = ['product.product']
+    default_code = fields.Char(store='True', tracking=True)
 
+
+    @api.model
+    def create(self, vals):
+        #Kiểm tra default_code
+        if 'default_code' in vals and vals['default_code']:
+            existed = self.search([
+                ('default_code', '=', vals['default_code'])
+            ], limit=1)
+            if existed:
+                raise ValidationError(
+                    "Sản phẩm với mã {} đã tồn tại!".format(vals['default_code'])
+                )
+        return super().create(vals)
 
     @api.model
     def check_access_rights(self, operation, raise_exception=True):
@@ -29,7 +43,21 @@ class Product_Product(models.Model):
 class Product_Template(models.Model):
     _inherit = ['product.template']
     allow_negative_stock = fields.Boolean(string='Allow Negative Stock')
+    default_code = fields.Char(store='True', tracking=True)
 
+
+    @api.model
+    def create(self, vals):
+        #Kiểm tra default_code
+        if 'default_code' in vals and vals['default_code']:
+            existed = self.search([
+                ('default_code', '=', vals['default_code'])
+            ], limit=1)
+            if existed:
+                raise ValidationError(
+                    "Sản phẩm với mã {} đã tồn tại!".format(vals['default_code'])
+                )
+        return super().create(vals)
 
     @api.model
     def check_access_rights(self, operation, raise_exception=True):
@@ -76,9 +104,6 @@ class Stock_Quant(models.Model):
     @api.constrains("product_id", "quantity")
     def check_negative_qty(self):
         p = self.env["decimal.precision"].precision_get("Product Unit of Measure")
-        config = {
-        "test_enable": self.env['ir.config_parameter'].sudo().get_param('test_stock_enable', default=False)
-        }
         check_negative_qty = (
             config["test_enable"] and self.env.context.get("test_stock_no_negative")
         ) or not config["test_enable"]
@@ -453,125 +478,113 @@ class SmartbizStock_TransferRequest(models.Model):
     _name = "smartbiz_stock.transfer_request"
     _inherit = ['smartbiz.workflow_base', 'mail.thread', 'mail.activity.mixin']
     _description = "Transfer Request"
-    name = fields.Char(string='Request', default = 'New')
-    date = fields.Datetime(string='Date')
-    transfer_request_type_id = fields.Many2one('smartbiz_stock.transfer_request_type', string='Transfer Request Type')
+
+    name = fields.Char(string='Request', default='New')
+    date = fields.Datetime(string='Date',default=fields.Datetime.now)
+    transfer_request_type_id = fields.Many2one('smartbiz_stock.transfer_request_type', string='Transfer Request Type', default=lambda self: self.env['smartbiz_stock.transfer_request_type'].search([], limit=1).id)
     transfer_request_line_ids = fields.One2many('smartbiz_stock.transfer_request_line', 'transfer_request_id')
     picking_ids = fields.One2many('stock.picking', 'transfer_request_id')
-    state = fields.Selection([('draft','Draft'),('done','Done'),], string= 'Status', readonly= False, copy = True, index = False, default = 'draft')
-
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('done', 'Done'),
+    ], string='Status', readonly=False, copy=True, index=False, default='draft')
 
     def action_draft_create_order(self):
         Picking = self.env['stock.picking']
-        Move = self.env['stock.move']
-        
+        Move    = self.env['stock.move']
+
         for record in self.filtered(lambda m: m.state != 'done'):
             pickings = {}
+
             for trl in record.transfer_request_line_ids:
-                default_picking_type = record._get_default_picking_type(trl.product_id)
-                temps = []
-                for trtd in record.transfer_request_type_id.transfer_request_type_detail_ids:
-                    picking_type = trtd.picking_type_id
-                    sequence = trtd.sequence
-                    location_src = picking_type.default_location_src_id
-                    location_dest = picking_type.default_location_dest_id
-                    quantity = trl.quantity
-                    quants = record.env['stock.quant'].search([('location_id','child_of',location_src.id),('product_id','=',trl.product_id.id),('lot_id','in',trl.lots_ids.ids)])
-                    onhand_quantity = sum(quants.mapped('quantity'))
-                    temps.append({
-                        'product': trl.product_id,
-                        'origin':record.name,
-                        'quantity': quantity,
-                        'onhand_quantity': onhand_quantity,
-                        'lots_ids': trl.lots_ids.ids,
-                        'picking_type': picking_type,
-                        'default_picking_type': default_picking_type,
-                        'location_src': location_src,
-                        'location_dest': location_dest,
-                        'sequence':sequence,
-                        'transfer_request_id':record.id,
-                        'transfer_request_line_id':trl.id
+                quantity_needed = trl.quantity
+                product = trl.product_id
+                lots_ids = trl.lots_ids.ids
+                origin = record.name
+
+                for trtd in record.transfer_request_type_id.transfer_request_type_detail_ids.sorted('sequence'):
+                    picking_type   = trtd.picking_type_id
+                    location_src   = picking_type.default_location_src_id
+                    location_dest  = picking_type.default_location_dest_id
+
+                    # build domain lọc quants — chỉ thêm điều kiện lot khi có
+                    domain = [
+                        ('location_id','child_of', location_src.id),
+                        ('product_id','=', product.id),
+                    ]
+                    if lots_ids:
+                        domain.append(('lot_id','in', lots_ids))
+                    onhand = sum(self.env['stock.quant'].search(domain).mapped('quantity'))
+
+                    # used_qty = min(quantity_needed, onhand)
+                    if quantity_needed > onhand:
+                        used_qty = onhand
+                    else:
+                        used_qty = quantity_needed
+                        
+                    if used_qty <= 0:
+                        continue
+
+                    key = picking_type.id
+                    if key not in pickings:
+                        pickings[key] = {
+                            'picking_type': picking_type,
+                            'location_src':  location_src,
+                            'location_dest': location_dest,
+                            'origin':        origin,
+                            'transfer_request_id': record.id,
+                            'products':      [],
+                        }
+
+                    # lưu đúng phần thực lấy ở hoạt động này
+                    pickings[key]['products'].append({
+                        'product': product,
+                        'quantity': quantity_needed,
+                        'lots_ids': lots_ids,
+                        'transfer_request_line_id': trl.id,
                     })
-                item = record._find_record(temps)
-                key = item['picking_type'].id
-                if key not in pickings:
-                    pickings[key] = []
-                pickings[key].append(item)
-                
-            for picking_type_id, products in pickings.items():
+
+                    quantity_needed -= used_qty
+                    if quantity_needed <= 0:
+                        # đủ rồi, không cần đi tiếp các hoạt động sau
+                        break
+
+            # tạo pickings & moves chỉ với các products đã được append (used_qty>0)
+            for picking_data in pickings.values():
                 picking = Picking.create({
-                    'picking_type_id': picking_type_id,
-                    'location_id': products[0]['location_src'].id,
-                    'location_dest_id': products[0]['location_dest'].id,
-                    'transfer_request_id': products[0]['transfer_request_id'],
-                    'origin': products[0]['origin'],
-                    # Thêm các trường khác như partner_id nếu cần
+                    'picking_type_id':  picking_data['picking_type'].id,
+                    'location_id':       picking_data['location_src'].id,
+                    'location_dest_id':  picking_data['location_dest'].id,
+                    'transfer_request_id': picking_data['transfer_request_id'],
+                    'origin':            picking_data['origin'],
                 })
-
-                for product in products:
+                for prod in picking_data['products']:
                     Move.create({
-                        'name': product['product'].display_name,
-                        'product_id': product['product'].id,
-                        'product_uom_qty': product['quantity'],
-                        'product_uom': product['product'].uom_id.id,
-                        'picking_id': picking.id,
-                        'location_id': product['location_src'].id,
-                        'location_dest_id': product['location_dest'].id,
-                        'transfer_request_line_id': product['transfer_request_line_id'],
-                        'lots': product['lots_ids'],
-                        # Có thể cần thêm các trường khác tùy thuộc vào logic cụ thể
+                        'name':          prod['product'].display_name,
+                        'product_id':    prod['product'].id,
+                        'product_uom_qty': prod['quantity'],
+                        'product_uom':   prod['product'].uom_id.id,
+                        'picking_id':    picking.id,
+                        'location_id':   picking_data['location_src'].id,
+                        'location_dest_id': picking_data['location_dest'].id,
+                        'transfer_request_line_id': prod['transfer_request_line_id'],
+                        'lots':          prod['lots_ids'],
                     })
-
                 picking.action_confirm()
-                #picking.action_assign()
 
-            record.write({'state':'done'})
-
-        
-        
-    def _find_record(self,records):
-        # Bước 1: Lọc ra các bản ghi có "số lượng" > 0
-        valid_records = [record for record in records if record['onhand_quantity'] > 0]
-        
-        if len(valid_records) == 0:
-            # Bước 6: Nếu không có bản ghi nào có "số lượng" > 0, lấy bản ghi có "kiểu điều chuyển" bằng "kiểu điều chuyển mặc định"
-            default_record = next((record for record in records if record['picking_type'] == record['default_picking_type']), records[0] if records else None)
-            return default_record
-        
-        if len(valid_records) == 1:
-            # Bước 3: Nếu chỉ có một bản ghi "số lượng" > 0, lấy bản ghi đó
-            return valid_records[0]
-        
-        # Bước 2: Kiểm tra xem trong số các bản ghi hợp lệ, có bản ghi nào "kiểu điều chuyển" bằng "kiểu điều chuyển mặc định" không
-        default_transfer_record = next((record for record in valid_records if record['picking_type'] == record['default_picking_type']), None)
-        
-        if default_transfer_record:
-            # Bước 5: Có bản ghi "kiểu điều chuyển" bằng "kiểu điều chuyển mặc định"
-            return default_transfer_record
-        else:
-            # Bước 4: Lấy bản ghi có "mức độ quan trọng" lớn nhất
-            return min(valid_records, key=lambda x: x['sequence'])
-            
-    def _get_default_picking_type(self,product):
-        if '(VW' in product.name:
-            return self.env['stock.picking.type'].search([('barcode','=','F58-COMP3-PICK')],limit=1)
-        else:
-            return self.env['stock.picking.type'].search([('barcode','=','F110-COMP3-PICK')],limit=1)
+            record.write({'state': 'done'})
 
     @api.model
     def create(self, values):
         if values.get('name', 'New') == 'New':
-           values['name'] = self.env['ir.sequence'].next_by_code('smartbiz_stock.transfer_request') or 'New'
+            values['name'] = self.env['ir.sequence'].next_by_code('smartbiz_stock.transfer_request') or 'New'
+        return super().create(values)
 
-
-        res = super().create(values)
-
-
-        return res
 
 class SmartbizStock_TransferRequestLine(models.Model):
     _name = "smartbiz_stock.transfer_request_line"
     _description = "Transfer Request Line"
+
     product_id = fields.Many2one('product.product', string='Product')
     lots_ids = fields.Many2many('stock.lot', string='Lots')
     quantity = fields.Float(string='Quantity')
@@ -581,6 +594,7 @@ class SmartbizStock_TransferRequestLine(models.Model):
 class SmartbizStock_TransferRequestType(models.Model):
     _name = "smartbiz_stock.transfer_request_type"
     _description = "Transfer Request Type"
+
     name = fields.Char(string='Name')
     transfer_request_type_detail_ids = fields.One2many('smartbiz_stock.transfer_request_type_detail', 'transfer_request_type_id')
 
@@ -588,26 +602,25 @@ class SmartbizStock_TransferRequestType(models.Model):
 class SmartbizStock_TransferRequestTypeDetail(models.Model):
     _name = "smartbiz_stock.transfer_request_type_detail"
     _description = "Transfer Request Type Detail"
+
     sequence = fields.Integer(string='Sequence')
     picking_type_id = fields.Many2one('stock.picking.type', string='Picking Type')
     transfer_request_type_id = fields.Many2one('smartbiz_stock.transfer_request_type', string='Transfer Request Type')
 
 
+
 class SmartbizStock_OnhandReport(models.Model):
     _name = "smartbiz_stock.onhand_report"
     _rec_name = "product_id"
-    _auto = False
+    _auto=False
     _description = "Onhand Report"
-
     location_id = fields.Many2one('stock.location', string='Location')
     product_id = fields.Many2one('product.product', string='Product')
     lot_id = fields.Many2one('stock.lot', string='Lot')
     package_id = fields.Many2one('stock.quant.package', string='Package')
     last_inventory_date = fields.Datetime(string='Last Inventory Date')
     quantity = fields.Float(string='Quantity')
-    value = fields.Monetary(string='Value')
-    uom_id = fields.Many2one('uom.uom', string='Unit of Measure')
-    currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
+
 
     def init(self):
         tools.drop_view_if_exists(self._cr, 'smartbiz_stock_onhand_report')
@@ -620,15 +633,9 @@ class SmartbizStock_OnhandReport(models.Model):
                     sq.lot_id,
                     sq.package_id,
                     MAX(sm.date) as last_inventory_date,
-                    sq.quantity,
-                    sq.quantity * pt.standard_price as value,
-                    pt.uom_id as uom_id
+                    sq.quantity
                 FROM
                     stock_quant sq
-                JOIN
-                    product_product pp ON sq.product_id = pp.id
-                JOIN
-                    product_template pt ON pp.product_tmpl_id = pt.id
                 JOIN
                     stock_move_line sml ON (
                         (sq.lot_id IS NULL OR sq.lot_id = sml.lot_id)
@@ -641,12 +648,11 @@ class SmartbizStock_OnhandReport(models.Model):
                 JOIN
                     stock_move sm ON sml.move_id = sm.id
                 WHERE
-                    sm.is_inventory IS TRUE
+                    sm.is_inventory IS TRUE -- chỉ lấy các stock.move liên quan đến kiểm kê
                 GROUP BY
-                    sq.id, sq.location_id, sq.product_id, sq.lot_id, sq.package_id, sq.quantity, pt.standard_price, pt.uom_id
+                    sq.id, sq.location_id, sq.product_id, sq.lot_id, sq.package_id, sq.quantity
             )
         """)
-
 
 class SmartbizStock_InventoryReport(models.Model):
     _name = "smartbiz_stock.inventory_report"
@@ -673,14 +679,15 @@ class SmartbizStock_InventoryReport(models.Model):
     total_out_weight = fields.Float(string='Total Out Weight')
     final_quantity = fields.Float(string='Final Quantity')
     final_weight = fields.Float(string='Final Weight')
-    initial_value = fields.Float(string='Initial Value')
-    normal_in_value = fields.Float(string='Normal In Value')
-    adjustment_in_value = fields.Float(string='Adjustment In Value')
-    total_in_value = fields.Float(string='Total In Value')
-    normal_out_value = fields.Float(string='Normal Out Value')
-    adjustment_out_value = fields.Float(string='Adjustment Out Value')
-    total_out_value = fields.Float(string='Total Out Value')
-    final_value = fields.Float(string='Final Value')
+    currency_id = fields.Many2one('res.currency', string='Currency')
+    initial_value = fields.Monetary(string='Initial Value')
+    normal_in_value = fields.Monetary(string='Normal In Value')
+    adjustment_in_value = fields.Monetary(string='Adjustment In Value')
+    total_in_value = fields.Monetary(string='Total In Value')
+    normal_out_value = fields.Monetary(string='Normal Out Value')
+    adjustment_out_value = fields.Monetary(string='Adjustment Out Value')
+    total_out_value = fields.Monetary(string='Total Out Value')
+    final_value = fields.Monetary(string='Final Value')
 
 
     def _create_view(self, from_date, to_date):
@@ -702,6 +709,7 @@ class SmartbizStock_InventoryReport(models.Model):
                     uom.factor as uom_factor,  -- Tỉ lệ chuyển đổi đơn vị tính
                     uom_category.name->>'en_US' as uom_category,  -- Trích xuất giá trị 'en_US' từ JSON của uom_category.name
                     sm.price_unit AS price_unit,  -- Price Unit from Stock Move
+                    rc.currency_id,  -- Lấy currency_id từ bảng res_company
                     SUM(CASE WHEN sm.date < '{from_date} 00:00:00' AND sml.state = 'done' THEN sml.quantity ELSE 0 END) as initial_quantity,
                     
                     -- Normal In: Sản phẩm được nhập vào vị trí nội bộ và không phải là điều chỉnh tồn kho
@@ -755,9 +763,11 @@ class SmartbizStock_InventoryReport(models.Model):
                     uom_uom uom ON sml.product_uom_id = uom.id  -- Thêm UOM (Đơn vị tính) vào JOIN
                 JOIN
                     uom_category ON uom.category_id = uom_category.id  -- Thêm uom_category vào JOIN
+                JOIN
+                    res_company rc ON sm.company_id = rc.id  -- Thêm liên kết với bảng res_company để lấy currency_id
                 WHERE sml.state = 'done'
                 GROUP BY 
-                    sml.product_id, sml.lot_id, pt.weight, sm.price_unit, uom.id, uom.factor, uom_category.name, loc_src.warehouse_id, loc_dest.warehouse_id, loc_src.usage, loc_dest.usage
+                    sml.product_id, sml.lot_id, pt.weight, sm.price_unit, rc.currency_id, uom.id, uom.factor, uom_category.name, loc_src.warehouse_id, loc_dest.warehouse_id, loc_src.usage, loc_dest.usage
             )
             SELECT 
                 ROW_NUMBER() OVER() as id,
@@ -765,6 +775,7 @@ class SmartbizStock_InventoryReport(models.Model):
                 inv.product_id,
                 inv.lot_id,
                 inv.uom_id,  -- UOM ID (Đơn vị tính)
+                inv.currency_id,  -- Thêm trường currency_id vào view
                 inv.initial_quantity,
                 
                 -- Tính trọng lượng dựa trên UOM (Nếu thuộc nhóm khối lượng, sử dụng factor, nếu không, sử dụng weight)
@@ -805,8 +816,6 @@ class SmartbizStock_InventoryReport(models.Model):
             FROM 
                 inventory_data inv
         """
-
-
     @api.model
     def init(self):
         tools.drop_view_if_exists(self._cr, 'smartbiz_stock_inventory_report')
