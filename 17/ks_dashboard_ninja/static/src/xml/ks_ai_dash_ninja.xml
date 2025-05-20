@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!--    Dashboard Header : Show title and dashboard settings button-->
+    <t t-name="ksaiDashboardNinjaHeader" owl="1">
+        <t t-call="ks_ai_main_body_container"/>
+    </t>
+    <t t-name="ks_ai_dashboard_footer">
+        <div class=" d-flex p-3 w-100 bg-white justify-content-between flex-column flex-lg-row">
+            <div class="ks_select_text ks-helping-text">
+                <div class="d-flex align-items-center">
+                    <div class="me-1">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M10.0001 1.6665C5.40841 1.6665 1.66675 5.40817 1.66675 9.99984C1.66675 14.5915 5.40841 18.3332 10.0001 18.3332C14.5917 18.3332 18.3334 14.5915 18.3334 9.99984C18.3334 5.40817 14.5917 1.6665 10.0001 1.6665ZM13.9834 8.08317L9.25841 12.8082C9.14175 12.9248 8.98342 12.9915 8.81675 12.9915C8.65008 12.9915 8.49175 12.9248 8.37508 12.8082L6.01675 10.4498C5.77508 10.2082 5.77508 9.80817 6.01675 9.5665C6.25841 9.32484 6.65841 9.32484 6.90008 9.5665L8.81675 11.4832L13.1001 7.19984C13.3417 6.95817 13.7417 6.95817 13.9834 7.19984C14.2251 7.4415 14.2251 7.83317 13.9834 8.08317Z"
+                                fill="#6789C6" />
+                        </svg>
+                    </div>
+                    <div class="selected-amt pt-1"><span id="selected_chart_count">0</span> Charts Selected</div>
+            </div>
+                Here are your generated Items, kindly select to add them in your current dashboard
+            </div>
+
+
+            <div class="ks_dashboard_top_menu ks_select_none">
+                <div class="btn-box d-flex align-items-center">
+                    <button id="ks_ai_add_all_item" class="select-deselect" t-on-click="(ev)=>self.onselectallitems(ev)">
+                        <span class="me-2">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M9.99984 18.3332C14.5832 18.3332 18.3332 14.5832 18.3332 9.99984C18.3332 5.4165 14.5832 1.6665 9.99984 1.6665C5.4165 1.6665 1.6665 5.4165 1.6665 9.99984C1.6665 14.5832 5.4165 18.3332 9.99984 18.3332Z"
+                                    stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M6.4585 9.99993L8.81683 12.3583L13.5418 7.6416" stroke="" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                        <span>Select All</span>
+                    </button>
+                    <button id="ks_ai_remove_all_item" class="select-deselect active d-none" style="margin-right:5px" t-on-click="(ev)=>self.onremoveallitems(ev)">
+                        <span class="me-2">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M9.99984 18.3332C14.5832 18.3332 18.3332 14.5832 18.3332 9.99984C18.3332 5.4165 14.5832 1.6665 9.99984 1.6665C5.4165 1.6665 1.6665 5.4165 1.6665 9.99984C1.6665 14.5832 5.4165 18.3332 9.99984 18.3332Z"
+                                    stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M6.4585 9.99993L8.81683 12.3583L13.5418 7.6416" stroke="" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                        <span>Deselect All</span>
+                    </button>
+                    <button id="ks_ai_add_item" class="dash-btn-red" t-on-click="(ev)=>self.onKsaddItemClick(ev)">
+                        Save
+                    </button>
+                    <button id="ks_close_dialog" class="dash-default-btn ms-1" t-on-click="(ev)=>self.onksaideletedash(ev)">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <!--    Dashboard Main Body Container -->
+    <t t-name="ks_ai_main_body_container" owl="1">
+        <div class="ks_dashboard_main_content h-100" t-ref="ks_main_body">
+            <t t-if="state.ks_dashboard_item_length != 0">
+                <div class="ks_dashboard_item_content grid-stack ks_dashboard_items_list m-3" gs-w="36" t-ref="ks_grid_stack"/>
+                <div class="generated-chart container">
+                    <div class="row">
+                        <t t-call="ks_ai_dashboard_item_template"/>
+                    </div>
+                </div>
+            </t>
+        </div>
+        <t t-if="state.ks_dashboard_item_length == 0">
+            <t t-call="ksaiNoItemView"/>
+        </t>
+    </t>
+
+    <!--    Empty Dashboard View Layout-->
+    <t t-name="ksaiNoItemView">
+        <div class="o_view_nocontent">
+            <div class="o_nocontent_help">
+                <p class="o_view_nocontent_neutral_face">
+                    Your AI dashboard is empty
+                </p>
+                <p>
+                    To Generate items with AI, use
+                    <a>
+                        <strong class="ks_add_dashboard_item_on_empty">Generate items with AI button</strong>
+                    </a>
+                    on top right.
+                </p>
+            </div>
+        </div>
+    </t>
+
+    <!--Item Layouts : -->
+    <t t-name="ks_ai_dashboard_item_template">
+        <t t-foreach="state.ks_dashboard_items" t-as="items" t-key="items.id">
+            <div class="col-lg-4 col-12">
+                <div class="generated-cart-box">
+<!--                    <div class="select-btn">-->
+<!--                        <button id="count_selected_btn" class="ks_chart_select">-->
+<!--                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">-->
+<!--                                <path-->
+<!--                                    d="M10.0001 18.3332C14.5834 18.3332 18.3334 14.5832 18.3334 9.99984C18.3334 5.4165 14.5834 1.6665 10.0001 1.6665C5.41675 1.6665 1.66675 5.4165 1.66675 9.99984C1.66675 14.5832 5.41675 18.3332 10.0001 18.3332Z"-->
+<!--                                    stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />-->
+<!--                                <path d="M6.45825 9.99993L8.81659 12.3583L13.5416 7.6416" stroke="" stroke-width="1.5"-->
+<!--                                    stroke-linecap="round" stroke-linejoin="round" />-->
+<!--                            </svg>-->
+<!--                        </button>-->
+<!--                    </div>-->
+
+                    <div class="chart-preview">
+                        <t t-if="items.ks_dashboard_item_type === 'ks_tile'">
+
+                            <Ksdashboardtile item="items" dashboard_data="ks_dashboard_data" ksdatefilter = "state.ksDateFilterSelection" pre_defined_filter = "state.pre_defined_filter" generate_dialog="generate_dialog" custom_filter="state.custom_filter" ks_speak="(ev)=>this.speak_once(ev,items)"/>
+                        </t>
+                        <t t-elif="items.ks_dashboard_item_type === 'ks_kpi'">
+                            <Ksdashboardkpiview item="items" dashboard_data="ks_dashboard_data" ksdatefilter = "state.ksDateFilterSelection" pre_defined_filter = "state.pre_defined_filter" generate_dialog="generate_dialog" custom_filter="state.custom_filter" ks_speak="(ev)=>this.speak_once(ev,items)"/>
+                        </t>
+                        <t t-elif="items.ks_dashboard_item_type === 'ks_to_do'">
+                            <Ksdashboardtodo item="items" dashboard_data="ks_dashboard_data"/>
+                        </t>
+                        <t t-else="">
+                            <Ksdashboardgraph item="items" dashboard_data="ks_dashboard_data" ksdatefilter = "state.ksDateFilterSelection" pre_defined_filter = "state.pre_defined_filter" generate_dialog="generate_dialog" custom_filter="state.custom_filter" explain_ai_whole="true" ks_speak="(ev)=>this.speak_once(ev,items)"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </t>
+
+</templates>

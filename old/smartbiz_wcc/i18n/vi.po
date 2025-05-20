@@ -1,0 +1,98 @@
+msgid ""
+msgstr ""
+
+#. module: smartbiz_wcc
+#: model:ir.model,name:smartbiz_wcc.model_smartbiz_stock_stock_report
+#: model:ir.ui.menu,name:smartbiz_wcc.smartbiz_stock_stock_report_menuitem
+#: model:ir.actions.act_window,name:smartbiz_wcc.smartbiz_stock_stock_report_action
+msgid "Stock Report"
+msgstr "Báo cáo chứng khoán"
+
+#. module: smartbiz_wcc
+#: model:ir.model.fields,field_description:smartbiz_wcc.field_smartbiz_stock_stock_report__from_date
+msgid "From Date"
+msgstr "Từ ngày"
+
+#. module: smartbiz_wcc
+#: model:ir.model.fields,field_description:smartbiz_wcc.field_smartbiz_stock_stock_report__state
+msgid "State"
+msgstr "Tình trạng"
+
+#. module: smartbiz_wcc
+#: model:ir.model,name:smartbiz_wcc.model_product_template
+#: model:ir.ui.menu,name:smartbiz_wcc.product_template_menuitem
+#: model:ir.actions.act_window,name:smartbiz_wcc.product_template_action
+msgid "Template"
+msgstr "Bản mẫu"
+
+#. module: smartbiz_wcc
+#: model:ir.model.fields,field_description:smartbiz_wcc.field_product_template__customs_code
+msgid "Customs Code"
+msgstr "Mã hải quan"
+
+#. module: smartbiz_wcc
+#: model:ir.model.fields,field_description:smartbiz_wcc.field_product_template__convert_factor
+msgid "Convert Factor"
+msgstr "Hệ số chuyển đổi"
+
+#. module: smartbiz_wcc
+#: model:ir.model.fields,field_description:smartbiz_wcc.field_product_template__name
+#: model:ir.model.fields,field_description:smartbiz_wcc.field_stock_picking__name
+msgid "Name"
+msgstr "Tên"
+
+#. module: smartbiz_wcc
+#: model:ir.model.fields,field_description:smartbiz_wcc.field_product_template__barcode
+msgid "Barcode"
+msgstr "Mã vạch"
+
+#. module: smartbiz_wcc
+#: model:ir.model,name:smartbiz_wcc.model_stock_picking
+#: model:ir.ui.menu,name:smartbiz_wcc.stock_picking_menuitem
+#: model:ir.actions.act_window,name:smartbiz_wcc.stock_picking_action
+msgid "Picking"
+msgstr "Chọn"
+
+#. module: smartbiz_wcc
+#: model:ir.model,name:smartbiz_wcc.model_stock_location
+#: model:ir.ui.menu,name:smartbiz_wcc.stock_location_menuitem
+#: model:ir.actions.act_window,name:smartbiz_wcc.stock_location_action
+msgid "Location"
+msgstr "Vị trí"
+
+#. module: smartbiz_wcc
+#: model:ir.model,name:smartbiz_wcc.model_stock_move_line
+#: model:ir.ui.menu,name:smartbiz_wcc.stock_move_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_wcc.stock_move_line_action
+msgid "move.line"
+msgstr "di chuyển.line"
+
+#. module: smartbiz_wcc
+#: model:ir.model.fields,field_description:smartbiz_wcc.field_stock_move_line__product_id
+#: model:ir.model,name:smartbiz_wcc.model_product_product
+#: model:ir.ui.menu,name:smartbiz_wcc.product_product_menuitem
+#: model:ir.actions.act_window,name:smartbiz_wcc.product_product_action
+msgid "Product"
+msgstr "Sản phẩm"
+
+#. module: smartbiz_wcc
+#: model:ir.model,name:smartbiz_wcc.model_stock_quant_package
+#: model:ir.ui.menu,name:smartbiz_wcc.stock_quant_package_menuitem
+#: model:ir.actions.act_window,name:smartbiz_wcc.stock_quant_package_action
+msgid "quant.package"
+msgstr "quant.package"
+
+#. module: smartbiz_wcc
+#: model:ir.model.fields,field_description:smartbiz_wcc.field_stock_quant_package__display_name
+msgid "Display Name"
+msgstr "Tên hiển thị"
+
+#. module: smartbiz_wcc
+#: model:ir.model.fields,field_description:smartbiz_wcc.field_stock_quant_package__side
+msgid "Side"
+msgstr "Bên"
+
+#. module: smartbiz_wcc
+#: model:ir.model.fields,field_description:smartbiz_wcc.field_stock_quant_package__dye
+msgid "Dye"
+msgstr "Màu nhuộm"

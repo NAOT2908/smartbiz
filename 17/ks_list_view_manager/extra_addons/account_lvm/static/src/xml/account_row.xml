@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="Ks_list_view.account.ListRenderer" t-inherit="account.ListRenderer" t-inherit-mode="extension" owl="1">
+        <xpath expr="//table/thead/tr/th[@t-if='hasSelectors']" position="after">
+            <t t-if="this.ks_serial_number and props.activeActions.type == 'view'">
+               <th class="serial_no">S.No</th>
+            </t>
+        </xpath>
+        <xpath expr="//table/tfoot/tr/td" position="before">
+            <t t-if="this.ks_serial_number">
+            <td></td>
+            </t>
+        </xpath>
+    </t>
+
+    <t t-name="Ks_list_view.hr_expense.ListRenderer" t-inherit="hr_expense.ListRenderer" t-inherit-mode="extension" owl="1">
+        <xpath expr="//table/thead/tr/th[@t-if='hasSelectors']" position="after">
+            <t t-if="this.ks_serial_number and props.activeActions.type == 'view'">
+               <th class="serial_no">S.No</th>
+            </t>
+        </xpath>
+        <xpath expr="//table/tfoot/tr/td" position="before">
+            <t t-if="this.ks_serial_number">
+            <td></td>
+            </t>
+        </xpath>
+    </t>
+
+    <t t-name="Ks_list_view.hr_expense.DashboardListRenderer" t-inherit="hr_expense.DashboardListRenderer" t-inherit-mode="extension" owl="1">
+        <xpath expr="//table/thead/tr/th[@t-if='hasSelectors']" position="after">
+            <t t-if="this.ks_serial_number and props.activeActions.type == 'view'">
+               <th class="serial_no">S.No</th>
+            </t>
+        </xpath>
+        <xpath expr="//table/tfoot/tr/td" position="before">
+            <t t-if="this.ks_serial_number">
+            <td></td>
+            </t>
+        </xpath>
+    </t>
+
+    <t t-name="Ks_list_view.purchase.PurchaseListView" t-inherit="purchase.PurchaseListView" t-inherit-mode="extension" owl="1">
+        <xpath expr="//table/thead/tr/th[@t-if='hasSelectors']" position="after">
+            <t t-if="this.ks_serial_number and props.activeActions.type == 'view'">
+               <th class="serial_no">S.No</th>
+            </t>
+        </xpath>
+        <xpath expr="//table/tfoot/tr/td" position="before">
+            <t t-if="this.ks_serial_number">
+            <td></td>
+            </t>
+        </xpath>
+    </t>
+</templates>

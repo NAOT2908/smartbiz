@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="Ks_list_view_advance_search">
+        <t t-if="props.ks_field_type == 'date' || props.ks_field_type == 'datetime'">
+            <div class="ks_search" id="start_date">
+                <t t-foreach="Object.keys(props.ks_field_search_info)" t-as="field" t-key="field_index">
+                    <t t-if="field === props.ks_field_id">
+                        <t t-foreach="props.ks_field_search_info[field]" t-as="search_field"
+                           t-key="search_field_index">
+                            <div t-if="search_field_index === 0" class="ks_inner_search"
+                                 t-att-id="props.ks_field_id+ '_value' + search_field_index">
+                                <span class="ks_advance_chip ks_advance_chip_ellipsis"
+                                      t-att-id="props.ks_field_id+ '_ks_span' + search_field_index">
+                                    <t t-esc="search_field"/>
+                                </span>
+                                <i class="fa fa-times ks_remove_popup" t-on-click="props.ks_remove_search"></i>
+                            </div>
+                        </t>
+                    </t>
+                </t>
+
+                <t t-if="props.ks_field_type == 'date'">
+                    <DateTimeInput
+                            value="state.startdate"
+                            type="'date'"
+                            id="'input_start_val'"
+                            placeholder="'Start date...'"
+                            onApply="(date)=>this.ks_on_start_date_filter_change(date,1)"/>
+                </t>
+                <t t-else="">
+                    <DateTimeInput
+                            value="state.startdate"
+                            type="'datetime'"
+                            id="'input_start_val'"
+                            placeholder="'Start date...'"
+                            onApply="(date)=>this.ks_on_start_date_filter_change(date,1)"/>
+                </t>
+            </div>
+            <th class="ks_advance_search_row ks_fix_width ks_date_inner">
+                <div class="ks_search d-none" id="end_date">
+                    <t t-foreach="Object.keys(props.ks_field_search_info)" t-as="field" t-key="field_index">
+                        <t t-if="field === props.ks_field_id">
+                            <t t-foreach="props.ks_field_search_info[field]" t-as="search_field"
+                               t-key="search_field_index">
+                                <div t-if="search_field_index === 1" class="ks_inner_search"
+                                     t-att-id="props.ks_field_id+ '_value' + search_field_index">
+                                    <span class="ks_advance_chip ks_advance_chip_ellipsis"
+                                          t-att-id="props.ks_field_id+ '_ks_span' + search_field_index">
+                                        <t t-esc="search_field"/>
+                                    </span>
+                                    <i class="fa fa-times ks_remove_popup" t-on-click="props.ks_remove_search"></i>
+                                </div>
+                            </t>
+                        </t>
+                    </t>
+                    <t t-if="props.ks_field_type == 'date'">
+                        <DateTimeInput
+                                value="state.enddate"
+                                type="'date'"
+                                id="'input_end_val'"
+                                placeholder="'End date'"
+                                onApply="(date)=>this.ks_on_start_date_filter_change(date,2)"/>
+                    </t>
+                    <t t-else="">
+                        <DateTimeInput
+                                value="state.enddate"
+                                type="'datetime'"
+                                id="'input_end_val'"
+                                placeholder="'End date...'"
+                                onApply="(date)=>this.ks_on_start_date_filter_change(date,2)"/>
+                    </t>
+                </div>
+            </th>
+
+        </t>
+
+        <t t-elif="props.ks_field_type == 'selection'">
+            <div class="ks_search_1" style="padding:5px;">
+                <t t-foreach="Object.keys(props.ks_field_search_info)" t-as="field" t-key="field_index">
+                    <t t-if="field === props.ks_field_id">
+                        <t t-foreach="props.ks_field_search_info[field]" t-as="search_field" t-key="search_field_index">
+                            <div class="ks_inner_search" t-att-id="props.ks_field_id+ '_value' + search_field_index">
+                                <span class="ks_advance_chip ks_advance_chip_ellipsis"
+                                      t-att-id="props.ks_field_id+ '_ks_span' + search_field_index">
+                                    <t t-foreach="props.ks_selection_values" t-as="selection" t-key="selection_index">
+                                        <t t-if="selection[0] == search_field">
+                                            <t t-esc="selection[1]"/>
+                                        </t>
+                                    </t>
+
+                                </span>
+                                <i class="fa fa-times ks_remove_popup" t-on-click="props.ks_remove_search"></i>
+                            </div>
+                        </t>
+                    </t>
+                </t>
+                <select class="custom-control-searchbar-change" t-att-data-field-type="props.ks_type"
+                        t-att-data-name="props.ks_field_id"
+                        t-att-data-ks-field="props.ks_description" t-on-change="ks_change_event" t-att-value="value">
+                    <option></option>
+                    <t t-foreach="props.ks_selection_values" t-as="selection" t-key="selection_index">
+                        <option>
+                            <t t-esc="selection[1]"/>
+                        </option>
+                    </t>
+                </select>
+            </div>
+        </t>
+
+        <t t-else="">
+            <t t-if="props.ks_field_id !== 'color'">
+                <div class="ks_search" t-ref="root">
+                    <t t-foreach="Object.keys(props.ks_field_search_info)" t-as="field" t-key="field_index">
+                        <t t-if="field === props.ks_field_id">
+                            <t t-foreach="props.ks_field_search_info[field]" t-as="search_field"
+                               t-key="search_field_index">
+                                <div class="ks_inner_search"
+                                     t-att-id="props.ks_field_id+ '_value' + search_field_index">
+                                    <span class="ks_advance_chip ks_advance_chip_ellipsis"
+                                          t-att-id="props.ks_field_id+ '_ks_span' + search_field_index">
+                                        <t t-if="props.ks_field_type == 'monetary' || props.ks_field_type == 'integer' || props.ks_field_type == 'float'">
+                                            <t t-set="number_value" t-value="format_text(search_field)"/>
+                                            <t t-esc="number_value"/>
+                                        </t>
+                                        <t t-else="">
+                                            <t t-esc="search_field"/>
+                                        </t>
+                                    </span>
+                                    <i class="fa fa-times ks_remove_popup" t-on-click="props.ks_remove_search"></i>
+                                </div>
+                            </t>
+                        </t>
+                    </t>
+                    <input type="text" class="custom-control-searchbar-advance"
+                           t-att-data-field-type="props.ks_field_type"
+                           t-att-data-field-identity="props.ks_field_identifier"
+                           t-att-data-name="props.ks_field_id" t-att-data-ks-field="props.ks_description"
+                           t-att-placeholder="placeholder" t-att-value="value" t-on-keyup="ks_advance_searchbar">
+                    </input>
+
+                </div>
+            </t>
+        </t>
+    </t>
+</templates>
+

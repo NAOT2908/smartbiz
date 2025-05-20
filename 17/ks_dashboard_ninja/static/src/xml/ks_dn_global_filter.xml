@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+
+
+    <t t-name="filter_dropdown" owl="1">
+        <ul id="ks_dn_filter_pre_domain_selector_container" class="ks_dn_pre_filter_menu dropdown-menu mt-1">
+            <t t-if="state.ks_dn_pre_defined_filters?.length">
+                <li class="px-2">
+                    <div class="search-input d-flex align-items-center">
+                        <div class="me-1">
+                            <svg width="16" height="16"
+                                 viewBox="0 0 16 16"
+                                 fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                        d="M7.66634 14.4999C3.89967 14.4999 0.833008 11.4333 0.833008 7.66659C0.833008 3.89992 3.89967 0.833252 7.66634 0.833252C11.433 0.833252 14.4997 3.89992 14.4997 7.66659C14.4997 11.4333 11.433 14.4999 7.66634 14.4999ZM7.66634 1.83325C4.44634 1.83325 1.83301 4.45325 1.83301 7.66659C1.83301 10.8799 4.44634 13.4999 7.66634 13.4999C10.8863 13.4999 13.4997 10.8799 13.4997 7.66659C13.4997 4.45325 10.8863 1.83325 7.66634 1.83325Z"
+                                        fill="#4b5563" stroke="none"/>
+                                <path
+                                        d="M14.6666 15.1666C14.54 15.1666 14.4133 15.12 14.3133 15.02L12.98 13.6866C12.7866 13.4933 12.7866 13.1733 12.98 12.98C13.1733 12.7866 13.4933 12.7866 13.6866 12.98L15.02 14.3133C15.2133 14.5066 15.2133 14.8266 15.02 15.02C14.92 15.12 14.7933 15.1666 14.6666 15.1666Z"
+                                        fill="#4b5563" stroke="none"/>
+                            </svg>
+                        </div>
+                        <input class="predefinedFilterSearchInput" placeholder="Search" type="search" href="#" t-on-input="searchPredefinedFilter"/>
+                    </div>
+                </li>
+                <div class="predefined_filters_section">
+                    <t t-foreach="state.ks_dn_pre_defined_filters" t-as="pre_filter" t-key="pre_filter_index">
+                        <t t-if="pre_filter['type']==='filter'">
+                            <li t-att-class="pre_filter['active'] ? 'dn_dynamic_filter_selected dn_filter_click_event_selector global-active': 'dn_filter_click_event_selector' "
+                                t-att-data-ks-categ="pre_filter['categ']"
+                                t-att-data-filter-id="pre_filter['id']"
+                                t-att-data-ks-name="pre_filter['name']"
+                                t-on-click="onKsDnDynamicFilterSelect">
+                                <a class="dropdown-item df_selection_text"
+                                   href="#">
+                                    <t t-esc="pre_filter['name']"/>
+                                    <span class="ks_dn_pre_model_text ms-1">
+                                        <t t-esc="'(' + pre_filter['model_name'] + ')'"/>
+                                    </span>
+                                </a>
+                            </li>
+                        </t>
+                        <t t-else="">
+                            <li class="p-2"><a class="line-seperator-ks" href="#"></a></li>
+                        </t>
+                    </t>
+                </div>
+            </t>
+            <t t-else="">
+                <li>
+                    <div class="no-data-avilable">
+                        <div class="d-flex align-items-center justify-content-center flex-column">
+                            <div class="no-data-img">
+                                <img src="/ks_dashboard_ninja/static/images/dashboardOverview/no-data.png" alt="no-data-available" loading="lazy" class="img-fluid"/>
+                            </div>
+                            <div class="title mb-1">
+                                No Filter Available
+                            </div>
+                            <p>
+                                No predefined filter, Create some from dashboard settings
+                            </p>
+                        </div>
+                    </div>
+                </li>
+            </t>
+        </ul>
+    </t>
+
+
+    <t t-name="search_filter_dropdown" owl="1">
+        <div class="predefined_filters_section">
+            <t t-foreach="searchedPredefinedFilters" t-as="pre_filter" t-key="pre_filter_index">
+                <t t-if="pre_filter['type']==='filter'">
+                    <li t-att-class="pre_filter['active'] ? 'dn_dynamic_filter_selected dn_filter_click_event_selector global-active': 'dn_filter_click_event_selector' "
+                        t-att-data-ks-categ="pre_filter['categ']"
+                        t-att-data-filter-id="pre_filter['id']"
+                        t-on-click="onKsDnDynamicFilterSelect">
+                        <a class="dropdown-item df_selection_text"
+                           href="#">
+                            <t t-esc="pre_filter['name']"/>
+                            <span class="ks_dn_pre_model_text ms-1">
+                                <t t-esc="'(' + pre_filter['model_name'] + ')'"/>
+                            </span>
+                        </a>
+                    </li>
+                </t>
+                <t t-else="">
+                    <li class="p-2"><a class="line-seperator-ks" href="#"></a></li>
+                </t>
+            </t>
+            <t t-if="!searchedPredefinedFilters.length">
+                <li>
+                    <div class="no-data-avilable">
+                        <div class="d-flex align-items-center justify-content-center flex-column">
+                            <div class="no-data-img">
+                                <img src="/ks_dashboard_ninja/static/images/dashboardOverview/no-data.png" alt="no-data-available" loading="lazy" class="img-fluid"/>
+                            </div>
+                            <div class="title mb-1">
+                                No Filter Matched
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </t>
+        </div>
+    </t>
+
+
+    <t t-name="ks_dn_filter_facets_section">
+        <div t-att-data-ks-model-selector="ks_model" class="ks_dn_filter_section_container">
+            <h4 t-att-for="ks_domain_data.model_name + '-multi-dropdown'" class="ks_dn_filter_section_container_label">
+                <t t-esc="ks_domain_data.model_name"/>
+            </h4>
+            <div class="dropdown dash-dd-2 me-lg-2 me-1" t-att-id="ks_domain_data.model_name + '-multi-dropdown'">
+                <a class="text-decoration-none dropdown-toggle d-flex encapsulated-link" href="#"
+                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <t t-if="ks_domain_data.ks_domain_index_data.length">
+                        <t t-foreach="ks_domain_data.ks_domain_index_data" t-as="ks_domain_data_new" t-key="ks_domain_data_new_index">
+                            <div class="o_searchview_facet position-relative pe-2 me-2" t-att-ksmodel="ks_model" t-if="!ks_domain_data_new.isCustomFilter"
+                                 t-att-modelname="ks_domain_data.model_name"
+                                 t-att-kscateg="ks_domain_data_new.categ || '0'">
+                                <div class="selcted-opt opted">
+                                    <div class="opt-title">
+                                        <t t-esc="ks_domain_data_new.label.join(' or ')"/>
+                                    </div>
+                                    <div t-on-click="ksOnRemoveFilterFromSearchPanel">
+                                        <img src="ks_dashboard_ninja/static/images/dashboardOverview/close-circle-two.svg"
+                                             alt="close-img" loading="lazy" class="img-fluid encapsulated-cross"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </t>
+                </a>
+                <t t-call="filter_dropdown">
+                    <t t-set="searchPredefinedFilter" t-value="searchPredefinedFilter"/>
+                    <t t-set="predefinedSearchFocusout" t-value="predefinedSearchFocusout"/>
+                </t>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="ks_dn_custom_filter_input_container">
+        <div class="table-cell">Where</div>
+        <div class="ks_custom_filter_changeable_td_section table-cell">
+            <div class="dropdown filter_dropdown dash-dd-2 table-dd">
+                <a class="custom_filter_current_value_section text-decoration-none dropdown-toggle" href="#"
+                    role="button" data-bs-toggle="dropdown"
+                    aria-expanded="false" t-att-data-index="ks_dashboard_custom_domain_filter[0]['id']"
+                   t-att-data-tr-id="trId">
+                    <t t-if="ks_dashboard_custom_domain_filter[0]" t-esc="ks_dashboard_custom_domain_filter[0]['name']"/>
+                    <t t-if="ks_dashboard_custom_domain_filter[0]" t-esc="'(' + ks_dashboard_custom_domain_filter[0]['model_name'] + ')'"/>
+                </a>
+                <ul class="dropdown-menu customFilterDropdown">
+                    <t t-foreach="ks_dashboard_custom_domain_filter" t-as="custom_domain" t-key="custom_domain_index">
+                        <li>
+                            <a class="dropdown-item ks_custom_filter_field_selector" href="#" t-att-data-value="custom_domain['id']"
+                                t-on-click="(ev) => self.ksOnCustomFilterFieldSelect(ev)" t-att-data-tr-id="trId">
+                                <t t-esc="custom_domain['name']"/>
+                                <t t-esc="'(' + custom_domain['model_name'] + ')'"/>
+                            </a>
+                        </li>
+                    </t>
+                </ul>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="ks_dn_custom_domain_input_operator">
+        <div class="ks_operator_option_selector_td table-cell">
+            <div class="dropdown filter_dropdown dash-dd-2 table-dd">
+                <a class="operator_current_value_section text-decoration-none dropdown-toggle" href="#"
+                    role="button" data-bs-toggle="dropdown" t-att-data-value="operators[0]['symbol']"
+                    aria-expanded="false" t-att-data-index="0"
+                   t-att-data-tr-id="trId">
+                    <t t-if="operators[0]" t-esc="operators[0]['description']"/>
+                </a>
+                <ul class="dropdown-menu customFilterDropdown">
+                    <t t-foreach="operators" t-as="operator" t-key="operator_index">
+                        <li>
+                            <a class="dropdown-item ks_operator_option_selector" href="#" t-att-data-value="operator['symbol']"
+                               t-on-click="(ev)=> self.ksOnCustomFilterOperatorSelect(ev)" t-att-data-index="operator_index"
+                                t-att-data-tr-id="trId">
+                                <t t-esc="operator['description']"/>
+                            </a>
+                        </li>
+                    </t>
+                </ul>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="ks_dn_custom_domain_input_text">
+        <div class="o_generator_menu_value_td table-cell encapsulated-input-container">
+            <span class="o_generator_menu_value">
+                <t t-if="(operator == '=' or operator == '!=') &amp;&amp; relation">
+                    <input type="text" value="" class="o_input ks_input_filter_options border-0 common-input" t-att-data-relation="relation" autocomplete="off"
+                           t-on-click="(ev)=>self.onksrenderautocomplete(ev)"
+                           t-on-focus="(ev)=>self.onksrenderfilteroptions(ev)" placeholder="Add Domain..."
+                           />
+                </t>
+                <t t-elif="operator == 'in' &amp;&amp; relation">
+                    <textarea type="text" value="" class="o_input ks_input_filter_options border-0 common-input" t-att-data-relation="relation" autocomplete="off"
+                              t-on-change="(ev)=>self.onksrenderautocomplete(ev)"
+                              t-on-focus="(ev)=>self.onksrenderfilteroptions(ev)" placeholder="Add Domain..."
+                             />
+                </t>
+                <t t-else="">
+                    <input type="text" value="" class="o_input border-0 common-input" placeholder="Add Domain..."/>
+                </t>
+            </span>
+        </div>
+        <t t-if="show_remove_option">
+            <div class="customFilterDeleteBtn table-cell" t-on-click="ksOnCustomFilterConditionRemove">
+                <button class="table-dlt-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M14 3.98665C11.78 3.76665 9.54667 3.65332 7.32 3.65332C6 3.65332 4.68 3.71999 3.36 3.85332L2 3.98665"
+                            stroke="" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path
+                            d="M5.6665 3.31325L5.81317 2.43992C5.91984 1.80659 5.99984 1.33325 7.1265 1.33325H8.87317C9.99984 1.33325 10.0865 1.83325 10.1865 2.44659L10.3332 3.31325"
+                            stroke="" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path
+                            d="M12.5664 6.09351L12.1331 12.8068C12.0598 13.8535 11.9998 14.6668 10.1398 14.6668H5.85977C3.99977 14.6668 3.93977 13.8535 3.86644 12.8068L3.43311 6.09351"
+                            stroke="" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M6.88672 11H9.10672" stroke=""
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M6.3335 8.33325H9.66683" stroke=""
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+        </t>
+    </t>
+
+
+    <t t-name="ks_dn_custom_domain_input_date">
+        <div class="o_generator_menu_value_td table-cell encapsulated-input-container">
+             <t t-if="field_type == 'date'">
+                <input id="datetimepicker1" type="date" class="o_datepicker o_input border-0 common-input me-2" placeholder="Add Domain..."/>
+                <t t-if="operator == 'between'">
+                    <input id="datetimepicker1" type="date" class="o_datepicker o_input border-0 common-input me-2" placeholder="Add Domain..."/>
+                </t>
+
+            </t>
+            <t t-else="">
+                <input id="datetimepicker1" type="datetime-local" class="o_datepicker o_input border-0 common-input me-2" placeholder="Add Domain..."/>
+                <t t-if="operator== 'between'">
+                    <input id="datetimepicker1" type="datetime-local" class=" o_datepicker o_input border-0 common-input me-2" placeholder="Add Domain..."/>
+                </t>
+            </t>
+        </div>
+        <t t-if="show_remove_option">
+            <div class="customFilterDeleteBtn table-cell" t-on-click="ksOnCustomFilterConditionRemove">
+                <button class="table-dlt-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M14 3.98665C11.78 3.76665 9.54667 3.65332 7.32 3.65332C6 3.65332 4.68 3.71999 3.36 3.85332L2 3.98665"
+                            stroke="" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path
+                            d="M5.6665 3.31325L5.81317 2.43992C5.91984 1.80659 5.99984 1.33325 7.1265 1.33325H8.87317C9.99984 1.33325 10.0865 1.83325 10.1865 2.44659L10.3332 3.31325"
+                            stroke="" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path
+                            d="M12.5664 6.09351L12.1331 12.8068C12.0598 13.8535 11.9998 14.6668 10.1398 14.6668H5.85977C3.99977 14.6668 3.93977 13.8535 3.86644 12.8068L3.43311 6.09351"
+                            stroke="" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M6.88672 11H9.10672" stroke=""
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M6.3335 8.33325H9.66683" stroke=""
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+        </t>
+    </t>
+
+    <t t-name="ks_dn_custom_domain_input_selection">
+        <div class="o_generator_menu_value_td table-cell">
+            <div class="dropdown filter_dropdown dash-dd-2 table-dd">
+                <a class="text-decoration-none dropdown-toggle o_generator_menu_value"
+                    href="#" role="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false" t-att-value="selection_input[0][0]">
+                    <t t-esc="selection_input[0][1]"/>
+                </a>
+                <ul class="dropdown-menu customFilterDropdown">
+                     <t t-foreach="selection_input" t-as="selection_data" t-key="selection_data_index">
+                        <li>
+                            <a class="dropdown-item" href="#" t-att-value="selection_data[0]" t-att-data-tr-id="trId"
+                               t-on-click="onCustomFilterSelectionFieldSelect">
+                                <t t-esc="selection_data[1]"/>
+                            </a>
+                        </li>
+                     </t>
+                </ul>
+            </div>
+        </div>
+        <t t-if="show_remove_option">
+            <div class="customFilterDeleteBtn table-cell" t-on-click="ksOnCustomFilterConditionRemove">
+                <button class="table-dlt-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M14 3.98665C11.78 3.76665 9.54667 3.65332 7.32 3.65332C6 3.65332 4.68 3.71999 3.36 3.85332L2 3.98665"
+                            stroke="" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path
+                            d="M5.6665 3.31325L5.81317 2.43992C5.91984 1.80659 5.99984 1.33325 7.1265 1.33325H8.87317C9.99984 1.33325 10.0865 1.83325 10.1865 2.44659L10.3332 3.31325"
+                            stroke="" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path
+                            d="M12.5664 6.09351L12.1331 12.8068C12.0598 13.8535 11.9998 14.6668 10.1398 14.6668H5.85977C3.99977 14.6668 3.93977 13.8535 3.86644 12.8068L3.43311 6.09351"
+                            stroke="" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M6.88672 11H9.10672" stroke=""
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M6.3335 8.33325H9.66683" stroke=""
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+        </t>
+    </t>
+
+    <t t-name="ks_dn_custom_domain_boolean">
+        <t t-if="show_remove_option">
+            <div class="customFilterDeleteBtn table-cell" t-on-click="ksOnCustomFilterConditionRemove">
+                <button class="table-dlt-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path
+                                d="M14 3.98665C11.78 3.76665 9.54667 3.65332 7.32 3.65332C6 3.65332 4.68 3.71999 3.36 3.85332L2 3.98665"
+                                stroke="" stroke-linecap="round"
+                                stroke-linejoin="round"/>
+                        <path
+                                d="M5.6665 3.31325L5.81317 2.43992C5.91984 1.80659 5.99984 1.33325 7.1265 1.33325H8.87317C9.99984 1.33325 10.0865 1.83325 10.1865 2.44659L10.3332 3.31325"
+                                stroke="" stroke-linecap="round"
+                                stroke-linejoin="round"/>
+                        <path
+                                d="M12.5664 6.09351L12.1331 12.8068C12.0598 13.8535 11.9998 14.6668 10.1398 14.6668H5.85977C3.99977 14.6668 3.93977 13.8535 3.86644 12.8068L3.43311 6.09351"
+                                stroke="" stroke-linecap="round"
+                                stroke-linejoin="round"/>
+                        <path d="M6.88672 11H9.10672" stroke=""
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6.3335 8.33325H9.66683" stroke=""
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </t>
+    </t>
+
+
+
+    <t t-name="dn_favourite_filter_dropdown">
+        <div id="favFilterMain" t-if="ks_dashboard_data.ks_dashboard_items_ids.length" title="Favourite Filter" t-att-class="Object.keys(ks_dashboard_data.ks_dashboard_favourite_filter).length ? ' hide-in-edit' : ' hide-in-edit ks_hide'">
+            <t t-if="Object.keys(ks_dashboard_data.ks_dashboard_favourite_filter).length">
+                <div class="dropdown dash-dd-2 ms-2 d-md-block d-none favFilterDropdown">
+                    <a class="text-decoration-none dropdown-toggle save-filter" href="#" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M11.0836 6.75843L12.1836 8.95843C12.3336 9.25843 12.7336 9.55843 13.067 9.60843L15.0586 9.94177C16.3336 10.1584 16.6336 11.0751 15.717 11.9918L14.167 13.5501C13.9086 13.8084 13.7586 14.3168 13.842 14.6834L14.2836 16.6084C14.6336 18.1251 13.8253 18.7168 12.4836 17.9251L10.617 16.8168C10.2753 16.6168 9.7253 16.6168 9.38364 16.8168L7.50864 17.9168C6.16697 18.7084 5.35864 18.1168 5.70864 16.6001L6.1503 14.6751C6.23364 14.3168 6.08364 13.8084 5.8253 13.5418L4.28364 12.0001C3.36697 11.0834 3.66697 10.1584 4.94197 9.9501L6.93364 9.61677C7.26697 9.55843 7.66697 9.26677 7.81697 8.96677L8.91697 6.76677C9.50864 5.56677 10.492 5.56677 11.0836 6.75843Z"
+                                fill="#6789C6" />
+                            <path
+                                d="M5 8.12508C4.65833 8.12508 4.375 7.84175 4.375 7.50008V1.66675C4.375 1.32508 4.65833 1.04175 5 1.04175C5.34167 1.04175 5.625 1.32508 5.625 1.66675V7.50008C5.625 7.84175 5.34167 8.12508 5 8.12508Z"
+                                fill="#6789C6" />
+                            <path
+                                d="M15 8.12508C14.6583 8.12508 14.375 7.84175 14.375 7.50008V1.66675C14.375 1.32508 14.6583 1.04175 15 1.04175C15.3417 1.04175 15.625 1.32508 15.625 1.66675V7.50008C15.625 7.84175 15.3417 8.12508 15 8.12508Z"
+                                fill="#6789C6" />
+                            <path
+                                d="M10 3.95841C9.65833 3.95841 9.375 3.67508 9.375 3.33341V1.66675C9.375 1.32508 9.65833 1.04175 10 1.04175C10.3417 1.04175 10.625 1.32508 10.625 1.66675V3.33341C10.625 3.67508 10.3417 3.95841 10 3.95841Z"
+                                fill="#6789C6" />
+                        </svg>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <t t-foreach="ks_favourite_filters" t-as="filter" t-key="filter">
+                            <li class="favFilterListItems">
+                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="#" t-on-click="onksfavfilterselected"
+                                    t-att-fav-name="ks_favourite_filters[filter].name">
+                                    <div><t t-esc="filter"/></div>
+                                    <button class="dadsh-dlt-btn" t-on-click="ks_delete_favourite_filter"
+                                            t-att-fav-id="ks_favourite_filters[filter].id" t-att-fav-name="ks_favourite_filters[filter].name">
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M10.5 2.98999C8.835 2.82499 7.16 2.73999 5.49 2.73999C4.5 2.73999 3.51 2.78999 2.52 2.88999L1.5 2.98999"
+                                                stroke="#EC2D30" stroke-width="0.75" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                            <path
+                                                d="M4.25 2.485L4.36 1.83C4.44 1.355 4.5 1 5.345 1H6.655C7.5 1 7.565 1.375 7.64 1.835L7.75 2.485"
+                                                stroke="#EC2D30" stroke-width="0.75" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                            <path
+                                                d="M9.4252 4.57007L9.1002 9.60507C9.0452 10.3901 9.0002 11.0001 7.6052 11.0001H4.3952C3.0002 11.0001 2.9552 10.3901 2.9002 9.60507L2.5752 4.57007"
+                                                stroke="#EC2D30" stroke-width="0.75" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                            <path d="M5.16504 8.25H6.83004" stroke="#EC2D30" stroke-width="0.75"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                            <path d="M4.75 6.25H7.25" stroke="#EC2D30" stroke-width="0.75"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                </a>
+                            </li>
+                        </t>
+                    </ul>
+                </div>
+            </t>
+            <t t-else="">
+            </t>
+        </div>
+    </t>
+
+
+</templates>

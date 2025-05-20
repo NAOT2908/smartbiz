@@ -129,15 +129,16 @@ export default class SmartBizBarcodeModel extends EventBus {
             record: null,
         };
     
-        // console.log( "result:", result);
+        console.log( "result:", result);
         // Nếu không tìm thấy trong cache và cacheOnly = false, gọi API backend
         if (!cacheOnly) {
             try {
-                
-                const backendResult = await this.orm.call('smartbiz.inventory', 'get_inventory_barcode_data',
-                    [,barcode, filters, barcodeType]
+                const backendResult = await this.orm.call(
+                    'mrp.workcenter',
+                    'get_data',
+                    [barcode, filters, barcodeType]
                 );
-                // console.log(backendResult)
+                console.log(backendResult)
                 if (backendResult?.match) {
                     return backendResult;
                 }

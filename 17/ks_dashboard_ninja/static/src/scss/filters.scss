@@ -1,0 +1,11 @@
+// .ks_body_class .predefined-filters {
+//   max-height: calc(100vh - 318px);
+//   overflow: auto;
+//   @include custom-scrollbar;
+// }
+
+@media screen and (min-width:900px) and (max-width:1400px) {
+  .custom-dash-collapse {
+    left: -120px;
+  }
+}

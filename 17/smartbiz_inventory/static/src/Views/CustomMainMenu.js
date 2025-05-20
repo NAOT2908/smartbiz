@@ -12,12 +12,27 @@ import {
 } from "@odoo/owl";
 import { useService, useBus, useHistory } from "@web/core/utils/hooks";
 
+import { patch } from "@web/core/utils/patch";
 import { MainMenu } from "@smartbiz_barcode/main_menu";
+
+patch(MainMenu.prototype, {
+  setup() {
+    super.setup?.();
+    this.actionService = useService("action");
+  },
+
+  async openInventory() {
+    await this.actionService.doAction(
+      "smartbiz_inventory.adjustment_inventory_action"
+    );
+  },
+});
 
 export default class CustomInventory extends MainMenu {
   static template = "CustomInventory";
 
   setup() {
+    super.setup();
     this.actionService = useService("action");
     this.dialogService = useService("dialog");
     this.home = useService("home_menu");
@@ -29,7 +44,5 @@ export default class CustomInventory extends MainMenu {
       showBarcodeProduction: false,
       showBarcodeWorkorder: false,
     });
-    
-    
   }
 }

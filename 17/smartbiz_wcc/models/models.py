@@ -19,15 +19,17 @@ class SmartBiz_Stock_StockReport(models.Model):
 
 
     def action__nxt__ten_nvl____sl_ht(self):
-        file_name = 'Bao cao NXT theo ten NVL va SL he thong.xlsx'       
+        file_name = 'Bao cao NXT theo ten NVL va SL he thong 2 sheet.xlsx'    
         workbook = self.load_excel(file_name)
-        worksheet = workbook.active
+        
+        worksheet_met = workbook['Don vi chinh']   # Sheet 1
+        worksheet_cuon = workbook['Don vi quy doi'] # Sheet 2
+
         from_date = self.from_date
         to_date = self.to_date + timedelta(days=1)
 
-        transaction_data = self._get_stock_data(from_date,to_date)
+        transaction_data = self._get_stock_data(from_date, to_date)
 
-            # Biến đổi dữ liệu để dễ dàng hiển thị hoặc trả về
         detailed_data = []
         for (product_id, lot_id, warehouse_id), data in transaction_data.items():
             product = self.env['product.product'].browse(product_id)
@@ -36,6 +38,7 @@ class SmartBiz_Stock_StockReport(models.Model):
             lot_values = self._get_values_from_split(lot.name if lot else '', ':', 4)
             product_values = self._get_values_from_split(product.name if product else '', ':', 2)
             warehouse_name = warehouse.name if warehouse else ''
+            
             detailed_data.append({
                 'warehouse': warehouse_name,
                 'he_hang': lot_values[0],
@@ -45,7 +48,8 @@ class SmartBiz_Stock_StockReport(models.Model):
                 'product': product_values[0],
                 'color': product_values[1],
                 'ma_hq': product.customs_code,
-                'hsqd': product.convert_factor,
+                'hsqd': product.convert_factor or 1.0,
+                'rate': product.convert_rate,
                 'begin_quantity': data['begin_quantity'],
                 'in_purchase': data['in_purchase'],
                 'in_production': data['in_production'],
@@ -61,21 +65,51 @@ class SmartBiz_Stock_StockReport(models.Model):
                 'out_other': data['out_other'],
                 'out_total': data['out_total'],
                 'end_quantity': data['end_quantity'],
-
             })
+
         detailed_data = sorted(detailed_data, key=lambda x: x['warehouse'])
-        worksheet['A3'] = "Range Date: " + from_date.strftime('%d/%m/%Y') + " - " + to_date.strftime('%d/%m/%Y')
-        
-        row = 6
+
+        # Sheet Don vi met
+        worksheet_met['A3'] = "Range Date: " + from_date.strftime('%d/%m/%Y') + " - " + to_date.strftime('%d/%m/%Y')
+        row_met = 6
         for data in detailed_data:
             keys = list(data.keys())
-            # Nếu bạn cần thứ tự cụ thể và đang sử dụng phiên bản Python cũ hơn, bạn có thể muốn sắp xếp các khóa:
-            # keys = sorted(data.keys())
             for index, key in enumerate(keys, start=1):
-                worksheet.cell(row, index, data[key])
-            row += 1
-        
-        return self.save_excel(workbook,file_name) 
+                worksheet_met.cell(row_met, index, data[key])
+            row_met += 1
+
+        # Sheet Don vi cuon
+        worksheet_cuon['A3'] = "Range Date: " + from_date.strftime('%d/%m/%Y') + " - " + to_date.strftime('%d/%m/%Y')
+        row_cuon = 6
+        quantity_keys = [
+            'begin_quantity', 'in_purchase', 'in_production', 'in_adjust', 'in_transfer', 'in_other', 'in_total',
+            'out_production', 'out_supplier', 'out_huy', 'out_adjust', 'out_transfer', 'out_other', 'out_total', 'end_quantity'
+        ]
+        for data in detailed_data:
+            keys = list(data.keys())
+            for index, key in enumerate(keys, start=1):
+                value = data[key]
+
+                if key in quantity_keys:
+                    original = value or 0
+                    rate_raw = data.get('rate')
+
+                    try:
+                        rate = float(rate_raw)
+                        if rate and rate != 1.0:
+                            converted = original / rate
+                            cell_value = f"{original} ; {converted}"
+                        else:
+                            cell_value = original
+                    except (ValueError, TypeError):
+                        cell_value = original
+                else:
+                    cell_value = value
+
+                worksheet_cuon.cell(row_cuon, index, cell_value)
+            row_cuon += 1
+
+        return self.save_excel(workbook, file_name)
 
         
         
@@ -356,6 +390,7 @@ class Product_Template(models.Model):
     ]
     customs_code = fields.Char(string='Customs Code')
     convert_factor = fields.Float(string='Convert Factor')
+    convert_rate = fields.Char(string='Convert Rate')
     name = fields.Char(store='True')
     barcode = fields.Char(store='True', default = 'New')
 

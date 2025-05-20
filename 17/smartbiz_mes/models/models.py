@@ -1,3 +1,4 @@
+import math
 def remove_accents_and_upper(text):
     if not text:
         return ""
@@ -916,7 +917,7 @@ class mrp_Production(models.Model):
                         num_packages = int(math.ceil(comp_quantity / pack_quantity))
                         
                         # Tên WO, Component (viết gọn, có thể bỏ dấu...)
-                        wo_name = wo.name or 'WO'
+                        wo_name = wo.display_name or 'WO'
                         comp_name = comp.name or 'COMP'
                         
                         package_names = []
@@ -969,6 +970,7 @@ class mrp_Production(models.Model):
 class mrp_Workcenter(models.Model):
     _inherit = ['mrp.workcenter']
     production_line_id = fields.Many2one('smartbiz_mes.production_line', string='Production Line')
+    equipment_quantity = fields.Integer(string='Equipment Quantity')
 
 
 class mrp_Workorder(models.Model):
@@ -1024,8 +1026,10 @@ class mrp_Workorder(models.Model):
                 
                 ok_quantity = 0
                 ng_quantity = 0
+                cancel_quantity = 0
                 producing_ok_quantity = 0
                 producing_ng_quantity = 0
+                producing_cancel_quantity = 0
                 batch_quantity = 20                
                 quantity = order.production_id.product_qty / order.production_id.bom_id.product_qty * comp.quantity              
                 
@@ -1042,8 +1046,10 @@ class mrp_Workorder(models.Model):
                         'lot_name':pa.lot_id.name,
                         'status':pa.status,
                         'start':pa.start,
-                        'finish':pa.finish
-                        
+                        'finish':pa.finish,
+                        'note':pa.note,
+                        'reason': pa.reason_id.name,
+                        'activity_type':pa.activity_type
                     })
                     if pa.start and pa.finish:
                         if pa.quality > 0.9:
@@ -1055,12 +1061,14 @@ class mrp_Workorder(models.Model):
                             producing_ok_quantity += pa.quantity
                         else:
                             producing_ng_quantity += pa.quantity
+                    elif pa.activity_type == 'cancel':
+                        cancel_quantity += pa.quantity
                         
                 lot_id =  order.production_id.lot_producing_id.id       
                 lot_name =  order.production_id.lot_producing_id.name
                 producing_quantity = producing_ok_quantity + producing_ng_quantity
-                produced_quantity = ok_quantity + ng_quantity
-                remain_quantity = quantity - (producing_quantity + produced_quantity)
+                produced_quantity = ok_quantity + ng_quantity + cancel_quantity
+                remain_quantity = quantity - (producing_quantity + produced_quantity )
                 if remain_quantity < 0:
                     remain_quantity = 0
    
@@ -1075,6 +1083,7 @@ class mrp_Workorder(models.Model):
                     'batch_quantity':batch_quantity,
                     'ok_quantity':ok_quantity,
                     'ng_quantity':ng_quantity,
+                    'cancel_quantity':cancel_quantity,
                     'producing_quantity':producing_quantity,
                     'remain_quantity':remain_quantity,
                     'producing_ok_quantity':producing_ok_quantity,
@@ -1118,12 +1127,27 @@ class mrp_Workorder(models.Model):
         
         return self.get_data(workorder_id)
     
+    def cancel_activity(self,workorder_id,production_activity):        
+        activity = self.env['smartbiz_mes.production_activity'].browse(production_activity)
+        now = fields.Datetime.now()
+        activity.write({
+            'activity_type':'cancel',
+            'start': now,
+            'finish': now,
+            'status':'cancel'
+            })
+        
+        return self.get_data(workorder_id)
+    
     def update_activity(self,workorder_id,data):
+      
         activity = self.env['smartbiz_mes.production_activity'].browse(data['id'])
+           
         package = activity.package_id
         if package:
             package.write({'last_qty':data['quantity']})  
         activity.write(data)
+
         return self.get_data(workorder_id)
     
     def update_component(self,type,component):
@@ -1173,17 +1197,124 @@ class mrp_Workorder(models.Model):
                 self.start_workorder(work_order_id)
         return data
 
-    def handle_package_scan(self, workorder_id, component_id, qr_code,employee_id,
-                            button_type=False, force=False, quantity=None):
+    def lock_package_new(self, pkg, workorder, bom_component, force=False, mode='start'):
         """
-        - Nếu qr_code rỗng + button_type='ok_action' => Tìm OK đang mở => finish với quantity 
-          hoặc tạo activity mới => finish ngay.
-        - Nếu qr_code rỗng + button_type='ng_action' => Tương tự cho NG.
-        - Nếu chỉ qr_code="" (không button_type) => Tạo package + activity OK (bắt đầu).
-        - Nếu qr_code.startswith("OK") => Quét logic toggle OK (bắt đầu / kết thúc).
-        - Nếu qr_code.startswith("NG") => Quét logic NG (cộng dồn).
-        - Mỗi nhánh xong => check finish_workorder.
+        Chỉ dùng start_dependency của operation hiện tại để quyết định cho 'start' hoặc 'finish' công đoạn này.
+
+        Tham số:
+          - pkg: record smartbiz_mes.package
+          - workorder: record mrp.workorder
+          - bom_component: record smartbiz_mes.bom_components
+          - force: True => cho qua nếu vi phạm
+          - mode: 'start' hoặc 'finish' => ta sẽ xét 'start_to_...' hay 'finish_to_...' tương ứng
+
+        Các check:
+          1) pkg.production_id == workorder.production_id (nếu pkg.production_id tồn tại)
+          2) Dựa vào start_dependency => tìm operation trước => kiểm tra activity
         """
+
+        # 1) Check production_id
+        if pkg.production_id and pkg.production_id != workorder.production_id:
+            # Nếu pkg.production_id rỗng => ta set
+            raise UserError(_(
+                "Package '%s' (thuộc MO '%s') không trùng với MO '%s'. Không được phép scan."
+            ) % (pkg.name, pkg.production_id.name, workorder.production_id.name))
+        elif not pkg.production_id:
+            # Nếu bạn muốn auto gán production_id khi nó trống
+            pkg.write({'production_id': workorder.production_id.id})
+
+        operation = workorder.operation_id
+        if not operation:
+            # Không có operation => coi như không ràng buộc => pass
+            return
+
+        dependency = operation.start_dependency or 'none'
+        if dependency == 'none':
+            return  # Không có ràng buộc => pass
+
+        # Tìm công đoạn trước
+        routing_ops = operation.bom_id.operation_ids.sorted(key=lambda op: op.sequence)
+        ops_list = list(routing_ops)  # Chuyển sang list
+        if operation not in routing_ops:
+            # Trường hợp hiếm => op ko thuộc routing => pass
+            return
+        idx = ops_list.index(operation)  # Lúc này sẽ không báo AttributeError nữa
+        if idx <= 0:
+            # Công đoạn đầu => không có op trước => pass
+            return
+        prev_op = routing_ops[idx - 1]
+
+        # Tìm workorder của công đoạn trước
+        prev_wo = self.env['mrp.workorder'].search([
+            ('operation_id', '=', prev_op.id),
+            ('production_id', '=', workorder.production_id.id),
+            ('state', '!=', 'cancel'),
+        ], limit=1)
+        if not prev_wo:
+            # Không có WO trước => pass
+            return
+
+        # Tìm activity package ở prev_wo
+        Activity = self.env['smartbiz_mes.production_activity']
+        acts_prev = Activity.search([
+            ('work_order_id', '=', prev_wo.id),
+            ('package_id', '=', pkg.id),
+        ])
+
+        # ----------------------------
+        # Xác định logic
+        # ----------------------------
+        if mode == 'start':
+            # => finish_to_start / start_to_start
+            if dependency == 'finish_to_start':
+                # Muốn START công đoạn này => prev_op phải finish => cấm acts_open
+                open_acts = acts_prev.filtered(lambda a: not a.finish)
+                if open_acts and not force:
+                    raise UserError(_(
+                        "Package '%s' chưa FINISH ở công đoạn trước (%s). "
+                        "start_dependency='finish_to_start' => cấm START công đoạn này."
+                    ) % (pkg.name, prev_op.name))
+
+            elif dependency == 'start_to_start':
+                # Muốn START => prev_op phải start => cần ít nhất 1 activity có .start
+                if not any(a.start for a in acts_prev) and not force:
+                    raise UserError(_(
+                        "Package '%s' chưa START ở công đoạn trước (%s). "
+                        "start_dependency='start_to_start' => cấm START công đoạn này."
+                    ) % (pkg.name, prev_op.name))
+
+            # mode='start' => start_to_finish, finish_to_finish => không áp dụng
+            # (vì 2 kiểu đó ràng buộc khi FINISH công đoạn này)
+
+        elif mode == 'finish':
+            # => start_to_finish / finish_to_finish
+            if dependency == 'start_to_finish':
+                # Muốn FINISH công đoạn này => prev_op phải START
+                # => acts_prev phải có .start
+                if not any(a.start for a in acts_prev) and not force:
+                    raise UserError(_(
+                        "start_dependency='start_to_finish':\n"
+                        "Không thể FINISH gói '%s' ở công đoạn này vì công đoạn trước (%s) chưa START gói."
+                    ) % (pkg.name, prev_op.name))
+
+            elif dependency == 'finish_to_finish':
+                # Muốn FINISH => prev_op phải FINISH => acts_prev không được còn act_open
+                open_acts = acts_prev.filtered(lambda a: not a.finish)
+                if open_acts and not force:
+                    raise UserError(_(
+                        "start_dependency='finish_to_finish':\n"
+                        "Không thể FINISH gói '%s' vì công đoạn trước (%s) chưa FINISH xong."
+                    ) % (pkg.name, prev_op.name))
+
+            # finish_to_start, start_to_start => không áp dụng cho giai đoạn FINISH
+            # (chúng áp dụng cho START)
+
+        # Done. Nếu qua hết => pass.
+        return
+
+    @api.model
+    def handle_package_scan(self, workorder_id, component_id, qr_code, employee_id,
+                            button_type=False, force=False, quantity=None, ng_qty=None, note=None,reason_id=None):
 
         if not workorder_id or not component_id:
             raise UserError(_("workorder_id và component_id là bắt buộc."))
@@ -1196,120 +1327,95 @@ class mrp_Workorder(models.Model):
         if not bom_component:
             raise UserError(_("Component ID=%s không tồn tại!") % component_id)
 
-        # final_quantity: nếu người dùng không truyền => lấy bom_component.package_quantity
         final_quantity = quantity if quantity is not None else (bom_component.package_quantity or 1.0)
-
-        Package = self.env['smartbiz_mes.package']
         Activity = self.env['smartbiz_mes.production_activity']
+        ng_qty     = ng_qty if ng_qty is not None else 0.0
+        Package = self.env['smartbiz_mes.package']
         now = fields.Datetime.now()
 
-        def lock_package(pkg, wo_id, comp_id):
-            """Khóa package vào 1 workorder & component duy nhất."""
-            if pkg.current_workorder_id and pkg.current_workorder_id.id != wo_id:
-                raise UserError(_(
-                    "Package '%s' đang được xử lý ở WorkOrder '%s'. "
-                    "Không thể thao tác ở WorkOrder '%s'."
-                ) % (pkg.name, pkg.current_workorder_id.name, workorder.name))
-            if pkg.current_component_id and pkg.current_component_id.id != comp_id:
-                raise UserError(_(
-                    "Package '%s' đã được gắn với Component '%s'. "
-                    "Không thể thao tác ở Component '%s'."
-                ) % (pkg.name, pkg.current_component_id.name, bom_component.name))
-            pkg.write({'current_workorder_id': wo_id, 'current_component_id': comp_id})
 
-        #-----------------------------------------------
-        # TH 0: qr_code rỗng + button_type => Nút bấm OK/NG action
-        #-----------------------------------------------
+        def lock_package_with_mode(pkg, is_finish=False):
+            """
+            - is_finish=False => mode='start'
+            - is_finish=True  => mode='finish'
+            """
+            mode = 'finish' if is_finish else 'start'
+            self.lock_package_new(pkg, workorder, bom_component, force=force, mode=mode)
+
+        def _close_paused_open():
+            paused_open = Activity.search([
+                ('work_order_id', '=', workorder.id),
+                ('component_id',  '=', bom_component.id),
+                ('activity_type', '=', 'paused'),
+                ('finish', '=', False)
+            ])
+            if paused_open:
+                paused_open.write({'finish': now})
+
         if not qr_code and button_type:
-            # ========== OK ACTION ==========
+            _close_paused_open()  
             if button_type == 'ok_action':
-                # Tìm activity OK đang mở
-                act_ok_open = Activity.search([
-                    ('work_order_id','=',workorder_id),
-                    ('component_id','=',component_id),
-                    ('quality','>=',0.9),
-                    ('finish','=',False),
-                ], limit=1)
+                
 
-                if act_ok_open:
-                    # finish + cập nhật quantity
-                    old_qty = act_ok_open.quantity
-                    act_ok_open.write({
-                        'finish': now,
-                        'quantity': final_quantity,   # Ghi nhận quantity do người dùng truyền
-                    })
-                    act_ok_open.package_id.write({
-                        'current_step': workorder.operation_id.name if workorder.operation_id else '',
+                ok_open = Activity.search([
+                    ('work_order_id', '=', workorder.id),
+                    ('component_id', '=', bom_component.id),
+                    ('quality', '>=', 0.9),
+                    ('finish', '=', False),
+                ], limit=1)
+                quantity = quantity if quantity else ok_open.quantity
+                if ok_open:
+                    if ok_open.quantity > quantity:
+                        Activity.create({
+                            'work_order_id': workorder.id,
+                            'component_id':  bom_component.id,
+                            'workcenter_id':  workorder.workcenter_id.id,
+                            'quantity':      ok_open.quantity - quantity,
+                            'package_id': ok_open.package_id.id,
+                            'quality':       1,
+                            'start':         False,
+                            'finish':        False,
+                            'employee_id':   employee_id,
+                            'shift_id': workorder.production_id.shift_id.id,
+                            'product_id': workorder.production_id.product_id.id,
+                            'activity_type': 'ok',
+                            'reason_id':     False,
+                            'note':          '',
+                        })
+                    if ok_open.start:
+                        ok_open.write({'finish': now, 'quantity': quantity})
+                    else:
+                        ok_open.write({'start': now,'finish': now, 'quantity': quantity})
+
+                               
+                                 
+                    pkg = ok_open.package_id
+                    lock_package_with_mode(pkg, is_finish=True)  # start_dependency check
+                    
+                                      
+                                                   
+                      
+                    pkg.write({
+                        'current_step': workorder.operation_id.name or '',
                         'current_component_id': False,
-                        'last_qty': act_ok_open.quantity,
+                        'last_qty': ok_open.quantity,
                         'current_workorder_id': False,
                     })
                 else:
-                    # Không thấy => tạo package + activity => finish ngay
+                    # -> Tạo package + activity => 
+                    #   vì code gốc finish ngay => ta lock với_mode(is_finish=True) 
                     mo_name = remove_accents_and_upper(workorder.production_id.name or "MO")
                     comp_name = remove_accents_and_upper(bom_component.name or f"COMP-{bom_component.id}")
                     package_name = f"OK-{mo_name}-{comp_name}"
                     new_pkg = Package.create({
                         'name': package_name,
-                        'current_step': workorder.operation_id.name if workorder.operation_id else '',
+                        'current_step': workorder.operation_id.name or '',
                         'current_component_id': bom_component.id,
                         'last_qty': final_quantity,
                         'current_workorder_id': workorder.id,
-                        'production_id':workorder.production_id.id
+                        'production_id': workorder.production_id.id
                     })
-                    new_act_ok = Activity.create({
-                        'work_order_id': workorder.id,
-                        'component_id': bom_component.id,
-                        'package_id': new_pkg.id,
-                        'start': now,
-                        #'finish': now,
-                        'quantity': final_quantity,  # quantity do người dùng truyền
-                        'quality': 1, 
-                        'employee_id':employee_id,
-                        'shift_id':workorder.production_id.shift_id.id,
-                        'product_id':workorder.production_id.product_id.id
-                    })
-
-                data = self.get_data(workorder_id)
-                # Kiểm tra finish workorder
-                workorder_remain = sum(c['remain_quantity'] for c in data['components'])
-                workorder_producing = sum(c['producing_quantity'] for c in data['components'])
-                if not workorder_remain and not workorder_producing:
-                    self.finish_workorder(workorder_id)
-                else:
-                    self.start_workorder(workorder_id)
-                return data
-
-            # ========== NG ACTION ==========
-            if button_type == 'ng_action':
-                # Tìm activity NG (một activity duy nhất)
-                act_ng = Activity.search([
-                    ('work_order_id','=',workorder_id),
-                    ('component_id','=',component_id),
-                    ('quality','<',0.9),
-                ], limit=1)
-
-                if act_ng and not act_ng.finish:
-                    # Cộng quantity, finish
-                    old_qty = act_ng.quantity
-                    new_qty = old_qty + final_quantity
-                    act_ng.write({
-                        'finish': now,
-                        'quantity': new_qty
-                    })
-                else:
-                    # Tạo package + activity NG => finish ngay
-                    mo_name = remove_accents_and_upper(workorder.production_id.name or "MO")
-                    comp_name = remove_accents_and_upper(bom_component.name or f"COMP-{bom_component.id}")
-                    package_name = f"NG-{mo_name}-{comp_name}"
-                    new_pkg = Package.create({      
-                        'name': package_name,
-                        'current_step': workorder.operation_id.name if workorder.operation_id else '',
-                        'current_component_id': bom_component.id,
-                        'last_qty': final_quantity,
-                        'current_workorder_id': workorder.id,
-                        'production_id':workorder.production_id.id
-                    })
+                    lock_package_with_mode(new_pkg, is_finish=True) 
                     Activity.create({
                         'work_order_id': workorder.id,
                         'component_id': bom_component.id,
@@ -1317,29 +1423,189 @@ class mrp_Workorder(models.Model):
                         'start': now,
                         'finish': now,
                         'quantity': final_quantity,
-                        'quality': 0.8,
-                        'employee_id':employee_id,
-                        'shift_id':workorder.production_id.shift_id.id,
-                        'product_id':workorder.production_id.product_id.id
+                        'quality': 1,
+                        'employee_id': employee_id,
+                        'shift_id': workorder.production_id.shift_id.id,
+                        'product_id': workorder.production_id.product_id.id,
+                        'activity_type': 'ok',
                     })
+              
+                                                     
 
+                data = self.get_data(workorder.id)
+                # Kiểm tra finish_workorder
+                workorder_remain = sum(c['remain_quantity'] for c in data['components'])
+                workorder_producing = sum(c['producing_quantity'] for c in data['components'])
+                if not workorder_remain and not workorder_producing:
+                    self.finish_workorder(workorder.id)
+                else:
+                    self.start_workorder(workorder.id)
+                return data
+            if button_type == 'start_action':
+                ok_open = Activity.search([
+                    ('work_order_id', '=', workorder.id),
+                    ('component_id', '=', bom_component.id),
+                    ('quality', '>=', 0.9),
+                    ('finish', '=', False),
+                    ('start', '=', False),
+                ], limit=1)
+                if ok_open:
+                    ok_open.write({'start': now})
+                data = self.get_data(workorder.id)
+                # check finish
+                workorder_remain = sum(c['remain_quantity'] for c in data['components'])
+                workorder_producing = sum(c['producing_quantity'] for c in data['components'])
+                if not workorder_remain and not workorder_producing:
+                    self.finish_workorder(workorder.id)
+                else:
+                    self.start_workorder(workorder.id)
+                return data
+            
+            if button_type == 'ng_action':
+                                     
+                act_ng = Activity.search([
+                    ('work_order_id', '=', workorder.id),
+                    ('component_id', '=', bom_component.id),
+                    ('quality', '<', 0.9),
+                ], limit=1)
+                if act_ng and not act_ng.finish:
+                    # => finish
+                    pkg = act_ng.package_id
+                    lock_package_with_mode(pkg, is_finish=True)
+                    new_qty = act_ng.quantity + ng_qty 
+                    act_ng.write({
+                        'finish': now,
+                        'quantity': new_qty,
+                        'finish': now,
+                    })
+                else:
+                    # Tạo package => finish luôn
+                    mo_name = remove_accents_and_upper(workorder.production_id.name or "MO")
+                    comp_name = remove_accents_and_upper(bom_component.name or f"COMP-{bom_component.id}")
+                    package_name = f"NG-{mo_name}-{comp_name}"
+                    new_pkg = Package.create({
+                        'name': package_name,
+                        'current_step': workorder.operation_id.name or '',
+                        'current_component_id': bom_component.id,
+                        'last_qty': final_quantity,
+                        'current_workorder_id': workorder.id,
+                        'production_id': workorder.production_id.id
+                    })
+                    lock_package_with_mode(new_pkg, is_finish=True)
+                    Activity.create({
+                        'work_order_id': workorder.id,
+                        'component_id': bom_component.id,
+                        'package_id': new_pkg.id,
+                        'start': now,
+                        'finish': now,
+                        'quantity': ng_qty,
+                        'quality': 0.8,
+                        'employee_id': employee_id,
+                        'shift_id': workorder.production_id.shift_id.id,
+                        'product_id': workorder.production_id.product_id.id,
+                        'activity_type': 'ng',
+                        'reason_id':     reason_id,
+                        'note':          note,
+                    })
                 # Trừ OK
                 act_ok_open = Activity.search([
-                    ('work_order_id','=',workorder_id),
-                    ('component_id','=',component_id),
-                    ('quality','>=',0.9),
-                    ('finish','=',False),
+                    ('work_order_id', '=', workorder.id),
+                    ('component_id', '=', bom_component.id),
+                    ('quality', '>=', 0.9),
+                    ('finish', '=', False),
                 ], limit=1)
                 if act_ok_open:
-                    if act_ok_open.quantity < final_quantity and not force:
-                        raise UserError(_(
-                            "OK còn %.2f, không đủ trừ %.2f => force=True."
-                        ) % (act_ok_open.quantity, final_quantity))
-                    act_ok_open.write({'quantity': act_ok_open.quantity - final_quantity})
+                    if act_ok_open.quantity < ng_qty and not force:
+                        raise UserError(_("OK còn %.2f, không đủ trừ %.2f => force=True.") 
+                                        % (act_ok_open.quantity, ng_qty))
+                    act_ok_open.write({'quantity': act_ok_open.quantity - ng_qty})
 
-                data = self.get_data(workorder_id)
+                data = self.get_data(workorder.id)
+                # check finish
+                workorder_remain = sum(c['remain_quantity'] for c in data['components'])
+                workorder_producing = sum(c['producing_quantity'] for c in data['components'])
+                if not workorder_remain and not workorder_producing:
+                    self.finish_workorder(workorder.id)
+                else:
+                    self.start_workorder(workorder.id)
+                return data
+
+            if button_type == 'pause_action':
+                ok_open = Activity.search([
+                    ('work_order_id', '=', workorder.id),
+                    ('component_id',  '=', bom_component.id),
+                    ('quality', '>', 0.9),
+                    ('activity_type', '!=', 'paused'),
+                    ('finish', '=', False)
+                ], limit=1)
+                quantity = quantity if quantity else ok_open.quantity
+                if ok_open:
+                    if ok_open.quantity > quantity:
+                        Activity.create({
+                            'work_order_id': workorder.id,
+                            'component_id':  bom_component.id,
+                            'workcenter_id':  workorder.workcenter_id.id,
+                            'quantity':      ok_open.quantity - quantity,
+                            'package_id': ok_open.package_id.id,
+                            'quality':       1,
+                            'start':         False,
+                            'finish':        False,
+                            'employee_id':   employee_id,
+                            'shift_id': workorder.production_id.shift_id.id,
+                            'product_id': workorder.production_id.product_id.id,
+                            'activity_type': 'ok',
+                            'reason_id':     False,
+                            'note':          '',
+                        })
+                    if ok_open.start:
+                        ok_open.write({'finish': now, 'quantity': quantity})
+                    else:
+                        ok_open.write({'start': now,'finish': now, 'quantity': quantity})
+
+                if ng_qty:
+                    Activity.create({
+                        'work_order_id': workorder.id,
+                        'component_id':  bom_component.id,
+                        'workcenter_id':  workorder.workcenter_id.id,
+                        'quantity':      ng_qty,
+                        'quality':       0.8,
+                        'start':         now,
+                        'finish':        now,
+                        'employee_id':   employee_id,
+                        'shift_id': workorder.production_id.shift_id.id,
+                        'product_id': workorder.production_id.product_id.id,
+                        'activity_type': 'ng',
+                        'reason_id':     reason_id,
+                        'note':          note or _('NG khi Pause'),
+                    })
+
+                # activity “pause” để log
+                Activity.create({
+                    'work_order_id': workorder.id,
+                    'component_id':  bom_component.id,
+                    'workcenter_id':  workorder.workcenter_id.id,
+                    'quantity':      0,
+                    'quality':       1,
+                    'start':         now,
+                    'employee_id':   employee_id,
+                    'shift_id': workorder.production_id.shift_id.id,
+                    'product_id': workorder.production_id.product_id.id,
+                    'activity_type': 'paused',
+                    'reason_id':     reason_id,
+                    'note':          note,
+                })
+                data = self.get_data(workorder.id)
+                # check finish
+                workorder_remain = sum(c['remain_quantity'] for c in data['components'])
+                workorder_producing = sum(c['producing_quantity'] for c in data['components'])
+                if not workorder_remain and not workorder_producing:
+                    self.finish_workorder(workorder.id)
+                else:
+                    self.start_workorder(workorder.id)
+                return data
 
         if not qr_code.startswith("OK") and not qr_code.startswith("NG") and not button_type:
+            _close_paused_open()  
             package = Package.search([('name', '=', qr_code)], limit=1)
             if not package:
                 raise UserError("Số serial %s không có trong lệnh!" % qr_code)
@@ -1347,11 +1613,11 @@ class mrp_Workorder(models.Model):
                 # Tùy logic, final_quantity <= package.last_qty?
                 final_quantity = min(final_quantity, package.last_qty)
 
-            lock_package(package, workorder.id, bom_component.id)
+            #lock_package(package, workorder.id, bom_component.id)
 
             act_ok_open = Activity.search([
                 ('work_order_id', '=', workorder.id),
-                ('component_id', '=', component_id),
+                ('component_id', '=', bom_component.id,),
                 ('package_id', '=', package.id),
                 ('quality', '>=', 0.9),
                 ('finish', '=', False),
@@ -1366,177 +1632,170 @@ class mrp_Workorder(models.Model):
     
             data = self.get_data(workorder_id)
 
-        #-----------------------------------------------
-        # TH 2: qr_code.startswith("OK")
-        #-----------------------------------------------
         if qr_code.startswith("OK"):
+            _close_paused_open()  
             package = Package.search([('name', '=', qr_code)], limit=1)
             if not package:
                 package = Package.create({
                     'name': qr_code,
-                    'current_step': workorder.operation_id.name if workorder.operation_id else '',
+                    'current_step': workorder.operation_id.name or '',
                     'current_component_id': bom_component.id,
                     'last_qty': final_quantity,
-                    'production_id':workorder.production_id.id
+                    'production_id': workorder.production_id.id
                 })
-            else:
-                # Tùy logic, final_quantity <= package.last_qty?
-                final_quantity = min(final_quantity, package.last_qty)
 
-            lock_package(package, workorder.id, bom_component.id)
-
-            # Tìm activity OK đang mở
             act_ok_open = Activity.search([
                 ('work_order_id', '=', workorder.id),
-                ('component_id', '=', component_id),
+                ('component_id', '=', bom_component.id),
                 ('package_id', '=', package.id),
                 ('quality', '>=', 0.9),
                 ('finish', '=', False),
             ], limit=1)
-
             if act_ok_open:
                 if not act_ok_open.start:
-                    mo = self.env['mrp.production'].browse(act_ok_open.work_order_id.production_id.id)
-                    lot_id =  self.env['stock.lot'].search([('name','=',mo.lot_name),('product_id','=',mo.product_id.id)],limit=1)
-                    if not lot_id:
-                        lot_id = self.env['stock.lot'].create({'product_id':mo.product_id.id,'name':mo.lot_name})
-                    lot_id = mo.lot_producing_id or lot_id
-                    lot_id = lot_id.id if lot_id else False
+                    # => "bắt đầu"
+                    lock_package_with_mode(package, is_finish=False) # mode='start'
                     act_ok_open.write({
                         'start': now,
-                        'employee_id':employee_id,
-                        'lot_id':lot_id
+                        'employee_id': employee_id,
                     })
                 else:
-                    # => Finish
-                    time_spent = (now - (act_ok_open.start or now)).total_seconds() / 60.0
+                    # => "kết thúc"
+                    lock_package_with_mode(package, is_finish=True)  # mode='finish'
+                    time_spent = (now - act_ok_open.start).total_seconds() / 60.0
                     if time_spent < 0.1 and not force:
                         raise UserError(_("Thời gian quá ngắn (%.2f phút). force=True để bỏ qua.") % time_spent)
-
-                    old_qty = act_ok_open.quantity
-                    act_ok_open.write({
-                        'finish': now,
-                        # 'quantity': final_quantity, # Tùy logic, có thể ghi đè
-                    })
+                    act_ok_open.write({'finish': now})
                     package.write({
-                        'current_step': workorder.operation_id.name if workorder.operation_id else '',
+                        'current_step': workorder.operation_id.name or '',
                         'current_component_id': bom_component.id,
                         'last_qty': act_ok_open.quantity,
                         'current_workorder_id': False,
                     })
-                data = self.get_data(workorder_id)
             else:
-                # => Bắt đầu
+                # => Chưa có activity => "bắt đầu" mới
                 act_ok_done = Activity.search([
                     ('work_order_id', '=', workorder.id),
-                    ('component_id', '=', component_id),
+                    ('component_id', '=', bom_component.id),
                     ('package_id', '=', package.id),
                     ('quality', '>=', 0.9),
-                    ('finish','!=',False),
+                    ('finish', '!=', False),
                 ], limit=1)
                 if act_ok_done and not force:
                     raise UserError(_(
-                        "Bạn đã hoàn thành package '%s'. force=True nếu muốn làm lại."
+                        "Package '%s' đã hoàn thành trước đó. force=True nếu muốn làm lại."
                     ) % qr_code)
+
+                lock_package_with_mode(package, is_finish=False) # => start
                 new_act_ok = Activity.create({
                     'work_order_id': workorder.id,
-                    'component_id': component_id,
+                    'component_id': bom_component.id,
                     'package_id': package.id,
                     'start': now,
                     'quantity': final_quantity,
                     'quality': 1,
-                    'employee_id':employee_id,
-                    'shift_id':workorder.production_id.shift_id.id,
-                    'product_id':workorder.production_id.product_id.id
+                    'employee_id': employee_id,
+                    'shift_id': workorder.production_id.shift_id.id,
+                    'product_id': workorder.production_id.product_id.id,
+                    'activity_type': 'ok',
                 })
                 package.write({
-                    'current_step': workorder.operation_id.name if workorder.operation_id else '',
+                    'current_step': workorder.operation_id.name or '',
                     'current_component_id': bom_component.id,
                     'last_qty': final_quantity,
                     'current_workorder_id': workorder.id,
                 })
-                data = self.get_data(workorder_id)
 
+            data = self.get_data(workorder.id)
+            workorder_remain = sum(c['remain_quantity'] for c in data['components'])
+            workorder_producing = sum(c['producing_quantity'] for c in data['components'])
+            if not workorder_remain and not workorder_producing:
+                self.finish_workorder(workorder.id)
+            else:
+                self.start_workorder(workorder.id)
+            return data
 
-        #-----------------------------------------------
-        # TH 3: qr_code.startswith("NG")
-        #-----------------------------------------------
         if qr_code.startswith("NG"):
-            final_quantity = quantity if quantity is not None else 1
+            _close_paused_open()  
+            final_qty = quantity if quantity is not None else 1
             package = Package.search([('name', '=', qr_code)], limit=1)
             if not package:
                 package = Package.create({
                     'name': qr_code,
-                    'current_step': workorder.operation_id.name if workorder.operation_id else '',
+                    'current_step': workorder.operation_id.name or '',
                     'current_component_id': bom_component.id,
                     'last_qty': 0.0,
-                    'production_id':workorder.production_id.id
+                    'production_id': workorder.production_id.id
                 })
-            lock_package(package, workorder.id, bom_component.id)
+
+            # Quét NG => code gốc finish luôn => => lock_package_with_mode(..., is_finish=True)
+            lock_package_with_mode(package, is_finish=True) 
 
             act_ng = Activity.search([
-                ('work_order_id','=', workorder_id),
-                ('component_id','=', component_id),
+                ('work_order_id','=', workorder.id),
+                ('component_id','=', bom_component.id),
                 ('package_id','=', package.id),
-                ('quality','<',0.9),
-            ], order='id asc', limit=1)
-            old_ng_qty = act_ng.quantity if act_ng else 0.0
+                ('quality','<', 0.9),
+            ], limit=1, order='id asc')
 
+            old_ng_qty = act_ng.quantity if act_ng else 0.0
             if not act_ng:
-                # Tạo
                 act_ng = Activity.create({
                     'work_order_id': workorder.id,
-                    'component_id': component_id,
+                    'component_id': bom_component.id,
                     'package_id': package.id,
                     'start': now,
                     'quantity': 0.0,
                     'quality': 0.8,
-                    'employee_id':employee_id,
-                    'shift_id':workorder.production_id.shift_id.id,
-                    'product_id':workorder.production_id.product_id.id
+                    'employee_id': employee_id,
+                    'shift_id': workorder.production_id.shift_id.id,
+                    'product_id': workorder.production_id.product_id.id,
+                    'activity_type': 'ng',
+                    'reason_id':     reason_id,
+                    'note':          note,
                 })
             else:
                 if act_ng.finish and not force:
                     raise UserError(_("Activity NG đã finish => force=True để cập nhật."))
 
-            new_ng_qty = old_ng_qty + final_quantity
+            new_ng_qty = old_ng_qty + ng_qty
             act_ng.write({
                 'finish': now,
                 'quantity': new_ng_qty,
             })
-
             # Trừ OK
             act_ok_open = Activity.search([
                 ('work_order_id','=', workorder.id),
-                ('component_id','=', component_id),
+                ('component_id','=', bom_component.id),
                 ('quality','>=',0.9),
                 ('finish','=',False),
-            ], order='create_date desc', limit=1)
+            ], limit=1, order='create_date desc')
             if not act_ok_open and not force:
                 raise UserError(_("Không có OK để trừ => force=True."))
             elif act_ok_open:
-                if act_ok_open.quantity < final_quantity and not force:
-                    raise UserError(_(
-                        "OK có %.2f, không đủ => force=True."
-                    ) % act_ok_open.quantity)
-                act_ok_open.write({'quantity': act_ok_open.quantity - final_quantity})
+                if act_ok_open.quantity < ng_qty and not force:
+                    raise UserError(_("OK có %.2f, không đủ => force=True.") % act_ok_open.quantity)
+                act_ok_open.write({'quantity': act_ok_open.quantity - ng_qty})
 
             package.write({
-                'current_step': workorder.operation_id.name if workorder.operation_id else '',
+                'current_step': workorder.operation_id.name or '',
                 'current_component_id': bom_component.id,
                 'last_qty': new_ng_qty,
                 'current_workorder_id': False,
             })
 
-            data = self.get_data(workorder_id)
-        workorder_remain = sum(c['remain_quantity'] for c in data['components'])
-        workorder_producing = sum(c['producing_quantity'] for c in data['components'])
-        if not workorder_remain and not workorder_producing:
-            self.finish_workorder(workorder_id)
-        else:
-            self.start_workorder(workorder_id)
-        return data 
+            data = self.get_data(workorder.id)
+            workorder_remain = sum(c['remain_quantity'] for c in data['components'])
+            workorder_producing = sum(c['producing_quantity'] for c in data['components'])
+            if not workorder_remain and not workorder_producing:
+                self.finish_workorder(workorder.id)
+            else:
+                self.start_workorder(workorder.id)
+            return data
 
+        # Không rơi vào TH nào => return
+        return self.get_data(workorder.id)
+        
     def print_label(self,workorder_id,activity_id):
         self = self.sudo()
         printer = self.env.user.printing_printer_id or self.env['printing.printer'].search([('name','like','ZTC-ZD230-203dpi-ZPL')],limit=1)
@@ -1546,7 +1805,6 @@ class mrp_Workorder(models.Model):
             label.print_label_auto(printer, pa)      
         return self.get_data(workorder_id)
     
-
     def start_workorder(self,workorder_id):
         order = self.browse(workorder_id)
         order.button_start()
@@ -1563,22 +1821,6 @@ class mrp_Workorder(models.Model):
         return self.get_data(workorder_id)
 
     def create_activities(self, external_data=None):
-        """
-        Tạo mới các production_activity cho từng component trong Workorder,
-        tùy theo pack_method của operation:
-          - 'order'
-          - 'order-component'
-          - 'external_list': Tạo dựa trên external_data do wizard cung cấp
-        external_data (nếu có) có format:
-            {
-              workorder_id: {
-                 component_id: [(package_name, quantity), (package_name2, quantity2), ...],
-                 ...
-              },
-              ...
-            }
-        """
-
         if external_data is None:
             external_data = {}
 
@@ -1718,11 +1960,14 @@ class mrp_Workorder(models.Model):
                         'shift_id':       workorder.production_id.shift_id.id,
                     })
 
-    def print_activities(self):
+    def print_activities(self,code_print = 'all'):
         printer = self.env.user.printing_printer_id or self.env['printing.printer'].search([('name','like','ZTC-ZD230-203dpi-ZPL')],limit=1)
         label = self.env['printing.label.zpl2']
         for record in self:
-            for act in record.production_activity_ids.filtered(lambda a: a.work_order_id.operation_id.print_label):
+            production_activity = record.production_activity_ids.filtered(lambda a: a.work_order_id.operation_id.print_label)
+            if code_print != 'all':
+                production_activity = production_activity.filtered(lambda a: a.work_order_id.operation_id.print_label == code_print)
+            for act in production_activity:
                 label.print_label_auto(printer, act)
 
 class mrp_BoM(models.Model):
@@ -1741,7 +1986,7 @@ class mrp_routingworkcenter(models.Model):
     pack_method = fields.Selection([('order','Order'),('order-component','Order-Component'),('external_list','External List'),], string='Pack Method')
     duration_check_method = fields.Selection([('estimated_duration','Estimated Duration'),('no_check','No Check'),], string='Duration Check Method')
     deviation = fields.Float(string='Deviation')
-    print_label = fields.Boolean(string='Print Label')
+    print_label = fields.Char(string='Print Label')
     start_dependency = fields.Selection([('none','None'),('start_to_start','Start to Start'),('start_to_finish','Start to Finish'),('finish_to_start','Finish to Start'),('finish_to_finish','Finish to Finish'),], string='Start Dependency', default = 'none')
 
 
@@ -1823,8 +2068,10 @@ class smartbiz_mes_ProductionActivity(models.Model):
     start = fields.Datetime(string='Start')
     finish = fields.Datetime(string='Finish')
     duration = fields.Float(string='Duration', compute='_compute_duration', store=True)
-    status = fields.Selection([('new','New'),('started','Started'),('paused','Paused'),('finished','Finished'),], string='Status', compute='_compute_status', store=True, default = 'new')
+    status = fields.Selection([('new','New'),('started','Started'),('paused','Paused'),('finished','Finished'),('cancel','Cancel'),], string='Status', compute='_compute_status', store=True, default = 'new')
     note = fields.Text(string='Note')
+    reason_id = fields.Many2one('smartbiz_mes.pause_reason', string='Reason')
+    activity_type = fields.Selection([('ok','OK'),('ng','NG'),('paused','Paused'),('cancel','Cancel'),], string='Activity Type', default = 'ok')
     production_id = fields.Many2one('mrp.production', string='Production', compute='_compute_production_id', store=True)
 
 
@@ -1854,6 +2101,10 @@ class smartbiz_mes_ProductionActivity(models.Model):
                 record.status = 'finished'
             elif record.start and not record.finish:
                 record.status = 'started'
+            elif record.activity_type == 'cancel':
+                record.status = 'cancel'
+            elif record.activity_type == 'paused':
+                record.status = 'paused'
             else:
                 record.status = 'new'
 
@@ -1864,6 +2115,59 @@ class smartbiz_mes_ProductionActivity(models.Model):
                 record.production_id = record.work_order_id.production_id
             else:
                 record.production_id = False
+
+    @api.model
+    def auto_close_open_activity(self):
+        """
+        - Chạy 5 phút một lần (cron bên dưới).
+        - Với mọi activity chưa finish:
+              + Nếu NOW không thuộc ca làm việc của Workorder
+                --> kết thúc activity, rồi sinh 1 activity 'paused'
+                   (reason = 'Tự đóng – Ngoài giờ')
+        Ca làm việc xác định theo shift của MO.  Nếu WO không có shift
+        --> bỏ qua (coi như làm 24/24).
+        """
+        now = fields.Datetime.now()
+
+        # lấy reason mặc định
+        reason = self.env.ref(
+            'smartbiz_mes.reason_auto_close', raise_if_not_found=False)
+
+        open_act = self.search([('finish', '=', False)])
+
+        for act in open_act:
+            wo = act.work_order_id
+            shift = wo.production_id.shift_id
+            if not shift:
+                continue    # không có ca, bỏ qua
+
+            # chuyển giờ hiện tại về tz của user (hoặc tz hệ thống)
+            # để so sánh với giờ bắt đầu – kết thúc ca
+            user_tz = self.env.user.tz or 'UTC'
+            local_now = fields.Datetime.context_timestamp(self, now)\
+                                       .astimezone(fields.pytz.timezone(user_tz))
+
+            # Giờ trong ca
+            start_hour = shift.hour_from          # ví dụ 8.0
+            end_hour   = shift.hour_to            # ví dụ 17.0
+            local_hour = local_now.hour + local_now.minute/60.0
+
+            # Nếu đang ngoài ca
+            if not (start_hour <= local_hour < end_hour):
+                # kết thúc activity
+                act.finish = now
+
+                # sinh activity 'paused'
+                self.create({
+                    'work_order_id': wo.id,
+                    'component_id':  act.component_id.id,
+                    'quantity':      0,
+                    'quality':       1,
+                    'start':         now,
+                    'activity_type': 'paused',
+                    'reason_id':     reason and reason.id or False,
+                    'note':          _('Auto pause – Outside shift'),
+                })
 
 class smartbiz_mes_BoMComponents(models.Model):
     _name = "smartbiz_mes.bom_components"
@@ -2355,6 +2659,14 @@ class smartbiz_mes_Request(models.Model):
 
         return res
 
+class smartbiz_mes_PauseReason(models.Model):
+    _name = "smartbiz_mes.pause_reason"
+    _description = "Pause Reason"
+    name = fields.Char(string='Name')
+    type = fields.Selection([('pause','Pause'),('ng','NG'),('cancel','Cancel'),], string='Type')
+    active = fields.Boolean(string='Active', default = 'True')
+
+
 class purchase_order(models.Model):
     _inherit = ['purchase.order']
     production_request_id = fields.Many2one('smartbiz_mes.request', string='Production Request')
@@ -2444,7 +2756,7 @@ class smartbiz_mes_ExternalListWizard(models.TransientModel):
                 package_names = [p.strip() for p in line.packages.split(',') if p.strip()]
             else:
                 # Nếu không nhập, tự động sinh dựa theo component_quantity và pack_quantity
-                wo_name = line.workorder_id.name or ''
+                wo_name = line.workorder_id.display_name or ''
                 comp_name = line.component_id.name or ''
                 total_quantity = line.component_quantity
                 pack_qty = line.pack_quantity if line.pack_quantity > 0 else 1

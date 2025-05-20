@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record model="ir.ui.view" id="smartbiz_stock_stock_report_form">
+      <field name="name">smartbiz_vtc_stock_report_form</field>
+      <field name="model">smartbiz_stock.stock_report</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="smartbiz_stock.smartbiz_stock_stock_report_form" />
+      <field name="arch" type="xml">
+            <xpath expr="//header" position ="inside">
+                <button name="action_nxt_ton_kho" string="NXT: TON KHO" type = "object"  invisible="bool(state) == False"/>
+            </xpath>
+      </field>
+    </record>
+
+</odoo>

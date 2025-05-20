@@ -1,297 +1,284 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
-from datetime import datetime, timedelta
+import re
 
+# ------------------------------------------------------------------
+# utility
+# ------------------------------------------------------------------
 def float_to_hms(minutes_float):
     if minutes_float == 0:
         return "-"
     total_seconds = round(minutes_float * 60)
-    hours = total_seconds // 3600
-    remain = total_seconds % 3600
-    mins = remain // 60
-    secs = remain % 60
+    hours   = total_seconds // 3600
+    remain  = total_seconds % 3600
+    mins    = remain // 60
+    secs    = remain % 60
     return f"{hours:02d}:{mins:02d}:{secs:02d}"
+
 
 class WorkOrderDashboard(models.Model):
     _inherit = "mrp.workorder"
 
+    # ================================================================
+    # bộ lọc line / shift (không đổi)
+    # ================================================================
     @api.model
     def get_filter_options(self):
-        """
-        Lấy danh sách line, shift => { lines: [...], shifts: [...] }
-        """
-        line_records = self.env['smartbiz_mes.production_line'].search([])
-        lines_data = [{'id': line.id, 'name': line.name or ''} for line in line_records]
-
-        shift_records = self.env['smartbiz_mes.shift'].search([])
-        shifts_data = [{'id': s.id, 'name': s.name or ''} for s in shift_records]
-
+        lines  = self.env['smartbiz_mes.production_line'].search([])
+        shifts = self.env['smartbiz_mes.shift'].search([])
         return {
-            'lines': lines_data,
-            'shifts': shifts_data
+            'lines' : [{'id': l.id, 'name': l.name or ''} for l in lines],
+            'shifts': [{'id': s.id, 'name': s.name or ''} for s in shifts],
         }
 
-    # ----------------------------------------------------------------
-    # 1) WORKORDER DASHBOARD
-    # ----------------------------------------------------------------
+    # ================================================================
+    # xếp thứ tự các bước
+    # ================================================================
     def __get_all_steps_ordered(self, productions):
-        """
-        Trả về:
-        - all_steps_ordered: Danh sách tất cả step sắp xếp theo "vị trí trung bình".
-
-        
-        Logic:
-        1) Nếu production có bom_id -> lấy operation_ids theo sequence.
-        2) Nếu không có bom_id -> lấy danh sách workorder (order='id asc'),
-            gán pos=1,2,... theo thứ tự.
-        3) Gom step_name và pos vào step_positions[step_name].
-        4) Tính trung bình pos cho mỗi step_name -> sắp xếp -> all_steps_ordered.
-        """
-
-        step_positions = {}       # {step_name: [pos1, pos2, ...]} dùng để tính trung bình
-
-
+        step_positions = {}
         for prod in productions:
-            # Nếu có BOM
             if prod.bom_id:
-                operations = prod.bom_id.operation_ids.sorted(key=lambda op: op.sequence)
-                pos = 1
-
-                for op in operations:
-                    op_name = (op.name or "").strip()
-                    if not op_name:
-                        # fallback lấy workcenter_id name
-                        op_name = op.workcenter_id.name if op.workcenter_id else "Unknown Op"
-                    step_positions.setdefault(op_name.lower(), []).append(pos)
-                    pos += 1
+                operations = prod.bom_id.operation_ids.sorted(key=lambda o: o.sequence)
+                for idx, op in enumerate(operations, 1):
+                    name = (op.name or op.workcenter_id.name or "Unknown").strip()
+                    step_positions.setdefault(name.lower(), []).append(idx)
             else:
-                # Không có BOM => Lấy các WO của production
                 wos = self.env['mrp.workorder'].search(
-                    [('production_id', '=', prod.id)],
-                    order='id asc'  # Hoặc order='name asc' nếu bạn muốn
+                    [('production_id', '=', prod.id)], order='id asc'
                 )
-                pos = 1
-                for wo in wos:
-                    # Ưu tiên operation_id.name, nếu trống thì fallback sang wo.name/workcenter
-                    if wo.operation_id:
-                        step_name = (wo.operation_id.name or "").strip()
-                    else:
-                        step_name = (wo.name or wo.workcenter_id.name or "Unknown").strip()
-                    step_positions.setdefault(step_name.lower(), []).append(pos)
-                    pos += 1
+                for idx, wo in enumerate(wos, 1):
+                    name = (
+                        wo.operation_id.name or wo.name or
+                        (wo.workcenter_id and wo.workcenter_id.name) or
+                        "Unknown"
+                    ).strip()
+                    step_positions.setdefault(name.lower(), []).append(idx)
 
-        # Tính vị trí trung bình
-        step_avg_rank = {}
-        for step_name, positions in step_positions.items():
-            if positions:
-                avg_rank = sum(positions) / len(positions)
-            else:
-                avg_rank = 9999
-            step_avg_rank[step_name] = avg_rank
+        # trung bình vị trí
+        avg_rank = {
+            step: sum(pos_list) / len(pos_list) for step, pos_list in step_positions.items()
+        }
+        return sorted(avg_rank.keys(), key=lambda s: avg_rank[s])
 
-        # Sắp xếp step_name theo avg_rank tăng dần
-        all_steps_ordered = sorted(step_avg_rank.keys(), key=lambda s: step_avg_rank[s])
+    # ================================================================
+    # xác định ca
+    # ================================================================
+    SHIFT_CUTOFF = (13, 45)     # 13:30
 
-        return all_steps_ordered
+    def _shift_idx_from_start(self, dt):
+        if not dt:
+            return 0
+        t = fields.Datetime.context_timestamp(self, dt)   # local‑time (naive)
+        return 1 if (t.hour, t.minute) < self.SHIFT_CUTOFF else 2
 
-
+    # ================================================================
+    # 1) DASHBOARD
+    # ================================================================
     @api.model
     def get_dashboard_data(self, date="", line="", shift=""):
-        domain_prod = [('state', 'not in', ['draft', 'cancel'])]
+        dom_act = [('start', '!=', False)]
         if date:
-            domain_prod.append(('date_start', '>=', date + ' 00:00:00'))
-            domain_prod.append(('date_start', '<=', date + ' 23:59:59'))
+            dom_act += [('start', '>=', f"{date} 00:00:00"),
+                        ('start', '<=', f"{date} 23:59:59")]
         if line:
-            domain_prod.append(('production_line_id.name', 'ilike', line))
-        if shift:
-            domain_prod.append(('shift_id.name', 'ilike', shift))
+            dom_act.append(('work_order_id.production_line_id.name', 'ilike', line))
 
-        production_orders = self.env['mrp.production'].search(domain_prod)
+        acts_all = self.env['smartbiz_mes.production_activity'].search(dom_act)
 
-        all_activities = self.env['smartbiz_mes.production_activity'].search([
-            ('work_order_id.production_id', 'in', production_orders.ids),
-            ('start', '!=', False),
-            ('quality', '>=', 0.9)
-        ])
+        # lọc theo ca nếu cần
+        shift_num = 0
+        if re.search(r'\b1\b', str(shift)): shift_num = 1
+        if re.search(r'\b2\b', str(shift)): shift_num = 2
+        acts_det = acts_all.filtered(
+            lambda a: self._shift_idx_from_start(a.start) == shift_num
+        ) if shift_num else acts_all
 
-        
-
-        all_steps = self.__get_all_steps_ordered(production_orders)
-
-        step_display_names = {step: step.capitalize() for step in all_steps}
-
-        dashboard_data = []
-        stt = 1
-
-        current_time = datetime.now()
-
-        for prod in production_orders:
-            sub_acts = all_activities.filtered(lambda a: a.work_order_id.production_id == prod)
-
-            step_map = {
-                step: {
-                    'time': 0.0,
-                    'status': 'none',
-                    'count_total': 0,
-                    'count_not_finished': 0,
-                    'quantity': 0,
-                }
-                for step in all_steps
-            }
-
-            for act in sub_acts:
-                step_name = ""
-                # Ưu tiên operation_id
-                if act.work_order_id.operation_id:
-                    step_name = (act.work_order_id.operation_id.name or "").strip().lower()
-                # Nếu vẫn trống => fallback work_order_id.name
-                elif act.work_order_id and act.work_order_id.name:
-                    step_name = act.work_order_id.name.strip().lower()
-                # Nếu vẫn trống => fallback workcenter_id.name
-                elif act.workcenter_id and act.workcenter_id.name:
-                    step_name = act.workcenter_id.name.strip().lower()
-                else:
-                    step_name = "unknown"
-                if step_name not in step_map:
-                    continue
-                
-                duration = act.duration
-                if not act.finish:
-                    duration = (current_time - act.start).total_seconds() / 60  # thời gian tính bằng phút
-
-                step_map[step_name]['time'] += duration
-                step_map[step_name]['quantity'] += act.quantity
-                step_map[step_name]['count_total'] += 1
-
-                if not act.finish:
-                    step_map[step_name]['count_not_finished'] += 1
-
-            for step in all_steps:
-                info = step_map[step]
-                if info['count_total'] == 0 or info['time'] == 0:
-                    info['status'] = 'none'
-                elif info['count_not_finished'] > 0:
-                    info['status'] = 'working'
-                else:
-                    info['status'] = 'done'
-
-            total_actual_time = sum(step_map[s]['time'] for s in all_steps)
-
-            row = {
-                'stt': stt,
-                'kh': prod.origin or "",
-                'lot': prod.name or "",
-                'item': prod.product_id.name or "",
-                'so_luong': prod.product_qty,
-                'thoi_gian_tieu_chuan': float_to_hms(prod.duration_expected),
-                'thoi_gian_thuc_te': float_to_hms(total_actual_time),
-            }
-
-            for step in all_steps:
-                display_name = step_display_names[step]
-                row[display_name] = {
-                    'time': float_to_hms(step_map[step]['time']),
-                    'quantity': step_map[step]['quantity'],
-                    'status': step_map[step]['status'],
-                }
-
-            dashboard_data.append(row)
-            stt += 1
-
-        return {
-            'steps': [step_display_names[s] for s in all_steps],
-            'data': dashboard_data
+        # KPI
+        prods_kpi = acts_all.mapped('work_order_id.production_id')
+        acts_kpi  = acts_all.filtered(
+            lambda a: a.finish and a.quality >= 0.9 and a.activity_type != 'paused'
+        )
+        kpi = {
+            'total_plan_qty'  : sum(prods_kpi.mapped('product_qty')),
+            'finish_shift1'   : 0,
+            'finish_shift2'   : 0,
+            'packing_progress': 0,
         }
+        for act in acts_kpi:
+            if (act.work_order_id.operation_id.name or "").strip().lower() != 'đóng gói':
+                continue
+            kpi['packing_progress'] += act.quantity
+            idx = self._shift_idx_from_start(act.start)
+            if idx == 1: kpi['finish_shift1'] += act.quantity
+            if idx == 2: kpi['finish_shift2'] += act.quantity
 
-
-    @api.model
-    def get_faulty_data(self, date="", line="", shift=""):
-        """
-        Tính sản phẩm lỗi => Gom theo lot, component, step => hiển thị tab WorkOrder => 1.2
-        """
-        domain_prod = [('state','not in',['draft','cancel'])]
-        if date:
-            domain_prod.append(('date_start','>=', date + ' 00:00:00'))
-            domain_prod.append(('date_start','<=', date + ' 23:59:59'))
-        if line:
-            domain_prod.append(('production_line_id.name','ilike', line))
-        if shift:
-            domain_prod.append(('shift_id.name','ilike', shift))
-
-        prods = self.env['mrp.production'].search(domain_prod)
-        wos = self.env['mrp.workorder'].search([('production_id','in', prods.ids)])
-
-        all_steps = self.__get_all_steps_ordered(prods)
+        # bảng 1.1
+        prods_det = acts_det.mapped('work_order_id.production_id')
+        all_steps = self.__get_all_steps_ordered(prods_det)
         step_disp = {s: s.capitalize() for s in all_steps}
 
-        grouped_faulty_data = {}
-        for prod in prods:
-            lot_key = prod.name
-            if lot_key not in grouped_faulty_data:
-                grouped_faulty_data[lot_key] = {
-                    'kh': prod.origin,
-                    'lot': prod.name,
-                    'item': prod.product_id.name,
-                    'components': {},
-                }
-            sub_wos = wos.filtered(lambda w: w.production_id == prod)
-            faulty_acts = self.env['smartbiz_mes.production_activity'].search([
-                ('work_order_id','in', sub_wos.ids),
-                ('quality','<',0.9),
-                ('start','!=',False),
-                ('finish','!=',False),
-            ])
-            for act in faulty_acts:
-                comp = act.component_id
-                if not comp:
-                    continue
-                step_n = ""
-                # Ưu tiên operation_id
-                if act.work_order_id.operation_id:
-                    step_n = (act.work_order_id.operation_id.name or "").strip().lower()
-                # Nếu vẫn trống => fallback work_order_id.name
-                elif act.work_order_id and act.work_order_id.name:
-                    step_n = act.work_order_id.name.strip().lower()
-                # Nếu vẫn trống => fallback workcenter_id.name
-                elif act.workcenter_id and act.workcenter_id.name:
-                    step_n = act.workcenter_id.name.strip().lower()
-                else:
-                    step_n = "unknown"
-                step_name = step_disp.get(step_n, step_n.capitalize())
+        now   = fields.Datetime.context_timestamp(self, fields.Datetime.now())
+        rows  = []
+        for stt, prod in enumerate(prods_det, 1):
+            acts = acts_det.filtered(lambda a: a.work_order_id.production_id.id == prod.id)
+            m = {s: {
+                    'time': 0, 'qty': 0, 'not': 0,
+                    'paused': False, 'status': 'none', 'actual_time': 0
+                } for s in all_steps}
 
-                if comp.id not in grouped_faulty_data[lot_key]['components']:
-                    grouped_faulty_data[lot_key]['components'][comp.id] = {
-                        'component_name': comp.name,
-                        'total_faulty': 0.0,
-                        **{step_disp[s]: 0.0 for s in all_steps}
+            for a in acts:
+                sname = (
+                    a.work_order_id.operation_id.name or
+                    a.work_order_id.name or
+                    (a.work_order_id.workcenter_id and a.work_order_id.workcenter_id.name) or
+                    "unknown"
+                ).strip().lower()
+                if sname not in m:
+                    continue
+                rec = m[sname]
+                if a.activity_type == 'paused' and not a.finish:
+                    rec['paused'] = True
+
+                start_local = fields.Datetime.context_timestamp(self, a.start)
+                dur = a.duration if a.finish else (now - start_local).total_seconds() / 60
+                rec['actual_time'] += dur
+                rec['time'] += dur / (a.work_order_id.workcenter_id.equipment_quantity or 1)
+                rec['qty']  += a.quantity
+                if not a.finish:
+                    rec['not'] += 1
+
+            for rec in m.values():
+                if rec['paused']:
+                    rec['status'] = 'paused'
+                elif not rec['time']:
+                    rec['status'] = 'none'
+                elif rec['not']:
+                    rec['status'] = 'working'
+                else:
+                    rec['status'] = 'done'
+
+            total_actual = sum(r['actual_time'] for r in m.values())
+            row = {
+                'stt'                 : stt,
+                'kh'                  : prod.origin or "",
+                'lot'                 : prod.name,
+                'item'                : prod.product_id.display_name,
+                'so_luong'            : prod.product_qty,
+                'thoi_gian_tieu_chuan': 0,                      # không tính khi bỏ mặc định
+                'thoi_gian_thuc_te'   : round(total_actual, 2),
+            }
+            for s in all_steps:
+                d = step_disp[s]
+                r = m[s]
+                if r['qty'] or r['time'] or r['status'] != 'none':
+                    row[d] = {
+                        'time'    : round(r['time'],2),
+                        'quantity': r['qty'],
+                        'status'  : r['status'],
                     }
-                cdict = grouped_faulty_data[lot_key]['components'][comp.id]
-                cdict['total_faulty'] += act.quantity
-                if step_name in cdict:
-                    cdict[step_name] += act.quantity
+            for disp in step_disp.values():              # chính là list 'steps' frontend nhận
+                row.setdefault(disp, {
+                    'time'    : '-',
+                    'quantity': 0,
+                    'status'  : 'none',
+                })
+            rows.append(row)
+
+        return {
+            'steps': [step_disp[s] for s in all_steps],
+            'data' : rows,
+            'kpi'  : kpi,
+        }
+
+    # ================================================================
+    # 2) FAULTY DATA
+    # ================================================================
+    @api.model
+    def get_faulty_data(self, date="", line="", shift=""):
+        dom = [
+            ('quality', '<', 0.9),
+            ('start', '!=', False),
+            ('finish', '!=', False),
+        ]
+        if date:
+            dom += [('start', '>=', f"{date} 00:00:00"),
+                    ('start', '<=', f"{date} 23:59:59")]
+        if line:
+            dom.append(('work_order_id.production_line_id.name', 'ilike', line))
+
+        acts_faulty = self.env['smartbiz_mes.production_activity'].search(dom)
+
+        # lọc ca
+        if re.search(r'\b1\b', str(shift)):
+            acts_faulty = acts_faulty.filtered(lambda a: self._shift_idx_from_start(a.start) == 1)
+        elif re.search(r'\b2\b', str(shift)):
+            acts_faulty = acts_faulty.filtered(lambda a: self._shift_idx_from_start(a.start) == 2)
+
+        prods      = acts_faulty.mapped('work_order_id.production_id')
+        all_steps  = self.__get_all_steps_ordered(prods)
+        step_disp  = {s: s.capitalize() for s in all_steps}
+
+        grouped = {}
+        for act in acts_faulty:
+            prod = act.work_order_id.production_id
+            lot  = prod.name
+            grouped.setdefault(lot, {
+                'kh'        : prod.origin,
+                'lot'       : lot,
+                'item'      : prod.product_id.name,
+                'components': {},
+            })
+            comp = act.component_id
+            if not comp:
+                continue
+
+            sname_raw = (
+                act.work_order_id.operation_id.name or
+                act.work_order_id.name or
+                (act.work_order_id.workcenter_id and act.work_order_id.workcenter_id.name) or
+                "unknown"
+            ).strip().lower()
+            step_name = step_disp.get(sname_raw, sname_raw.capitalize())
+
+            cm = grouped[lot]['components'].setdefault(
+                comp.id,
+                {'component_name': comp.name, 'total_faulty': 0.0}
+            )
+            cm['total_faulty'] += act.quantity
+            cm[step_name] = cm.get(step_name, 0.0) + act.quantity
 
         faulty_data = []
         stt = 1
-        for lot_data in grouped_faulty_data.values():
-            for comp_data in lot_data['components'].values():
+        for lot_data in grouped.values():
+            for comp in lot_data['components'].values():
                 row = {
-                    'stt': stt,
-                    'kh': lot_data['kh'],
-                    'lot': lot_data['lot'],
-                    'item': lot_data['item'],
-                    'component_name': comp_data['component_name'],
-                    'total_faulty': comp_data['total_faulty'],
+                    'stt'           : stt,
+                    'kh'            : lot_data['kh'],
+                    'lot'           : lot_data['lot'],
+                    'item'          : lot_data['item'],
+                    'component_name': comp['component_name'],
+                    'total_faulty'  : comp['total_faulty'],
                 }
-                for step_ in sorted(comp_data.keys()):
-                    if step_ in ['component_name','total_faulty']:
-                        continue
-                    row[step_] = comp_data[step_]
+                for step in all_steps:
+                    disp = step_disp[step]
+                    if disp in comp:
+                        qty = comp[disp]
+                        row[disp] = {
+                            'quantity': qty,
+                            'status'  : 'ng' if qty else 'ok',
+                        }
+                for disp in step_disp.values():
+                    row.setdefault(disp, {
+                        'quantity': 0.0,
+                        'status'  : 'ok',
+                    })
                 faulty_data.append(row)
-                stt+=1
+                stt += 1
+
         return {
             'steps': [step_disp[s] for s in all_steps],
-            'data':faulty_data
-            }
+            'data' : faulty_data,
+        }
 
     # ----------------------------------------------------------------
     # 2) Tất cả KPI Analytics (Cũ + Mới)

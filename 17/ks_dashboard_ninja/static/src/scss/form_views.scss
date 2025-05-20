@@ -1,0 +1,111 @@
+.sync-data-btn {
+    min-width: fit-content;
+    min-height: 24px;
+    margin-top: 0 !important;
+    padding: 7px !important;
+    font-size: $font-12 !important;
+    font-weight: $f-w-400;
+    line-height: 9.66px !important;
+    letter-spacing: 0.0015em;
+    text-align: left;
+    background-color: $color-D9F1FD !important;
+    color: $color-black !important;
+    border: 1px solid transparent !important;
+    border-radius: 5px;
+}
+
+.ks_body_class {
+    .ks_dashboard_menu_container {
+
+        &.form-control.form-input-box.encapsulated-form-arrow {
+            width: auto !important;
+
+            &::after {
+                top: 43% !important;
+                right: 6px !important;
+            }
+
+            select {
+                font-size: $font-14;
+                /* width: 100%; */
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+        }
+
+        li {
+            justify-content: center;
+
+            .dash-btn-red {
+                font-size: $font-12 !important;
+                font-weight: $f-w-600;
+                min-height: 32px !important;
+                height: 100%;
+                margin-right: 8px;
+                padding: 0 12px !important;
+            }
+        }
+    }
+}
+
+
+.ks_body_class .form-input-box.form-control {
+    border: none;
+    padding: 0;
+
+    input {
+        border: 0.81px solid $color-D1D5DB !important;
+        border-radius: 6px;
+        padding: 12px 10px !important;
+        font-size: $font-14;
+        font-weight: $f-w-400;
+        line-height: 18.52px;
+        text-align: left;
+        color: $color-black;
+
+        &::placeholder {
+            font-size: $font-16;
+            font-weight: $f-w-400;
+            line-height: 18.52px;
+            text-align: left;
+            color: $color-placeholders;
+        }
+    }
+
+    .o_field_many2one_selection {
+        .o_dropdown_button {
+            visibility: visible !important;
+        }
+    }
+
+}
+
+.ks_form_sheet .o_form_sheet{
+    background: $color-bg-main;
+    padding: 16px;
+    border-radius: 10px;
+}
+
+.ks_create_chart_body .upload-file-btn .o_select_file_button.btn-primary{
+    background-color: $color-black !important;
+    border: 1px solid transparent !important;
+    &:hover{
+        background-color: $color-black !important;
+    }
+    &.btn.btn-primary span {
+        color: $color-white !important;
+        font-weight: $f-w-500 !important;
+        line-height: 21px;
+    }
+}
+
+.top-inverse-5{
+        top: -5px;
+    }
+
+.o_rtl .o_field_x2many_list_row_add{
+    a:nth-child(2){
+        margin-right: 16px !important;
+    }
+}

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="ks_expense_advance_search_view" t-inherit="hr_expense.ListRenderer" t-inherit-mode="extension" owl="1">
+            <xpath expr="//table/thead/tr" position="after">
+                <t t-call="ks_general_template"/>
+            </xpath>
+        </t>
+    <t t-name="ks_purchase_advance_search_view" t-inherit="purchase.PurchaseListView" t-inherit-mode="extension" owl="1">
+        <xpath expr="//table/thead/tr" position="after">
+            <t t-call="ks_general_template"/>
+        </xpath>
+    </t>
+    <t t-name="ks_expense_report_search_view" t-inherit="hr_expense.DashboardListRenderer" t-inherit-mode="extension" owl="1">
+        <xpath expr="//table/thead/tr" position="after">
+            <t t-call="ks_general_template"/>
+        </xpath>
+    </t>
+
+   <t t-name="ks_account_new_advance_search_view" t-inherit="account.ListRenderer" t-inherit-mode="extension" owl="1">
+        <xpath expr="//table/thead/tr" position="after">
+            <t t-call="ks_general_template"/>
+        </xpath>
+    </t>
+
+<!--    <t t-name="ks_general_template">-->
+<!--        <tr class="hide-on-modal">-->
+<!--            <t t-if="hasSelectors">-->
+<!--                <th></th>-->
+<!--            </t>-->
+<!--            <t t-if="ks_serial_number">-->
+<!--                <th></th>-->
+<!--            </t>-->
+<!--            <t t-foreach="state.columns" t-as="column" t-key="column_index">-->
+<!--                <t t-if="(props.list.fields[column.name] !== undefined)">-->
+<!--                    <t t-if="(props.list.fields[column.name].store === true and column.name != 'sequence' and props.list.fields[column.name].type != 'one2many')">-->
+<!--                        <th class="ks_advance_search_row">-->
+<!--                            <SearchView-->
+<!--                                    ks_field_id="props.list.fields[column.name].name"-->
+<!--                                    ks_description="column.string || props.list.fields[column.name].string"-->
+<!--                                    ks_field_type="props.list.fields[column.name].type"-->
+<!--                                    ks_selection_values="props.list.fields[column.name].selection ? props.list.fields[column.name].selection :[]"-->
+<!--                                    model="props.list.resModel"-->
+<!--                                    ks_search_event="(options)=>this.Ks_update_advance_search_controller(options)"-->
+<!--                                    ks_field_search_info="ks_field_popup"-->
+<!--                                    ks_remove_search="(ev)=>this.ks_remove_popup_domain_event(ev,props.list.fields[column.name].type)"-->
+<!--                            />-->
+<!--                        </th>-->
+<!--                    </t>-->
+<!--                    <t t-else="">-->
+<!--                        <th class="ks_advance_search_row">-->
+<!--                        </th>-->
+<!--                    </t>-->
+<!--                </t>-->
+
+<!--            </t>-->
+<!--        </tr>-->
+<!--    </t>-->
+</templates>

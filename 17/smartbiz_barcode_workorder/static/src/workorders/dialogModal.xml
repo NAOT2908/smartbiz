@@ -3,25 +3,67 @@
   
 
   <!-- Template EditPackageForm -->
- <t t-name="DialogModal">
+<t t-name="DialogModal">
   <div class="s_dialog-modal">
-    <div class="s_dialog-modal-content">
-      <h3><t t-esc="props.title"/></h3>
+    <div class="s_dialog-modal-panel">
+      <h3 class="s_dialog-title"><t t-esc="props.title"/></h3>
 
-        <div class="table-container" t-if="props.title = 'Chọn trạm sản xuất'">
-            <ul class="s_selector-record-list">
-                <t t-foreach="props.records" t-as="record" t-key="record.id">
-                    <li t-on-click="()=>this.selectRecord(record.id)" t-att-class="{'s_selector-selected': state.selectedRecord == record.id}">
-                        <span class="record-name"><t t-esc="record.display_name || record.name"/></span>
-                        <span t-if="state.selectedRecord == record.id" class="record-checkmark">&#10003;</span>
-                    </li>
+      <!-- Selector list (khi title = 'Chọn trạm sản xuất') -->
+      <div class="s_dialog-content">
+        <div class="s_selector-list" t-if="props.title === 'Chọn trạm sản xuất'">
+          <t t-foreach="props.records" t-as="record" t-key="record.id">
+            <div class="s_selector-item"
+                t-att-class="{'selected': state.selectedRecord === record.id}"
+                t-on-click="() => this.selectRecord(record.id)">
+              <span class="name"><t t-esc="record.display_name || record.name"/></span>
+              <i class="fa fa-check tick" t-if="state.selectedRecord === record.id"/>
+            </div>
+          </t>
+        </div>
+
+        <!-- Dynamic fields -->
+        <div class="s_fields" t-if="props.fields">
+          <t t-foreach="props.fields" t-as="f" t-key="f.name">
+            <div class="s_field-row">
+              <label>
+                <t t-esc="f.label"/>
+                <span t-if="f.required" style="color:red">*</span>
+              </label>
+              
+              <textarea t-if="f.type === 'textarea'"
+                        t-att-value="getInputValue(f)"
+                        class="s_field"
+                        rows="2"
+                        placeholder="Nhập nội dung…"
+                        t-on-input="(e)=>this._onInput(f.name,e)"/>
+              
+              <select t-if="f.type === 'select'"
+                     
+                      class="s_field"
+                      t-on-change="(e)=>this._onInput(f.name,e)">
+                <option value="">---</option>
+                <t t-foreach="f.options" t-as="opt" t-key="opt.id">
+                  <option t-att-value="opt.id"
+                  t-att-selected="opt.id == getInputValue(f) ? 'selected' : undefined">
+                    <t t-esc="opt.name"/>
+                  </option>
                 </t>
-            </ul>
+              </select>
+              
+              <input t-if="f.type === 'number' || f.type === 'text' || f.type === 'datetime-local'"
+                    class="s_field"
+                    t-att-type="f.type || 'text'"
+                    t-att-value="getInputValue(f)" 
+                    t-on-input="(e)=>this._onInput(f.name,e)"/>
+            </div>
+          </t>
         </div>
-        <div class="form-actions">
-          <button type="button" t-on-click="confirmEdit">OK</button>
-          <button type="button" t-on-click="cancel">Hủy</button>
-        </div>
+      </div>
+      <!-- Buttons -->
+      <div class="s_dialog-actions">
+        <button class="btn btn-primary"  t-on-click="confirmEdit">Xác nhận</button>
+        <button class="btn btn-secondary" t-on-click="cancel">Hủy</button>
+      </div>
     </div>
   </div>
 </t>

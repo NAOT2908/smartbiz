@@ -1,0 +1,987 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  
+
+    <t t-name="ks_dashboard_ninja.KsDashboardNinjaHeader" owl="1">
+       <!--    screen    -->
+        <section class="screen-info mb-2 container-fluid" t-ref="ks_dashboard_header">
+            <div class="d-flex align-items-center justify-content-between info gap-1 flex-wrap w-100 ks_dashboard_top_menu-new">
+               <div class="d-flex align-items-center">
+
+                    <div id="ks_dashboard_title" class="user-template-title">
+                        <t t-if="state.ks_show_layout">
+                            <t t-call="ks_dn_layout_container"/>
+                        </t>
+                        <t t-else="">
+                            <span id="ks_dashboard_title_label" class="ks_am_element dash-dd-2">
+                                <t t-esc="ks_dashboard_data.name"/>
+                            </span>
+                        </t>
+                        <div class="form-input-box form-control ps-4 d-lg-block d-none">
+                             <input id="ks_dashboard_title_input" typ="text" maxlength="30"
+                               class="ks_em_element ks_hide"/>
+                        </div>
+                    </div>
+
+                    <button t-if="state.ks_dashboard_manager &amp;&amp; ks_dashboard_data.ks_dashboard_items_ids.length" class="img-bg info me-lg-2 me-1 d-lg-flex d-none ks_dashboard_edit_layout hide-in-edit"
+                    title="Edit Dashboard" t-on-click="onKsEditLayoutClick">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M9.16675 1.66663H7.50008C3.33341 1.66663 1.66675 3.33329 1.66675 7.49996V12.5C1.66675 16.6666 3.33341 18.3333 7.50008 18.3333H12.5001C16.6667 18.3333 18.3334 16.6666 18.3334 12.5V10.8333"
+                            stroke="" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M13.3666 2.51663L6.7999 9.0833C6.5499 9.3333 6.2999 9.82497 6.2499 10.1833L5.89157 12.6916C5.75823 13.6 6.3999 14.2333 7.30823 14.1083L9.81657 13.75C10.1666 13.7 10.6582 13.45 10.9166 13.2L17.4832 6.6333C18.6166 5.49997 19.1499 4.1833 17.4832 2.51663C15.8166 0.849966 14.4999 1.3833 13.3666 2.51663Z"
+                            stroke="" stroke-width="1.25" stroke-miterlimit="10" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M12.425 3.45837C12.9834 5.45004 14.5417 7.00837 16.5417 7.57504" stroke=""
+                            stroke-width="1.25" stroke-miterlimit="10" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+
+
+                    <button class="img-bg info me-lg-2 me-1 d-lg-flex d-none hide-in-edit" t-att-class="ks_dashboard_data.is_bookmarked ? ' active' : ''"
+                                 t-on-click="updateBookmark" title="Bookmark Dashboard">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.70825 7.54163C9.19159 8.08329 10.8083 8.08329 12.2916 7.54163" stroke=""
+                            stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M14.0168 1.66663H5.98351C4.20851 1.66663 2.76685 3.11663 2.76685 4.88329V16.625C2.76685 18.125 3.84185 18.7583 5.15851 18.0333L9.22518 15.775C9.65851 15.5333 10.3585 15.5333 10.7835 15.775L14.8502 18.0333C16.1668 18.7666 17.2418 18.1333 17.2418 16.625V4.88329C17.2335 3.11663 15.7918 1.66663 14.0168 1.66663Z"
+                            stroke="" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M14.0168 1.66663H5.98351C4.20851 1.66663 2.76685 3.11663 2.76685 4.88329V16.625C2.76685 18.125 3.84185 18.7583 5.15851 18.0333L9.22518 15.775C9.65851 15.5333 10.3585 15.5333 10.7835 15.775L14.8502 18.0333C16.1668 18.7666 17.2418 18.1333 17.2418 16.625V4.88329C17.2335 3.11663 15.7918 1.66663 14.0168 1.66663Z"
+                            stroke="" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+
+                    <button class="img-bg info me-lg-2 me-1 d-lg-flex d-none hide-in-edit" t-on-click="dashboardImageUpdate" title="Update the current dashboard photo in the overview">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6.75992 22H17.2399C19.9999 22 21.0999 20.31 21.2299 18.25L21.7499 9.99C21.8899 7.83 20.1699 6 17.9999 6C17.3899 6 16.8299 5.65 16.5499 5.11L15.8299 3.66C15.3699 2.75 14.1699 2 13.1499 2H10.8599C9.82992 2 8.62992 2.75 8.16992 3.66L7.44992 5.11C7.16992 5.65 6.60992 6 5.99992 6C3.82992 6 2.10992 7.83 2.24992 9.99L2.76992 18.25C2.88992 20.31 3.99992 22 6.75992 22Z" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M10.5 8H13.5" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 18C13.79 18 15.25 16.54 15.25 14.75C15.25 12.96 13.79 11.5 12 11.5C10.21 11.5 8.75 12.96 8.75 14.75C8.75 16.54 10.21 18 12 18Z" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+
+
+
+                    <t t-if="state.ks_dashboard_manager and !this.ks_dashboard_data.ks_ai_explain_dash">
+                    <div class="dropdown dash-dd-2 d-lg-flex d-none hide-in-edit">
+                        <a class="text-decoration-none dropdown-toggle img-bg d-flex info me-lg-2 me-1" href="#"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Settings">
+                             <svg width="20" height="20" viewBox="0 0 20 20" fill=""
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18.3333 14.5833H12.5" stroke="" stroke-width="1.25" stroke-miterlimit="10"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M4.16675 14.5834H1.66675" stroke="" stroke-width="1.25"
+                                    stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M18.3333 5.41663H15.8333" stroke="" stroke-width="1.25"
+                                    stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M7.50008 5.41663H1.66675" stroke="" stroke-width="1.25"
+                                    stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                                <path
+                                    d="M5.83341 12.0834H10.8334C11.7501 12.0834 12.5001 12.5 12.5001 13.75V15.4167C12.5001 16.6667 11.7501 17.0834 10.8334 17.0834H5.83341C4.91675 17.0834 4.16675 16.6667 4.16675 15.4167V13.75C4.16675 12.5 4.91675 12.0834 5.83341 12.0834Z"
+                                    stroke="" stroke-width="1.25" stroke-miterlimit="10" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M9.16667 2.91675H14.1667C15.0833 2.91675 15.8333 3.33341 15.8333 4.58341V6.25008C15.8333 7.50008 15.0833 7.91675 14.1667 7.91675H9.16667C8.25 7.91675 7.5 7.50008 7.5 6.25008V4.58341C7.5 3.33341 8.25 2.91675 9.16667 2.91675Z"
+                                    stroke="" stroke-width="1.25" stroke-miterlimit="10" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="d-md-block d-none">
+                                <a class="dropdown-item" href="#" t-on-click="ksOnDashboardSettingClick">
+                                    <span class="me-2">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M8 10C9.10457 10 10 9.10457 10 8C10 6.89543 9.10457 6 8 6C6.89543 6 6 6.89543 6 8C6 9.10457 6.89543 10 8 10Z" fill="#4B5563" stroke="#4B5563" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M1.33301 8.58667V7.41333C1.33301 6.72 1.89967 6.14667 2.59967 6.14667C3.80634 6.14667 4.29967 5.29333 3.69301 4.24667C3.34634 3.64667 3.55301 2.86667 4.15967 2.52L5.31301 1.86C5.83967 1.54666 6.51967 1.73333 6.83301 2.26L6.90634 2.38666C7.50634 3.43333 8.49301 3.43333 9.09967 2.38666L9.17301 2.26C9.48634 1.73333 10.1663 1.54666 10.693 1.86L11.8463 2.52C12.453 2.86667 12.6597 3.64667 12.313 4.24667C11.7063 5.29333 12.1997 6.14667 13.4063 6.14667C14.0997 6.14667 14.673 6.71333 14.673 7.41333V8.58667C14.673 9.28 14.1063 9.85333 13.4063 9.85333C12.1997 9.85333 11.7063 10.7067 12.313 11.7533C12.6597 12.36 12.453 13.1333 11.8463 13.48L10.693 14.14C10.1663 14.4533 9.48634 14.2667 9.17301 13.74L9.09967 13.6133C8.49967 12.5667 7.51301 12.5667 6.90634 13.6133L6.83301 13.74C6.51967 14.2667 5.83967 14.4533 5.31301 14.14L4.15967 13.48C3.55301 13.1333 3.34634 12.3533 3.69301 11.7533C4.29967 10.7067 3.80634 9.85333 2.59967 9.85333C1.89967 9.85333 1.33301 9.28 1.33301 8.58667Z" stroke="#4B5563" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                    Dashboard Settings
+                                </a>
+                            </li>
+                            <li class="d-md-block d-none">
+                                <a class="dropdown-item" href="#" t-on-click="ksOnDashboardDeleteClick">
+                                    <span class="me-2">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M14 3.98665C11.78 3.76665 9.54667 3.65332 7.32 3.65332C6 3.65332 4.68 3.71999 3.36 3.85332L2 3.98665" fill="#4B5563"/>
+                                            <path d="M14 3.98665C11.78 3.76665 9.54667 3.65332 7.32 3.65332C6 3.65332 4.68 3.71999 3.36 3.85332L2 3.98665" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M5.66699 3.31337L5.81366 2.44004C5.92033 1.80671 6.00033 1.33337 7.12699 1.33337H8.87366C10.0003 1.33337 10.087 1.83337 10.187 2.44671L10.3337 3.31337" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12.5669 6.09338L12.1336 12.8067C12.0603 13.8534 12.0003 14.6667 10.1403 14.6667H5.86026C4.00026 14.6667 3.94026 13.8534 3.86693 12.8067L3.43359 6.09338" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M6.88672 11H9.10672" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M6.33301 8.33337H9.66634" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                    Delete the Dashboard
+                                </a>
+                            </li>
+                            <li class="d-md-block d-none">
+                                <a class="dropdown-item" href="#" t-if="state.ks_dashboard_manager" t-on-click="ksOnDashboardCreateClick">
+                                    <span class="me-2">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M5.33301 8H10.6663" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8 10.6667V5.33337" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M5.99967 14.6667H9.99967C13.333 14.6667 14.6663 13.3334 14.6663 10V6.00004C14.6663 2.66671 13.333 1.33337 9.99967 1.33337H5.99967C2.66634 1.33337 1.33301 2.66671 1.33301 6.00004V10C1.33301 13.3334 2.66634 14.6667 5.99967 14.6667Z" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                    Create New Dashboard
+                                </a>
+                            </li>
+                            <li class="d-md-block d-none">
+                                <a class="dropdown-item" href="#" t-on-click="kscreateaidashboard">
+                                    <span class="me-2">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M4.4668 10.6667L6.80013 5.33337L9.20013 10.6667" fill="#4B5563"/>
+                                            <path d="M4.4668 10.6667L6.80013 5.33337L9.20013 10.6667" stroke="#4B5563" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M5 8.8667H8.6" stroke="#4B5563" stroke-miterlimit="10"/>
+                                            <path d="M10.8662 10.6666V7.1333" stroke="#4B5563" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M9.99967 14.6667H5.99967C2.66634 14.6667 1.33301 13.3334 1.33301 10V6.00004C1.33301 2.66671 2.66634 1.33337 5.99967 1.33337H9.99967C13.333 1.33337 14.6663 2.66671 14.6663 6.00004V10C14.6663 13.3334 13.333 14.6667 9.99967 14.6667Z" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M10.8936 5.35608V5.35608" stroke="#4B5563" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                    Generate Dashboard with AI
+                                </a>
+                            </li>
+                            <li class="d-md-block d-none">
+                                <a class="dropdown-item" href="#" t-on-click="ksOnDashboardDuplicateClick">
+                                    <span class="me-2">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M10.6663 8.60004V11.4C10.6663 13.7334 9.73301 14.6667 7.39967 14.6667H4.59967C2.26634 14.6667 1.33301 13.7334 1.33301 11.4V8.60004C1.33301 6.26671 2.26634 5.33337 4.59967 5.33337H7.39967C9.73301 5.33337 10.6663 6.26671 10.6663 8.60004Z" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M14.6663 4.60004V7.40004C14.6663 9.73337 13.733 10.6667 11.3997 10.6667H10.6663V8.60004C10.6663 6.26671 9.73301 5.33337 7.39967 5.33337H5.33301V4.60004C5.33301 2.26671 6.26634 1.33337 8.59967 1.33337H11.3997C13.733 1.33337 14.6663 2.26671 14.6663 4.60004Z" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                    Duplicate Current Dashboard
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </t>
+
+
+                    <div class="dropdown dash-dd-2 d-lg-flex d-none hide-in-edit more-option-btn">
+                    <button class="img-bg info me-lg-2 more-img me-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="More Options">
+                        <svg width="20" height="20"
+                            viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12.2916 15.8333C12.2916 17.1 11.2666 18.125 9.99992 18.125C8.73325 18.125 7.70825 17.1 7.70825 15.8333C7.70825 14.5667 8.73325 13.5417 9.99992 13.5417C11.2666 13.5417 12.2916 14.5667 12.2916 15.8333ZM8.95825 15.8333C8.95825 16.4083 9.42492 16.875 9.99992 16.875C10.5749 16.875 11.0416 16.4083 11.0416 15.8333C11.0416 15.2583 10.5749 14.7917 9.99992 14.7917C9.42492 14.7917 8.95825 15.2583 8.95825 15.8333Z"
+                                fill="" />
+                            <path
+                                d="M12.2916 4.16671C12.2916 5.43337 11.2666 6.45837 9.99992 6.45837C8.73325 6.45837 7.70825 5.43337 7.70825 4.16671C7.70825 2.90004 8.73325 1.87504 9.99992 1.87504C11.2666 1.87504 12.2916 2.90004 12.2916 4.16671ZM8.95825 4.16671C8.95825 4.74171 9.42492 5.20837 9.99992 5.20837C10.5749 5.20837 11.0416 4.74171 11.0416 4.16671C11.0416 3.59171 10.5749 3.12504 9.99992 3.12504C9.42492 3.12504 8.95825 3.59171 8.95825 4.16671Z"
+                                fill="" />
+                            <path
+                                d="M12.2916 9.99996C12.2916 11.2666 11.2666 12.2916 9.99992 12.2916C8.73325 12.2916 7.70825 11.2666 7.70825 9.99996C7.70825 8.73329 8.73325 7.70829 9.99992 7.70829C11.2666 7.70829 12.2916 8.73329 12.2916 9.99996ZM8.95825 9.99996C8.95825 10.575 9.42492 11.0416 9.99992 11.0416C10.5749 11.0416 11.0416 10.575 11.0416 9.99996C11.0416 9.42496 10.5749 8.95829 9.99992 8.95829C9.42492 8.95829 8.95825 9.42496 8.95825 9.99996Z"
+                                fill="" />
+                        </svg>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li t-if="state.ks_dashboard_manager">
+                            <a class="dropdown-item" href="#" t-on-click="ksImportItemJson">
+                                <span class="me-2">
+<!--                                    <img src="ks_dashboard_ninja/static/images/dashboardOverview/document-download.svg" alt="document-download"-->
+<!--                                        class="img-fluid" loading="lazy"/>-->
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 7.33337V11.3334L7.33333 10" fill="#4B5563"/>
+                                    <path d="M6 7.33337V11.3334L7.33333 10" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M6.00033 11.3333L4.66699 10" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14.6663 6.66671V10C14.6663 13.3334 13.333 14.6667 9.99967 14.6667H5.99967C2.66634 14.6667 1.33301 13.3334 1.33301 10V6.00004C1.33301 2.66671 2.66634 1.33337 5.99967 1.33337H9.33301" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14.6663 6.66671H11.9997C9.99967 6.66671 9.33301 6.00004 9.33301 4.00004V1.33337L14.6663 6.66671Z" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+
+                                </span>
+                                Import Item
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" t-on-click="ksOnDashboardExportClick">
+                                <span class="me-2">
+<!--                                    <img src="ks_dashboard_ninja/static/images/dashboardOverview/document-upload.svg" alt="document-upload"-->
+<!--                                        class="img-fluid" loading="lazy"/>-->
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6.00033 11.3334V7.33337L4.66699 8.66671" fill="#4B5563"/>
+                                    <path d="M6.00033 11.3334V7.33337L4.66699 8.66671" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M6 7.33337L7.33333 8.66671" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14.6663 6.66671V10C14.6663 13.3334 13.333 14.6667 9.99967 14.6667H5.99967C2.66634 14.6667 1.33301 13.3334 1.33301 10V6.00004C1.33301 2.66671 2.66634 1.33337 5.99967 1.33337H9.33301" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14.6663 6.66671H11.9997C9.99967 6.66671 9.33301 6.00004 9.33301 4.00004V1.33337L14.6663 6.66671Z" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                                Export Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" t-on-click="ksOnDashboardImportClick">
+                                <span class="me-2">
+                                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 7.33337V11.3334L7.33333 10" fill="#4B5563"/>
+                                    <path d="M6 7.33337V11.3334L7.33333 10" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M6.00033 11.3333L4.66699 10" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14.6663 6.66671V10C14.6663 13.3334 13.333 14.6667 9.99967 14.6667H5.99967C2.66634 14.6667 1.33301 13.3334 1.33301 10V6.00004C1.33301 2.66671 2.66634 1.33337 5.99967 1.33337H9.33301" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14.6663 6.66671H11.9997C9.99967 6.66671 9.33301 6.00004 9.33301 4.00004V1.33337L14.6663 6.66671Z" stroke="#4B5563" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+
+                                </span>
+                                Import Dashboard
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                    <t t-if="!this.ks_dashboard_data.ks_ai_explain_dash">
+                    <div class="ks_dashboard_link ks_am_content_element ks_custom_date_filter ks_hide dropdown dash-dd-2 me-lg-2 me-1 hide-in-edit" t-att-class=" isMobile ? 'ms-2' : ''">
+                        <a class="text-decoration-none dropdown-toggle ks_date_filter_dropdown"
+                            role="button" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                            <span id="ks_date_filter_selection"/>
+                            <span class="caret"/>
+                        </a>
+                        <ul class="dropdown-menu" id="ks_date_selector_container" t-on-click="_ksOnDateFilterMenuSelect">
+                            <li id="l_none">
+                                <a class="df_selection_text dropdown-item">All Time</a>
+                            </li>
+                            <li class="divider"/>
+                            <t t-foreach="state.date_selection_order" t-as="date_id" t-key="date_id">
+                                <li t-att-id="date_id" t-if="!isMobile || ( isMobile &amp;&amp; date_id !== 'l_custom')">
+                                    <a class="df_selection_text dropdown-item" href="#">
+                                        <t t-esc="state.date_selection_data[date_id]"/>
+                                    </a>
+                                </li>
+                            </t>
+                        </ul>
+                    </div>
+
+                    <div class="custom-date-range-selector cursor-pointer dn_hide hide-in-edit magic-star-dd me-lg-2 me-1" t-if="!isMobile" t-on-click="showDateFilterRange">
+                        <span class="img-bg">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11.1662 2.37325V1.33325C11.1662 1.05992 10.9395 0.833252 10.6662 0.833252C10.3928 0.833252 10.1662 1.05992 10.1662 1.33325V2.33325H5.83284V1.33325C5.83284 1.05992 5.60617 0.833252 5.33284 0.833252C5.0595 0.833252 4.83284 1.05992 4.83284 1.33325V2.37325C3.03284 2.53992 2.1595 3.61325 2.02617 5.20659C2.01284 5.39992 2.17284 5.55992 2.3595 5.55992H13.6395C13.8328 5.55992 13.9928 5.39325 13.9728 5.20659C13.8395 3.61325 12.9662 2.53992 11.1662 2.37325Z" fill="#6789C6"/>
+                                <path d="M13.3333 6.56006H2.66667C2.3 6.56006 2 6.86006 2 7.22673V11.3334C2 13.3334 3 14.6667 5.33333 14.6667H10.6667C13 14.6667 14 13.3334 14 11.3334V7.22673C14 6.86006 13.7 6.56006 13.3333 6.56006ZM6.14 12.1401C6.10667 12.1667 6.07333 12.2001 6.04 12.2201C6 12.2467 5.96 12.2667 5.92 12.2801C5.88 12.3001 5.84 12.3134 5.8 12.3201C5.75333 12.3267 5.71333 12.3334 5.66667 12.3334C5.58 12.3334 5.49333 12.3134 5.41333 12.2801C5.32667 12.2467 5.26 12.2001 5.19333 12.1401C5.07333 12.0134 5 11.8401 5 11.6667C5 11.4934 5.07333 11.3201 5.19333 11.1934C5.26 11.1334 5.32667 11.0867 5.41333 11.0534C5.53333 11.0001 5.66667 10.9867 5.8 11.0134C5.84 11.0201 5.88 11.0334 5.92 11.0534C5.96 11.0667 6 11.0867 6.04 11.1134C6.07333 11.1401 6.10667 11.1667 6.14 11.1934C6.26 11.3201 6.33333 11.4934 6.33333 11.6667C6.33333 11.8401 6.26 12.0134 6.14 12.1401ZM6.14 9.80673C6.01333 9.92673 5.84 10.0001 5.66667 10.0001C5.49333 10.0001 5.32 9.92673 5.19333 9.80673C5.07333 9.68006 5 9.50673 5 9.33339C5 9.16006 5.07333 8.98673 5.19333 8.86006C5.38 8.67339 5.67333 8.61339 5.92 8.72006C6.00667 8.75339 6.08 8.80006 6.14 8.86006C6.26 8.98673 6.33333 9.16006 6.33333 9.33339C6.33333 9.50673 6.26 9.68006 6.14 9.80673ZM8.47333 12.1401C8.34667 12.2601 8.17333 12.3334 8 12.3334C7.82667 12.3334 7.65333 12.2601 7.52667 12.1401C7.40667 12.0134 7.33333 11.8401 7.33333 11.6667C7.33333 11.4934 7.40667 11.3201 7.52667 11.1934C7.77333 10.9467 8.22667 10.9467 8.47333 11.1934C8.59333 11.3201 8.66667 11.4934 8.66667 11.6667C8.66667 11.8401 8.59333 12.0134 8.47333 12.1401ZM8.47333 9.80673C8.44 9.83339 8.40667 9.86006 8.37333 9.88673C8.33333 9.91339 8.29333 9.93339 8.25333 9.94673C8.21333 9.96673 8.17333 9.98006 8.13333 9.98672C8.08667 9.99339 8.04667 10.0001 8 10.0001C7.82667 10.0001 7.65333 9.92673 7.52667 9.80673C7.40667 9.68006 7.33333 9.50673 7.33333 9.33339C7.33333 9.16006 7.40667 8.98673 7.52667 8.86006C7.58667 8.80006 7.66 8.75339 7.74667 8.72006C7.99333 8.61339 8.28667 8.67339 8.47333 8.86006C8.59333 8.98673 8.66667 9.16006 8.66667 9.33339C8.66667 9.50673 8.59333 9.68006 8.47333 9.80673ZM10.8067 12.1401C10.68 12.2601 10.5067 12.3334 10.3333 12.3334C10.16 12.3334 9.98667 12.2601 9.86 12.1401C9.74 12.0134 9.66667 11.8401 9.66667 11.6667C9.66667 11.4934 9.74 11.3201 9.86 11.1934C10.1067 10.9467 10.56 10.9467 10.8067 11.1934C10.9267 11.3201 11 11.4934 11 11.6667C11 11.8401 10.9267 12.0134 10.8067 12.1401ZM10.8067 9.80673C10.7733 9.83339 10.74 9.86006 10.7067 9.88673C10.6667 9.91339 10.6267 9.93339 10.5867 9.94673C10.5467 9.96673 10.5067 9.98006 10.4667 9.98672C10.42 9.99339 10.3733 10.0001 10.3333 10.0001C10.16 10.0001 9.98667 9.92673 9.86 9.80673C9.74 9.68006 9.66667 9.50673 9.66667 9.33339C9.66667 9.16006 9.74 8.98673 9.86 8.86006C9.92667 8.80006 9.99333 8.75339 10.08 8.72006C10.2 8.66673 10.3333 8.65339 10.4667 8.68006C10.5067 8.68673 10.5467 8.70006 10.5867 8.72006C10.6267 8.73339 10.6667 8.75339 10.7067 8.78006C10.74 8.80673 10.7733 8.83339 10.8067 8.86006C10.9267 8.98673 11 9.16006 11 9.33339C11 9.50673 10.9267 9.68006 10.8067 9.80673Z" fill="#6789C6"/>
+                            </svg>
+
+                        </span>
+                    </div>
+
+                    <t t-if="state.ks_dashboard_manager">
+                          <div class="ks_dashboard_top_settings dropdown d-none d-lg-block">
+                                <input accept=".json " t-attf-id="file_#{_id}"
+                                       name="file" class="ks_input_import_item_button" type="file" style="display:none;"
+                                       t-on-change="ksImportItem"/>
+                          </div>
+                    </t>
+                </t>
+
+
+                    <t t-set="isShowFavBtn" t-value="state.ks_dn_pre_defined_filters?.length || Object.keys(state.ks_dashboard_data.ks_dashboard_custom_domain_filter).length"/>
+                    <div class="dropdown dash-dd-2 filter filters_section d-lg-block d-none hide-in-edit" t-if="isShowFavBtn &amp;&amp; ks_dashboard_data.ks_dashboard_items_ids.length" t-att-class="Object.values(this.ks_dashboard_data.ks_dashboard_domain_data).length ? ' active' : ''">
+                    <a class="text-decoration-none d-flex dropdown-toggle align-items-center" data-bs-toggle="collapse"
+                        data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                        <span class="d-flex align-items-center">
+                            <svg width="20" class="me-lg-2 me-0" height="20" viewBox="0 0 20 20" fill=""
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M18.0249 12.2917C18.0249 13.0334 17.8249 13.7334 17.4583 14.3334C16.7749 15.4751 15.5166 16.25 14.0666 16.25C13.2833 16.25 12.5499 16.0167 11.9333 15.6084C11.4166 15.2917 10.9916 14.8501 10.6833 14.3334C10.3166 13.7334 10.1083 13.0334 10.1083 12.2917C10.1083 10.1084 11.8833 8.33337 14.0666 8.33337C14.3666 8.33337 14.6583 8.3667 14.9333 8.43337C16.7083 8.82504 18.0249 10.4084 18.0249 12.2917Z"
+                                    stroke="" stroke-width="1.25" stroke-miterlimit="10" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M12.5253 12.2917L13.5003 13.2667L15.6086 11.3167" stroke=""
+                                    stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+                                <path
+                                    d="M17.2413 3.34995V5.19995C17.2413 5.87495 16.8163 6.71663 16.3996 7.14163L14.9329 8.43329C14.6579 8.36662 14.3663 8.33329 14.0663 8.33329C11.8829 8.33329 10.1079 10.1083 10.1079 12.2916C10.1079 13.0333 10.3163 13.7333 10.6829 14.3333C10.9913 14.85 11.4163 15.2916 11.9329 15.6083V15.8916C11.9329 16.4 11.5996 17.075 11.1746 17.325L9.9996 18.0833C8.90794 18.7583 7.39127 18 7.39127 16.65V12.1916C7.39127 11.6 7.0496 10.8416 6.71627 10.425L3.51625 7.05829C3.09958 6.63329 2.75793 5.87497 2.75793 5.37497V3.43329C2.75793 2.42496 3.51628 1.66663 4.44128 1.66663H15.5579C16.4829 1.66663 17.2413 2.42495 17.2413 3.34995Z"
+                                    stroke="" stroke-width="1.25" stroke-miterlimit="10" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                        <span class="d-lg-block d-none">Filters</span>
+                        <t t-set="filter_count" t-value="Object.values(this.ks_dashboard_data.ks_dashboard_domain_data)"/>
+                        <div class="ms-1 d-flex justify-content-center filters-amount" t-if="filter_count.length"/>
+                    </a>
+
+                     <div class="collapse custom-dash-collapse" id="collapseExample">
+                        <div class="card card-body">
+                            <ul class="nav nav-pills mb-3 border-bottom border-2" id="pills-tab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button
+                                        class="nav-link text-primary fw-semibold position-relative show active"
+                                        id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home"
+                                        type="button" role="tab" aria-controls="pills-home" title="Apply already defined filter domains"
+                                        aria-selected="true">Predefined Filter
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link text-primary fw-semibold position-relative"
+                                        id="pills-profile-tab" data-bs-toggle="pill"
+                                        data-bs-target="#pills-profile" type="button" role="tab" title="Create domain and apply filter"
+                                        aria-controls="pills-profile" aria-selected="false">Custom Filter
+                                    </button>
+                                </li>
+                                <div class="position-relative ms-auto encapsulated-bottom" t-att-title="isShowFavBtn ? 'Save all current filters as favourite' : 'Create some filters to save as favourite'">
+                                    <button class="favorite-btn me-3 d-flex align-items-center justify-content-center"
+                                            t-on-click="favFilterLayoutToggle"
+                                            t-att-class="isShowFavBtn  ? '' : 'disabled'">
+                                        <img src="/ks_dashboard_ninja/static/images/dashboardOverview/ranking.png" alt="ranking"
+                                            class="img-fluid me-1" loading="lazy"/>
+                                        Save as Favourite
+                                    </button>
+                                </div>
+                                <div t-on-click="hideFilterTab" class="position-relative d-flex align-items-center me-2 encapsulated-bottom">
+                                     <img src="/ks_dashboard_ninja/static/images/dashboardOverview/close-circle.svg" alt="cross-icon" style="height: 20px; width: 20px;"
+                                                class="img-fluid me-2" loading="lazy"/>
+                                </div>
+                            </ul>
+
+
+                            <div class="tab-content" id="pills-tabContent">
+                                <!-- Home tab pane (default visible tab) -->
+                                <div class="tab-pane fade show active" id="pills-home" role="tabpanel"
+                                    aria-labelledby="pills-home-tab">
+                                    <div class="">
+                                         <div class="tab-pane fade show active" id="pills-home" role="tabpanel"
+                                            aria-labelledby="pills-home-tab">
+                                            <div class="predefined-filters">
+                                                <div t-if="Object.keys(ks_dashboard_data.ks_dashboard_domain_data).length &amp;&amp; isPredefined &amp;&amp; !isFavFilter" t-att-class="Object.keys(ks_dashboard_data.ks_dashboard_domain_data).length ? 'ks_dn_filter_applied_container': 'ks_dn_filter_applied_container ks_hide'">
+                                                    <t t-foreach="Object.keys(ks_dashboard_data.ks_dashboard_domain_data)" t-as="model_key" t-key="model_key_index">
+                                                        <t t-if="this.isModelVisePredefined[model_key]">
+                                                            <t t-call="ks_dn_filter_facets_section">
+                                                                <t t-set="ks_domain_data"
+                                                                   t-value="ks_dashboard_data.ks_dashboard_domain_data[model_key]"/>
+                                                                <t t-set="ks_model" t-value="model_key"/>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                                <div t-elif="isFavFilter">
+                                                    <h4 for="multi-dropdown">Select Filter</h4>
+                                                    <div class="dropdown dash-dd-2 me-lg-2 me-1 o_searchview_facet  " id="multi-dropdown">
+                                                        <a class="text-decoration-none dropdown-toggle" href="#"
+                                                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <div class="selcted-opt opted">
+                                                                <div class="opt-title">
+                                                                    <t t-esc="activeFavFilterName"/>
+                                                                </div>
+                                                                <div t-on-click="ksFavFilterFacetRemove">
+                                                                    <img src="ks_dashboard_ninja/static/images/dashboardOverview/close-circle-two.svg"
+                                                                         alt="close-img" loading="lazy" class="img-fluid"/>
+                                                                </div>
+                                                            </div>
+                                                        </a>
+                                                        <t t-call="filter_dropdown">
+                                                            <t t-set="searchPredefinedFilter" t-value="searchPredefinedFilter"/>
+                                                            <t t-set="predefinedSearchFocusout" t-value="predefinedSearchFocusout"/>
+                                                        </t>
+                                                    </div>
+                                                </div>
+                                                <div t-else="">
+                                                    <h4 for="multi-dropdown">Select Filter</h4>
+                                                    <div class="dropdown dash-dd-2 me-lg-2 me-1 o_searchview_facet" id="multi-dropdown">
+                                                        <a class="text-decoration-none dropdown-toggle" href="#"
+                                                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <div class="placeholder-custom">Select Multiple Filters</div>
+                                                        </a>
+                                                        <t t-call="filter_dropdown">
+                                                            <t t-set="searchPredefinedFilter" t-value="searchPredefinedFilter"/>
+                                                            <t t-set="predefinedSearchFocusout" t-value="predefinedSearchFocusout"/>
+                                                        </t>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                                </div>
+
+                                <!-- Profile tab pane -->
+                                <div class="tab-pane fade custom-filter-tab" id="pills-profile" role="tabpanel"
+                                    aria-labelledby="pills-profile-tab">
+                                    <!-- Your second tab content here -->
+                                    <t t-if="Object.values(this.ks_dashboard_data.ks_dashboard_custom_domain_filter).length">
+                                        <CustomFilter filter_info="ks_dashboard_data.ks_dashboard_custom_domain_filter" options="{ks_dashboard_id}" update.bind="ksAddCustomDomain" domain="'[]'"/>
+                                    </t>
+                                    <t t-else="">
+                                        <t t-call="ks_dn.no-filter-view"/>
+                                    </t>
+                                </div>
+                    </div>
+                </div>
+             </div>
+                </div>
+
+
+                    <t t-call="dn_favourite_filter_dropdown"/>
+
+                    <div class="ks_date_input_fields ks_hide d-flex gap-2 ms-2" t-if="!isMobile">
+                        <div class="form-input-box form-control start-date">
+                            <DateTimeInput value="state.ksDateFilterStartDate" type="'datetime'"
+                                       id="'ks_btn_middle_child'" placeholder="'Start Date...'"
+                                       onChange="(date) => this.loadDashboardData(date)"/>
+                        </div>
+
+                        <div class="form-input-box form-control start-date">
+                            <DateTimeInput value="state.ksDateFilterEndDate" type="'datetime'"
+                                             id="'ks_btn_last_child'"
+                                             placeholder="'End Date...'"
+                                             onChange="(date) => this.loadDashboardData(date)"/>
+                        </div>
+                   </div>
+               </div>
+
+
+                <div class="d-flex align-items-center ms-auto ks_dashboard_edit_mode_settings ks_hide d-flex">
+                    <button type="button"
+                            class="ks_dashboard_cancel_layout dash-default-btn bg-white o_form_button_cancel me-2"
+                            title="Discard Changes"
+                            t-on-click="_onKsCancelLayoutClick">
+                         <span>Discard</span>
+                     </button>
+                    <!--                            <button t-if="ks_show_create_layout_option" type="button"-->
+                    <!--                                    class="button ks_dashboard_create_new_layout btn btn-primary o_form_button_save"-->
+                    <!--                                    title="Save Changes as a New Layout">-->
+                    <!--                                <span>Save as New Layout</span>-->
+                    <!--                            </button>-->
+                    <t t-if="state.ks_multi_layout">
+                        <button t-if="state.ks_show_create_layout_option" type="button"
+                                class="ks_dashboard_create_new_layout dash-btn-red o_form_button_save me-2 bg-violet"
+                                title="Save Changes as a New Layout" t-on-click="_onKsCreateLayoutClick">
+                            <span>Save as New Layout</span>
+                        </button>
+                    </t>
+
+                    <button type="button"
+                            class="ks_dashboard_save_layout dash-btn-red o_form_button_save"
+                            title="Save Changes"
+                            t-on-click="_onKsSaveLayoutClick">
+                        <span>Save Layout</span>
+                    </button>
+                </div>
+
+                <t t-if="state.ks_dashboard_manager">
+                    <div class="new-features ks_dashboard_top_settings hide-in-edit d-flex align-items-center ms-auto">
+                        <div class="d-lg-flex d-none">
+                            <t t-if="this.ks_dashboard_data.ks_ai_explain_dash">
+<!--                                            <button id='ks_ai_item_exp_dash' class="btn btn-primary mr-1"-->
+<!--                                                    t-on-click="ks_switch_default_dashboard">-->
+<!--                                                <img src="/ks_dashboard_ninja/static/description/images/icons/generate-ai.svg" alt=""/>-->
+<!--                                                <span class="fa fa-lg"/>-->
+<!--                                                Switch to Default Dashboard-->
+<!--                                                <span class="caret"/>-->
+<!--                                            </button>-->
+                            </t>
+                            <t t-else="">
+                                <div class="dropdown dash-dd-2 magic-star-dd" title="AI Features">
+                                    <a class="text-decoration-none dropdown-toggle img-bg info me-lg-2 me-1" href="#"
+                                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
+<!--                                                    <img src="ks_dashboard_ninja/static/images/dashboardOverview/magic-star.svg" alt="candle-2" class="img-fluid" loading="lazy"/>-->
+                                        <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M8.01757 5.03498C8.24044 4.43268 9.09232 4.43268 9.31519 5.03498L10.7982 9.04271C10.8683 9.23208 11.0176 9.38137 11.2069 9.45144L15.2147 10.9344C15.817 11.1573 15.817 12.0092 15.2147 12.2321L11.2069 13.7151C11.0176 13.7851 10.8683 13.9344 10.7982 14.1238L9.31519 18.1315C9.09232 18.7338 8.24044 18.7338 8.01757 18.1315L6.53457 14.1238C6.4645 13.9344 6.31521 13.7851 6.12585 13.7151L2.11811 12.2321C1.51581 12.0092 1.51581 11.1573 2.11811 10.9344L6.12585 9.45144C6.31521 9.38137 6.4645 9.23208 6.53457 9.04271L8.01757 5.03498Z" fill="" stroke="" stroke-width="1.25"/>
+                                            <path d="M17.6239 5L13.6239 5" stroke="" stroke-width="1.25" stroke-linecap="round"/>
+                                            <path d="M15.6244 7L15.6244 3" stroke="" stroke-width="1.25" stroke-linecap="round"/>
+                                        </svg>
+
+                                                </a>
+
+                                                <ul class="dropdown-menu py-0">
+                                                    <li>
+                                                        <button class="feature-btn dropdown-item" t-on-click="kscreateaiitem" title="Generate the charts of a particular model using AI">
+                                                            <span>
+                                                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-2">
+                                                                    <path d="M13.3996 4.62671C13.3996 4.98671 13.2063 5.31337 12.8996 5.48004L11.7396 6.10671L10.7529 6.63337L8.70628 7.74004C8.48628 7.86004 8.24628 7.92004 7.99961 7.92004C7.75294 7.92004 7.51294 7.86004 7.29294 7.74004L3.09961 5.48004C2.79294 5.31337 2.59961 4.98671 2.59961 4.62671C2.59961 4.26671 2.79294 3.94004 3.09961 3.77337L4.41294 3.06671L5.45961 2.50004L7.29294 1.51337C7.73294 1.27337 8.26628 1.27337 8.70628 1.51337L12.8996 3.77337C13.2063 3.94004 13.3996 4.26671 13.3996 4.62671Z" fill="#6789C6"/>
+                                                                    <path d="M6.59917 8.52664L2.69917 6.57997C2.39917 6.42664 2.0525 6.44664 1.76583 6.61997C1.47917 6.79331 1.3125 7.09997 1.3125 7.4333V11.12C1.3125 11.76 1.66583 12.3333 2.23917 12.62L6.13917 14.5666C6.2725 14.6333 6.41917 14.6666 6.56583 14.6666C6.73917 14.6666 6.9125 14.62 7.06583 14.52C7.3525 14.3466 7.51917 14.04 7.51917 13.7066V10.02C7.52583 9.38664 7.1725 8.8133 6.59917 8.52664Z" fill="#6789C6"/>
+                                                                    <path d="M14.686 7.43338V11.12C14.686 11.7534 14.3327 12.3267 13.7593 12.6134L9.85932 14.5667C9.72599 14.6334 9.57932 14.6667 9.43266 14.6667C9.25932 14.6667 9.08599 14.62 8.92599 14.52C8.64599 14.3467 8.47266 14.04 8.47266 13.7067V10.0267C8.47266 9.38671 8.82599 8.81338 9.39932 8.52671L10.8327 7.81338L11.8327 7.31338L13.2993 6.58004C13.5993 6.42671 13.946 6.44004 14.2327 6.62004C14.5127 6.79338 14.686 7.10004 14.686 7.43338Z" fill="#6789C6"/>
+                                                                    <path d="M11.7407 6.10667L10.7541 6.63333L4.41406 3.06667L5.46073 2.5L11.5807 5.95333C11.6474 5.99333 11.7007 6.04667 11.7407 6.10667Z" fill="#6789C6"/>
+                                                                    <path d="M11.834 7.31335V8.82669C11.834 9.10002 11.6073 9.32669 11.334 9.32669C11.0607 9.32669 10.834 9.10002 10.834 8.82669V7.81335L11.834 7.31335Z" fill="#6789C6"/>
+                                                                  </svg>
+                                                            </span>
+                                                            Generate with AI
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <button class="feature-btn dropdown-item" t-on-click="ks_gen_ai_analysis">
+                                                            <span>
+                                                                <img src="ks_dashboard_ninja/static/images/dashboardOverview/convertshape.png" alt="convertshape"
+                                                                    class="img-fluid me-2" loading="lazy"/>
+                                                            </span>
+                                                            Explain with AI
+                                                        </button>
+                                                    </li>
+<!--                                                    <li>-->
+<!--                                                          <button class="feature-btn dropdown-item" t-on-click="ks_chat_with_ai">-->
+<!--                                                                <span>-->
+<!--                                                                    <img src="ks_dashboard_ninja/static/images/dashboardOverview/chat-ai.svg" alt="Graph" class="img-fluid me-2"-->
+<!--                                                                        loading="lazy"/>-->
+<!--                                                                </span>-->
+<!--                                                                Chat with AI-->
+<!--                                                          </button>-->
+<!--                                                    </li>-->
+
+                                                    <li>
+                                                        <button class="feature-btn d-xl-none d-block dark dropdown-item" t-on-click="onAddItemTypeClick">
+                                                            <span>
+                                                                <img src="ks_dashboard_ninja/static/images/dashboardOverview/Graph 1.svg" alt="Graph" class="img-fluid me-1"
+                                                                    loading="lazy"/>
+                                                            </span>
+                                                            Create New Chart
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+
+                                <button class="feature-btn dark d-xl-block d-none me-0" t-if="state.ks_dashboard_manager" t-on-click="onAddItemTypeClick" title="Add the Charts to Dashboard">
+                                    <span>
+<!--                                        <img src="ks_dashboard_ninja/static/images/dashboardOverview/Graph 1.svg" alt="Graph" class="img-fluid me-1" loading="lazy"/>-->
+                                        <svg width="25" height="23" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg" class="">
+                                        <mask id="mask0_9094_3795" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="20" height="21">
+                                        <rect y="0.5" width="20" height="20" fill="white"/>
+                                        </mask>
+                                        <g mask="url(#mask0_9094_3795)">
+                                        <path d="M8.54411 5.40375L8.77611 8.85371L8.89128 10.5877C8.89253 10.766 8.92045 10.9432 8.97436 11.1135C9.11345 11.444 9.44811 11.654 9.81219 11.6393L15.3599 11.2764C15.6001 11.2725 15.8321 11.3623 16.0048 11.5262C16.1487 11.6628 16.2416 11.8415 16.2709 12.0336L16.2808 12.1503C16.0512 15.3292 13.7164 17.9807 10.5441 18.6651C7.37174 19.3495 4.11866 17.9037 2.55104 15.1125C2.0991 14.3016 1.81682 13.4104 1.72076 12.491C1.68064 12.2188 1.66297 11.9439 1.66793 11.6689C1.66297 8.26074 4.09 5.31426 7.48739 4.60394C7.89629 4.54026 8.29714 4.75673 8.46111 5.12974C8.50353 5.21612 8.53153 5.30864 8.54411 5.40375Z" fill="#04A9CC"/>
+                                        <path opacity="0.4" d="M18.3333 8.67687L18.3275 8.70403L18.3107 8.74352L18.313 8.85196C18.3043 8.99554 18.2488 9.13371 18.1533 9.24538C18.0537 9.36163 17.9177 9.44079 17.768 9.47154L17.6767 9.48404L11.276 9.89879C11.0631 9.91979 10.8511 9.85113 10.6928 9.70996C10.5608 9.59221 10.4765 9.43338 10.4527 9.26221L10.0231 2.87084C10.0156 2.84923 10.0156 2.82581 10.0231 2.80419C10.0289 2.62802 10.1065 2.46149 10.2384 2.34182C10.3702 2.22214 10.5456 2.15929 10.725 2.16731C14.5249 2.26398 17.7186 4.99645 18.3333 8.67687Z" fill="#04A9CC"/>
+                                        </g>
+                                        </svg>
+
+                                    </span>
+                                    Create New Chart
+                                </button>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+                <div class="d-flex custom_date_filter_section align-items-center hide-in-edit ks_hide">
+                        <div class="ks_date_apply_clear_print">
+                                <!--Apply and Clear buttons will only be shown when Date filter : Custom-->
+                              <button type='button' class='dash-btn-red apply-dashboard-date-filter' t-on-click="_onKsApplyDateFilter">
+                                  <span class="d-xxl-none">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="20" class="me-lg-2 me-0" height="20" viewBox="0 0 20 20" fill="none" stroke="#FFFFFF">
+                                          <path d="M18.0249 12.2917C18.0249 13.0334 17.8249 13.7334 17.4583 14.3334C16.7749 15.4751 15.5166 16.25 14.0666 16.25C13.2833 16.25 12.5499 16.0167 11.9333 15.6084C11.4166 15.2917 10.9916 14.8501 10.6833 14.3334C10.3166 13.7334 10.1083 13.0334 10.1083 12.2917C10.1083 10.1084 11.8833 8.33337 14.0666 8.33337C14.3666 8.33337 14.6583 8.3667 14.9333 8.43337C16.7083 8.82504 18.0249 10.4084 18.0249 12.2917Z" stroke="" stroke-width="1.25" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                          <path d="M12.5253 12.2917L13.5003 13.2667L15.6086 11.3167" stroke="" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+                                          <path d="M17.2413 3.34995V5.19995C17.2413 5.87495 16.8163 6.71663 16.3996 7.14163L14.9329 8.43329C14.6579 8.36662 14.3663 8.33329 14.0663 8.33329C11.8829 8.33329 10.1079 10.1083 10.1079 12.2916C10.1079 13.0333 10.3163 13.7333 10.6829 14.3333C10.9913 14.85 11.4163 15.2916 11.9329 15.6083V15.8916C11.9329 16.4 11.5996 17.075 11.1746 17.325L9.9996 18.0833C8.90794 18.7583 7.39127 18 7.39127 16.65V12.1916C7.39127 11.6 7.0496 10.8416 6.71627 10.425L3.51625 7.05829C3.09958 6.63329 2.75793 5.87497 2.75793 5.37497V3.43329C2.75793 2.42496 3.51628 1.66663 4.44128 1.66663H15.5579C16.4829 1.66663 17.2413 2.42495 17.2413 3.34995Z" stroke="" stroke-width="1.25" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                      </svg>
+                                  </span>
+                                  <span class="d-xxl-block d-none">Apply</span>
+                              </button>
+                              <button type='button' class='dash-default-btn bg-white clear-dashboard-date-filter' t-on-click="_onKsClearDateValues">
+                                  <span class="d-xxl-none">
+                                      <img src="/ks_dashboard_ninja/static/images/dashboardOverview/close-circle.svg" alt="cross-icon" style="height: 20px; width: 20px;" class="img-fluid me-2" loading="lazy"/>
+                                  </span>
+                                  <span class="d-xxl-block d-none">Clear</span>
+                              </button>
+<!--                                      <button type='button'-->
+<!--                                              class='btn btn-primary d-none d-lg-block fa fa-print print-dashboard-btn m-1 ml-3 ks_hide'-->
+<!--                                              title="Print"/>-->
+                        </div>
+                    </div>
+                <div class="ks_dashboard_layout_edit_mode_settings ks_hide d-flex gap-2 hide-in-edit">
+                    <button type="button"
+                            class="ks_dashboard_set_current_layout dash-btn-red o_form_button_save"
+                            title="Save Changes"
+                            t-on-click="_ksSetCurrentLayoutClick">
+                        <span>Set Default Layout</span>
+                    </button>
+                    <button type="button"
+                            class=" ks_dashboard_cancel_current_layout dash-default-btn bg-white o_form_button_cancel"
+                            title="Discard Changes" t-on-click="_ksSetDiscardCurrentLayoutClick">
+                        <span>Discard</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+       <!--    main    -->
+        <main class="main-box">
+            <t t-call="ks_dashboard_ninja.ks_main_body_container"/>
+        </main>
+    </t>
+
+
+    <t t-name="ks_dashboard_ninja.dashboardNinjaOverView" owl="1">
+         <main class="main-box">
+            <section class="overview-sec-one mb-4 pb-1">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1>Welcome <span t-esc="data.user_name"/></h1>
+                    <div class="d-flex align-items-center">
+                        <!-- custom-dd-2-start -->
+                        <div class="dropdown dash-dd-2">
+                            <a t-ref="overviewFilter" class="text-decoration-none dropdown-toggle" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <t t-esc="state.filter"/>
+                            </a>
+
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" t-on-click="onFilterChange">All Dashboards</a></li>
+                                <li><a class="dropdown-item" href="#" t-on-click="onFilterChange">Bookmarked</a></li>
+                            </ul>
+                        </div>
+                        <!-- custom-dd-2-end -->
+                        <button class="dash-btn-red d-flex align-items-center ms-3 d-none d-md-flex" t-if="data.isManager" t-on-click="createDashboard">
+                            <span>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="transparent" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M8 12H16" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 16V8" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                            <span class="ms-1">
+                                Add New Dashboard
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+            <section class="overview-sec-tiles mb-4 pb-1 container-fluid">
+                <div class="d-flex align-items-center row-gap-3 row">
+                    <t t-foreach="[0,1,2,3,4]" t-as="i" t-key="i">
+                        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                            <div t-attf-class="tile {{overviewTilesNames[i][1]}} d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div t-attf-id="{{overviewTilesNames[i][0]}}" class="num mb-1">
+                                        <t t-esc="data.overviewInfo[i]"/>
+                                    </div>
+                                    <p class="mb-1"><t t-esc="overviewTilesNames[i][0]"/></p>
+                                </div>
+                                <div>
+                                    <img t-attf-src="ks_dashboard_ninja/static/images/dashboardOverview/{{overviewTilesNames[i][0]}}.svg" alt="category" loading="lazy" class="img-fluid"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </section>
+            <section class="overview-sec-dasboards container-fluid">
+                <t t-set="filteredDashboardsInfo" t-value="filteredDashboards"/>
+                <!-- no-data-found -->
+                <div t-if="!filteredDashboardsInfo" class="d-flex flex-column justify-content-center align-items-center h-100 no-data">
+                    <div>
+                        <img src="ks_dashboard_ninja/static/images/dashboardOverview/no-data.png" alt="no-data-files" class="img-fluid" loading="lazy"/>
+                    </div>
+                    <h3 class="mb-0">
+                        No Data Found!!
+                    </h3>
+                    <p class="mb-3">No Dashboard’s have been Found</p>
+                    <button class="dash-btn-red d-flex align-items-center" t-if="data.isManager &amp;&amp; !isMobile" t-on-click="createDashboard">
+                        <span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="transparent" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8 12H16" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 16V8" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span class="ms-2">
+                            Add New Dashboard
+                        </span>
+                    </button>
+                </div>
+
+                <div class="row row-gap-34 data-added" t-if="filteredDashboardsInfo">
+                    <t t-foreach="filteredDashboardsInfo" t-as="dashboard" t-key="dashboard">
+                        <div class="col-xl-4 col-md-6 col-12">
+                            <div class="dashboard-box flex-column d-flex align-items-center justify-content-center">
+                                <div class="mb-2 dash-preview-box">
+                                    <img t-att-src="data.dashboardsInfo[dashboard].image" alt="dashboard-img" class="img-fluid"
+                                         loading="lazy"/>
+                                </div>
+                                <div class="d-flex w-100 justify-content-between align-items-center dashboard-info">
+                                    <div class="left w-50">
+                                        <h4 class="text-truncate"><t t-esc="data.dashboardsInfo[dashboard].name"/></h4>
+                                        <p><t t-esc="data.dashboardsInfo[dashboard].chartCount"/>
+                                            Charts</p>
+                                    </div>
+                                    <!--  -->
+                                    <div class="right w-50">
+                                        <div class="marked mb-2 d-flex justify-content-end align-items-center">
+                                            <div t-attf-id="unBookmark{{data.dashboardsInfo[dashboard].id}}" t-att-class="data.dashboardsInfo[dashboard].is_bookmarked ? 'd-none' : ''"
+                                                 t-on-click="updateBookmark" t-att-data-dashboard-id="data.dashboardsInfo[dashboard].id"
+                                                 title="Bookmark the dashboard">
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="bookmark"
+                                                 xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M7.70831 7.54163C9.19165 8.08329 10.8083 8.08329 12.2916 7.54163"
+                                                      stroke="#292D32" stroke-width="1.25" stroke-linecap="round"
+                                                      stroke-linejoin="round"/>
+                                                <path
+                                                        d="M14.0169 1.66669H5.98357C4.20857 1.66669 2.76691 3.11669 2.76691 4.88335V16.625C2.76691 18.125 3.84191 18.7584 5.15857 18.0334L9.22524 15.775C9.65857 15.5334 10.3586 15.5334 10.7836 15.775L14.8502 18.0334C16.1669 18.7667 17.2419 18.1334 17.2419 16.625V4.88335C17.2336 3.11669 15.7919 1.66669 14.0169 1.66669Z"
+                                                        stroke="#292D32" stroke-width="1.25" stroke-linecap="round"
+                                                        stroke-linejoin="round"/>
+                                                <path
+                                                        d="M14.0169 1.66669H5.98357C4.20857 1.66669 2.76691 3.11669 2.76691 4.88335V16.625C2.76691 18.125 3.84191 18.7584 5.15857 18.0334L9.22524 15.775C9.65857 15.5334 10.3586 15.5334 10.7836 15.775L14.8502 18.0334C16.1669 18.7667 17.2419 18.1334 17.2419 16.625V4.88335C17.2336 3.11669 15.7919 1.66669 14.0169 1.66669Z"
+                                                        stroke="#292D32" stroke-width="1.25" stroke-linecap="round"
+                                                        stroke-linejoin="round"/>
+                                            </svg>
+                                            </div>
+
+                                            <!-- bookmarked -->
+                                            <div t-attf-id="bookmark{{data.dashboardsInfo[dashboard].id}}" t-on-click="updateBookmark"
+                                                 t-att-class="data.dashboardsInfo[dashboard].is_bookmarked ? '' : 'd-none'"
+                                                 t-att-data-dashboard-id="data.dashboardsInfo[dashboard].id"
+                                                 title="Bookmarked">
+                                                <svg width="16" height="18" viewBox="0 0 16 18" fill="none"
+                                                 class="bookmarked cursor-pointer" xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M12.0165 0.666687H3.98318C2.20818 0.666687 0.766518 2.11669 0.766518 3.88335V15.625C0.766518 17.125 1.84152 17.7584 3.15818 17.0334L7.22485 14.775C7.65818 14.5334 8.35818 14.5334 8.78318 14.775L12.8499 17.0334C14.1665 17.7667 15.2415 17.1334 15.2415 15.625V3.88335C15.2332 2.11669 13.7915 0.666687 12.0165 0.666687ZM10.5082 7.12502C9.69985 7.41669 8.84985 7.56669 7.99985 7.56669C7.14985 7.56669 6.29985 7.41669 5.49152 7.12502C5.16652 7.00835 4.99985 6.65002 5.11652 6.32502C5.24152 6.00002 5.59985 5.83335 5.92485 5.95002C7.26652 6.43335 8.74152 6.43335 10.0832 5.95002C10.4082 5.83335 10.7665 6.00002 10.8832 6.32502C10.9999 6.65002 10.8332 7.00835 10.5082 7.12502Z"
+                                                        fill="#6789C6"/>
+                                                </svg>
+                                            </div>
+
+                                            <button class="img-bg bookmark-capture ms-lg-2 ms-1 d-md-block d-none"
+                                                    t-att-data-dashboard-id="data.dashboardsInfo[dashboard].id" t-on-click="viewDashboard"
+                                                    title="To update the Dashboard image, go to dashboard and update through camera icon. We can also scroll in the dashboard and capture only the visible part.">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.75992 22H17.2399C19.9999 22 21.0999 20.31 21.2299 18.25L21.7499 9.99C21.8899 7.83 20.1699 6 17.9999 6C17.3899 6 16.8299 5.65 16.5499 5.11L15.8299 3.66C15.3699 2.75 14.1699 2 13.1499 2H10.8599C9.82992 2 8.62992 2.75 8.16992 3.66L7.44992 5.11C7.16992 5.65 6.60992 6 5.99992 6C3.82992 6 2.10992 7.83 2.24992 9.99L2.76992 18.25C2.88992 20.31 3.99992 22 6.75992 22Z" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M10.5 8H13.5" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M12 18C13.79 18 15.25 16.54 15.25 14.75C15.25 12.96 13.79 11.5 12 11.5C10.21 11.5 8.75 12.96 8.75 14.75C8.75 16.54 10.21 18 12 18Z" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </button>
+
+                                        </div>
+                                        <a class="dash-link d-flex align-items-center justify-content-end" t-att-data-dashboard-id="data.dashboardsInfo[dashboard].id"
+                                           t-on-click="viewDashboard" title="Click to view the Dashboard">
+                                            View Dashboard
+                                            <i class="fa fa-angle-right ms-1" aria-hidden="true"/>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </section>
+         </main>
+    </t>
+
+<!--    <t t-name="ks_dn_favourite_filter">-->
+<!--        <div class="ks_dashboard_top_menu ks_select_none ks_dn_favourite_filters" style="margin: auto;">-->
+<!--            <div class="ks_dashboard_link ks_am_content_element ks_hide mr-4" t-if="Object.keys(ks_dashboard_data.ks_dashboard_custom_domain_filter).length || Object.keys(ks_dashboard_data.ks_dashboard_pre_domain_filter).length"-->
+<!--            >-->
+<!--                <div class="ks_dn_filter_selection_input">-->
+<!--                    <div class="ks_dn_selection_box">-->
+<!--                        <div class="btn-group ">-->
+<!--                            <button class="o_dropdown_toggler_btn btn btn-secondary dropdown-toggle ks_favourite_filter_dropdown"-->
+<!--                                    data-toggle="dropdown"-->
+<!--                                    aria-expanded="false">-->
+<!--                                <span class="fa fa-lg fa-star"/>-->
+<!--                                <span class="ks_dn_filter_selection">Favourite</span>-->
+<!--                                <span class="caret"/>-->
+<!--                            </button>-->
+<!--                            <div class="dropdown-max-height ks_date_filters_menu_drop_down ks_favourite_filters_menu_drop_down ks_dashboard_custom_srollbar" role="menu">-->
+<!--                                <div class="ks_dn_fav_filters">-->
+<!--                                    <t t-call="ks_dashboard_fav_filters"/>-->
+<!--                                </div>-->
+<!--                                <div class="dropdown dropright o-dropdown ks_o_add_favorite show o_add_favorite position-relative">-->
+<!--                                    <button class="dropdown-toggle o_dropdown_toggler_btn btn btn-secondary dropdown-item"-->
+<!--                                        >-->
+<!--                                        <span>Save Current Search</span>-->
+<!--                                    </button>-->
+<!--                                    <div role="menu" class="o-popper-position o-popper-position&#45;&#45;re ks_dropdown_hover">-->
+<!--                                        <div class="px-3 py-2">-->
+<!--                                            <input type="text"-->
+<!--                                                class="o_input ks_fav_filter_name"-->
+<!--                                                autofocus=""-->
+<!--                                                />-->
+<!--                                            <div class="custom-control custom-checkbox ks_close_dropdown_menu">-->
+<!--                                                <input id="ks_fav_share_other" type="checkbox" class="custom-control-input"/>-->
+<!--                                                <label for="ks_fav_share_other" class="custom-control-label"> Share with all users </label>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                        <div class="px-3 py-2">-->
+<!--                                            <button class="ks_o_save_favorite btn btn-primary" t-on-click="ks_save_favourite">-->
+<!--                                                Save-->
+<!--                                            </button>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </t>-->
+
+
+<!--<t t-name="ks_dashboard_fav_filters">-->
+<!--    <div>-->
+<!--        <t t-foreach="ks_favourite_filters" t-as="filter" t-key="filter">-->
+<!--            <span class="dropdown-item o_menu_item ks_fav_filters_selector" t-on-click="onksfavfilterselected" t-att-fav-name="ks_favourite_filters[filter].name">-->
+<!--                <span class="d-flex p-0 align-items-center justify-content-between">-->
+<!--                    <t t-esc="filter"/>-->
+<!--                    <i class="o_icon_right fa fa-trash-o ks_del_favourite_filter" t-on-click="ks_delete_favourite_filter" title="Delete item" t-att-fav-id="ks_favourite_filters[filter].id" t-att-fav-name="ks_favourite_filters[filter].name"></i>-->
+<!--                </span>-->
+
+<!--            </span>-->
+<!--        </t>-->
+<!--    </div>-->
+<!--    </t>-->
+
+
+
+
+
+
+
+
+    <t t-name="ks_dn_layout_container">
+        <!--        <div class="ks_am_element">-->
+        <!--            <button id="ks_dn_layout_button" class="o_dropdown_toggler_btn btn btn-secondary dropdown-toggle"-->
+        <!--                    data-toggle="dropdown" aria-expanded="false">-->
+        <!--                <span>-->
+        <!--                    <t t-esc="ks_child_boards[ks_selected_board_id][0]"/>-->
+        <!--                </span>-->
+        <!--                <span class="caret"></span>-->
+        <!--            </button>-->
+        <!--            <ul id="ks_dashboard_layout_dropdown_container"-->
+        <!--                class="dropdown-menu ks_dashboard_custom_srollbar dropdown-max-height"-->
+        <!--                role="menu">-->
+        <!--                <t t-foreach="_(ks_child_boards).keys()" t-as="layout_id">-->
+        <!--                    <li t-att-class="ks_selected_board_id === layout_id ? 'ks_dashboard_layout_event ks_layout_selected': 'ks_dashboard_layout_event'"-->
+        <!--                        t-att-data-ks_layout_id="layout_id">-->
+        <!--                        <span class="df_selection_text">-->
+        <!--                            <t t-esc="ks_child_boards[layout_id][0]"/>-->
+        <!--                        </span>-->
+        <!--                    </li>-->
+        <!--                </t>-->
+        <!--            </ul>-->
+        <!--        </div>-->
+        <t t-if="state.ks_multi_layout">
+            <div class="ks_am_element dash-dd-2 ps-lg-4 pe-lg-2" >
+                <button id="ks_dn_layout_button" class="o_dropdown_toggler_btn dashboard_name_bg dropdown-toggle"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    <span>
+                        <t t-esc="state.ks_child_boards[state.ks_selected_board_id][0]"/>
+                    </span>
+                    <span class="caret"/>
+                </button>
+                <ul id="ks_dashboard_layout_dropdown_container"
+                    class="dropdown-menu ks_dashboard_custom_srollbar dropdown-max-height"
+                    role="menu">
+                    <t t-foreach="Object.keys(state.ks_child_boards)" t-as="layout_id" t-key="layout_id_index">
+                        <li t-att-class="state.ks_selected_board_id === layout_id ? 'ks_dashboard_layout_event ks_layout_selected dropdown-item': ' dropdown-item ks_dashboard_layout_event'"
+                            t-att-data-ks_layout_id="layout_id" t-on-click="_ksOnDnLayoutMenuSelect">
+                            <span class="df_selection_text">
+                                <t t-esc="state.ks_child_boards[layout_id][0]"/>
+                            </span>
+                        </li>
+                    </t>
+                </ul>
+            </div>
+        </t>
+        <t t-else="">
+            <span id="ks_dashboard_title_label" class="ks_am_element dash-dd-2">
+                <t t-esc="state.ks_dash_name"/>
+            </span>
+        </t>
+    </t>
+    <!--    Dashboard Main Body Container -->
+    <t t-name="ks_dashboard_ninja.ks_main_body_container" owl="1">
+
+        <div class="ks_dashboard_main_content explain-ai-main-content" t-att-class="state.ks_dashboard_item_length === 0 ? ' h-0' : ''" t-ref="ks_main_body">
+            <t t-if="state.ks_dashboard_item_length != 0">
+                <div class="ks_dashboard_item_content grid-stack ks_dashboard_items_list m-3" gs-w="36"/>
+                <t t-call="ks_dashboard_item_template"/>
+            </t>
+        </div>
+        <t t-if="state.ks_dashboard_item_length == 0">
+            <t t-call="ksNoItemView"/>
+        </t>
+    </t>
+
+    <!--    Empty Dashboard View Layout-->
+    <t t-name="ksNoItemView">
+        <section class="overview-sec-dasboards container-fluid h-100">
+            <div t-if="!filteredDashboardsInfo" class="d-flex flex-column justify-content-center align-items-center h-100 no-data">
+                <div>
+                    <img src="/ks_dashboard_ninja/static/images/dashboardOverview/no-data.png" alt="no-data-files" class="img-fluid" loading="lazy"/>
+                </div>
+                <h3 class="mb-0">
+                    No Data Found!!
+                </h3>
+                <p class="mb-3">Your Personal Dashboard is Empty!</p>
+                <button class="dash-btn-red d-flex align-items-center" t-if="state.ks_dashboard_manager &amp;&amp; !isMobile" t-on-click="onAddItemTypeClick">
+                    <span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="transparent" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 12H16" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 16V8" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span class="ms-2">
+                        Create New Chart
+                    </span>
+                </button>
+            </div>
+        </section>
+    </t>
+
+    <t t-name="ksNoItemChartView">
+        <div class="overview-sec-dasboards container-fluid h-100 graph_text">
+            <div t-if="!filteredDashboardsInfo" class="d-flex flex-column justify-content-center align-items-center h-100 no-data">
+                <div>
+                    <img src="/ks_dashboard_ninja/static/images/dashboardOverview/no-data.png" alt="no-data-files" class="img-fluid" loading="lazy"/>
+                </div>
+                <h3 class="mb-0">
+                    No Data Found!!
+                </h3>
+            </div>
+        </div>
+    </t>
+
+    <!--Item Layouts : -->
+    <t t-name="ks_dashboard_item_template">
+        <t t-foreach="state.ks_dashboard_items" t-as="items" t-key="items.id">
+            <t t-if="items.ks_dashboard_item_type === 'ks_tile'">
+                <Ksdashboardtile item="items" hideButtons="1" on_dialog="on_dialog" dashboard_data="ks_dashboard_data" ksdatefilter="state.ksDateFilterSelection" pre_defined_filter = "state.pre_defined_filter" custom_filter="state.custom_filter" ks_speak="(ev)=>this.speak_once(ev,items)"/>
+            </t>
+            <t t-elif="items.ks_dashboard_item_type === 'ks_kpi'">
+                <Ksdashboardkpiview item="items" hideButtons="1" on_dialog="on_dialog" dashboard_data="ks_dashboard_data" ksdatefilter="state.ksDateFilterSelection" pre_defined_filter = "state.pre_defined_filter" custom_filter="state.custom_filter" ks_speak="(ev)=>this.speak_once(ev,items)"/>
+            </t>
+            <t t-elif="items.ks_dashboard_item_type === 'ks_to_do'">
+                <Ksdashboardtodo item="items" hideButtons="1" dashboard_data="ks_dashboard_data" explain_ai_whole="explain_ai_whole"/>
+            </t>
+            <t t-else="">
+                <Ksdashboardgraph item="items" hideButtons="1" explain_ai_whole="explain_ai_whole" dashboard_data="ks_dashboard_data" ksdatefilter="state.ksDateFilterSelection" pre_defined_filter = "state.pre_defined_filter" custom_filter="state.custom_filter" ks_speak="(ev)=>this.speak_once(ev,items)"/>
+            </t>
+
+        </t>
+    </t>
+
+
+    <t t-name="ksQuickEditButtonContainer">
+        <div class="ks_dashboard_quick_edit_action grid-stack-item" t-att-gs-x="grid.x"
+             t-att-gs-y="grid.y" t-att-gs-w="grid.w" t-att-gs-h="grid.h">
+            <button title="Quick Customize" data-bs-toggle="dropdown"
+                    class="ks_dashboard_item_action  btn dropdown-toggle btn-xs o-no-caret btn"
+                    type="button"
+                    aria-expanded="true">
+                <i class="fa fa-cog"/>
+            </button>
+            <div role="menu" class="dropdown-menu ks_qe_dropdown_menu ">
+            </div>
+        </div>
+    </t>
+
+
+    <t t-name="ks_dn_layout_container_new">
+        <t t-if="ks_multi_layout">
+            <div class="ks_am_element dash-dd-2">
+                <button id="ks_dn_layout_button" class="o_dropdown_toggler_btn dashboard_name_bg dropdown-toggle"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    <span>
+                        <t t-esc="ks_child_boards[ks_selected_board_id][0]"/>
+                    </span>
+                    <span class="caret"></span>
+                </button>
+                <ul id="ks_dashboard_layout_dropdown_container"
+                    class="dropdown-menu ks_dashboard_custom_srollbar dropdown-max-height"
+                    role="menu">
+                    <t t-foreach="Object.keys(ks_child_boards)" t-as="layout_id" t-key="layout_id_index">
+                        <li t-att-class="ks_selected_board_id === layout_id ? 'ks_dashboard_layout_event ks_layout_selected': 'ks_dashboard_layout_event'"
+                            t-att-data-ks_layout_id="layout_id" t-on-click="(ev)=>self._ksOnDnLayoutMenuSelect(ev)">
+                            <span class="df_selection_text">
+                                <t t-esc="ks_child_boards[layout_id][0]"/>
+                            </span>
+                        </li>
+                    </t>
+                </ul>
+            </div>
+        </t>
+        <t t-else="">
+            <span id="ks_dashboard_title_label" class="ks_am_element dash-dd-2">
+                <t t-esc="ks_dash_name"/>
+            </span>
+        </t>
+    </t>
+
+
+</templates>

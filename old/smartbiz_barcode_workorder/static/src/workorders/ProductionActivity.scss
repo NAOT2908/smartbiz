@@ -1,0 +1,129 @@
+/* CSS styles for Edit Production Activity Form (Module: Workorder, Model: Production Activity) */
+
+.s-workorder-production-activity-edit-container {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+.s-workorder-production-activity-form-header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.s-workorder-production-activity-form-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.s-workorder-production-activity-form-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.s-workorder-production-activity-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.s-workorder-production-activity-form-group label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.s-workorder-production-activity-form-input {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.s-workorder-production-activity-form-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.25);
+}
+
+.s-workorder-production-activity-form-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.s-workorder-production-activity-btn {
+    padding: 10px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.s-workorder-production-activity-btn-cancel {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.s-workorder-production-activity-btn-cancel:hover {
+    background: #d0d0d0;
+}
+
+.s-workorder-production-activity-btn-save {
+    background: #007bff;
+    color: #fff;
+}
+
+.s-workorder-production-activity-btn-save:hover {
+    background: #0056b3;
+}
+
+.s_production_activity {
+    height: 250px;
+    overflow-y: auto;
+}
+
+.bg-yellow {
+    background-color: rgb(253, 253, 140);
+}
+
+.bg-green {
+    background-color: rgb(101, 250, 101);
+    border: 1px solid #19AFF1;
+}
+
+.bg-red {
+    background-color: #ec6c69;
+}
+
+.bg-white {
+    background-color: #fff;
+}
+
+.blinking {
+    animation: blink 2s infinite;
+    /* 1s là thời gian một vòng quay, infinite là lặp lại vô hạn */
+}
+
+@keyframes blink {
+    0% {
+        background-color: #2875da;
+        /* Màu ban đầu */
+    }
+
+    50% {
+        background-color: transparent;
+        /* Màu trong suốt khi nhấp nháy */
+    }
+
+    100% {
+        background-color: #2875da;
+        /* Quay lại màu ban đầu */
+    }
+}
+

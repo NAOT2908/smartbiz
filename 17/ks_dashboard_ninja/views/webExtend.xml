@@ -1,0 +1,9 @@
+<odoo>
+    <data>
+        <template id="ks_dn_dashboard_loader_gif" name="Ks-Dn Dashboard loader gif" inherit_id="web.layout">
+            <xpath expr="//head" position="inside">
+                <link rel="prefetch" href="/ks_dashboard_ninja/static/images/loader.gif" as="image"/>
+            </xpath>
+        </template>
+    </data>
+</odoo>

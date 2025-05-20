@@ -26,7 +26,7 @@ import { serializeDate, today } from "@web/core/l10n/dates";
 
 class DetailInventoryLine extends Component {
   static template = "DetailInventoryLine";
-  static props = ["line", "closeEdit"];
+  static props = ["line", "closeEdit", "deleteItem"];
   static components = { Selector };
 
   setup() {
@@ -231,6 +231,12 @@ export class AdjustmentInventory extends Component {
       counting: "V",
       done: "O",
     };
+    this.statusOrder = {
+      in_progress: "Sẵn sàng",
+      cancel: "Hủy",
+      done: "Hoàn thành",
+      draft: "Nháp",
+    };
     console.log("Current user ID:", this.userService)
     this._scrollBehavior = "smooth";
     this.isMobile = uiUtils.isSmall();
@@ -335,7 +341,7 @@ export class AdjustmentInventory extends Component {
   async exit(ev) {
     if (this.state.view === "DetailInventory") {
       this.state.view = "AdjustmentInventory";
-      this.state.currentLocation = null;
+      this.resetData();
     } else if (this.state.view === "AdjustmentInventory") {
       await this.action.doAction(
         "smartbiz_barcode.smartbiz_barcode_main_menu_action"
@@ -345,6 +351,13 @@ export class AdjustmentInventory extends Component {
     }
   }
 
+  resetData() {
+    this.state.currentLocation = null;
+    this.state.title = "";
+    this.state.selectedLine = null;
+    this.state.selectedOrder = null;
+    this.state.lines = []
+  }
   async closeEdit(data) {
     // console.log(data);
     if (data) {
@@ -397,7 +410,7 @@ export class AdjustmentInventory extends Component {
   async selectOrder(id) {
     this.state.view = "DetailInventory";
     this.state.selectedOrder = id;
-    // console.log(id)
+    console.log(id)
     const get_data = await this.orm.call(
       "smartbiz.inventory",
       "get_data",
@@ -405,7 +418,8 @@ export class AdjustmentInventory extends Component {
       {}
     );
     this.updatedata(get_data);
-    console.log(this.state.lines)
+    // console.log(get_data)
+    this.state.title = get_data.inventory.name
 
   }
   withLoading(func, component, minLoadingTime = 500) {
@@ -472,12 +486,25 @@ export class AdjustmentInventory extends Component {
         this.state.inventoryLine = get_data.lines
         this.state.lines = get_data.lines;
         this.updateFilteredLines();
+        this.closeEdit(false)
       },
       cancel: () => { },
       confirmLabel: _t("Có, xác nhận."),
       cancelLabel: _t("Hủy bỏ"),
     };
     this.dialog.add(ConfirmationDialog, params);  
+  }
+  async printLine(id) {
+    const get_data = await this.orm.call(
+      "smartbiz.inventory",
+      "print_inventory_line",
+      [,this.state.selectedOrder, id],
+      {}
+    );
+    this.state.inventoryLine = get_data.lines
+        this.state.lines = get_data.lines;
+        this.updateFilteredLines();
+    
   }
   scrollToSelectedMove() {
     const selectedElement = document.querySelector(`[data-id="${this.state.selectedLine}"]`);
@@ -571,11 +598,8 @@ export class AdjustmentInventory extends Component {
 }
   async processBarcode(barcode) {
     console.log(this.env.model);
-    var barcodeData = await this.env.model.parseBarcodeForInventory(
-      barcode,
-      false,
-      false,
-      false
+    var barcodeData = await this.orm.call('smartbiz.inventory', 'get_inventory_barcode_data',
+      [,barcode, false, false]
     );
     console.log(barcodeData);
     if (!barcodeData || !barcodeData.match) {
@@ -597,6 +621,7 @@ export class AdjustmentInventory extends Component {
   
       if (this.state.currentLocation) {
           if (barcodeData.barcodeType === "packages") {
+            this.state.selectedLine = this.state.lines.find((line) => line.package_id === barcodeData.record.id)?.id;
               // Kiểm tra xem mã vạch có thuộc đúng vị trí đã chọn không
               if (barcodeData.record.location && barcodeData.record.location === this.state.currentLocation.id) {
                   const response = await this.orm.call(
@@ -612,7 +637,10 @@ export class AdjustmentInventory extends Component {
               }
           }
           else if (barcodeData.barcodeType === "products"){
-            
+            let line = this.state.lines.find((line) => line.product_id === barcodeData.record.id)?.id;
+            if (line) {
+              this.state.selectedLine = line;
+            }
             const message = _t(`Đợi chút đang làm!`);
             this.notification.add(message, { type: "warning" });
           }
@@ -621,7 +649,30 @@ export class AdjustmentInventory extends Component {
               this.notification.add(message, { type: "warning" });
           }
       } else {
+          if (barcodeData.barcodeType === "products"){
+            let line = this.state.lines.find((line) => line.product_id === barcodeData.record.id);
+            console.log(line)
+            if (line) {
+              this.state.selectedLine = line.id;
+            }
+            else {
+              const message = _t(`Không tìm thấy sản phẩm!`);
+              this.notification.add(message, { type: "warning" });
+            }
+          }
+          else if (barcodeData.barcodeType === "lots"){
+              // if(this.state.selectedLine){
+              //   let line = this.state.lines.find((line) => line.id === this.state.selectedLine);
+              //   if (line) {
+                  
+              //   } else {
+              //     const message = _t(`Không tìm thấy thông tin!`);
+              //     this.notification.add(message, { type: "warning" });
+              //   }
+              // }
+        } else {
           this.notification.add(_t("Bạn cần quét vị trí trước!"), { type: "warning" });
+        }
       }
     }
   }

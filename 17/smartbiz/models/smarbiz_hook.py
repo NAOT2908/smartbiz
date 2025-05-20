@@ -1,7 +1,7 @@
 from lxml import etree
 from odoo.exceptions import AccessError, ValidationError
 from odoo import api, fields, models, _
-import json
+import json,unidecode
 
 
 def check_action_permission(method):
@@ -109,6 +109,7 @@ def check_action_permission(method):
                 return method(record, *args, **kwargs)
 
     return wrapper
+
 
 class SmartBiz_WorkflowBase(models.AbstractModel):
     _name = "smartbiz.workflow_base"

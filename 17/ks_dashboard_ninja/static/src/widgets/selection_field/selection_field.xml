@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates xml:space="preserve">
+
+    <t t-name="ks_dashboard_selection_field_widget" owl="1">
+        <Dropdown>
+            <t t-set-slot="toggler">
+                <button class="text-decoration-none bg-transparent border-none" href="#" role="button" aria-expanded="false">
+                    <t t-out="currentSelection"/>
+                </button>
+            </t>
+            <DropdownItem
+                t-foreach="selections"
+                t-as="selection"
+                t-key="selection_index"
+                t-esc="selection[1]"
+                onSelected="() => this.onDropdownItemSelect(selection)"
+              />
+        </Dropdown>
+    </t>
+
+</templates>

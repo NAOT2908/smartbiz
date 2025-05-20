@@ -14,7 +14,7 @@
 
     # Any module necessary for this one to work correctly
     'depends': [
-        'base','smartbiz_stock','stock_barcode',
+        'base','smartbiz_stock',
         'mail',
     ],
 

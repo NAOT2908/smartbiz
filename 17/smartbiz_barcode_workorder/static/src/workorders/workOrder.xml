@@ -45,7 +45,7 @@
                 }">
                 <div class="workorder-header">
                     <div>
-                        <t t-esc="state.user.name" />
+                        <t t-esc="state.employee.name" />
                     </div>
                     <span class="close-icon" t-on-click="toggleMenu">
                         <i class="fa fa-times"></i>
@@ -57,7 +57,7 @@
 
                 </div>
             </div>
-            <div t-if="state.view === 'WorkOrders'" class="work-order-list">
+            <div t-if="state.view === 'WorkOrders'" class="s_app_contents">
                 <WorkOrderList
                     t-props="{
                         workOrders: state.workOrders,
@@ -69,23 +69,22 @@
                     }"
                 />
             </div>
-            <div t-if="state.view === 'WorkOrderDetail'" class="work-order-right">
-                <div class="work-order-detail">
-                    <WorkOrderDetail
-                        t-if="true"
-                        t-props="{
-                            workOrder: state.selectedWorkOrder,
-                            startWorkOrder: startWorkOrder.bind(this),
-                            pauseWorkOrder: pauseWorkOrder.bind(this),
-                            stopWorkOrder: stopWorkOrder.bind(this),
-                            showPause:state.showPause,
-                            showStart:state.showStart,
-                            showStop:state.showStop,
-                            activeButton: state.activeButton,
-                            timer: state.timer
-                        }"
-                    />
-                </div>
+            <div t-if="state.view === 'WorkOrderDetail'" class="s_app_contents">
+                <WorkOrderDetail
+                    t-if="true"
+                    t-props="{
+                        workOrder: state.selectedWorkOrder,
+                        startWorkOrder: startWorkOrder.bind(this),
+                        pauseWorkOrder: pauseWorkOrder.bind(this),
+                        stopWorkOrder: stopWorkOrder.bind(this),
+                        showPause:state.showPause,
+                        showStart:state.showStart,
+                        showStop:state.showStop,
+                        activeButton: state.activeButton,
+                        timer: state.timer
+                    }"
+                />
+  
                 <div class="components-container">
                     <div class="components-header">Danh sách Cấu phần</div>
                     <div class="components-list-wrapper">
@@ -102,7 +101,7 @@
 
                 </div>
             </div>
-            <div t-if="state.view === 'ActionDetail'" class="s_detail_componentlist">
+            <div t-if="state.view === 'ActionDetail'" class="s_app_contents">
                 <div class="detailtabs">
                     <div t-attf-class="detailtab #{state.activeTab === 'Detail' ? 'active' : ''}"
                         t-on-click="() => this.changeTab('Detail')">
@@ -113,29 +112,23 @@
                         <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
                     </div>
                 </div>
-                <div t-if="state.activeTab === 'Detail'" class="">
-                    <div class="components-right">
-                        <div class="action-detail">
-                            <ActionDetail
-                                t-if="true"
-                                t-props="{
-                                        component: state.selectedComponent,
-                                        okAction: okAction.bind(this),
-                                        ngAction: ngAction.bind(this),
-                                        updateQuantity:updateQuantity.bind(this),
-                                        printLabel: printLabel.bind(this),
-                                        showOK:state.showOK,
-                                        showNG:state.showNG,
-                                        showPrint:state.showPrint,
-                                        
-                                        showKeypad: showKeypad,
-                                        activityActions: activityActions.bind(this),
-                                    
-                                    }"
-                            />
+                <div t-if="state.activeTab === 'Detail'" class="s_content-area">
+                    <ActionDetail
+                        t-if="true"
+                        t-props="{
+                                component: state.selectedComponent,
+                                showModal: showModal.bind(this),
+                                updateQuantity:updateQuantity.bind(this),
+                                printLabel: printLabel.bind(this),
+                                closeModal:closeModal.bind(this),
+                            
+                                buttonStatus:state.buttonStatus,
+                                showKeypad: showKeypad,
+                                activityActions: activityActions.bind(this),
+                            
+                            }"
+                    />
 
-                        </div>
-                    </div>
                 </div>
                 <div t-if="state.activeTab === 'PDF'" class="">
                     <ActionDocument
@@ -145,13 +138,7 @@
                 </div>
             </div>
           
-            <div t-if="state.view === 'ProductionActivity'">
-                <ProductionActivity
-                    t-props="{
-                            activity: state.selectedActivity,
-                            closeActivity: closeActivity.bind(this),                           
-                        }" />
-            </div>
+
         </div>
         <KeyPads t-if="state.showkeypad"  t-props="{
             data:state.keyPadData,
@@ -159,8 +146,11 @@
         }" />
         <DialogModal t-if="state.showDialogModal" t-props="{
             title:state.dialogTitle,
+            action:state.dialogAction,
+            fields:state.dialogFields,
             records:state.dialogRecords,
-            closeModal:closeModal.bind(this)
+            closeModal:closeModal.bind(this),
+            defaultValues: state.dialogDefault, 
         }"/>
     </t>
 
@@ -196,7 +186,7 @@
     </t>
 
     <t t-name="WorkOrderDetail">
-        <div>
+        <div class="s_detail_content">
             <div class="section_header">Chi tiết Lệnh : <t t-esc="props.workOrder?.production_name" /></div>
             <div class="s_work_order_container">
                 <table class="s_work_order_table">
@@ -269,7 +259,7 @@
                 t-on-click="() => props.select(component.id)"
             >
                 <div class="component-item" t-att-class="getClasscomponet(component)">
-                    <div class="component-info">
+                    <div class="component-info" t-on-click="() => props.selectComponent(component)">
                         <div class="name" style="font-size: 20px;font-weight: bold;">
                             <t t-esc="component.name" />
                         </div>
@@ -277,14 +267,14 @@
                         <div class="quantity" style="">Số lượng OK: <t t-esc="component.ok_quantity" /></div>
                         <div class="quantity" style="color: #ec6c69;">Số lượng NG: <t t-esc="component.ng_quantity" /></div>
                     </div>
-                    <div class="component-actions">
+                    <!-- <div class="component-actions">
                         <button
                             class="action-btn details-btn"
                             t-on-click="() => props.selectComponent(component)"
                         >
                             <i class="fa fa-info-circle"></i>
                         </button>
-                    </div>
+                    </div> -->
                 </div>
 
             </div>
@@ -292,9 +282,8 @@
     </t>
 
     <t t-name="ActionDetail">
-        <!-- <div class="section_header">Chi tiết SP</div> -->
-        <div class="s_action_detail_container">
-            <div class="s_action_detail_content">
+        <div class="s_detail_componentlist">
+            <div class="s_action_control_panel">
                 <div class="s_detail_row">
                     <span class="s_detail_label">Sản phẩm:</span>
                     <span class="s_detail_value"
@@ -319,58 +308,42 @@
                     <span class="s_detail_label">NG:</span>
                     <span class="s_detail_value" t-esc="props.component?.ng_quantity || '-'" />
                 </div>
+                <div class="s_detail_row">
+                    <span class="s_detail_label">C:</span>
+                    <span class="s_detail_value" t-esc="props.component?.cancel_quantity || '-'" />
+                </div>
             </div>
             <div class="s_action_buttons">
-                <div class="s_group_button">
-                    <div class="s_action_detail_buttons" t-if="props.showOK">
-                        <div class="s_increment_buttons">
-                            <!-- <button class="s_ok_plus_button"
-                                t-on-click="()=>props.updateQuantity('ok','+')">
-                                <i class="fa fa-plus"></i>
-                            </button> -->
-                            <div
-                                t-on-click="() => props.showKeypad({title: 'Số lượng ĐẠT', color: '#11B714'},props.component, 'ok')"
-                                t-esc="props.component?.producing_ok_quantity || '0'" />
-                            <!-- <button class="s_ok_minus_button"
-                                t-on-click="()=>props.updateQuantity('ok','-')">
-                                <i class="fa fa-minus"></i>
-                            </button> -->
-
-                        </div>
-                        <button t-on-click="props.okAction" class="s_action_ok_button">
-                            OK
-                        </button>
-                    </div>
-                    <div class="s_action_detail_buttons" t-if="props.showNG">
-                        <div class="s_increment_buttons">
-                            <!-- <button class="s_ng_plus_button"
-                                t-on-click="()=>props.updateQuantity('ng','+')">
-                                <i class="fa fa-plus"></i>
-                            </button> -->
-                            <div
-                                t-on-click="() => props.showKeypad({title: 'Số lượng không ĐẠT', color: '#E6960D'},props.component, 'ng')"
-                                t-esc="props.component?.producing_ng_quantity || '0'" />
-                            <!-- <button class="s_ng_minus_button"
-                                t-on-click="()=>props.updateQuantity('ng','-')">
-                                <i class="fa fa-minus"></i>
-                            </button> -->
-
-                        </div>
-                        <button t-on-click="props.ngAction" class="s_action_ng_button">
-                            NG
-                        </button>
-                    </div>
-                </div>
-
+                <button class="btn-action ok" t-if="props.buttonStatus?.showOK"   t-on-click="() => props.showModal('Xác nhận hàng đạt','ok_action')">
+                    <i class="fa fa-check"></i><span class="btn-label">OK</span>
+                </button>
+                <button class="btn-action ng"  t-if="props.buttonStatus?.showNG"  t-on-click="() => props.showModal('Xác nhận hàng lỗi','ng_action')">
+                    <i class="fa fa-times"></i><span class="btn-label">NG</span>
+                </button>
+                <button class="btn-action pause" t-if="props.buttonStatus?.showPause" t-on-click="() => props.showModal('Xác nhận tạm dừng','pause_action')">
+                    <i class="fa fa-pause"></i><span class="btn-label">PAUSE</span>
+                </button>
+                <button class="btn-action start" t-if="props.buttonStatus?.showStart" t-on-click="() => props.closeModal('Bắt đầu','x','start_action')">
+                    <i class="fa fa-play"></i><span class="btn-label">START</span>
+                </button>
             </div>
-            <div t-if="props.component.activities">
-                <div class="s_production_activity">
-                    <t t-foreach="props.component.activities" t-as="line" t-key="line.id">
-                        <div t-on-click="()=> props.activityActions('select',line.id)"
-                            t-att-data-id="line.id"
-                            t-att-class="(line.id === props.selectedActivity?.id ? 'selected ' : '') + getClass(line)"
-                            class="s_barcode_workorder_production_activity ">
-                            <div class="s_barcode_workorder_production_activity_left">
+            <div class="s_production_activity" t-if="props.component.activities">
+                <t t-foreach="props.component.activities" t-as="line" t-key="line.id">
+                    <div t-on-click="()=> props.activityActions('select',line.id)"
+                        t-att-data-id="line.id"
+                        t-att-class="(line.id === props.selectedActivity?.id ? 'selected ' : '') + getClass(line)"
+                        class="s_barcode_workorder_production_activity ">
+                        <div class="s_barcode_workorder_production_activity_left">
+                            <t t-if="line.activity_type == 'paused'">
+                                <div> 
+                                    <span >
+                                        <t t-out="line.start" />
+                                        --
+                                        <t t-out="line.finish" />
+                                    </span>
+                                </div>
+                            </t>
+                            <t t-if="line.activity_type != 'paused'">
                                 <div>
                                     <i class="fa fa-fw fa-tags"></i>
                                     <span class="product-label">
@@ -397,94 +370,46 @@
                                         <t t-out="line.package" />
                                     </span>
                                 </div>
+                            </t>
 
-                            </div>
-                            <div class="s_barcode_workorder_production_activity_right">
-
-                                <button class="s_barcode_workorder-icon"
-                                    t-on-click="() => props.activityActions('edit',line)">
+                        </div>
+                        <div class="s_barcode_workorder_production_activity_right">
+                            <t t-if="line.activity_type != 'paused'">
+                               <button class="s_barcode_workorder-icon"
+                                        t-if="activityButtonsStatus('edit', line)"
+                                        t-on-click="() => props.activityActions('edit', line)">
                                     <i class="fa fa-2x fa-pencil"></i>
                                 </button>
-                                <span>
-                                    <button class="s_barcode_workorder-icon"
-                                        t-on-click="() => props.activityActions('print',line.id)">
-                                        <i class="fa fa-print" aria-hidden="true"></i>
-                                    </button>
-                                </span>
-                                <span>
-                                    <button class="s_barcode_workorder-icon"
-                                        t-on-click="() => props.activityActions('delete',line.id)">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                    </button>
-                                </span>
-                            </div>
+
+                                <button class="s_barcode_workorder-icon"
+                                        t-if="activityButtonsStatus('print', line)"
+                                        t-on-click="() => props.activityActions('print', line.id)">
+                                    <i class="fa fa-print"></i>
+                                </button>
+
+                                <button class="s_barcode_workorder-icon"
+                                        t-if="activityButtonsStatus('delete', line)"
+                                        t-on-click="() => props.activityActions('delete', line.id)">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+
+                                <button class="s_barcode_workorder-icon"
+                                        t-if="activityButtonsStatus('cancel', line)"
+                                        t-on-click="() => props.activityActions('cancel', line.id)">
+                                    <i class="fa fa-ban"></i>
+                                </button>
+
+                            
+                            </t>
                         </div>
-                    </t>
-                </div>
+                    </div>
+                </t>
             </div>
-        </div>
-        <!-- <KeyPads t-if="props.showKeypad"
-        t-props="{detailMoveLine:props.component,keyClick:keyClick,keyPadTitle:state.keyPadTitle}"/> -->
 
-    </t>
-
-    <t t-name="ProductionActivity">
-        <div class="s-workorder-production-activity-edit-container">
-            <div class="s-workorder-production-activity-form-header">
-                <h3>Edit Production Activity</h3>
-            </div>
-            <div class="s-workorder-production-activity-form-body">
-                <div class="s-workorder-production-activity-form-group">
-                    <label for="quantity">Quantity</label>
-                    <input
-                        type="number"
-                        id="quantity"
-                        t-model="state.quantity"
-                        class="s-workorder-production-activity-form-input"
-                    />
-                </div>
- 
-                <div class="s-workorder-production-activity-form-group">
-                    <label for="lot-id">Lot</label>
-                    <select id="lot-id" t-model="state.lot_id"
-                        class="s-workorder-production-activity-form-input">
-                        <t t-foreach="state.lots" t-as="lot" t-key="lot.id">
-                            <option t-att-value="lot.id">
-                                <t t-esc="lot.name" />
-                            </option>
-                        </t>
-                    </select>
-                </div>
-
-                <div class="s-workorder-production-activity-form-group">
-                    <label for="start">Start Time</label>
-                    <input
-                        type="datetime-local"
-                        id="start"
-                        t-model="state.start"
-                        class="s-workorder-production-activity-form-input"
-                    />
-                </div>
-                <div class="s-workorder-production-activity-form-group">
-                    <label for="finish">Finish Time</label>
-                    <input
-                        type="datetime-local"
-                        id="finish"
-                        t-model="state.finish"
-                        class="s-workorder-production-activity-form-input"
-                    />
-                </div>
-            </div>
-            <div class="s-workorder-production-activity-form-footer">
-                <button
-                    class="s-workorder-production-activity-btn s-workorder-production-activity-btn-cancel"
-                    t-on-click="cancel">Cancel</button>
-                <button
-                    class="s-workorder-production-activity-btn s-workorder-production-activity-btn-save"
-                    t-on-click="save">Save</button>
-            </div>
         </div>
     </t>
+
+
 
 
     <t t-name="ActionDocument">

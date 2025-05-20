@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="ks_dashboard_ninja.ks_new_list_view_tmpl">
+        <t t-foreach="list_view_data['data_rows']" t-as="table_row" t-key="table_row_index">
+            <tr class="ks_tr" t-att-data-record-id="table_row['id']" t-att-data-domain="table_row['domain']"
+                t-att-data-item-Id="item_id"
+                t-att-data-sequence="table_row['sequence']" t-att-data-last_seq="table_row['last_seq']">
+                <t t-set="ks_rec_count" t-value="0"/>
+                <t t-foreach="table_row['data']" t-as="row_data" t-key="row_data_index">
+                    <t t-if="table_row['ks_column_type'][ks_rec_count]=='html'">
+                        <td class="ks_list_canvas_click">
+                            <t t-out="markup(row_data)"/>
+                        </td>
+                        <t t-set="ks_rec_count" t-value="ks_rec_count+1"/>
+                    </t>
+                    <t t-else="">
+                        <td class="ks_list_canvas_click" t-on-click="(ev)=>self.onChartCanvasClick(ev)">
+                            <t t-esc="row_data"/>
+                        </td>
+                        <t t-set="ks_rec_count" t-value="ks_rec_count+1"/>
+                    </t>
+                </t>
+                <td class="ks_info">
+                    <t t-if="ks_show_records ">
+                    <div id="ks_item_info" t-att-data-model="list_view_data['model']"
+                       t-att-data-list-type="list_view_data['list_view_type']"
+                       t-att-data-groupby="list_view_data['groupby']"
+                       t-att-data-record-id="table_row['id']" t-att-data-item-id="item_id"
+                       t-att-data-list-view-type="tmpl_list_type"
+                       t-att-data-domain="table_row['domain']"
+                       t-on-click="ksOnListItemInfoClick">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20 20" fill="none">
+                            <path d="M9.16675 1.66663H7.50008C3.33341 1.66663 1.66675 3.33329 1.66675 7.49996V12.5C1.66675 16.6666 3.33341 18.3333 7.50008 18.3333H12.5001C16.6667 18.3333 18.3334 16.6666 18.3334 12.5V10.8333" stroke="#241C1D" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M13.3666 2.51663L6.7999 9.0833C6.5499 9.3333 6.2999 9.82497 6.2499 10.1833L5.89157 12.6916C5.75823 13.6 6.3999 14.2333 7.30823 14.1083L9.81657 13.75C10.1666 13.7 10.6582 13.45 10.9166 13.2L17.4832 6.6333C18.6166 5.49997 19.1499 4.1833 17.4832 2.51663C15.8166 0.849966 14.4999 1.3833 13.3666 2.51663Z" stroke="#241C1D" stroke-width="1.25" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M12.425 3.45837C12.9834 5.45004 14.5417 7.00837 16.5417 7.57504" stroke="#241C1D" stroke-width="1.25" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+
+                    </t>
+                </td>
+            </tr>
+        </t>
+    </t>
+
+    <t t-name="ks_dashboard_ninja.ks_new_list_view_table">
+        <t t-if="list_view_data">
+            <table id="ksListViewTable" class="table table-hover ks_list_view_layout_1"
+                   t-att-data-model="list_view_data['model']">
+                <thead>
+                    <t t-call="ks_new_list_view_header"/>
+                </thead>
+                <tbody class="ks_table_body">
+                    <t t-call="ks_dashboard_ninja.ks_new_list_view_tmpl"/>
+                </tbody>
+            </table>
+        </t>
+        <t t-else="">
+            No Data Present
+        </t>
+    </t>
+        <t t-name="ks_new_list_view_header">
+        <tr>
+            <t t-foreach="list_view_data['label']" t-as="table_header" t-key="table_header_index">
+                <th>
+                    <t t-esc="table_header"/>
+                </th>
+            </t>
+            <th/>
+        </tr>
+    </t>
+</templates>

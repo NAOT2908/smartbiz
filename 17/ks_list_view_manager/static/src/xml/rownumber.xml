@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="Ks_list_view.ListRenderer" t-inherit="web.ListRenderer" t-inherit-mode="extension" owl="1">
+        <xpath expr="//table/thead/tr/th[@t-if='hasSelectors']" position="after">
+            <t t-if="this.ks_serial_number and props.activeActions.type == 'view'">
+               <th class="serial_no">S.No</th>
+            </t>
+        </xpath>
+        <xpath expr="//table/tfoot/tr/td" position="before">
+            <t t-if="this.ks_serial_number">
+            <td></td>
+            </t>
+        </xpath>
+    </t>
+
+    <t t-name="Ks_custom_list_view.add_rownumber" t-inherit="web.ListRenderer.Rows" t-inherit-mode="extension" owl="1">
+        <xpath expr="//t[@t-foreach='list.records']" position="before">
+            <t t-set="RowNumber" t-value="1" />
+        </xpath>
+        <xpath expr="//t[@t-call='{{ constructor.recordRowTemplate }}']" position="after">
+
+            <t t-set="RowNumber" t-value="RowNumber+1" />
+        </xpath>
+    </t>
+
+    <t t-name="Ks_rowno_in_tree.ListRenderer.RecordRowNumber" t-inherit="web.ListRenderer.RecordRow" t-inherit-mode="extension" owl="1">
+        <xpath expr="//td[@class='o_list_record_selector user-select-none']" position="after">
+            <t t-if="props.activeActions.type == 'view' and this.ks_serial_number">
+            <td tabindex="-1">
+                <span t-esc="RowNumber"/>
+            </td>
+            </t>
+        </xpath>
+    </t>
+</templates>

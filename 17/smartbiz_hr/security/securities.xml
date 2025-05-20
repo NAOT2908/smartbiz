@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+<!-- Users -->
+<!-- Groups -->
+   <record model="ir.module.category" id="security_category">
+    <field name = "name">SmartBiz SMARTBIZ_HR</field>
+    <field name = "description" >User Access level for SMARTBIZ_HR</field>
+    <field name = "sequence" > 3 </field>
+    </record>
+        <record model="res.groups" id="smartbiz_hr.group_roles_hr_users_1">
+            <field name="name">HR Users</field>
+            <field name="type">roles</field>
+            <field name="category_id" ref="security_category"/>
+        </record>
+
+        <record model="res.groups" id="smartbiz_hr.group_roles_hr_manager_2">
+            <field name="name">HR Manager</field>
+            <field name="type">roles</field>
+            <field name="category_id" ref="security_category"/>
+        </record>
+
+        <record model="res.groups" id="smartbiz_hr.group_roles_hr_admin_3">
+            <field name="name">HR Admin</field>
+            <field name="type">roles</field>
+            <field name="category_id" ref="security_category"/>
+        </record>
+
+<!-- Record Rules -->
+
+    </data>
+</odoo>

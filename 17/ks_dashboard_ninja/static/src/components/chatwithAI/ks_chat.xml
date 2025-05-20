@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="Kschatwithai">
+        <div id="chatid" class="chart-sec-modal message_with_ai">
+            <Dialog title="'Chat with AI'" footer="false" size="'md'">
+                <div class="chat-ai-box px-3">
+                    <div class="chat-sec mt-4">
+
+                        <t t-foreach="state.messages" t-as="message" t-key="message_index">
+                           <t t-if="message.sender == 'ai'">
+                                <div class="left">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="ai-icon me-2">
+                                            <img src="/ks_dashboard_ninja/static/images/ai-icon.png" alt="ai-assistant" class="img-fluid"
+                                                loading="lazy"/>
+                                        </span>
+                                        <span class="title">Ksolves Assistant</span>
+                                    </div>
+                                    <div class="answers">
+                                        <t t-if="message.text == 'loading'">
+                                           <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true" style="background:#e7495e;"></span>
+                                           <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true" style="margin-left:5px;background:#e7495e;"></span>
+                                           <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true" style="margin-left:5px;background:#e7495e;"></span>
+                                        </t>
+                                        <t t-else="">
+                                            <t t-if="!message.frame">
+                                                <t t-esc="message.text"/>
+                                            </t>
+                                        </t>
+                                    </div>
+                                    <t t-if="message.frame">
+                                        <p class="answers">Here is your generated table</p>
+                                        <div class="chart-table-wrapper">
+                                            <table class="table table-striped mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <t t-foreach="Object.keys(message.frame[0])" t-as="header" t-key="header_index">
+                                                            <th>
+                                                                <t t-esc="header"/>
+                                                            </th>
+                                                        </t>
+                                                    </tr>
+
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="message.frame" t-as="value" t-key="value_index">
+                                                       <tr>
+                                                            <t t-foreach="Object.keys(value)" t-as="item" t-key="item_index">
+                                                                <td>
+                                                                    <t t-esc="value[item]"/>
+                                                                </td>
+                                                            </t>
+                                                       </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </t>
+                                </div>
+                           </t>
+                            <t t-else="">
+                                <div class="right  my-4 py-2">
+                                    <div class="d-flex align-items-center mb-3 justify-content-end">
+                                        <span class="title"><t t-esc="this.user"/></span>
+                                        <span
+                                            class="user-icon ms-2 d-flex justify-content-center align-items-center">
+                                            <t t-esc="this.name_title"/>
+                                        </span>
+                                    </div>
+                                    <div class="questions text-end">
+                                       <t t-esc="message.text"/>
+                                    </div>
+                                </div>
+                            </t>
+                        </t>
+                    </div>
+                    <div class="typer-box">
+                        <form class="typer d-flex align-items-end">
+                            <textarea name="" id="" placeholder="Chat with AI..." t-ref="ks_question" t-on-keyup="(ev)=>this.ks_key_check(ev)"></textarea>
+                            <button class="chat-logo" t-on-click="ks_send_request">
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M5.54977 4.73999L11.9173 2.61749C14.7748 1.66499 16.3273 3.22499 15.3823 6.08249L13.2598 12.45C11.8348 16.7325 9.49477 16.7325 8.06977 12.45L7.43977 10.56L5.54977 9.92999C1.26727 8.50499 1.26727 6.17249 5.54977 4.73999Z"
+                                        stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                    <path d="M7.58203 10.2375L10.267 7.54504L7.58203 10.2375Z"
+                                        fill="#241C1D" />
+                                    <path d="M7.58203 10.2375L10.267 7.54504" stroke="white"
+                                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </Dialog>
+        </div>
+    </t>
+</templates>

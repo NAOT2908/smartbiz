@@ -6,11 +6,21 @@
         <field name="arch" type="xml">
             <form string="Xác nhận kiểm kê">
                 <group>
+                    <field name="inventory_id" invisible="1"/>
+                    <field name="has_pending_lines" invisible="1"/>
                     <field name="apply_inventory" />
+                    <div colspan="2"><p name="explanation-text">
+                        Bạn chắc chắn xác nhận lần kiểm kê này không ?<br />
+                    </p></div>
                 </group>
                 <footer>
                     <button name="action_confirm" type="object" string="Xác nhận"
                         class="btn-primary" />
+                
+                    <button name="action_confirm_and_create_new" type="object" class="btn-secondary"
+                        string="Xác nhận và tạo phiếu mới (cho dòng chưa kiểm kê)"
+                        invisible = "not has_pending_lines"
+                        />
                     <button name="action_cancel" string="Hủy" class="btn-secondary" special="cancel" />
                 </footer>
             </form>

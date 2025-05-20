@@ -21,6 +21,8 @@ mrp_group_mrp_user_smartbiz_mes_operation,"mrp.group_mrp_user-smartbiz_mes.Opera
 mrp_group_mrp_manager_smartbiz_mes_operation,"mrp.group_mrp_manager-smartbiz_mes.Operation",model_smartbiz_mes_operation,mrp.group_mrp_manager,1,1,1,1
 mrp_group_mrp_user_smartbiz_mes_request,"mrp.group_mrp_user-smartbiz_mes.Request",model_smartbiz_mes_request,mrp.group_mrp_user,1,0,0,0
 mrp_group_mrp_manager_smartbiz_mes_request,"mrp.group_mrp_manager-smartbiz_mes.Request",model_smartbiz_mes_request,mrp.group_mrp_manager,1,1,1,1
+mrp_group_mrp_user_smartbiz_mes_pause_reason,"mrp.group_mrp_user-smartbiz_mes.Pause Reason",model_smartbiz_mes_pause_reason,mrp.group_mrp_user,1,0,0,0
+mrp_group_mrp_manager_smartbiz_mes_pause_reason,"mrp.group_mrp_manager-smartbiz_mes.Pause Reason",model_smartbiz_mes_pause_reason,mrp.group_mrp_manager,1,1,1,1
 mrp_group_mrp_user_smartbiz_mes_external_list_wizard,"mrp.group_mrp_user-smartbiz_mes.External List Wizard",model_smartbiz_mes_external_list_wizard,mrp.group_mrp_user,1,0,0,0
 mrp_group_mrp_manager_smartbiz_mes_external_list_wizard,"mrp.group_mrp_manager-smartbiz_mes.External List Wizard",model_smartbiz_mes_external_list_wizard,mrp.group_mrp_manager,1,1,1,1
 mrp_group_mrp_user_smartbiz_mes_external_list_wizard_line,"mrp.group_mrp_user-smartbiz_mes.External List Wizard Line",model_smartbiz_mes_external_list_wizard_line,mrp.group_mrp_user,1,0,0,0

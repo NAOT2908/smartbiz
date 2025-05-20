@@ -1,0 +1,115 @@
+.ks_body_class .screen-cards {
+    .card-dn-screen {
+        min-height: 184px;
+        min-width: 180px;
+        padding: 20px 10px;
+        border-radius: 16px;
+
+        &.one {
+            background-color: $color-FFE2E5;
+        }
+
+        &.two {
+            background-color: $color-FFF4DE;
+        }
+
+        &.three {
+            background-color: $color-DCFCE7;
+        }
+
+        &.four {
+            background-color: $color-F3E8FF;
+        }
+
+        & .info {
+            border: none;
+        }
+
+        .amount-info {
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 32px;
+            text-align: left;
+            color: $color-black;
+        }
+
+        .sub-info {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 24px;
+            text-align: left;
+            color: $color-black;
+        }
+
+        .screen-title {
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 16px;
+            text-align: left;
+            color: $color-737791;
+        }
+
+        .screen-ratio {
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 16px;
+            text-align: left;
+            color: $color-E7495E;
+        }
+    }
+}
+
+.ks_body_class .dashboards-sec {
+    max-height: calc(100vh - 467px);
+    overflow: auto;
+
+    @include custom-scrollbar;
+}
+
+.ks_body_class .dasboard-box {
+    row-gap: 16px;
+    column-gap: 10px;
+
+    .dashboard-container {
+        min-height: 355px;
+        border-radius: 20px;
+        border: 1px solid $color-E5E7EB;
+        min-width: 512px;
+        cursor: pointer;
+
+        @include max-575 {
+            min-width: 100%;
+        }
+
+        .dashboard-header {
+            h4 {
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 32px;
+                text-align: left;
+                color: $color-05004E;
+            }
+
+            .hover-options {
+                display: none;
+                position: absolute;
+                right: 0;
+            }
+        }
+
+        .dashboard-body {
+
+            img {
+                height: 277px;
+                object-fit: contain;
+            }
+        }
+
+        &:hover {
+            .hover-options {
+                display: flex;
+            }
+        }
+    }
+}
+

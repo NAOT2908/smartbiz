@@ -115,6 +115,7 @@ msgstr "Sản xuất"
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_process__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_operation__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__name
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_pause_reason__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_stock_move_line__name
 msgid "Name"
 msgstr "Tên"
@@ -190,6 +191,11 @@ msgstr "Trạng thái"
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__workcenter_id
 msgid "Workcenter"
 msgstr "Trạm làm việc"
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_workcenter__equipment_quantity
+msgid "Equipment Quantity"
+msgstr "Số lượng thiết bị"
 
 #. module: smartbiz_mes
 #: model:ir.model,name:smartbiz_mes.model_mrp_workorder
@@ -419,6 +425,7 @@ msgstr "Mã"
 #. module: smartbiz_mes
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_line__type_id
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_bom_components__type
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_pause_reason__type
 msgid "Type"
 msgstr "Kiểu"
 
@@ -498,6 +505,7 @@ msgstr "Bắt đầu"
 
 #. module: smartbiz_mes
 #: model:ir.model.fields.selection,name:smartbiz_mes.selection__smartbiz_mes_production_activity__status__paused
+#: model:ir.model.fields.selection,name:smartbiz_mes.selection__smartbiz_mes_production_activity__activity_type__paused
 msgid "Paused"
 msgstr "Tạm dừng"
 
@@ -507,9 +515,39 @@ msgid "Finished"
 msgstr "Hoàn thành"
 
 #. module: smartbiz_mes
+#: model:ir.model.fields.selection,name:smartbiz_mes.selection__smartbiz_mes_production_activity__status__cancel
+#: model:ir.model.fields.selection,name:smartbiz_mes.selection__smartbiz_mes_production_activity__activity_type__cancel
+#: model:ir.model.fields.selection,name:smartbiz_mes.selection__smartbiz_mes_pause_reason__type__cancel
+#: model:ir.model.fields.selection,name:smartbiz_mes.selection__smartbiz_mes_request__state__cancel
+msgid "Cancel"
+msgstr "Hủy bỏ"
+
+#. module: smartbiz_mes
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__note
 msgid "Note"
 msgstr "Ghi chú"
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__reason_id
+#: model_terms:ir.ui.view,arch_db:smartbiz_mes.smartbiz_mes_pause_reason_form
+msgid "Reason"
+msgstr "Lý do"
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__activity_type
+msgid "Activity Type"
+msgstr "Kiểu hoạt động"
+
+#. module: smartbiz_mes
+#: model:ir.model.fields.selection,name:smartbiz_mes.selection__smartbiz_mes_production_activity__activity_type__ok
+msgid "OK"
+msgstr "Đạt"
+
+#. module: smartbiz_mes
+#: model:ir.model.fields.selection,name:smartbiz_mes.selection__smartbiz_mes_production_activity__activity_type__ng
+#: model:ir.model.fields.selection,name:smartbiz_mes.selection__smartbiz_mes_pause_reason__type__ng
+msgid "NG"
+msgstr "Không đạt"
 
 #. module: smartbiz_mes
 #: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_bom_components
@@ -773,6 +811,23 @@ msgid "Sub Request"
 msgstr "Yêu cầu chi tiết"
 
 #. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_pause_reason
+#: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_pause_reason_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_pause_reason_action
+msgid "Pause Reason"
+msgstr "Lý do tạm dừng"
+
+#. module: smartbiz_mes
+#: model:ir.model.fields.selection,name:smartbiz_mes.selection__smartbiz_mes_pause_reason__type__pause
+msgid "Pause"
+msgstr "Tạm dừng"
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_pause_reason__active
+msgid "Active"
+msgstr "Kích hoạt"
+
+#. module: smartbiz_mes
 #: model:ir.model,name:smartbiz_mes.model_purchase_order
 #: model:ir.ui.menu,name:smartbiz_mes.purchase_order_menuitem
 #: model:ir.actions.act_window,name:smartbiz_mes.purchase_order_action
@@ -894,8 +949,3 @@ msgstr "Đang thực hiện"
 #: model:ir.model.fields.selection,name:smartbiz_mes.selection__smartbiz_mes_request__state__done
 msgid "Done"
 msgstr "Hoàn thành"
-
-#. module: smartbiz_mes
-#: model:ir.model.fields.selection,name:smartbiz_mes.selection__smartbiz_mes_request__state__cancel
-msgid "Cancel"
-msgstr "Hủy bỏ"

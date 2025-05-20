@@ -1,0 +1,490 @@
+<templates>
+    <t t-name="WorkOrder">
+        <div class="main work-order">
+            <div class="work-order-header">
+                <nav class="work-order_nav">
+                    <nav class="work-order_nav_left">
+                        <button t-on-click="exit" class="work-order_nav-link">
+                            <i class="oi oi-chevron-left" />
+                        </button>
+                        <div class="work-order_nav_title">
+                            <t t-esc="state.title" />
+                        </div>
+
+                    </nav>
+                    <nav class="work-order_nav_right">
+                        <div
+                            class="work-order_search-box" t-if="state.search">
+                            <input class="work-order_search-input" t-on-input="handleInput"
+                                t-att-value="state.searchInput"
+                                placeholder="Tìm kiếm" />
+                        </div>
+                        <div class="work-order_nav-link" t-on-click="searchClick">
+                            <i class="fa fa-search" />
+                        </div>
+                        <div class="work-order_nav-link" t-on-click="openManualScanner">
+                            <i class="fa fa-barcode" />
+                        </div>
+                        <div class="work-order_nav-link" t-on-click="toggleMenu">
+                            <i class="fa fa-bars"></i>
+                        </div>
+                    </nav>
+                </nav>
+            </div>
+            <div t-att-class="{
+                    'workorder-overlay': true,
+                    'open': state.menuVisible,
+                    'close': !state.menuVisible
+                }"
+                t-on-click="toggleMenu"></div>
+
+            <div t-att-class="{
+                    'workorder': true,
+                    'workorder-open': state.menuVisible,
+                    'workorder-close': !state.menuVisible
+                }">
+                <div class="workorder-header">
+                    <div>
+                        <t t-esc="state.employee.name" />
+                    </div>
+                    <span class="close-icon" t-on-click="toggleMenu">
+                        <i class="fa fa-times"></i>
+                    </span>
+                </div>
+                <div class="workorder-items">
+                    <button t-on-click="() => this.openSelector(1)">In phiếu kiểm kê</button>
+                    <button t-on-click="() => this.openSelector(8)">In hàng loạt</button>
+
+                </div>
+            </div>
+            <div t-if="state.view === 'WorkOrders'" class="work-order-list">
+                <WorkOrderList
+                    t-props="{
+                        workOrders: state.workOrders,
+                        selectWorkOrder: selectWorkOrder.bind(this),
+                        selectedWorkOrder: state.selectedWorkOrder,
+                        searchQuery: state.searchQuery,
+                        searchWorkOrders: searchWorkOrders.bind(this),
+                        stateMapping: stateMapping
+                    }"
+                />
+            </div>
+            <div t-if="state.view === 'WorkOrderDetail'" class="work-order-right">
+                <div class="work-order-detail">
+                    <WorkOrderDetail
+                        t-if="true"
+                        t-props="{
+                            workOrder: state.selectedWorkOrder,
+                            startWorkOrder: startWorkOrder.bind(this),
+                            pauseWorkOrder: pauseWorkOrder.bind(this),
+                            stopWorkOrder: stopWorkOrder.bind(this),
+                            showPause:state.showPause,
+                            showStart:state.showStart,
+                            showStop:state.showStop,
+                            activeButton: state.activeButton,
+                            timer: state.timer
+                        }"
+                    />
+                </div>
+                <div class="components-container">
+                    <div class="components-header">Danh sách Cấu phần</div>
+                    <div class="components-list-wrapper">
+                        <ComponentList
+                            t-props="{
+                                    components: state.components,
+                                    selectComponent: selectComponent.bind(this),
+                                    selectedComponent: state.selectedComponent,
+                                    closeKeypad:closeKeypad,
+                                    select:select
+                                }"
+                        />
+                    </div>
+
+                </div>
+            </div>
+            <div t-if="state.view === 'ActionDetail'" class="s_detail_componentlist">
+                <div class="detailtabs">
+                    <div t-attf-class="detailtab #{state.activeTab === 'Detail' ? 'active' : ''}"
+                        t-on-click="() => this.changeTab('Detail')">
+                        <i class="fa fa-info" aria-hidden="true"></i>
+                    </div>
+                    <div t-attf-class="detailtab #{state.activeTab === 'PDF' ? 'active' : ''}"
+                        t-on-click="() => this.changeTab('PDF')">
+                        <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div t-if="state.activeTab === 'Detail'" class="">
+                    <div class="components-right">
+                        <div class="action-detail">
+                            <ActionDetail
+                                t-if="true"
+                                t-props="{
+                                        component: state.selectedComponent,
+                                        showModal: showModal.bind(this),
+                                        updateQuantity:updateQuantity.bind(this),
+                                        printLabel: printLabel.bind(this),
+                                        showOK:state.showOK,
+                                        showNG:state.showNG,
+                                        showPrint:state.showPrint,
+                                        buttonStatus:state.buttonStatus,
+                                        showKeypad: showKeypad,
+                                        activityActions: activityActions.bind(this),
+                                    
+                                    }"
+                            />
+
+                        </div>
+                    </div>
+                </div>
+                <div t-if="state.activeTab === 'PDF'" class="">
+                    <ActionDocument
+                        t-if="state.document"
+                        t-props="{ document: state.document }"
+                    />
+                </div>
+            </div>
+          
+            <div t-if="state.view === 'ProductionActivity'">
+                <ProductionActivity
+                    t-props="{
+                            activity: state.selectedActivity,
+                            closeActivity: closeActivity.bind(this),                           
+                        }" />
+            </div>
+        </div>
+        <KeyPads t-if="state.showkeypad"  t-props="{
+            data:state.keyPadData,
+            closeKeypad:closeKeypad,
+        }" />
+        <DialogModal t-if="state.showDialogModal" t-props="{
+            title:state.dialogTitle,
+            action:state.dialogAction,
+            fields:state.dialogFields,
+            records:state.dialogRecords,
+            closeModal:closeModal.bind(this)
+        }"/>
+    </t>
+
+    <t t-name="WorkOrderList">
+        <div class="section_header">Danh sách Work Order</div>
+        <div class="workorder-items">
+            <div
+                t-foreach="props.workOrders"
+                t-as="order"
+                t-key="order.id"
+                t-on-click="() => props.selectWorkOrder(order.id)"
+                t-att-class="{selected: order.id === props.selectedWorkOrder?.id}"
+            >
+                <div class="item">
+                    <div class="item-content">
+                        <div style="font-size: 20px;font-weight: bold;" t-esc="order.name" />
+                        <div>
+                            <span
+                                t-att-class="'state-label ' + (order.state === 'progress' ? 'state-progress' : 
+                                        order.state === 'pending' ? 'state-pending' : 
+                                        order.state === 'ready' ? 'state-ready' : 
+                                        order.state === 'waiting' ? 'state-waiting' : 'state-default')"
+                                t-esc="props.stateMapping[order?.state] || order?.state" />
+                        </div>
+                    </div>
+                    <div>Lô sản xuất: <span t-esc="order.production_name" /></div>
+                    <div>Sản phẩm: <span t-esc="order.product_name" /></div>
+                    <div>Số lượng: <span t-esc="order.quantity" /></div>
+
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="WorkOrderDetail">
+        <div>
+            <div class="section_header">Chi tiết Lệnh : <t t-esc="props.workOrder?.production_name" /></div>
+            <div class="s_work_order_container">
+                <table class="s_work_order_table">
+                    <tbody>
+                        <tr>
+                            <td class="s_work_order_label">Sản phẩm:</td>
+                            <td class="s_work_order_value"
+                                t-esc="props.workOrder?.product_name || '-'"></td>
+                        </tr>
+                        <tr>
+                            <td class="s_work_order_label">SL(Còn/HT/YC):</td>
+                            <td class="s_work_order_value">
+                                <span t-esc="props.workOrder?.qty_remaining || '-'"></span>
+                                <span> /</span>
+                                <span t-esc="props.workOrder?.qty_produced || '-'"></span>
+                                <span> /</span>
+                                <span t-esc="props.workOrder?.qty_production || '-'"> </span>
+                                <span style="margin-left: 5px"
+                                    t-esc="props.workOrder?.product_uom || '-'"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="s_work_order_label">Thời gian(+/TT/DK):</td>
+                            <td class="s_work_order_value">
+                            <t t-esc="props.timer"></t>
+                                <span> /</span>
+                                <t t-esc="floatToTimeString(props.workOrder?.duration || '-')"></t>
+                                <span> /</span>
+                                <t
+                                    t-esc="floatToTimeString(props.workOrder?.duration_expected || '-')"></t>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="s_work_order_right">
+                    <button t-on-click="props.startWorkOrder" class="s_work_order_button"
+                        t-if="props.showStart"
+                        t-att-class="{'active': props.workOrder?.working_state === 'normal'}"
+                    >
+                        <i class="fa fa-play"></i>
+                        <span class="button-label">Bắt đầu</span>
+                    </button>
+                    <button t-on-click="props.pauseWorkOrder" class="s_work_order_button"
+                        t-if="props.showPause"
+                        t-att-class="{'active': props.workOrder?.working_state === 'progress'}"
+                    >
+                        <i class="fa fa-pause"></i>
+                        <span class="button-label">Tạm dừng</span>
+                    </button>
+                    <button t-on-click="props.stopWorkOrder" class="s_work_order_button"
+                        t-if="props.showStop"
+                        t-att-class="{'active': props.workOrder?.working_state === 'done'}"
+                    >
+                        <i class="fa fa-stop"></i>
+                        <span class="button-label">Dừng</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="ComponentList">
+        <div class="components-list">
+            <div
+                t-foreach="props.components"
+                t-as="component"
+                t-key="component.id"
+                t-att-class="(component.id === props.selectedComponent?.id ? 'selected' : '')"
+                t-on-click="() => props.select(component.id)"
+            >
+                <div class="component-item" t-att-class="getClasscomponet(component)">
+                    <div class="component-info">
+                        <div class="name" style="font-size: 20px;font-weight: bold;">
+                            <t t-esc="component.name" />
+                        </div>
+                        <div class="quantity">Yêu cầu: <t t-esc="component.quantity" /></div>
+                        <div class="quantity" style="">Số lượng OK: <t t-esc="component.ok_quantity" /></div>
+                        <div class="quantity" style="color: #ec6c69;">Số lượng NG: <t t-esc="component.ng_quantity" /></div>
+                    </div>
+                    <div class="component-actions">
+                        <button
+                            class="action-btn details-btn"
+                            t-on-click="() => props.selectComponent(component)"
+                        >
+                            <i class="fa fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </t>
+
+    <t t-name="ActionDetail">
+        <!-- <div class="section_header">Chi tiết SP</div> -->
+        <div class="s_action_detail_container">
+            <div class="s_action_detail_content">
+                <div class="s_detail_row">
+                    <span class="s_detail_label">Sản phẩm:</span>
+                    <span class="s_detail_value"
+                        t-esc="props.component?.product_name || props.component?.name || '-'" />
+                </div>
+                <div class="s_detail_row">
+                    <span class="s_detail_label">Lô sản xuất:</span>
+                    <span class="s_detail_value" t-esc="props.component?.lot_name || '-'" />
+                </div>
+                <div class="s_detail_row">
+                    <span class="s_detail_label">Yêu cầu/Hoàn thành:</span>
+                    <span class="s_detail_value">
+                        <t t-esc="props.component?.quantity || '-'" /> / <t
+                            t-esc="props.component?.produced_quantity || '-'" />
+                    </span>
+                </div>
+                <div class="s_detail_row">
+                    <span class="s_detail_label">OK:</span>
+                    <span class="s_detail_value" t-esc="props.component?.ok_quantity || '-'" />
+                </div>
+                <div class="s_detail_row">
+                    <span class="s_detail_label">NG:</span>
+                    <span class="s_detail_value" t-esc="props.component?.ng_quantity || '-'" />
+                </div>
+            </div>
+            <div class="s_action_buttons">
+                <button class="btn-action ok"    t-on-click="() => props.showModal('Xác nhận hàng đạt','ok_action')">
+                    <i class="fa fa-check"></i><span class="btn-label">OK</span>
+                </button>
+                <button class="btn-action ng"    t-on-click="() => props.showModal('Xác nhận hàng lỗi','ng_action')">
+                    <i class="fa fa-times"></i><span class="btn-label">NG</span>
+                </button>
+                <button class="btn-action pause" t-on-click="() => props.showModal('Xác nhận tạm dừng','pause_action')">
+                    <i class="fa fa-pause"></i><span class="btn-label">PAUSE</span>
+                </button>
+            </div>
+
+            <div t-if="props.component.activities">
+                <div class="s_production_activity">
+                    <t t-foreach="props.component.activities" t-as="line" t-key="line.id">
+                        <div t-on-click="()=> props.activityActions('select',line.id)"
+                            t-att-data-id="line.id"
+                            t-att-class="(line.id === props.selectedActivity?.id ? 'selected ' : '') + getClass(line)"
+                            class="s_barcode_workorder_production_activity ">
+                            <div class="s_barcode_workorder_production_activity_left">
+                                <div>
+                                    <i class="fa fa-fw fa-tags"></i>
+                                    <span class="product-label">
+                                        <t t-out="line.name" />
+                                    </span>
+                                </div>
+                                <div name="quantity">
+                                    <i class="fa fa-fw fa-cube"></i>
+                                    <span style="padding: 0px 10px;color:red;">
+                                        <t t-out="line.quantity" />
+                                    </span>
+
+                                </div>
+                                <div name="lot" t-if="line.lot_name">
+                                    <i class="fa fa-fw fa-barcode"></i>
+                                    <span class="" t-out="line.lot_name"></span>
+
+                                </div>
+
+                                <div name="package" t-if="line.package">
+                                    <i class="fa fa-fw fa-archive"></i>
+                                    <i class="fa fa-long-arrow-right mx-1"></i>
+                                    <span class="package">
+                                        <t t-out="line.package" />
+                                    </span>
+                                </div>
+
+                            </div>
+                            <div class="s_barcode_workorder_production_activity_right">
+
+                                <button class="s_barcode_workorder-icon"
+                                    t-on-click="() => props.activityActions('edit',line)">
+                                    <i class="fa fa-2x fa-pencil"></i>
+                                </button>
+                                <span>
+                                    <button class="s_barcode_workorder-icon"
+                                        t-on-click="() => props.activityActions('print',line.id)">
+                                        <i class="fa fa-print" aria-hidden="true"></i>
+                                    </button>
+                                </span>
+                                <span>
+                                    <button class="s_barcode_workorder-icon"
+                                        t-if="props.buttonStatus?.deleteActivity"
+                                        t-on-click="() => props.activityActions('delete',line.id)">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </div>
+        <!-- <KeyPads t-if="props.showKeypad"
+        t-props="{detailMoveLine:props.component,keyClick:keyClick,keyPadTitle:state.keyPadTitle}"/> -->
+
+    </t>
+
+    <t t-name="ProductionActivity">
+        <div class="s-workorder-production-activity-edit-container">
+            <div class="s-workorder-production-activity-form-header">
+                <h3>Edit Production Activity</h3>
+            </div>
+            <div class="s-workorder-production-activity-form-body">
+                <div class="s-workorder-production-activity-form-group">
+                    <label for="quantity">Quantity</label>
+                    <input
+                        type="number"
+                        id="quantity"
+                        t-model="state.quantity"
+                        class="s-workorder-production-activity-form-input"
+                    />
+                </div>
+ 
+                <div class="s-workorder-production-activity-form-group">
+                    <label for="lot-id">Lot</label>
+                    <select id="lot-id" t-model="state.lot_id"
+                        class="s-workorder-production-activity-form-input">
+                        <t t-foreach="state.lots" t-as="lot" t-key="lot.id">
+                            <option t-att-value="lot.id">
+                                <t t-esc="lot.name" />
+                            </option>
+                        </t>
+                    </select>
+                </div>
+
+                <div class="s-workorder-production-activity-form-group">
+                    <label for="start">Start Time</label>
+                    <input
+                        type="datetime-local"
+                        id="start"
+                        t-model="state.start"
+                        class="s-workorder-production-activity-form-input"
+                    />
+                </div>
+                <div class="s-workorder-production-activity-form-group">
+                    <label for="finish">Finish Time</label>
+                    <input
+                        type="datetime-local"
+                        id="finish"
+                        t-model="state.finish"
+                        class="s-workorder-production-activity-form-input"
+                    />
+                </div>
+                <div class="s-workorder-production-activity-form-group">
+                    <label for="finish">Note</label>
+                    <input
+                        type="text"
+                        id="note"
+                        t-model="state.note"
+                        class="s-workorder-production-activity-form-input"
+                    />
+                </div>
+            </div>
+            <div class="s-workorder-production-activity-form-footer">
+                <button
+                    class="s-workorder-production-activity-btn s-workorder-production-activity-btn-cancel"
+                    t-on-click="cancel">Cancel</button>
+                <button
+                    class="s-workorder-production-activity-btn s-workorder-production-activity-btn-save"
+                    t-on-click="save">Save</button>
+            </div>
+        </div>
+    </t>
+
+
+    <t t-name="ActionDocument">
+        <div class="document-container">
+            <!-- <button class="close-pdf-btn" t-on-click="props.closePDF">×</button> -->
+            <!-- <div class="section_header">Tài liệu</div> -->
+            <div class="document-content">
+                <t t-if="props.document.type === 'pdf'">
+                    <iframe
+                        class="o_pdfview_iframe"
+                        t-att-src="props.document.url"
+                        alt="PDF viewer"
+                        width="100%"
+                        height="100%"
+                        frameborder="0"
+                        t-on-error="onLoadFailed"
+                    />
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

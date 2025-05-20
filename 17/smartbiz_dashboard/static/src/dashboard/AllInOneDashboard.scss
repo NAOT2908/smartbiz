@@ -116,3 +116,62 @@
 .step_working {
     background-color: #00cc66 !important; /* Xanh đậm hơn */
 }
+.step_paused{
+    background:#ffcc80 !important;   /* cam nhạt */
+}
+
+/* === KPI CARDS ======================================== */
+.kpi_wrapper{
+    display:flex;
+    gap:32px;
+    margin:24px 0 32px;
+    flex-wrap:wrap;
+}
+
+.kpi_card{
+    flex:1 1 40px;                  /* rộng tối thiểu 240 px – tự giãn */
+    position:relative;
+    overflow:hidden;
+    padding:14px 10px;
+    border-radius:10px;
+    color:#fff;
+    text-align:center;
+    box-shadow:0 8px 32px rgba(0,0,0,.25);
+    isolation:isolate;               /* để ::after nằm dưới nội dung */
+}
+
+.kpi_card::after{                    /* vệt sáng chéo nhẹ */
+    content:"";
+    position:absolute;
+    top:-50%; right:-50%;
+    width:140%; height:300%;
+    background:rgba(255,255,255,.07);
+    transform:rotate(25deg);
+    z-index:-1;
+}
+
+.kpi_label{
+    font-size:1.4rem;
+    font-weight:300;
+    letter-spacing:.2px;
+    margin-bottom:8px;
+    opacity:.9;
+}
+
+.kpi_value{
+    font-size:3rem;                  /* rất lớn cho tivi */
+    font-weight:400;
+    line-height:1;
+}
+
+/* ==== PALETTE MÀU (4 thẻ) ============================= */
+.accent1{ background:linear-gradient(135deg,#1d4ed8,#3b82f6); }
+.accent2{ background:linear-gradient(135deg,#047857,#10b981); }
+.accent3{ background:linear-gradient(135deg,#7c3aed,#c084fc); }
+.accent4{ background:linear-gradient(135deg,#3083bb,#4096cf); }
+
+/* ==== RESPONSIVE – tăng cỡ khi >1920px ================= */
+@media(min-width:1920px){
+    .kpi_value{ font-size:7rem; }
+    .kpi_card{ padding:36px 28px; }
+}

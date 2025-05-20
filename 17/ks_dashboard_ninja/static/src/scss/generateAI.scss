@@ -1,0 +1,124 @@
+.generated-chart {
+    row-gap: 12px;
+    column-gap: 8px;
+    @media screen and (min-width:992px) {
+        .col-lg-4 {
+            padding:0 6px !important;
+            }
+        }
+     .row {
+         row-gap:12px;
+         padding:0 24px;
+         }
+    .generated-cart-box {
+        box-shadow: 0px 3.29px 16.47px 0px #EEEEEE80;
+        border: 0.82px solid $color-E5E7EB;
+        border-radius: 16px;
+        min-height: 292px;
+        background-color: $color-white;
+        position: relative;
+//         min-width: 421px;
+        height:100%;
+        .select-btn {
+            position: absolute;
+            right: 12px;
+            top: 9px;
+            z-index: 10;
+            display: block !important;
+
+            #count_selected_btn {
+                border: initial;
+                background-color: transparent;
+            }
+
+            svg {
+                stroke: $color-737791;
+            }
+
+            &.active {
+                svg {
+                    fill: #6789C6 !important;
+                    stroke: white !important;
+                }
+            }
+        }
+
+        .title {
+            padding: 8px 16px;
+            position: relative;
+
+            h5 {
+                font-size: $font-14;
+                font-weight: $f-w-500;
+                line-height: 26.35px;
+                text-align: left;
+                color: $color-05004E;
+            }
+
+           
+        }
+
+        .chart-preview {
+            padding: 8px 12px;
+            min-height: 228px;
+            position:relative;
+            height:100%;
+            .chart {
+                height: 100%;
+                width: 100%;
+                object-fit: contain;
+            }
+
+        }
+    }
+}
+
+.selected-info {
+    .selected-amt {
+        font-size: $font-14;
+        font-weight: $f-w-500;
+        line-height: 19.6px;
+        text-align: left;
+        color: $color-black;
+    }
+
+    p {
+        font-size: $font-12;
+        font-weight: $f-w-400;
+        line-height: 16.8px;
+        text-align: left;
+        color: $color-737791;
+    }
+}
+
+.btn-box {
+    .select-deselect#ks_ai_add_all_item,.select-deselect#ks_ai_remove_all_item,.select-deselect#ks_close_dialog {
+        font-size: $font-14;
+        font-weight: $f-w-500;
+        line-height: 22.4px;
+        text-align: left;
+//         color: $color-151D48;
+        min-height: 40px;
+        padding: 0 20px;
+        background-color: $color-white;
+        cursor: pointer;
+        border: none;
+        color: inherit !important;
+
+        &:focus {
+            outline: none;
+            border: none;
+        }
+
+        svg {
+            stroke: #737791;
+        }
+
+        &.active {
+            svg {
+                fill: #6789C6;
+                stroke: white;
+            }
+        }
+    }
+}

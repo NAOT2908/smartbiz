@@ -781,19 +781,26 @@ class StockPicking extends Component {
             this.updateButton()
         }
     }
-
+    containsLineBreak(text, {full = false} = {}) {
+        return full
+          ? /\r\n|[\n\r\u2028\u2029]/.test(text)   // kiểm tra toàn diện
+          : /\r?\n/.test(text);                    // đủ dùng cho hầu hết trường hợp
+      }
     async onBarcodeScanned(barcode) {
         if (barcode) {
+
             if(this.containsLineBreak(barcode))
-                {
-                    const normalized = barcode.replace(/\r\n|[;,]/g, '\n'); // đổi toàn bộ CRLF thành LF
-                    const lines2 = normalized.split('\n'); 
-                    for (var line of lines2){
-                        await this.processBarcode(line, this.picking_id)
-                    }
-                } else {
-                    await this.processBarcode(barcode, this.picking_id)
+            {
+                const normalized = barcode.replace(/\r\n|[;,]/g, '\n'); // đổi toàn bộ CRLF thành LF
+                const lines2 = normalized.split('\n'); 
+                for (var line of lines2){
+                    await this.processBarcode(line, this.picking_id)
                 }
+            }
+            else{
+                await this.processBarcode(barcode, this.picking_id)
+            }
+            
 
             if ("vibrate" in window.navigator) {
                 window.navigator.vibrate(100);
@@ -803,11 +810,7 @@ class StockPicking extends Component {
             this.notification.add(message, { type: "warning" });
         }
     }
-    containsLineBreak(text, {full = false} = {}) {
-        return full
-          ? /\r\n|[\n\r\u2028\u2029]/.test(text)   // kiểm tra toàn diện
-          : /\r?\n/.test(text);                    // đủ dùng cho hầu hết trường hợp
-      }
+
     async openMobileScanner() {
         const barcode = await BarcodeScanner.scanBarcode(this.env);
         await this.onBarcodeScanned(barcode);

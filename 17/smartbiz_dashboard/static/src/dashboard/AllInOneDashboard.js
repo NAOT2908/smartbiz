@@ -71,6 +71,7 @@ export class AllInOneDashboard extends Component {
               search: "",
               // WorkOrder data
               steps: [],
+              kpi:{},
               steps_faulty:[],
               dashboardData: [],
               faultyData: [],
@@ -94,17 +95,70 @@ export class AllInOneDashboard extends Component {
               chartMachineUtilConfig: {},
               chartOnTimeDeliveryConfig: {},
               chartBottleneckConfig: {},
+
+              autoRefreshInterval: 5,  // Mặc định 5 giây
+        });
+         // -------------------------
+        // [THÊM MỚI]: STATE CHO AUTO REFRESH
+        // -------------------------
+
+        // Biến lưu tạm timer (setInterval)
+        this.refreshTimer = null;
+
+        // Khi component đã mount, bắt đầu auto-refresh
+        onMounted(() => {
+            this._startAutoRefresh();
         });
 
+        // Khi unmount, dừng auto-refresh để tránh rò rỉ bộ nhớ
+        onWillUnmount(() => {
+            this._stopAutoRefresh();
+        });
         onWillStart(async () => {
             // Load Chart.js nếu chưa có
-            await loadJS("https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js");
+            await loadJS("/smartbiz_dashboard/static/src/chart.umd.min.js");
             // 1) Lấy danh sách filter options (line, shift)
             await this._fetchFilterOptions();
             // 2) Fetch dữ liệu ban đầu cho dashboard
             await this._fetchWorkOrderData();
-            await this._fetchAnalyticsData();
+            //await this._fetchAnalyticsData();
         });
+    }
+    // ==============================
+    // HÀM QUẢN LÝ AUTO REFRESH
+    // ==============================
+    _startAutoRefresh() {
+        // Trước khi setInterval mới, clearInterval cũ (nếu có)
+        this._stopAutoRefresh();
+
+        // Tính ra thời gian (ms) dựa theo state.autoRefreshInterval
+        const intervalMs = parseInt(this.state.autoRefreshInterval) * 1000;
+        if (intervalMs <= 0) {
+            // Nếu người dùng nhập 0 hoặc giá trị âm => không auto refresh
+            return;
+        }
+
+        // Thiết lập setInterval, mỗi lần sẽ fetch lại dữ liệu
+        this.refreshTimer = setInterval(() => {
+            if (this.state.view === "WorkOrder") {
+                this._fetchWorkOrderData();
+            } else {
+                this._fetchAnalyticsData();
+            }
+        }, intervalMs);
+    }
+
+    _stopAutoRefresh() {
+        if (this.refreshTimer) {
+            clearInterval(this.refreshTimer);
+            this.refreshTimer = null;
+        }
+    }
+
+    // Sự kiện khi người dùng thay đổi tần số
+    onChangeAutoRefresh(ev) {
+        this.state.autoRefreshInterval = ev.target.value;
+        this._startAutoRefresh();
     }
 
     // ==============================
@@ -182,20 +236,29 @@ export class AllInOneDashboard extends Component {
     // FETCH WORKORDER
     // ==============================
     async _fetchWorkOrderData() {
-
-            const line = this.state.selectedLine || "";
-            const shift = this.state.selectedShift || "";
-            const date = this.state.productionDate || this._getToday();
-
-            const resp1 = await this.orm.call("mrp.workorder", "get_dashboard_data", [date, line, shift]);
-            this.state.dashboardData = resp1.data || [];
-            this.state.steps = resp1.steps || [];
-
-            const resp2 = await this.orm.call("mrp.workorder", "get_faulty_data", [date, line, shift]);
-            this.state.faultyData = resp2.data || [];
-            this.state.steps_faulty = resp1.steps || [];
+        const line = this.state.selectedLine || "";
+        const shift = this.state.selectedShift || "";
+        const date = this.state.productionDate || "";
     
+        const startTime1 = performance.now();
+        const resp1 = await this.orm.call("mrp.workorder", "get_dashboard_data", [date, line, shift]);
+        const duration1 = performance.now() - startTime1;
+    
+        this.state.dashboardData = resp1.data || [];
+        this.state.steps = resp1.steps || [];
+        this.state.kpi = resp1.kpi || {};
+    
+        const startTime2 = performance.now();
+        const resp2 = await this.orm.call("mrp.workorder", "get_faulty_data", [date, line, shift]);
+        const duration2 = performance.now() - startTime2;
+    
+        this.state.faultyData = resp2.data || [];
+        this.state.steps_faulty = resp1.steps || [];
+    
+        // console.log(`Thời gian chạy get_dashboard_data: ${duration1.toFixed(2)} ms`);
+        // console.log(`Thời gian chạy get_faulty_data: ${duration2.toFixed(2)} ms`);
     }
+    
 
     onDownloadExcelWorkOrder() {
         this.notification.add("TODO: Export Excel WorkOrder", { type: "info" });
@@ -208,7 +271,10 @@ export class AllInOneDashboard extends Component {
         const line = this.state.selectedLine || "";
         const shift = this.state.selectedShift || "";
         const d = this.state.dateAnalytics || "";
+        const startTime2 = performance.now();
         const data = await this.orm.call("mrp.workorder", "get_analytics_kpis", [d, line, shift]);
+        const duration2 = performance.now() - startTime2;
+        // console.log(`Thời gian chạy get_analytics_kpis: ${duration2.toFixed(2)} ms`);
         this.state.analyticsData = data;
         this._buildAllCharts();
     }

@@ -8,12 +8,12 @@
         <field name="padding">7</field>
     </record>
 
-    <!-- <record id="seq_smartbiz_inventory" model="ir.sequence">
-        <field name="name">smartbiz inventory history</field>
+    <record id="seq_smartbiz_inventory" model="ir.sequence">
+        <field name="name">smartbiz inventory</field>
         <field name="code">smartbiz.inventory</field>
-        <field name="prefix">%(year)s%(month)s%(day)s/KK/</field>
+        <field name="prefix">%(year)s%(month)s%(day)s/INVEN/</field>
         <field name="padding">7</field>
-    </record> -->
+    </record>
 
     <record id="view_inventory_history_tree" model="ir.ui.view">
         <field name="name">smartbiz.inventory.history.tree</field>
@@ -118,7 +118,7 @@
                             <field name="package_id" optional="show" />
                             <field name="quantity_before" readonly="1" />
                             <field name="quantity_counted" />
-                            <field name="difference" optional="show" readonly="1" />
+                            <field name="difference" optional="show" readonly="1" decoration-muted="difference == 0" decoration-danger="difference &lt; 0" decoration-success="difference &gt; 0" decoration-bf="difference != 0"/>
                             <field name="note" optional="show" />
                             <field name="state" optional="show" widget="badge" decoration-danger="state=='error'" decoration-info="state== 'counting'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
                         </tree>
@@ -203,7 +203,7 @@
                 <field name="location_id"/>
                 <field name="quantity_before"/>
                 <field name="quantity_counted"/>
-                <field name="difference"/>
+                <field name="difference" decoration-muted="difference == 0" decoration-danger="difference &lt; 0" decoration-success="difference &gt; 0" decoration-bf="difference != 0"/>
                 <field name="state" optional="show" widget="badge" decoration-danger="state=='error'" decoration-info="state== 'counting'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
             </tree>
         </field>

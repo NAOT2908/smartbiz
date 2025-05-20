@@ -8,134 +8,152 @@
                     <h2><t t-esc="props.title" /></h2>
                     <i class="fa fa-barcode" t-on-click="openManualScanner"/>
                 </div>
-                <t t-if="props.isSelector">
-                    <input t-model="state.searchQuery" placeholder="Tìm kiếm..." class="s_selector-search-input"/>
-                    <input t-model="state.quantity" t-if="props.title == 'Chọn sản phẩm'" placeholder="Nhập số lượng sản phẩm" class="s_selector-search-input"/>
-                    <ul class="s_selector-record-list">
-                        <t t-foreach="filteredRecords" t-as="record" t-key="record.id">
-                            <li t-on-click="()=>this.selectRecord(record.id)" t-att-class="{'s_selector-selected': state.selectedRecords.includes(record.id)}">
-                                <span class="record-name"><t t-esc="record.display_name || record.name"/></span>
-                                <span class="record-name"><t t-esc="record.origin || ''"/></span>
-                                <span t-if="state.selectedRecords.includes(record.id) || state.selectedRecord == record.id" ><i class="fa fa-pencil" t-on-click="() => this.editRecord(record.id)"></i></span>
-                                <span t-if="state.selectedRecords.includes(record.id) || state.selectedRecord == record.id" class="record-checkmark">&#10003;</span>
-                            </li>
-                        </t>
-                    </ul>
-                </t>
-                <t t-if="props.isSelector == false &amp;&amp; props.title == 'Chia tách Packages'">
-                    <div class="package-info">
-                        <div class="package-info-item">
-                            <label for="packageName">Package Nguồn:</label>
-                            <div t-esc="state.packageName" id="packageName" class="s_selector-info-output"></div>
-                        </div>
-                        <div class="package-info-item">
-                            <label for="packageProductQty">Số lượng hiện tại:</label>
-                            <div t-esc="state.packageProductQty" id="packageProductQty" class="s_selector-info-output"></div>
-                        </div>
-                        
-                        <div class="package-info-item">
-                            <label for="qtyPerPackage">Số lượng sản phẩm trong một Package:</label>
-                            <input t-model="state.qtyPerPackage" id="qtyPerPackage"  class="s_selector-search-input"/>
-                        </div>
-                        <!-- Toggle Switch True/False -->
-                        <div class="package-info-item">
-                            <label for="showPackageQty">Tạo Package mới?</label>
-                            <label class="switch">
-                                <input type="checkbox" t-model="state.showPackageQty" id="showPackageQty" />
-                                <span class="slider round"></span>
-                            </label>
-                            
-                        </div>
-                        <!-- Conditional content based on the switch value -->
-                        <div t-if="state.showPackageQty">
+                <div class="s_selector-content">
+                    <t t-if="props.isSelector">
+                        <input t-model="state.searchQuery" placeholder="Tìm kiếm..." class="s_selector-search-input"/>
+                        <input t-model="state.quantity" t-if="props.title == 'Chọn sản phẩm'" placeholder="Nhập số lượng sản phẩm" class="s_selector-search-input"/>
+                        <ul class="s_selector-record-list">
+                            <t t-foreach="filteredRecords" t-as="record" t-key="record.id">
+                                <li t-on-click="()=>this.selectRecord(record.id)" t-att-class="{'s_selector-selected': state.selectedRecords.includes(record.id)}">
+                                    <span class="record-name"><t t-esc="record.display_name || record.name"/></span>
+                                    <span class="record-name"><t t-esc="record.origin || ''"/></span>
+                                    <span t-if="state.selectedRecords.includes(record.id) || state.selectedRecord == record.id" ><i class="fa fa-pencil" t-on-click="() => this.editRecord(record.id)"></i></span>
+                                    <span t-if="state.selectedRecords.includes(record.id) || state.selectedRecord == record.id" class="record-checkmark">&#10003;</span>
+                                </li>
+                            </t>
+                        </ul>
+                    </t>
+                    <t t-if="props.isSelector == false &amp;&amp; props.title == 'Chia tách Packages'">
+                        <div class="package-info">
                             <div class="package-info-item">
-                                <label for="packageQty">Số lượng Package mới:</label>
+                                <label for="packageName">Package Nguồn:</label>
+                                <div t-esc="state.packageName" id="packageName" class="s_selector-info-output"></div>
+                            </div>
+                            <div class="package-info-item">
+                                <label for="packageProductQty">Số lượng hiện tại:</label>
+                                <div t-esc="state.packageProductQty" id="packageProductQty" class="s_selector-info-output"></div>
+                            </div>
+                            
+                            <div class="package-info-item">
+                                <label for="qtyPerPackage">Số lượng sản phẩm trong một Package:</label>
+                                <input t-model="state.qtyPerPackage" id="qtyPerPackage"  class="s_selector-search-input"/>
+                            </div>
+                            <!-- Toggle Switch True/False -->
+                            <div class="package-info-item">
+                                <label for="showPackageQty">Tạo Package mới?</label>
+                                <label class="switch">
+                                    <input type="checkbox" t-model="state.showPackageQty" id="showPackageQty" />
+                                    <span class="slider round"></span>
+                                </label>
+                                
+                            </div>
+                            <!-- Conditional content based on the switch value -->
+                            <div t-if="state.showPackageQty">
+                                <div class="package-info-item">
+                                    <label for="packageQty">Số lượng Package mới:</label>
+                                    <input t-model="state.packageQty" id="packageQty" class="s_selector-search-input"/>
+                                </div>
+                            </div>
+                            <div t-if="!state.showPackageQty">
+                                <div class="package-info-item">
+                                    <label>Danh sách các Package đích:</label>
+                                    <div class="package-tags">
+                                        <t t-foreach="state.processedPackages" t-as="package" t-key="package.id">
+                                            <span class="package-tag">
+                                                <t t-esc="package.name"/>
+                                                <i class="fa fa-times remove-icon"
+                                                title="Xoá"
+                                                t-on-click="() => this.removeProcessedPackage(package.id)"/>
+                                            </span>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                    <t t-if="props.isSelector == false and props.title == 'Đóng Packages loạt'">
+                        <div class="package-info">
+                            <div class="package-info-item">
+                                <label for="productName">Tên sản phẩm:</label>
+                                <div t-esc="props.move.product_name" id="productName" class="s_selector-info-output"></div>
+                            </div>
+                            <t t-if="props.move.product_tracking !== 'none'">
+                                <div class="package-info-item">
+                                    <label for="lotName">Số lô:</label>
+                                    <!-- Input field for lot number -->
+                                    <input t-model="state.lot_name" id="lotName" class="s_selector-search-input"/>
+                                </div>
+                            </t>
+                            <div class="package-info-item">
+                                <label for="remainingQty">Nhu cầu còn lại:</label>
+                                <div t-esc="this.roundToTwo(props.move.product_uom_qty - props.move.quantity)" id="remainingQty" class="s_selector-info-output"></div>
+                            </div>
+                            <div class="package-info-item">
+                                <label for="qtyPerPackage">Số lượng trên một pack:</label>
+                                <input t-model="state.qtyPerPackage" id="qtyPerPackage" class="s_selector-search-input"/>
+                            </div>
+                            <div class="package-info-item">
+                                <label for="packageQty">Số pack:</label>
                                 <input t-model="state.packageQty" id="packageQty" class="s_selector-search-input"/>
                             </div>
                         </div>
-                        <div t-if="!state.showPackageQty">
+                    </t>
+                    <t t-if="props.isSelector == false and props.title == 'Nhận theo số sê-ri'">
+                        <div class="package-info">
                             <div class="package-info-item">
-                                <label>Danh sách các Package đích:</label>
-                                <div class="package-tags">
-                                    <t t-foreach="state.processedPackages" t-as="package" t-key="package.id">
-                                        <span class="package-tag"><t t-esc="package.name" /></span>
-                                    </t>
-                                </div>
+                                <label for="productName">Tên sản phẩm:</label>
+                                <div t-esc="props.move.product_name" id="productName" class="s_selector-info-output"></div>
                             </div>
-                        </div>
-                    </div>
-                </t>
-                <t t-if="props.isSelector == false and props.title == 'Đóng Packages loạt'">
-                    <div class="package-info">
-                        <div class="package-info-item">
-                            <label for="productName">Tên sản phẩm:</label>
-                            <div t-esc="props.move.product_name" id="productName" class="s_selector-info-output"></div>
-                        </div>
-                        <t t-if="props.move.product_tracking !== 'none'">
-                            <div class="package-info-item">
-                                <label for="lotName">Số lô:</label>
-                                <!-- Input field for lot number -->
-                                <input t-model="state.lot_name" id="lotName" class="s_selector-search-input"/>
-                            </div>
-                        </t>
-                        <div class="package-info-item">
-                            <label for="remainingQty">Nhu cầu còn lại:</label>
-                            <div t-esc="this.roundToTwo(props.move.product_uom_qty - props.move.quantity)" id="remainingQty" class="s_selector-info-output"></div>
-                        </div>
-                        <div class="package-info-item">
-                            <label for="qtyPerPackage">Số lượng trên một pack:</label>
-                            <input t-model="state.qtyPerPackage" id="qtyPerPackage" class="s_selector-search-input"/>
-                        </div>
-                        <div class="package-info-item">
-                            <label for="packageQty">Số pack:</label>
-                            <input t-model="state.packageQty" id="packageQty" class="s_selector-search-input"/>
-                        </div>
-                    </div>
-                </t>
-                <t t-if="props.isSelector == false and props.title == 'Nhận theo số sê-ri'">
-                    <div class="package-info">
-                        <div class="package-info-item">
-                            <label for="productName">Tên sản phẩm:</label>
-                            <div t-esc="props.move.product_name" id="productName" class="s_selector-info-output"></div>
-                        </div>
-                    
-                    
+                        
+                        
 
-                        <div class="package-info-item">
-                                <label>Danh sách số sê-ri: (<t t-esc="state.processedSerials.length" />)</label>
-                                <div class="package-tags">
-                                    <t t-foreach="state.processedSerials" t-as="serial" t-key="serial">
-                                        <span class="package-tag"><t t-esc="serial" /></span>
-                                    </t>
+                            <div class="package-info-item">
+                                    <label>Danh sách số sê-ri: (<t t-esc="state.processedSerials.length" />)</label>
+                                    <div class="package-tags">
+                                        <t t-foreach="state.processedSerials" t-as="serial" t-key="serial">
+                                                <span class="package-tag">
+                                                    <t t-esc="serial"/>
+                                                    <i class="fa fa-times remove-icon"
+                                                    title="Xoá"
+                                                    t-on-click="() => this.removeProcessedSerial(serial)"/>
+                                                </span>
+                                        </t>
+                                    </div>
                                 </div>
-                            </div>
-                          
-                        <div class="package-info-item">
-                            <label for="qtyPerPackage">Số lượng trên một pack:</label>
-                            <input t-model="state.qtyPerPackage" id="qtyPerPackage" class="s_selector-search-input"/>
-                        </div>
-                     <!-- Toggle Switch True/False -->
-                        <div class="package-info-item">
-                            <label for="showPackageQty">Tạo Package mới?</label>
-                            <label class="switch">
-                                <input type="checkbox" t-model="state.showPackageQty" id="showPackageQty" />
-                                <span class="slider round"></span>
-                            </label>
                             
-                        </div>
-
-                        <div t-if="!state.showPackageQty">
                             <div class="package-info-item">
-                                <label>Danh sách các Package đích:</label>
-                                <div class="package-tags">
-                                    <t t-foreach="state.processedPackages" t-as="package" t-key="package.id">
-                                        <span class="package-tag"><t t-esc="package.name" /></span>
-                                    </t>
+                                <label for="qtyPerPackage">Số lượng trên một pack:</label>
+                                <input t-model="state.qtyPerPackage" id="qtyPerPackage" class="s_selector-search-input"/>
+                            </div>
+                        <!-- Toggle Switch True/False -->
+                            <div class="package-info-item">
+                                <label for="showPackageQty">Tạo Package mới?</label>
+                                <label class="switch">
+                                    <input type="checkbox" t-model="state.showPackageQty" id="showPackageQty" />
+                                    <span class="slider round"></span>
+                                </label>
+                                
+                            </div>
+
+                            <div t-if="!state.showPackageQty">
+                                <div class="package-info-item">
+                                    <label>Danh sách các Package đích:</label>
+                                    <div class="package-tags">
+                                        <t t-foreach="state.processedPackages" t-as="package" t-key="package.id">
+                                            <span class="package-tag">
+                                                <t t-esc="package.name"/>
+                                                <!-- nút xoá -->
+                                                <i class="fa fa-times remove-icon"
+                                                title="Xoá"
+                                                t-on-click="() => this.removeProcessedPackage(package.id)"/>
+                                            </span>
+                                        </t>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </t>
+                    </t>
+                </div>
                 <div class="s_selector-action-buttons">
                     <button t-on-click="createNew" t-if="state.showCreateNew &amp;&amp; state.selectedRecord == 0">Tạo Mới</button>
                     <button t-on-click="confirmSelection" t-if="state.selectedRecord != 0 || state.selectedRecords">Đồng ý</button>           

@@ -27,6 +27,7 @@
 
                    <field name="customs_code"/>
                    <field name="convert_factor"/>
+                   <field name="convert_rate" />
            </xpath>
 
       </field>
@@ -58,6 +59,7 @@
         <xpath expr="//field[@name='default_code']" position="after">
             <field name="customs_code" optional="show"/>
             <field name="convert_factor" optional="show"/>
+            <field name="convert_rate" optional="show"/>
            </xpath>
       </field>
     </record>

@@ -1,0 +1,68 @@
+.create-ai {
+    .o_inner_group.grid.col-lg-6 {
+        &:nth-child(1) {
+            width: 40% !important;
+
+            @include max-992 {
+                width: 100% !important;
+            }
+        }
+
+        &:nth-child(2) {
+            width: 60% !important;
+
+            @include max-992 {
+                width: 100% !important;
+            }
+        }
+
+        .o_field_selection {
+            width: 100% !important;
+        }
+    }
+
+    .o_field_many2one_selection {
+        position: relative !important;
+        top: unset !important;
+        left: unset !important;
+
+        .o-autocomplete {
+            width: 100% !important;
+        }
+    }
+
+    .ks_input_custom {
+        top: 24px !important;
+        left: 392px !important;
+
+        @include max-992 {
+            position: relative !important;
+            left: unset !important;
+            top: 0px !important;
+            margin-bottom:16px;
+        }
+
+        input {
+            min-height: 44.52px !important;
+
+            @include max-992 {
+                width: 100% !important;
+            }
+        }
+    }
+}
+
+.ks_body_class .encapsulated-keyword-input {
+    .o_field_many2one_selection {
+            position: absolute !important;
+            top: 24px !important;
+            right: 16px !important;
+            width: 33% !important;
+            @include max-992 {
+                position:unset !important;
+                top:unset !important;
+                right:unset !important;
+                width:100% !important;
+                                }
+        }
+    }

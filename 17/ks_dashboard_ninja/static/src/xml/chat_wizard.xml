@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="ks_dashboard_ninja.chat_wizard">
+        <div class="chart-sec-modal">
+            <Dialog title="'Internal Chat'" footer="false" size="md">
+            <div>
+                <div t-if="thread">
+                    <t t-set="channelThread" t-value="thread"/>
+                    <Thread thread="channelThread" t-key="channelThread.localId" messageEdition="messageEdition" messageToReplyTo="messageToReplyTo"/>
+                    <Composer t-if="channelThread.type !== 'mailbox' or thread.eq(messageToReplyTo.thread)" t-key="channelThread.localId" composer="channelThread.composer" autofocus="true"
+                            messageEdition="messageEdition" messageToReplyTo="messageToReplyTo" type="messageToReplyTo?.message ? (messageToReplyTo.message.is_note ? 'note' : 'message') : undefined"
+                            onDiscardCallback="() => messageToReplyTo.cancel()" onPostCallback.bind="() => this.state.jumpThreadPresent++"/>
+                </div>
+                <div t-else="">
+                    <span>No Channel to Show</span>
+                </div>
+            </div>
+        </Dialog>
+        </div>
+
+    </t>
+
+</templates>

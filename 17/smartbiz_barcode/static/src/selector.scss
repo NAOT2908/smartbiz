@@ -47,6 +47,7 @@ $font-family-base: 'Roboto', sans-serif;
     margin-bottom: 10px;
   }
 
+
 .s_selector-header {
     text-align: center;
     margin-bottom: 20px;
@@ -210,10 +211,15 @@ input:checked + .slider:before {
 }
 
 .package-tag {
-    background-color: #007bff;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 0.9em;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    background: #eef;
+    border-radius: 4px;
+    margin: 2px 4px;
 }
+.remove-icon {
+    margin-left: 4px;
+    cursor: pointer;
+}
+

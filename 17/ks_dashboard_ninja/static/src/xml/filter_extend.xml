@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+
+    <t t-name="ks_dashboard_ninja.FavFilterWizard">
+        <Dialog title="'Create Favourite Filter'" size="'md'" contentClass="'favFilterDialog'">
+            <div>
+                <label for="favourite_filter_name" class="mb-2 input-label">Filter Name</label>
+                <input type="text" id="favourite_filter_name" class="form-control form common-input mb-3" placeholder="Enter Filter Name (eg. Order States, SaleOrder)"/>
+                <input type="checkbox" id="favFilterShareBool" class="form-check-input common-checkbox "/>
+                <label for="favFilterShareBool" class="ms-2 ps-1 label-checkbox">Show with all users</label>
+            </div>
+            <t t-set-slot="footer">
+                <button class="dash-btn-red o-default-button" t-on-click="(ev) => { props.ks_save_favourite(ev, props.close)}">Save</button>
+                <button class="dash-default-btn" t-on-click="props.close">Close</button>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>

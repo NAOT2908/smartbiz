@@ -76,6 +76,7 @@
       <field name="arch" type="xml">
            <xpath expr="//field[@name='resource_calendar_id']" position="after">
                    <field name="production_line_id"/>
+                   <field name="equipment_quantity"/>
            </xpath>
       </field>
     </record>
@@ -243,6 +244,8 @@
             <group>
                    <field name="status"/>
                    <field name="note"/>
+                   <field name="reason_id"/>
+                   <field name="activity_type"/>
                    <field name="production_id"/>
             </group>
             </group>
@@ -483,6 +486,26 @@
       </field>
     </record>
 
+    <record model="ir.ui.view" id="smartbiz_mes_pause_reason_form">
+      <field name="name">smartbiz_mes_pause_reason_form</field>
+      <field name="model">smartbiz_mes.pause_reason</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Pause Reason">
+      <sheet>
+            <group string="Reason" col="2">
+            <group>
+                   <field name="name"/>
+            </group>
+            <group>
+                   <field name="type"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
     <record model="ir.ui.view" id="purchase_order_form">
       <field name="name">purchase_order_form</field>
       <field name="model">purchase.order</field>
@@ -660,6 +683,8 @@
             <field name="duration" optional="show"/>
             <field name="status" optional="show"/>
             <field name="note" optional="show"/>
+            <field name="reason_id" optional="show"/>
+            <field name="activity_type" optional="show"/>
             <field name="production_id" optional="show"/>
         </tree>
       </field>
@@ -795,6 +820,18 @@
       </field>
     </record>
 
+    <record model="ir.ui.view" id="smartbiz_mes_pause_reason_tree">
+      <field name="name">smartbiz_mes_pause_reason_tree</field>
+      <field name="model">smartbiz_mes.pause_reason</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Pause Reason" >
+            <field name="name" optional="show"/>
+            <field name="type" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
     <record model="ir.ui.view" id="purchase_order_tree">
       <field name="name">purchase_order_tree</field>
       <field name="model">purchase.order</field>
@@ -878,6 +915,82 @@
 <!-- Gantt -->
 
 <!-- Search -->
+
+    <record model="ir.ui.view" id="smartbiz_mes_production_line_search">
+      <field name="name">smartbiz_mes_production_line_search</field>
+      <field name="model">smartbiz_mes.production_line</field>
+      <field name="arch" type="xml">
+        <search string="Tree Production Line">
+            <field name="name"/>
+            <field name="code"/>
+            <field name="type_id"/>
+            <field name="picking_type_id"/>
+            <field name="factory_id"/>
+            <field name="work_centers_ids"/>
+        </search>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_production_activity_search">
+      <field name="name">smartbiz_mes_production_activity_search</field>
+      <field name="model">smartbiz_mes.production_activity</field>
+      <field name="arch" type="xml">
+        <search string="Tree Production Activity">
+            <field name="product_id"/>
+            <field name="workcenter_id"/>
+            <field name="work_order_id"/>
+            <field name="shift_id"/>
+            <field name="employee_id"/>
+            <field name="component_id"/>
+            <field name="name"/>
+            <field name="lot_id"/>
+            <field name="package_id"/>
+            <field name="reason_id"/>
+            <field name="activity_type"/>
+            <field name="production_id"/>
+          <group expand="0" string="Group By">
+            <filter string="Product"  name="product_filter" domain="[]" context="{ 'group_by':'product_id'}"/>
+            <filter string="Workcenter"  name="workcenter_filter" domain="[]" context="{ 'group_by':'workcenter_id'}"/>
+            <filter string="Work Order"  name="work_order_filter" domain="[]" context="{ 'group_by':'work_order_id'}"/>
+            <filter string="Shift"  name="shift_filter" domain="[]" context="{ 'group_by':'shift_id'}"/>
+            <filter string="Employee"  name="employee_filter" domain="[]" context="{ 'group_by':'employee_id'}"/>
+            <filter string="Component"  name="component_filter" domain="[]" context="{ 'group_by':'component_id'}"/>
+            <filter string="Name"  name="name_filter" domain="[]" context="{ 'group_by':'name'}"/>
+            <filter string="Lot"  name="lot_filter" domain="[]" context="{ 'group_by':'lot_id'}"/>
+            <filter string="Package"  name="package_filter" domain="[]" context="{ 'group_by':'package_id'}"/>
+            <filter string="Reason"  name="reason_filter" domain="[]" context="{ 'group_by':'reason_id'}"/>
+            <filter string="Activity Type"  name="activity_type_filter" domain="[]" context="{ 'group_by':'activity_type'}"/>
+            <filter string="Production"  name="production_filter" domain="[]" context="{ 'group_by':'production_id'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_bom_components_search">
+      <field name="name">smartbiz_mes_bom_components_search</field>
+      <field name="model">smartbiz_mes.bom_components</field>
+      <field name="arch" type="xml">
+        <search string="Tree BoM Components">
+            <field name="name"/>
+            <field name="type"/>
+            <field name="material_id"/>
+            <field name="product_id"/>
+            <field name="bom_id"/>
+        </search>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_mes_production_report_search">
+      <field name="name">smartbiz_mes_production_report_search</field>
+      <field name="model">smartbiz_mes.production_report</field>
+      <field name="arch" type="xml">
+        <search string="Tree Production Report">
+            <field name="production_order_id"/>
+            <field name="product_id"/>
+            <field name="date"/>
+        </search>
+      </field>
+    </record>
 
 <!-- Modified Views -->
 
@@ -1096,6 +1209,14 @@
       <field name="context">{}</field>
     </record>
 
+    <record model="ir.actions.act_window" id="smartbiz_mes_pause_reason_action">
+      <field name="name">Pause Reason</field>
+      <field name="res_model">smartbiz_mes.pause_reason</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
     <record model="ir.actions.act_window" id="purchase_order_action">
       <field name="name">order</field>
       <field name="res_model">purchase.order</field>
@@ -1215,6 +1336,12 @@
        action ="smartbiz_mes_request_action"
        parent ="mrp.mrp_planning_menu_root"
        sequence ="32"
+    />
+    <menuitem name="Pause Reason" 
+       id="smartbiz_mes_pause_reason_menuitem"
+       action ="smartbiz_mes_pause_reason_action"
+       parent ="mrp.menu_mrp_configuration"
+       sequence ="34"
     />
 
 </odoo>

@@ -29,7 +29,7 @@ class Inventory(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Stock Inventory'
 
-    name = fields.Char(string="Inventory Name", required=True, default=lambda self: self.env['ir.sequence'].next_by_code('smartbiz.inventory'))
+    name = fields.Char(string="Inventory Name", required=True, default='New')
     date = fields.Datetime(string="Inventory Date", default=fields.Datetime.now, required=True)
     company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company)
     product_ids = fields.Many2many('product.product', string="Products",
@@ -46,7 +46,7 @@ class Inventory(models.Model):
                                      help="Select multiple warehouses "
                                           "from the list.")
     user_id = fields.Many2one('res.users', string="Responsible User", default=lambda self: self.env.user)
-    inventory_period_id = fields.Many2one('smartbiz.inventory.period', string="Inventory Period", required=True)
+    inventory_period_id = fields.Many2one('smartbiz.inventory.period', string="Inventory Period", required=True, default=lambda self: self.env['smartbiz.inventory.period'].search([], limit=1).id)
     inventory_location_ids = fields.Many2many('stock.location', string="Inventory Locations")
     line_ids = fields.One2many('smartbiz.inventory.line', 'inventory_id', string="Inventory Lines")
     line_count = fields.Integer(string="Line Count", compute="_compute_line_count")
@@ -62,6 +62,12 @@ class Inventory(models.Model):
         ('cancel', 'Cancel'),
     ], string="State", default='draft')
 
+    @api.model
+    def create(self, values):
+        if values.get('name', 'New') == 'New':
+            values['name'] = self.env['ir.sequence'].next_by_code('smartbiz.inventory') or 'New'
+        return super().create(values)
+    
     @api.depends('line_ids')
     def _compute_line_count(self):
         for record in self:
@@ -150,7 +156,7 @@ class Inventory(models.Model):
         if location_domain:
             domain.append(('location_id', 'in', location_domain))
 
-        quants = self.env['stock.quant'].search(domain)
+        quants = self.env['stock.quant'].search(domain, order='location_id, product_id desc')
 
         vals_list = [{
             'inventory_id': self.id,
@@ -167,10 +173,13 @@ class Inventory(models.Model):
 
         if vals_list:
             self.env['smartbiz.inventory.line'].create(vals_list)
+            
     def action_validate(self):
         """ Xác nhận kiểm kê - lưu vào lịch sử nhưng KHÔNG cập nhật stock.quant ngay """
         self.state = 'done'
-        for line in self.line_ids:
+        lines_to_validate = self.line_ids.filtered(lambda l: l.state == 'counting')
+        lines_to_validate.write({'state': 'done'})
+        for line in lines_to_validate:
             line.write({'state': 'done'})
             self.env['smartbiz.inventory.history'].create({
                 'inventory_id': self.id,
@@ -205,7 +214,11 @@ class Inventory(models.Model):
                     'quantity': 0,
                 })
                 quant.inventory_quantity = line.quantity_counted
-    
+        pending_lines = self.line_ids.filtered(lambda l: l.state == 'pending')
+        if pending_lines:
+            pending_lines.unlink()
+            
+            
     def apply_inventory(self, inventory_id, data):
         
         inventory = self.browse(inventory_id)
@@ -283,6 +296,12 @@ class Inventory(models.Model):
                 'company_id': inventory.company_id.id,
                 'company_name': inventory.company_id.name,
                 'date': inventory.date,
+                'warehouse_ids': inventory.warehouse_ids.ids,
+                'warehouse_names': inventory.warehouse_ids.mapped('name'),
+                'inventory_location_ids': inventory.inventory_location_ids.ids,
+                'inventory_location_names': inventory.inventory_location_ids.mapped('name'),
+                'product_ids': inventory.product_ids.ids,
+                'product_names': inventory.product_ids.mapped('name'),
                 'user_id': inventory.user_id.id,
                 'lines': lines,
             })
@@ -563,6 +582,14 @@ class Inventory(models.Model):
             ml.unlink()
         return self.get_data(inventory_id)
         
+    def print_inventory_line(self,inventory_id,data,printer_name):
+        if data['id']:
+            record = self.env['smartbiz.inventory.line'].browse(data['id'])
+
+        printer = self.env.user.printing_printer_id or self.env['printing.printer'].search([('name','like',printer_name)],limit=1)      
+        label = self.env['printing.label.zpl2']
+        label.print_label_auto(printer, record)
+        return self.get_data(inventory_id)
     
 class InventoryLine(models.Model):
     _name = 'smartbiz.inventory.line'
@@ -591,6 +618,12 @@ class InventoryLine(models.Model):
     def _compute_difference(self):
         for line in self:
             line.difference = line.quantity_counted - line.quantity_before
+    
+    @api.onchange('quantity_counted')
+    def _onchange_quantity_counted(self):
+        for line in self:
+            if line.quantity_counted != 0 or line.quantity_counted != line.quantity_before:
+                line.state = 'counting'
             
 
 class InventoryHistory(models.Model):

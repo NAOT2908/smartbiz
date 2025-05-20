@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+     <t t-name="ks_list_view_manager.account_button" t-inherit="account.ListView.Buttons" t-inherit-mode="extension" owl="1">
+         <xpath expr="//div[hasclass('o_list_buttons')]" position="inside">
+            <t t-call="ks_ListView.buttons"/>
+        </xpath>
+     </t>
+    <t t-name="ks_list_view_manager.hr_expense_button" t-inherit="hr_expense.ListButtons" t-inherit-mode="extension"  owl="1">
+         <xpath expr="//div[hasclass('o_list_buttons')]" position="inside">
+            <t t-call="ks_ListView.buttons"/>
+         </xpath>
+     </t>
+    <t t-name="ks_list_view_manager.stock.StockOrderpoint.Buttons" t-inherit="stock.StockOrderpoint.Buttons" t-inherit-mode="extension"  owl="1">
+         <xpath expr="//div[hasclass('o_list_buttons')]" position="after">
+            <t t-call="ks_ListView.buttons"/>
+         </xpath>
+     </t>
+    <t t-name="ks_list_view_manager.stock.Buttons" t-inherit="stock.InventoryReport.Buttons" t-inherit-mode="extension"  owl="1">
+         <xpath expr="//div[hasclass('o_list_buttons')]" position="after">
+            <t t-call="ks_ListView.buttons"/>
+         </xpath>
+     </t>
+</templates>

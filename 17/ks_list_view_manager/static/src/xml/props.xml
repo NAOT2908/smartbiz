@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<template>
+    <t
+        t-name="ks_view_manager.Listcontroller"
+        t-inherit="web.ListView"
+        t-inherit-mode="extension"
+        owl="1">
+
+        <xpath expr="//t[@t-component='props.Renderer']" position="attributes">
+            <attribute name="Ks_update_field_data.bind">ks_update_field_data</attribute>
+            <attribute name="Ks_initialize_lvm_data.bind">ks_initialize_lvm_data</attribute>
+            <attribute name="list_data">list_data</attribute>
+
+        </xpath>
+    </t>
+</template>

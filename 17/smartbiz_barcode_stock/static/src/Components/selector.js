@@ -54,7 +54,22 @@ export class Selector extends Component {
             const message = _t("Please, Scan again!");
             this.notification.add(message, { type: "warning" });
           }
+    }/* Xoá một package theo id */
+    removeProcessedPackage(pkgId) {
+        const idx = this.state.processedPackages.findIndex(p => p.id === pkgId);
+        if (idx > -1) {
+            this.state.processedPackages.splice(idx, 1);
+        }
     }
+
+    /* Xoá một serial (serial là chuỗi) */
+    removeProcessedSerial(serial) {
+        const idx = this.state.processedSerials.findIndex(s => s === serial);
+        if (idx > -1) {
+            this.state.processedSerials.splice(idx, 1);
+        }
+    }
+
     async processBarcode(barcode){
         var barcodeData = await this.env.model.parseBarcode(
             barcode,

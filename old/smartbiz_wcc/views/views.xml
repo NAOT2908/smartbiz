@@ -1,0 +1,140 @@
+<odoo>
+
+<!-- Forms -->
+
+    <record model="ir.ui.view" id="smartbiz_stock_stock_report_form">
+      <field name="name">smartbiz_stock_stock_report_form</field>
+      <field name="model">smartbiz_stock.stock_report</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="smartbiz_stock.smartbiz_stock_stock_report_form" />
+      <field name="arch" type="xml">
+            <xpath expr="//header" position ="inside">
+                <button name="action__nxt__ten_nvl____sl_ht" string="NXT: Tên NVL  - SL HT" type = "object"  invisible="bool(state) == False"/>
+                <button name="action__nxt__ten_nvl___sl_qd_hq" string="NXT: Tên NVL - SL QĐ HQ" type = "object"  invisible="bool(state) == False"/>
+                <button name="action__nxt__ma_hq___sl_qd_hq" string="NXT: Mã HQ - SL QĐ HQ" type = "object"  invisible="bool(state) == False"/>
+            </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_template_form">
+      <field name="name">product_template_form</field>
+      <field name="model">product.template</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="product.product_template_only_form_view" />
+      <field name="arch" type="xml">
+ 
+        <xpath expr="//field[@name='barcode']" position="after">     
+
+                   <field name="customs_code"/>
+                   <field name="convert_factor"/>
+           </xpath>
+
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_quant_package_form">
+      <field name="name">stock_quant_package_form</field>
+      <field name="model">stock.quant.package</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_quant_package_form" />
+      <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='location_id']" position="after">
+                <field name="side"/>
+                <field name="dye"/>
+            </xpath>
+      </field>
+    </record>
+
+<!-- Trees -->
+
+    <record model="ir.ui.view" id="product_template_tree">
+      <field name="name">product_template_tree</field>
+      <field name="model">product.template</field>
+      <field name="inherit_id" ref="product.product_template_tree_view" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+
+        <xpath expr="//field[@name='default_code']" position="after">
+            <field name="customs_code" optional="show"/>
+            <field name="convert_factor" optional="show"/>
+           </xpath>
+      </field>
+    </record>
+
+<!-- calendars -->
+
+<!-- kanbans -->
+
+<!-- pivots -->
+
+<!-- graphs -->
+
+<!-- Gantt -->
+
+<!-- Search -->
+
+<!-- Modified Views -->
+
+<!-- Modified Views Properties -->
+
+<!-- Modified Elements Properties -->
+
+<!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="smartbiz_stock_stock_report_action">
+      <field name="name">Stock Report</field>
+      <field name="res_model">smartbiz_stock.stock_report</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="product_template_action">
+      <field name="name">Template</field>
+      <field name="res_model">product.template</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_picking_action">
+      <field name="name">Picking</field>
+      <field name="res_model">stock.picking</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_move_line_action">
+      <field name="name">move.line</field>
+      <field name="res_model">stock.move.line</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_quant_package_action">
+      <field name="name">quant.package</field>
+      <field name="res_model">stock.quant.package</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_move_action">
+      <field name="name">move</field>
+      <field name="res_model">stock.move</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+<!-- Menu -->
+
+<!-- Top menu item -->
+
+<!-- Menu item action -->
+
+
+</odoo>

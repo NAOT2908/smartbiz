@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tmpl,template,model_smartbiz_nomenclature_template,,1,1,1,1
+access_tplline,template_line,model_smartbiz_nomenclature_template_line,,1,1,1,1
+access_rebuild_wizard,rebuild_wizard,model_smartbiz_nomenclature_rebuild_wizard,,1,1,1,1

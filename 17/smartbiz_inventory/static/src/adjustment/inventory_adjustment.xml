@@ -7,16 +7,12 @@
                     <button t-on-click="exit" class="inventory_nav-link">
                         <i class="oi oi-chevron-left" />
                     </button>
-                    <!-- (
-                    <t t-esc="this.state.data.length" />) -->
+                    <t t-if="state.lines.length"> (<t  t-esc="state.lines.length" />) </t>
                     <div class="inventory_nav_title"> <t t-esc="state.title" />
                     </div>
 
                 </nav>
                 <nav class="inventory_nav_right">
-                    <!-- <div class="inventory_nav-link" t-on-click="searchClick">
-                        <i class="fa fa-search" />
-                    </div> -->
                     <div class="inventory_search-box" >
                         <!-- <input class="inventory_search-input" 
                                  placeholder="Tìm kiếm" /> -->
@@ -191,24 +187,31 @@
             <p>Đang tải dữ liệu...</p>
         </div>
         <div t-if="state.view === 'AdjustmentInventory'">
-            <div>
-                <div t-foreach="state.data" t-as="item" t-key="item.id" class="inventory-item">
+            <div class="s_inventory-list">
+                <div t-foreach="state.data" t-as="item" t-key="item.id" class="s_inventory-order">
                     <div class="info-item">
-                        <div>
-                            <t t-esc="item.name" />
+                        <div class="header-title" t-if="item.warehouse_names" >
+                            <i class="fa fa-home" aria-hidden="true"></i> <t t-esc="item.warehouse_names.join(', ')" />
                         </div>
-                        <div>
-                            <t t-esc="item.state" />
+                        <div t-if="item.product_names" >
+                            <i class="fa fa-list-alt" aria-hidden="true"></i> <t t-esc="item.product_names.join(', ')" />
                         </div>
-                        <div>
-                            <t t-esc="item.date" />
+                        <div t-if="item.inventory_location_names" >
+                            <i class="fa fa-map-marker" aria-hidden="true"></i> <t t-esc="item.inventory_location_names.join(', ')" />
+                        </div>
+                        <div class="bold">
+                            <i class="fa fa-newspaper-o" aria-hidden="true"></i> <t t-esc="item.name" />
+                        </div>
+                        <div class="small">
+                            <i class="fa fa-calendar" aria-hidden="true"></i> <t t-esc="item.date" />
                         </div>
                     </div>
+                    <!-- <div class="status-item">
+                        <div t-attf-class="status-{{item?.state?.toLowerCase()}}">
+                            <t t-esc="this.statusOrder[item?.state] || item?.state" />
+                        </div>
+                    </div> -->
                     <div class="btn-item">
-                        <!-- <button t-on-click="() => this.selectOrder(item.id)"
-                            class="o_line_button o_edit btn btn-secondary">
-                            <i class="fa fa-pencil"></i>
-                        </button> -->
                         <!-- From Uiverse.io by Li-Deheng --> 
                         <button t-on-click="() => this.selectOrder(item.id)">
                             <svg width="15" height="15" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -232,7 +235,7 @@
             </div>
             <div class="list-items" t-if ="state.lines.length">
                 <div t-foreach="state.lines" t-as="item" t-key="item.id" class="inventory-item" t-att-data-id="item.id"
-                        t-att-class="(item.id === this.selectedLine ? 'selected' : '') + getClass(item)" 
+                        t-att-class="(item.id === state.selectedLine ? 'selected' : '') + getClass(item)" 
                         t-on-click="() => this.selectLine(item.id)"
                         >
                     <div class="info-item">
@@ -262,8 +265,8 @@
                         </span>
                         <span>
                             <button class="btn-item btn btn-secondary s_inventory-icon"
-                                t-on-click="() => this.deleteItem(item.id)">
-                                <i class="fa fa-trash" aria-hidden="true"></i>
+                                t-on-click="() => this.printLine(item)">
+                                <i class="fa fa-print" aria-hidden="true"></i>
                             </button>
                         </span>
                     </div>
@@ -411,6 +414,7 @@
         <div t-if="state.view === 'DetailInventoryLine'" class="inventory-edit">
             <DetailInventoryLine t-props = "{line: state.line,
                                             closeEdit: closeEdit.bind(this),
+                                            deleteItem: deleteItem.bind(this),
                                             }"/>
         </div>
     </t>
@@ -500,6 +504,12 @@
         <div class="s_inventory_button_footer">
             <button class="btn btn-primary" t-on-click="save">Lưu</button>
             <button class="btn btn-secondary" t-on-click="close">Hủy</button>
+            <span>
+                <button class="btn-item btn btn-danger s_inventory-icon"
+                    t-on-click="() => props.deleteItem(state.line.id)">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
+            </span>
         </div>
         
         <div>

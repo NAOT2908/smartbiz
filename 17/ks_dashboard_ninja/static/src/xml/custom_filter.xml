@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="ks_dashboard_ninja.custom_filter">
+        <t t-call="ks_dn.custom-filter-facets-view"/>
+        <div class="d-flex align-items-center mb-3 mt-1">
+            <h4 class="mb-2">Custom Filters</h4>
+            <button class="clear-all-btn ms-auto" t-on-click="clearRows">
+                <img src="/ks_dashboard_ninja/static/images/dashboardOverview/close-circle.svg" alt="cross-icon"
+                    class="img-fluid me-1" loading="lazy"/>
+                Clear All
+            </button>
+        </div>
+        <div>
+            <div class="table-custom mb-2">
+                <t t-foreach="state.filtersRowList" t-as="filter_row" t-key="filter_row_index">
+                    <div class="table-row">
+                        <t t-call="ks_dn.customFilter.filter.select">
+                            <t t-set="row" t-value="filter_row"/>
+                            <t t-set="row_index" t-value="filter_row_index"/>
+                        </t>
+                        <t t-call="ks_dn.customFilter.operator.select">
+                            <t t-set="row" t-value="filter_row"/>
+                            <t t-set="row_index" t-value="filter_row_index"/>
+                        </t>
+
+                        <t t-call="ks_dn.customFilter.value.select">
+                            <t t-set="row" t-value="filter_row"/>
+                            <t t-set="row_index" t-value="filter_row_index"/>
+                        </t>
+
+                        <div t-att-class=" filter_row_index === 0 ? 'table-cell d-none' : 'table-cell'" t-on-click="() => this.deleteRow(filter_row_index)">
+                            <button class="table-dlt-btn">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M14 3.98665C11.78 3.76665 9.54667 3.65332 7.32 3.65332C6 3.65332 4.68 3.71999 3.36 3.85332L2 3.98665"
+                                        stroke="" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                    <path
+                                        d="M5.6665 3.31325L5.81317 2.43992C5.91984 1.80659 5.99984 1.33325 7.1265 1.33325H8.87317C9.99984 1.33325 10.0865 1.83325 10.1865 2.44659L10.3332 3.31325"
+                                        stroke="" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                    <path
+                                        d="M12.5664 6.09351L12.1331 12.8068C12.0598 13.8535 11.9998 14.6668 10.1398 14.6668H5.85977C3.99977 14.6668 3.93977 13.8535 3.86644 12.8068L3.43311 6.09351"
+                                        stroke="" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                    <path d="M6.88672 11H9.10672" stroke=""
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M6.3335 8.33325H9.66683" stroke=""
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </t>
+            </div>
+            <div class="btn-box d-flex justify-content-end align-items-center">
+                <button class="dash-default-btn bg-white" t-on-click="addFilterRow">
+                    <t t-call="ks_dashboard_ninja.add_svg"/>    Add a condition
+                </button>
+                <button class="dash-btn-red ms-2" t-on-click="applyFilters">
+                    Apply Filter
+                </button>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="ks_dn.customFilter.filter.select">
+        <div class="table-cell">Where</div>
+        <Dropdown class="'table-cell'">
+            <t t-set-slot="toggler">
+                <button class="text-decoration-none bg-transparent border-none" role="button" aria-expanded="false">
+                    <t t-out="rowFilter(row.id)"/>
+                </button>
+            </t>
+            <DropdownItem
+                t-foreach="filterLabels"
+                t-as="filterLabel"
+                t-key="filterLabel.filter_id"
+                class="{ '': true }"
+                dataset="{ filterRow: filter_row_index }"
+                onSelected="() => this.onUpdateFilter(filterLabel.filter_id, row_index)"
+            ><t t-esc="filterLabel.filter_name"/></DropdownItem>
+        </Dropdown>
+    </t>
+
+    <t t-name="ks_dn.customFilter.operator.select">
+        <Dropdown class="'table-cell'">
+            <t t-set-slot="toggler">
+                <button class="text-decoration-none bg-transparent border-none" href="#" role="button" aria-expanded="false">
+                    <t t-out="rowOperator(row_index)"/>
+                </button>
+            </t>
+            <DropdownItem
+                t-foreach="getOperatorInfo(row.id)"
+                t-as="operator"
+                t-key="operator_index"
+                class="{ '': true }"
+                t-esc="operator.label"
+                dataset="{ operator: operator.operator }"
+                onSelected="() => this.onUpdateOperator(operator.operator, row_index)"
+              />
+        </Dropdown>
+    </t>
+
+    <t t-name="ks_dn.customFilter.value.select">
+        <t t-call="web.TreeEditor.Editor">
+            <t t-set="_classes" t-value="'overflow-hidden table-cell form-control form-input-box'"/>
+            <t t-set="info" t-value="getValueInfo(filter_row)" />
+            <t t-set="value" t-value="filter_row.value" />
+            <t t-set="update" t-value="(value) => this.onUpdateValue(row_index, value)"/>
+        </t>
+    </t>
+
+    <t t-name="ks_dn.no-filter-view">
+        <div class="no-data-avilable">
+            <div class="d-flex align-items-center justify-content-center flex-column">
+                <div class="no-data-img">
+                    <img src="/ks_dashboard_ninja/static/images/dashboardOverview/no-data.png" alt="no-data-available" loading="lazy" class="img-fluid"/>
+                </div>
+                <div class="title mb-1">
+                    No Filter Available
+                </div>
+                <p>
+                    No custom filter, Create some from dashboard settings
+                </p>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="ks_dn.custom-filter-facets-view">
+        <t t-foreach="Object.keys(customDomainFacets)" t-as="model_key" t-key="model_key_index">
+            <t t-call="ks_dn.custom-filter-facets-container">
+                <t t-set="modelFacets"
+                   t-value="customDomainFacets[model_key]"/>
+                <t t-set="ks_model" t-value="model_key"/>
+            </t>
+        </t>
+    </t>
+
+    <t t-name="ks_dn.custom-filter-facets-container">
+        <div t-att-data-ks-model-selector="ks_model" class="mt-1">
+            <h4 class="">
+                <t t-esc="modelFacets.model_name"/>
+            </h4>
+            <div class="dropdown dash-dd-2 me-lg-2 me-1">
+                <div class="dropdown-toggle d-flex encapsulated-link">
+                    <t t-if="modelFacets.labels">
+                        <t t-foreach="modelFacets.labels" t-as="modelFacet" t-key="modelFacet_index">
+                            <div class="position-relative pe-2 me-2" t-att-ksmodel="ks_model"
+                                 t-att-modelname="modelFacets.model_name"
+                                 t-att-kscateg="'0'">
+                                <div class="selcted-opt opted">
+                                    <div class="opt-title">
+                                        <t t-esc="modelFacet"/>
+                                    </div>
+                                    <div t-on-click="onRemoveFacet" t-att-data-facet-index="modelFacet_index" class="ms-1">
+                                        <img src="ks_dashboard_ninja/static/images/dashboardOverview/close-circle-two.svg"
+                                             alt="close-img" loading="lazy" class="img-fluid encapsulated-cross"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </t>
+                </div>
+            </div>
+        </div>
+    </t>
+
+
+</templates>

@@ -62,8 +62,30 @@
                         <label>Tìm kiếm:</label>
                         <input type="text" t-model="state.search" t-on-change="onSearchChange"/>
                     </div>
+                    <div class="filter_item">
+                        <label>Tần số cập nhật (giây):</label>
+                        <input type="number" min="0"
+                            t-model="state.autoRefreshInterval"
+                            t-on-change="onChangeAutoRefresh"/>
+                    </div>
+                    
                 </div>
+                <div class="kpi_wrapper">
+                    <t t-set="kpis" t-value="[
+                        {'key': 'total_plan_qty',  'label': 'Target / Ngày',  'cls': 'accent1'},
+                        {'key': 'finish_shift1',   'label': 'Tiến độ ca 1',    'cls': 'accent2'},
+                        {'key': 'finish_shift2',   'label': 'Tiến độ ca 2',    'cls': 'accent3'},
+                        {'key': 'packing_progress','label': 'Tiến độ Đóng gói','cls': 'accent4'}
+                    ]"/>
 
+                    <t t-foreach="kpis" t-as="k" t-key="k.key">
+                        <div class="kpi_card" t-att-class="k.cls">
+                            <div class="kpi_label"   t-esc="k.label"/>
+                            <div class="kpi_value"
+                                t-esc="(state.kpi[k.key] ?? 0).toLocaleString()"/>
+                        </div>
+                    </t>
+                </div>
                 <div class="card_section">
                     <h2>1.1 Tiến độ sản xuất</h2>
                     <table>
@@ -96,11 +118,14 @@
                                         <td t-esc="row.thoi_gian_thuc_te"/>
                                         <t t-if="state.steps">
                                             <t t-foreach="state.steps" t-as="st2" t-key="st2">
-                                                <td t-if="row[st2]" t-att-class="row[st2].status == 'done' ? 'step_done': (row[st2].status == 'working'  ? 'step_working' : '')">
+                                                <td t-if="row[st2]" t-att-class="
+                                                                                row[st2]?.status === 'done'    ? 'step_done'    :
+                                                                                row[st2]?.status === 'working' ? 'step_working' :
+                                                                                row[st2]?.status === 'paused'  ? 'step_paused'  : ''">
                                                     <!-- Hiển thị thời gian -->
                                                     <!-- <t t-esc="st2"/> -->
-                                                    <t t-if="st2 != 'Đóng gói'" t-esc="row[st2].time"/>
-                                                    <t t-if="st2 == 'Đóng gói'" t-esc="row[st2].quantity"/>
+                                                    <t t-if="st2 != 'Đóng gói'" t-esc="row[st2]?.time"/>
+                                                    <t t-if="st2 == 'Đóng gói'" t-esc="row[st2]?.quantity"/>
                                                 </td>
                                                 <td t-else="">-</td>
                                             </t>
@@ -148,7 +173,9 @@
                                         <td t-esc="frow.total_faulty"/>
                                         <t t-foreach="state.steps" t-as="k2" t-key="k2">
                                             
-                                                <td t-esc="frow[k2] === 0 ? '-' : frow[k2]"/>
+                                                <td t-att-class="frow[k2]?.status === 'ng'    ? 'step_done'    : ''">
+                                                    <t t-esc="frow[k2]?.quantity === 0 ? '-' : frow[k2]?.quantity"/>
+                                                </td>
 
                                         </t>
                                     </tr>
