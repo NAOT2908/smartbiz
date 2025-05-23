@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 {
-    'name': "SmartBiz Inventory",
-    'summary': "SmartBiz Inventory",
-    'description': "SmartBiz Inventory",
+    'name': "SmartBiz Stock",
+    'summary': "SmartBiz Stock Customizations",
+    'description': "SmartBiz Stock Customizations",
     'author': "SmartBiz",
     'website': "https://www.sbiz.vn",
 
@@ -14,7 +14,7 @@
 
     # Any module necessary for this one to work correctly
     'depends': [
-        'base','stock','smartbiz_barcode', 
+        'base','smartbiz','stock','stock_account','base_automation','smartbiz_nomenclature',
         'mail',
     ],
 
@@ -26,16 +26,14 @@
         'report/report.xml',
         'report/report_templates.xml',
         'data/data.xml',
-        'wizard/log_views.xml',
-        'wizard/smartbiz_inventory_quant_wizard.xml',
     ],
 
     'assets': {
         'web.assets_backend': [
-            'smartbiz_inventory/static/src/**/*.js',
-            'smartbiz_inventory/static/src/**/*.scss',
-            'smartbiz_inventory/static/src/**/*.xml',
-        ],
+              'smartbiz_stock/static/src/**/*.js',
+              'smartbiz_stock/static/src/**/*.scss',
+              'smartbiz_stock/static/src/**/*.xml',
+         ],
         'web.assets_qweb': [
          ],
      },

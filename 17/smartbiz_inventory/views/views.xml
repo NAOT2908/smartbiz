@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Tree view quant inherit -->
+    <record id="action_open_stock_quant_editable" model="ir.actions.act_window">
+        <field name="name">Chọn tồn kho</field>
+        <field name="res_model">stock.quant</field>
+        <field name="view_mode">tree</field>
+        <field name="target">new</field>
+        <field name="context">{'search_default_internal_location': 1}</field>
+    </record>
+
+    <record id="view_stock_quant_tree_custom" model="ir.ui.view">
+        <field name="name">stock.quant.tree.selectable</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="stock.view_stock_quant_tree_editable" />
+        <field name="arch" type="xml">
+            <xpath expr="//tree/header//button[@name='action_inventory_at_date']" position="after">
+                    <button name="action_add_lines" string="Tạo kiểm kê" type="object" class="oe_highlight" context="{'inventory_id': active_id}"/>
+                </xpath>
+        </field>
+    </record>
+    
+    <!-- Form View -->
     <record id="seq_smartbiz_inventory_history" model="ir.sequence">
         <field name="name">smartbiz inventory history</field>
         <field name="code">smartbiz.inventory.history</field>
@@ -22,9 +43,9 @@
             <tree>
                 <field name="name" />
                 <field name="date" />
-                <field name="user_id" optional="show"/>
-                <field name="inventory_id" optional="show"/>
-                <field name="location_id" optional="show"/>
+                <field name="user_id" optional="show" />
+                <field name="inventory_id" optional="show" />
+                <field name="location_id" optional="show" />
                 <field name="product_id" />
                 <field name="lot_id" />
                 <field name="package_id" />
@@ -43,17 +64,17 @@
             <form string="Inventory History">
                 <sheet>
                     <group>
-                        <field name="name" readonly="1"/>
-                        <field name="date" readonly="1"/>
-                        <field name="user_id" readonly="1"/>
-                        <field name="inventory_id" readonly="1"/>
-                        <field name="location_id" readonly="1"/>
-                        <field name="product_id" readonly="1"/>
+                        <field name="name" readonly="1" />
+                        <field name="date" readonly="1" />
+                        <field name="user_id" readonly="1" />
+                        <field name="inventory_id" readonly="1" />
+                        <field name="location_id" readonly="1" />
+                        <field name="product_id" readonly="1" />
                     </group>
                     <group>
-                        <field name="quantity_before" readonly="1"/>
-                        <field name="quantity_after" readonly="1"/>
-                        <field name="difference" readonly="1"/>
+                        <field name="quantity_before" readonly="1" />
+                        <field name="quantity_after" readonly="1" />
+                        <field name="difference" readonly="1" />
                     </group>
                 </sheet>
             </form>
@@ -80,54 +101,68 @@
             <form string="Inventory">
                 <header>
                     <button name="action_start" type="object" string="Start Inventory"
-                        class="btn-primary" invisible="state in ['done', 'cancel']"/>
+                        class="btn-primary" invisible="state in ['done', 'cancel']" />
                     <button name="open_confirm_wizard" type="object" string="Validate"
-                        class="btn-success" invisible="state in ['done', 'cancel']"/>
+                        class="btn-success" invisible="state in ['done', 'cancel']" />
                     <button name="open_cancel_wizard" type="object" string="Cancel"
-                        class="btn-secondary" invisible="state in ['done', 'cancel']"/>
+                        class="btn-secondary" invisible="state in ['done', 'cancel']" />
+                    <button name="action_open_quant_selector" type="object" string="Chọn"
+                        class="btn-primary" invisible="state in ['done', 'cancel']" />
+                    <button name="cancel_inventory_line" type="object" class="btn-secondary" string="Hủy dự trữ" invisible="state in ['done', 'cancel']"/>
                     <field name="state" widget="statusbar" />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_lines" type="object"  class="oe_stat_button" icon="fa-info"> 
-                            <field string="Operations" name="line_count" widget="statinfo"/>
+                        <button name="action_lines" type="object" class="oe_stat_button"
+                            icon="fa-info">
+                            <field string="Operations" name="line_count" widget="statinfo" />
                         </button>
-                     </div>
+                    </div>
                     <group>
                         <group>
                             <field name="name" />
                             <field name="date" />
-                            
-                            <field name="user_id" widget="many2one_avatar_user" domain="[('share', '=', False)]" readonly="state in ['cancel', 'done']"/>
+
+                            <field name="user_id" widget="many2one_avatar_user"
+                                domain="[('share', '=', False)]"
+                                readonly="state in ['cancel', 'done']" />
                             <field name="inventory_period_id" />
-                            <field name="set_count" widget="radio" field_id="set_count_0"/>
+                            <field name="set_count" widget="radio" field_id="set_count_0" />
                         </group>
                         <group>
                             <field name="company_id" />
-                            <field name="warehouse_ids" widget="many2many_tags"/>
-                            <field name="category_ids" widget="many2many_tags"/>
-                            <field name="product_ids" widget="many2many_tags"/>
+                            <field name="warehouse_ids" widget="many2many_tags" />
+                            <field name="category_ids" widget="many2many_tags" />
+                            <field name="product_ids" widget="many2many_tags" />
                             <field name="inventory_location_ids" widget="many2many_tags" />
                         </group>
                     </group>
                     <field name="line_ids" nolabel="1">
                         <tree editable="bottom">
-                            <field name="location_id" optional="show"/>
+                            <field name="location_id" optional="show" />
                             <field name="product_id" optional="show" />
                             <field name="lot_id" optional="show" />
                             <field name="package_id" optional="show" />
                             <field name="quantity_before" readonly="1" />
                             <field name="quantity_counted" />
-                            <field name="difference" optional="show" readonly="1" decoration-muted="difference == 0" decoration-danger="difference &lt; 0" decoration-success="difference &gt; 0" decoration-bf="difference != 0"/>
+                            <field name="difference" optional="show" readonly="1"
+                                decoration-muted="difference == 0"
+                                decoration-danger="difference &lt; 0"
+                                decoration-success="difference &gt; 0"
+                                decoration-bf="difference != 0" />
                             <field name="note" optional="show" />
-                            <field name="state" optional="show" widget="badge" decoration-danger="state=='error'" decoration-info="state== 'counting'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
+                            <field name="state" optional="show" widget="badge"
+                                decoration-danger="state=='error'"
+                                decoration-info="state== 'counting'"
+                                decoration-success="state == 'done'"
+                                decoration-warning="state not in ('draft','cancel','done','assigned')" />
                         </tree>
                     </field>
                 </sheet>
                 <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
+                    <field name="message_follower_ids" />
+                    <field name="activity_ids" />
+                    <field name="message_ids" />
                 </div>
             </form>
         </field>
@@ -142,9 +177,13 @@
                 <field name="name" />
                 <field name="date" />
                 <field name="company_id" />
-                <field name="user_id" widget="many2one_avatar_user" readonly="state in ['cancel', 'done']"/>
+                <field name="user_id" widget="many2one_avatar_user"
+                    readonly="state in ['cancel', 'done']" />
                 <field name="inventory_period_id" />
-                <field name="state" widget="badge" decoration-danger="state=='cancel'" decoration-info="state== 'in_progress'" decoration-muted="state == 'draft'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','in_progress')"/>
+                <field name="state" widget="badge" decoration-danger="state=='cancel'"
+                    decoration-info="state== 'in_progress'" decoration-muted="state == 'draft'"
+                    decoration-success="state == 'done'"
+                    decoration-warning="state not in ('draft','cancel','done','in_progress')" />
             </tree>
         </field>
     </record>
@@ -196,15 +235,20 @@
         <field name="model">smartbiz.inventory.line</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="inventory_id"/>
-                <field name="product_id"/>
-                <field name="lot_id"/>
-                <field name="package_id"/>
-                <field name="location_id"/>
-                <field name="quantity_before"/>
-                <field name="quantity_counted"/>
-                <field name="difference" decoration-muted="difference == 0" decoration-danger="difference &lt; 0" decoration-success="difference &gt; 0" decoration-bf="difference != 0"/>
-                <field name="state" optional="show" widget="badge" decoration-danger="state=='error'" decoration-info="state== 'counting'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
+                <field name="inventory_id" />
+                <field name="product_id" />
+                <field name="lot_id" />
+                <field name="package_id" />
+                <field name="location_id" />
+                <field name="quantity_before" />
+                <field name="quantity_counted" />
+                <field name="difference" decoration-muted="difference == 0"
+                    decoration-danger="difference &lt; 0" decoration-success="difference &gt; 0"
+                    decoration-bf="difference != 0" />
+                <field name="state" optional="show" widget="badge"
+                    decoration-danger="state=='error'" decoration-info="state== 'counting'"
+                    decoration-success="state == 'done'"
+                    decoration-warning="state not in ('draft','cancel','done','assigned')" />
             </tree>
         </field>
     </record>
@@ -249,16 +293,16 @@
         name="Inventory Periods"
         parent="menu_smartbiz_inventory_root"
         action="action_smartbiz_inventory_period" />
-    
+
     <menuitem id="menu_smartbiz_inventory_history"
-              name="Inventory History"
-              parent="menu_smartbiz_inventory_root"
-              action="action_smartbiz_inventory_history"/>
+        name="Inventory History"
+        parent="menu_smartbiz_inventory_root"
+        action="action_smartbiz_inventory_history" />
 
     <menuitem id="menu_smartbiz_inventory_line"
-              name="Inventory Line"
-              parent="menu_smartbiz_inventory_root"
-              action="action_smartbiz_inventory_line"
-              sequence="20"/>
+        name="Inventory Line"
+        parent="menu_smartbiz_inventory_root"
+        action="action_smartbiz_inventory_line"
+        sequence="20" />
 
 </odoo>

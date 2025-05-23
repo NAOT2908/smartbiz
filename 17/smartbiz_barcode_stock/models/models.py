@@ -544,7 +544,7 @@ class Stock_Picking(models.Model):
                         # Tính tổng số lượng trong stock.quant cho package và sản phẩm cụ thể
                         total_qty_package = sum(self.env['stock.quant'].search([
                             ('package_id', '=', package_id.id),
-                            ('product_id', '=', product_id.id)
+                            # ('product_id', '=', product_id.id)
                         ]).mapped('quantity'))
 
                         # Kiểm tra sự khác biệt giữa tổng số lượng
@@ -573,7 +573,7 @@ class Stock_Picking(models.Model):
                         # Tính tổng số lượng trong stock.quant cho package và sản phẩm cụ thể
                         total_qty_package = sum(self.env['stock.quant'].search([
                             ('package_id', '=', package_id.id),
-                            ('product_id', '=', product_id.id)
+                            # ('product_id', '=', product_id.id)
                         ]).mapped('quantity'))
 
                         # Kiểm tra sự khác biệt giữa tổng số lượng
@@ -581,9 +581,7 @@ class Stock_Picking(models.Model):
                             Picking = ', '.join(line.picking_id.name or 'Unknown' for line in lines)
                             e.append(("Kiện hàng '%s' với sản phẩm '%s' đã có trong đơn hàng '%s'. Vui lòng kiểm tra lại.") 
                                   % (package_id.name, product_id.name, Picking))
-            for line in picking.move_line_ids:
-                package_id = line.package_id  
-                result_package_id = line.result_package_id
+            
                 if result_package_id:
                     lines = self.env['stock.move.line'].search([('package_id','=',result_package_id.id),('picking_id','!=',picking_id),('location_id','!=',line.location_dest_id.id),('state','not in',['done','cancel'])])
                     if lines:

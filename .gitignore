@@ -1,0 +1,17 @@
+# Bỏ toàn bộ thư mục __pycache__ ở mọi nơi
+**/__pycache__/
+*.py[cod]
+*.pyo
+
+# Bỏ file hệ thống
+.DS_Store
+Thumbs.db
+
+# Bỏ folder của IDE
+.vscode/
+.idea/
+
+# Bỏ file tạm
+*.log
+*.tmp
+*.bak

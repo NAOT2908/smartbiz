@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="action_report_stock_picking_phieu_nhap_kho" model="ir.actions.report">
+            <field name="name">Phiếu nhập kho</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-html</field>
+            <field name="report_name">smartbiz_stock.report_stock_picking_phieu_nhap_kho</field>
+            <field name="report_file">smartbiz_stock.report_stock_picking_phieu_nhap_kho</field>
+            <field name="print_report_name"></field>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <record id="action_report_stock_picking_phieu_nhap_kho_-_ma_quy_cach" model="ir.actions.report">
+            <field name="name">Phiếu nhập kho - Mã quy cách</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-html</field>
+            <field name="report_name">smartbiz_stock.report_stock_picking_phieu_nhap_kho_-_ma_quy_cach</field>
+            <field name="report_file">smartbiz_stock.report_stock_picking_phieu_nhap_kho_-_ma_quy_cach</field>
+            <field name="print_report_name"></field>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <record id="action_report_stock_picking_phieu_nhap_kho_-_lo_-_han_su_dung_" model="ir.actions.report">
+            <field name="name">Phiếu nhập kho - Lô - Hạn sử dụng </field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-html</field>
+            <field name="report_name">smartbiz_stock.report_stock_picking_phieu_nhap_kho_-_lo_-_han_su_dung_</field>
+            <field name="report_file">smartbiz_stock.report_stock_picking_phieu_nhap_kho_-_lo_-_han_su_dung_</field>
+            <field name="print_report_name"></field>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <record id="action_report_stock_picking_phieu_xuat_kho" model="ir.actions.report">
+            <field name="name">Phiếu xuất kho</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-html</field>
+            <field name="report_name">smartbiz_stock.report_stock_picking_phieu_xuat_kho</field>
+            <field name="report_file">smartbiz_stock.report_stock_picking_phieu_xuat_kho</field>
+            <field name="print_report_name"></field>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <record id="action_report_stock_picking_phieu_xuat_kho_-_ma_quy_cach" model="ir.actions.report">
+            <field name="name">Phiếu xuất kho - Mã quy cách</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-html</field>
+            <field name="report_name">smartbiz_stock.report_stock_picking_phieu_xuat_kho_-_ma_quy_cach</field>
+            <field name="report_file">smartbiz_stock.report_stock_picking_phieu_xuat_kho_-_ma_quy_cach</field>
+            <field name="print_report_name"></field>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <record id="action_report_stock_picking_phieu_xuat_kho_-_lo_-_han_su_dung_" model="ir.actions.report">
+            <field name="name">Phiếu xuất kho - Lô - Hạn sử dụng </field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-html</field>
+            <field name="report_name">smartbiz_stock.report_stock_picking_phieu_xuat_kho_-_lo_-_han_su_dung_</field>
+            <field name="report_file">smartbiz_stock.report_stock_picking_phieu_xuat_kho_-_lo_-_han_su_dung_</field>
+            <field name="print_report_name"></field>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+
+
+    </data>
+</odoo>

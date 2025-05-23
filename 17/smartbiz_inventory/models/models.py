@@ -128,7 +128,17 @@ class Inventory(models.Model):
         """ Bắt đầu kiểm kê - lọc danh sách kiểm kê theo location nếu có """
         self.state = 'cancel'
         self.line_ids.unlink()
+    def action_open_quant_selector(self):
+        action = self.env.ref('smartbiz_inventory.action_open_stock_quant_editable').read()[0]  
+        action['domain'] = [('company_id', '=', self.company_id.id),('location_id.usage', '=', 'internal')]  
+        action['context'] = {
+            'default_inventory_id': self.id,
+            'from_inventory_select': True,
+            'search_default_internal_location': 1,
+        }
+        return action
 
+    
     def _generate_inventory_lines(self):
         """Tạo danh sách kiểm kê dựa trên location hoặc warehouse nếu có"""
         domain = [('company_id', '=', self.company_id.id)]
@@ -575,6 +585,13 @@ class Inventory(models.Model):
         data['lot_id'] = lot_id.id
         data['lot_name'] = lot_id.name
         return data
+
+    def cancel_inventory_line(self):
+        for inventory in self:
+            lines = self.env['smartbiz.inventory.line'].search([('inventory_id', '=', inventory.id)])
+            if lines:
+                lines.unlink()
+        return True
     
     def delete_inventory_line(self,inventory_id,inventory_line_id):
         ml = self.env['smartbiz.inventory.line'].browse(inventory_line_id)
@@ -660,3 +677,28 @@ class InventoryHistory(models.Model):
             raise UserError(_("Bạn không có quyền xóa dòng lịch sử!"))
         return super().unlink()
       
+      
+class StockQuant(models.Model):
+    _inherit = 'stock.quant'
+    _description = 'Stock Quant'
+
+    def action_add_lines(self):
+        inventory_id = self.env.context.get('inventory_id')
+        inventory = self.env['smartbiz.inventory'].browse(inventory_id)
+        vals_list = []
+        for quant in self:
+            vals_list.append({
+                'inventory_id': inventory.id,
+                'product_id': quant.product_id.id,
+                'lot_id': quant.lot_id.id if quant.lot_id else False,
+                'package_id': quant.package_id.id if quant.package_id else False,
+                'location_id': quant.location_id.id,
+                'company_id': inventory.company_id.id,
+                'quantity_before': quant.quantity,
+                'quantity_counted': 0 if inventory.set_count == 'empty' else quant.quantity,
+                'quant_id': quant.id,
+                'note': '',
+            })    
+    
+        self.env['smartbiz.inventory.line'].create(vals_list)
+        return {'type': 'ir.actions.act_window_close'}
