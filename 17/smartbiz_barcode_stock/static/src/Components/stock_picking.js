@@ -1111,7 +1111,10 @@ class StockPicking extends Component {
                                                         }
                                                         line.location_id = prod.location_id
             
-                                                        if(line.result_package_name.includes("MOVE") || line.result_package_name.includes("CUT")){
+                                                        if(
+                                                            line.result_package_name?.includes("MOVE") && !line.package_name?.includes("MOVE")||
+                                                            (line.result_package_name?.includes("CUT") && !line.package_name?.includes("CUT"))
+                                                        ){
                                                             this.state.scannedLine = line
                                                         }
                                                         else{
@@ -1120,9 +1123,6 @@ class StockPicking extends Component {
                                                             this.editMove(this.state.detailMoveLine.move_id)
                                                         }
                                                         
-                                                       
-                                                        
-                                                      
                                                     }
                                                     else
                                                     {

@@ -512,14 +512,16 @@ class SmartbizStock_TransferRequest(models.Model):
                     ]
                     if lots_ids:
                         domain.append(('lot_id','in', lots_ids))
-                    onhand = sum(self.env['stock.quant'].search(domain).mapped('available_quantity'))
+                    onhand = sum(self.env['stock.quant'].search(domain).mapped('quantity'))
 
-                    # used_qty = min(quantity_needed, onhand)
                     if quantity_needed > onhand:
                         used_qty = onhand
                     else:
                         used_qty = quantity_needed
-                        
+                    
+                    if 'VW' in product.name and onhand <= 0:
+                        continue
+                    
                     if used_qty < 0:
                         continue
 

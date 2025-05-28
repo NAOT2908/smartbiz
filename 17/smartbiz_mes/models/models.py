@@ -1974,6 +1974,7 @@ class mrp_BoM(models.Model):
     _inherit = ['mrp.bom']
     components_ids = fields.One2many('smartbiz_mes.bom_components', 'bom_id')
 
+    
 
 class mrp_bomline(models.Model):
     _inherit = ['mrp.bom.line']

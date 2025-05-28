@@ -32,7 +32,7 @@ class Inventory(models.Model):
     name = fields.Char(string="Inventory Name", required=True, default='New')
     date = fields.Datetime(string="Inventory Date", default=fields.Datetime.now, required=True)
     company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company)
-    product_ids = fields.Many2many('product.product', string="Products",
+    product_ids = fields.Many2many('product.product', string="Product",
                                    default=lambda self: self.env[
                                        'product.product'].search([], limit=1),
                                    help="Select multiple products "
@@ -45,10 +45,10 @@ class Inventory(models.Model):
                                      default=lambda self: self._default_warehouse_ids(),
                                      help="Select multiple warehouses "
                                           "from the list.")
-    user_id = fields.Many2one('res.users', string="Responsible User", default=lambda self: self.env.user)
+    user_id = fields.Many2one('res.users', string="User", default=lambda self: self.env.user)
     inventory_period_id = fields.Many2one('smartbiz.inventory.period', string="Inventory Period", required=True, default=lambda self: self.env['smartbiz.inventory.period'].search([], limit=1).id)
-    inventory_location_ids = fields.Many2many('stock.location', string="Inventory Locations")
-    line_ids = fields.One2many('smartbiz.inventory.line', 'inventory_id', string="Inventory Lines")
+    inventory_location_ids = fields.Many2many('stock.location', string="Inventory Location")
+    line_ids = fields.One2many('smartbiz.inventory.line', 'inventory_id', string="Inventory Line")
     line_count = fields.Integer(string="Line Count", compute="_compute_line_count")
     set_count = fields.Selection([
         ('empty', 'Empty'),
@@ -175,7 +175,7 @@ class Inventory(models.Model):
             'package_id': quant.package_id.id if quant.package_id else False,
             'location_id': quant.location_id.id,
             'company_id': self.company_id.id,
-            'quantity_before': quant.quantity,
+            'quantity': quant.quantity,
             'quantity_counted': 0 if self.set_count == 'empty' else quant.quantity,
             'quant_id': quant.id,
             'note': '',
@@ -200,7 +200,7 @@ class Inventory(models.Model):
                 'location_id': line.location_id.id,
                 'company_id': self.company_id.id,
                 'user_id': self.user_id.id if self.user_id else False,
-                'quantity_before': line.quantity_before,
+                'quantity': line.quantity,
                 'quantity_after': line.quantity_counted,
                 'difference': line.difference,
                 'date': fields.Datetime.now(),
@@ -293,7 +293,7 @@ class Inventory(models.Model):
                     'package_name': line.package_id.name if line.package_id else '',
                     'location_id': line.location_id.id,
                     'location_name': line.location_id.display_name,
-                    'quantity_before': line.quantity_before,
+                    'quantity': line.quantity,
                     'quantity_counted': line.quantity_counted,
                     'difference': line.difference,
                     'quant_id': line.quant_id.id if line.quant_id else False,
@@ -349,7 +349,7 @@ class Inventory(models.Model):
             'location_name': line.location_id.display_name if line.location_id else '',
             'package_id': line.package_id.id if line.package_id else False,
             'package_name': line.package_id.name if line.package_id else '',
-            'quantity_before': line.quantity_before,
+            'quantity': line.quantity,
             'quantity_counted': line.quantity_counted,
             'difference': line.difference,
             'state': line.state,
@@ -512,7 +512,7 @@ class Inventory(models.Model):
                         "inventory_id": inventory.id,
                         "product_id": product["product_id"],
                         "location_id": product["location_id"],
-                        "quantity_before": product["quantity"],
+                        "quantity": product["quantity"],
                         "quantity_counted": product["quantity"],  # Cộng dồn số lượng
                         "lot_id": product["lot_id"],
                         "package_id": package_id,
@@ -528,7 +528,7 @@ class Inventory(models.Model):
         #         "inventory_id": inventory.id,
         #         "product_id": product_id,
         #         "location_id": location_id,
-        #         "quantity_before": 1,
+        #         "quantity": 1,
         #         "quantity_counted": 1,
         #         "state": "counting",
         #     })
@@ -567,7 +567,7 @@ class Inventory(models.Model):
                 'lot_id': data['lot_id'],
                 'package_id': data.get('package_id', False),
                 'state': 'counting',
-                'quantity_before': 0,
+                'quantity': 0,
                 'quantity_counted': data.get('quantity_counted', 0),
                 'note': data.get('note', '')  # Mặc định note là chuỗi rỗng
             })
@@ -618,7 +618,7 @@ class InventoryLine(models.Model):
     package_id = fields.Many2one('stock.quant.package', string="Package")
     location_id = fields.Many2one('stock.location', string="Location", required=True)
     company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company)
-    quantity_before = fields.Float(string="Inventory Quantity", readonly=True)
+    quantity = fields.Float(string="Inventory Quantity", readonly=True)
     quantity_counted = fields.Float(string="Counted Quantity")
     difference = fields.Float(string="Difference", compute="_compute_difference")
     note = fields.Html(string="Note")
@@ -631,15 +631,15 @@ class InventoryLine(models.Model):
         ('error', 'Lỗi')
     ], string='Trạng thái', default='pending')
 
-    @api.depends('quantity_before', 'quantity_counted')
+    @api.depends('quantity', 'quantity_counted')
     def _compute_difference(self):
         for line in self:
-            line.difference = line.quantity_counted - line.quantity_before
+            line.difference = line.quantity_counted - line.quantity
     
     @api.onchange('quantity_counted')
     def _onchange_quantity_counted(self):
         for line in self:
-            if line.quantity_counted != 0 or line.quantity_counted != line.quantity_before:
+            if line.quantity_counted != 0 or line.quantity_counted != line.quantity:
                 line.state = 'counting'
             
 
@@ -654,7 +654,7 @@ class InventoryHistory(models.Model):
     date = fields.Datetime(string="Date", required=True, default=fields.Datetime.now)
     location_id = fields.Many2one("stock.location", string="Location", required=True)
     product_id = fields.Many2one("product.product", string="Product", required=True)
-    quantity_before = fields.Float(string="Quantity Before", readonly=True)
+    quantity = fields.Float(string="Quantity Before", readonly=True)
     quantity_after = fields.Float(string="Quantity After", readonly=True)
     difference = fields.Float(string="Difference", compute="_compute_difference")
     lot_id = fields.Many2one("stock.lot", string="Lot/Serial Number")
@@ -667,10 +667,10 @@ class InventoryHistory(models.Model):
             vals["name"] = self.env["ir.sequence"].next_by_code("smartbiz.inventory.history") or _("New")
         return super().create(vals)
     
-    @api.depends("quantity_before", "quantity_after")
+    @api.depends("quantity", "quantity_after")
     def _compute_difference(self):
         for rec in self:
-            rec.difference = rec.quantity_after - rec.quantity_before
+            rec.difference = rec.quantity_after - rec.quantity
 
     def unlink(self):
         if not self.env.user.has_group('smartbiz_inventory.group_can_delete_historyline'):
@@ -694,7 +694,7 @@ class StockQuant(models.Model):
                 'package_id': quant.package_id.id if quant.package_id else False,
                 'location_id': quant.location_id.id,
                 'company_id': inventory.company_id.id,
-                'quantity_before': quant.quantity,
+                'quantity': quant.quantity,
                 'quantity_counted': 0 if inventory.set_count == 'empty' else quant.quantity,
                 'quant_id': quant.id,
                 'note': '',
@@ -702,3 +702,50 @@ class StockQuant(models.Model):
     
         self.env['smartbiz.inventory.line'].create(vals_list)
         return {'type': 'ir.actions.act_window_close'}
+
+    def action_add_move_lines(self):
+        move_id = self.env.context.get('move_id')
+        if not move_id:
+            raise UserError("Thiếu move_id trong context!")
+
+        move = self.env['stock.move'].browse(move_id)
+        if not move.exists():
+            raise UserError("Move không tồn tại!")
+
+        picking = move.picking_id
+        vals_list = []
+        for quant in self:
+            if quant.available_quantity > 0:
+                vals_list.append({
+                    'picking_id': picking.id,
+                    'move_id': move.id,
+                    'product_id': quant.product_id.id,
+                    'lot_id': quant.lot_id.id if quant.lot_id else False,
+                    'package_id': quant.package_id.id if quant.package_id else False,
+                    'result_package_id': quant.package_id.id if (quant.reserved_quantity == 0) else False,
+                    'location_id': quant.location_id.id,
+                    'company_id': picking.company_id.id,
+                    'quantity': quant.available_quantity ,
+                    'quant_id': quant.id,
+                })    
+
+        self.env['stock.move.line'].create(vals_list)
+        return {'type': 'ir.actions.act_window_close'}
+
+class StockMove(models.Model):
+    _inherit = 'stock.move'
+
+    def action_open_quant_selector(self):
+        action = self.env.ref('smartbiz_inventory.action_open_stock_quant_editable').read()[0]
+        action['domain'] = [
+            ('company_id', '=', self.company_id.id),
+            ('location_id.usage', '=', 'internal'),
+            ('location_id', 'child_of', self.location_id.id),
+            ('product_id', '=', self.product_id.id)
+        ]
+        action['context'] = {
+            'default_inventory_id': self.id,
+            'from_inventory_select': True,
+            'search_default_internal_location': 1,
+        }
+        return action
