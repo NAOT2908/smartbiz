@@ -625,15 +625,15 @@ export class WorkOrder extends Component {
   async search() {
     const query = this.state.searchInput.trim().toLowerCase();
     if (this.state.view === "WorkOrders") {
-      if (this.state.workcenter) {
-        this.state.workOrders = this.state.data.orders.filter(
-          (x) => x.name === this.state.workcenter.name
-        );
+      if (this.state.workCenter) {
+        const datasearch = this.state.data.orders.filter(x=>x.workcenter_id == this.state.workCenter.id);
         if (query) {
           this.state.workOrders = this.filterArrayByString(
-            this.state.workOrders,
+            datasearch,
             query
           );
+        } else {
+          this.state.workOrders = datasearch
         }
       } else {
         if (query) {

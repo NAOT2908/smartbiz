@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_nomenclature_template_tree" model="ir.ui.view">
+    <field name="name">nomenclature.template.tree</field>
+    <field name="model">smartbiz.nomenclature.template</field>
+    <field name="arch" type="xml">
+      <tree>
+        <field name="sequence" width="60"/>
+        <field name="name"/>
+        <field name="model_name" width="120"/>
+        <field name="regex_pattern"/>
+        <field name="separator" width="60"/>
+        <field name="active"/>
+      </tree>
+    </field>
+  </record>
+
+  <record id="view_nomenclature_template_form" model="ir.ui.view">
+    <field name="name">nomenclature.template.form</field>
+    <field name="model">smartbiz.nomenclature.template</field>
+    <field name="arch" type="xml">
+      <form string="Nomenclature Template">
+              <header>
+                <button name="action_rebuild_report" string="Rebuild Report" type = "object" class="oe_highlight"/>
+                <button name="action_delete_fields" string="Delete Fields" type = "object" class="oe_highlight"/>
+            </header>
+        <sheet>
+          <group>
+            <field name="name"/>
+            <field name="sequence"/>
+            <field name="model_name"/>
+            <field name="condition_domain"/>
+            <field name="regex_pattern"/>
+            <field name="separator"/>
+            <field name="active"/>
+          </group>
+          <notebook>
+            <page string="Fields">
+              <field name="line_ids">
+                <tree editable="bottom">
+                  <field name="sequence" width="60"/>
+                  <field name="target_field"/>
+                  <field name="field_label"/>
+                  <field name="segment_index"/>
+                  <field name="regex_group"/>
+                  <field name="cast_type"/>
+                </tree>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="action_nomenclature_template" model="ir.actions.act_window">
+    <field name="name">Nomenclature Templates</field>
+    <field name="res_model">smartbiz.nomenclature.template</field>
+    <field name="view_mode">tree,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">
+        Create templates to split product / lot codes dynamically.
+      </p>
+    </field>
+  </record>
+
+  <!-- ❷ Gốc menu “Nomenclature” (dưới Settings ‑ Configuration) -->
+  <menuitem id="menu_nomenclature_root"
+            name="Nomenclature"
+            parent="base.menu_custom"
+            sequence="1"
+            groups=""/>
+
+  <!-- ❸ Menu mở danh sách template -->
+  <menuitem id="menu_nomenclature_template"
+            name="Templates"
+            parent="menu_nomenclature_root"
+            action="action_nomenclature_template"
+            sequence="1"
+            groups=""/>
+
+  <!-- ❹ View form wizard Rebuild -->
+  <record id="view_rebuild_wizard" model="ir.ui.view">
+    <field name="name">smartbiz.nomenclature.rebuild.wizard.form</field>
+    <field name="model">smartbiz.nomenclature.rebuild.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Rebuild Nomenclature Reports">
+        <footer>
+          <button name="action_rebuild" string="Rebuild" type="object" class="btn-primary"/>
+          <button string="Close" special="cancel" class="btn-secondary"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <!-- ❺ Window Action của wizard -->
+  <record id="action_rebuild_nomenclature" model="ir.actions.act_window">
+    <field name="name">Rebuild Nomenclature Reports</field>
+    <field name="res_model">smartbiz.nomenclature.rebuild.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+  </record>
+
+  <!-- ❻ Menu chạy wizard (có thể đặt dưới root hoặc Technical) -->
+  <menuitem id="menu_rebuild_report"
+            name="Rebuild Reports"
+            parent="menu_nomenclature_root"         
+            action="action_rebuild_nomenclature"
+            sequence="20"
+            groups=""/>
+
+</odoo>

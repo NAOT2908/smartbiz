@@ -394,7 +394,7 @@
 
 <!-- Top menu item -->
 
-    <menuitem name="SmartBiz HR" 
+    <menuitem name="SmartBiz HR"
        id="menu_smartbiz_hr_1"
        sequence ="1"
        web_icon="smartbiz_hr,static/description/hr icon.png"
@@ -403,7 +403,7 @@
        id="menu_employee_2"
        sequence ="2"
     />
-    <menuitem name="Attendance" 
+    <menuitem name="Attendance"
        id="menu_attendance_3"
        sequence ="3"
     />

@@ -4,7 +4,7 @@
             <div class="work-order-header">
                 <nav class="work-order_nav">
                     <nav class="work-order_nav_left">
-                        <button t-on-click="exit" class="work-order_nav-link">
+                        <button t-on-click="() => this.home())" class="work-order_nav-link">
                             <i class="oi oi-chevron-left" />
                         </button>
                         <div class="work-order_nav_title">
@@ -15,8 +15,8 @@
                     <nav class="work-order_nav_right">
                         <div
                             class="work-order_search-box" t-if="state.search">
-                            <input class="work-order_search-input" t-on-input="handleInput"
-                                t-att-value="state.searchInput"
+                            <input class="work-order_search-input" t-on-change="handleInput"
+                                t-model="state.searchInput"
                                 placeholder="Tìm kiếm" />
                         </div>
                         <div class="work-order_nav-link" t-on-click="searchClick">

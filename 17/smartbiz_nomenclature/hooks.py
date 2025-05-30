@@ -14,5 +14,5 @@ def post_init_add_fields(env):
         report_models[mdl._name] = tmpl._fields_for_reports(mdl._name)
 
     # 2. Tạo tất cả field ảo
-    tools.sync_fields(report_models)
+    tools.sync_fields(report_models,True)
 

@@ -35,7 +35,7 @@
 
             <!-- GIAO DIỆN LỆNH SX (WorkOrder) -->
             <t t-if="state.view==='WorkOrder'">
-                <div class="workorder_filters">
+                <div class="filter_block">
                     <div class="filter_item">
                         <label>Dây chuyền:</label>
                         <select t-model="state.selectedLine" t-on-change="onLineChange">
@@ -86,114 +86,119 @@
                         </div>
                     </t>
                 </div>
-                <div class="card_section">
-                    <h2>1.1 Tiến độ sản xuất</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Kế hoạch</th>
-                                <th>Lô</th>
-                                <th>Sản phẩm</th>
-                                <th>Số lượng</th>
-                                <th>TG tiêu chuẩn</th>
-                                <th>TG thực tế</th>
-                                <t t-if="state.steps">
-                                    <t t-foreach="state.steps" t-as="st" t-key="st">
-                                        <th t-esc="st"/>
-                                    </t>
-                                </t>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-if="state.dashboardData.length">
-                                <t t-foreach="state.dashboardData" t-as="row" t-key="row.stt">
+                <div class="dashboard_sections">            
+                    <div class="card_section section-progress">
+                        <h2>1.1 Tiến độ sản xuất</h2>
+                        <div class="table_wrapper"  t-ref="progressWrapper">
+                            <table>
+                                <thead>
                                     <tr>
-                                        <td t-esc="row.stt"/>
-                                        <td t-esc="row.kh || ''"/>
-                                        <td t-esc="row.lot"/>
-                                        <td t-esc="row.item"/>
-                                        <td t-esc="row.so_luong"/>
-                                        <td t-esc="row.thoi_gian_tieu_chuan"/>
-                                        <td t-esc="row.thoi_gian_thuc_te"/>
+                                        <th>STT</th>
+                                        <!-- <th>Kế hoạch</th> -->
+                                        <th>Lô</th>
+                                        <th>Sản phẩm</th>
+                                        <th>SL</th>
+                                        <th>TGTC</th>
+                                        <th>TGTT</th>
                                         <t t-if="state.steps">
-                                            <t t-foreach="state.steps" t-as="st2" t-key="st2">
-                                                <td t-if="row[st2]" t-att-class="
-                                                                                row[st2]?.status === 'done'    ? 'step_done'    :
-                                                                                row[st2]?.status === 'working' ? 'step_working' :
-                                                                                row[st2]?.status === 'paused'  ? 'step_paused'  : ''">
-                                                    <!-- Hiển thị thời gian -->
-                                                    <!-- <t t-esc="st2"/> -->
-                                                    <t t-if="st2 != 'Đóng gói'" t-esc="row[st2]?.time"/>
-                                                    <t t-if="st2 == 'Đóng gói'" t-esc="row[st2]?.quantity"/>
-                                                </td>
-                                                <td t-else="">-</td>
+                                            <t t-foreach="state.steps" t-as="st" t-key="st">
+                                                <th t-esc="st"/>
                                             </t>
                                         </t>
                                     </tr>
-                                </t>
-                            </t>
-                            <t t-else="">
-                                <tr>
-                                    <td colspan="10">Không có dữ liệu</td>
-                                </tr>
-                            </t>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="card_section">
-                    <h2>1.2 Sản phẩm lỗi</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Kế hoạch</th>
-                                <th>Lô</th>
-                                <th>Sản phẩm</th>
-                                <th>Bộ phận</th>
-                                <th>Tổng lỗi</th>
-                                <t t-if="state.steps_faulty">
-                                    <t t-foreach="state.steps_faulty" t-as="st" t-key="st">
-                                        <th t-esc="st"/>
-                                    </t>
-                                </t>
-                               
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-if="state.faultyData.length">
-                                <t t-foreach="state.faultyData" t-as="frow" t-key="frow.stt">
-                                    <tr>
-                                        <td t-esc="frow.stt"/>
-                                        <td t-esc="frow.kh || ''"/>
-                                        <td t-esc="frow.lot"/>
-                                        <td t-esc="frow.item"/>
-                                        <td t-esc="frow.component_name"/>
-                                        <td t-esc="frow.total_faulty"/>
-                                        <t t-foreach="state.steps" t-as="k2" t-key="k2">
-                                            
-                                                <td t-att-class="frow[k2]?.status === 'ng'    ? 'step_done'    : ''">
-                                                    <t t-esc="frow[k2]?.quantity === 0 ? '-' : frow[k2]?.quantity"/>
-                                                </td>
-
+                                </thead>
+                                <tbody>
+                                    <t t-if="state.dashboardData.length">
+                                        <t t-foreach="state.dashboardData" t-as="row" t-key="row.stt">
+                                            <tr>
+                                                <td t-esc="row.stt"/>
+                                                <!-- <td t-esc="row.kh || ''"/> -->
+                                                <td t-esc="row.lot" style="font-weight:600;"/>
+                                                <td t-esc="row.item"/>
+                                                <td t-esc="row.so_luong"/>
+                                                <td t-esc="row.thoi_gian_tieu_chuan"/>
+                                                <td t-esc="row.thoi_gian_thuc_te"/>
+                                                <t t-if="state.steps">
+                                                    <t t-foreach="state.steps" t-as="st2" t-key="st2">
+                                                        <td t-if="row[st2]"  t-att-class="
+                                                                                        row[st2]?.status === 'done'    ? 'step_done'    :
+                                                                                        row[st2]?.status === 'working' ? 'step_working' :
+                                                                                        row[st2]?.status === 'paused'  ? 'step_paused'  : ''">
+                                                            <!-- Hiển thị thời gian -->
+                                                            <!-- <t t-esc="st2"/> -->
+                                                            <t t-if="st2 != 'Đóng gói'" t-esc="row[st2]?.time"/>
+                                                            <span t-if="st2 == 'Đóng gói'" t-esc="row[st2]?.quantity" style="font-weight:600;"/>
+                                                        </td>
+                                                        <td t-else="">-</td>
+                                                    </t>
+                                                </t>
+                                            </tr>
                                         </t>
+                                    </t>
+                                    <t t-else="">
+                                        <tr>
+                                            <td colspan="10">Không có dữ liệu</td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card_section section-faulty">
+                        <h2>1.2 Sản phẩm lỗi</h2>
+                        <div class="table_wrapper"  t-ref="faultyWrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <!-- <th>Kế hoạch</th> -->
+                                        <th>Lô</th>
+                                        <th>Sản phẩm</th>
+                                        <th>Bộ phận</th>
+                                        <th>Tổng lỗi</th>
+                                        <t t-if="state.steps_faulty">
+                                            <t t-foreach="state.steps_faulty" t-as="st" t-key="st">
+                                                <th t-esc="st"/>
+                                            </t>
+                                        </t>
+                                    
                                     </tr>
-                                </t>
-                            </t>
-                            <t t-else="">
-                                <tr>
-                                    <td colspan="10">Không có dữ liệu</td>
-                                </tr>
-                            </t>
-                        </tbody>
-                    </table>
+                                </thead>
+                                <tbody>
+                                    <t t-if="state.faultyData.length">
+                                        <t t-foreach="state.faultyData" t-as="frow" t-key="frow.stt">
+                                            <tr>
+                                                <td t-esc="frow.stt"/>
+                                                <!-- <td t-esc="frow.kh || ''"/> -->
+                                                <td t-esc="frow.lot" style="font-weight:600;"/>
+                                                <td t-esc="frow.item"/>
+                                                <td t-esc="frow.component_name"/>
+                                                <td t-esc="frow.total_faulty"/>
+                                                <t t-foreach="state.steps" t-as="k2" t-key="k2">
+                                                    
+                                                        <td t-att-class="frow[k2]?.status === 'ng'    ? 'step_done'    : ''">
+                                                            <t t-esc="frow[k2]?.quantity === 0 ? '-' : frow[k2]?.quantity"/>
+                                                        </td>
+
+                                                </t>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        <tr>
+                                            <td colspan="10">Không có dữ liệu</td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </t>
 
             <!-- ANALYTICS VIEW -->
             <t t-if="state.view==='Analytics'">
-                <div class="analytics_filters">
+                <div class="filter_block">
                     <div class="filter_item">
                         <label>Dây chuyền:</label>
                         <select t-model="state.selectedLine" t-on-change="onLineChange">

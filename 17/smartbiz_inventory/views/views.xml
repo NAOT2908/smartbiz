@@ -64,7 +64,7 @@
                 <field name="product_id" />
                 <field name="lot_id" />
                 <field name="package_id" />
-                <field name="quantity_before" />
+                <field name="quantity" />
                 <field name="quantity_after" />
                 <field name="difference" />
             </tree>
@@ -87,7 +87,7 @@
                         <field name="product_id" readonly="1" />
                     </group>
                     <group>
-                        <field name="quantity_before" readonly="1" />
+                        <field name="quantity" readonly="1" />
                         <field name="quantity_after" readonly="1" />
                         <field name="difference" readonly="1" />
                     </group>
@@ -158,7 +158,7 @@
                             <field name="product_id" optional="show" />
                             <field name="lot_id" optional="show" />
                             <field name="package_id" optional="show" />
-                            <field name="quantity_before" readonly="1" />
+                            <field name="quantity" readonly="1" />
                             <field name="quantity_counted" />
                             <field name="difference" optional="show" readonly="1"
                                 decoration-muted="difference == 0"
@@ -255,7 +255,7 @@
                 <field name="lot_id" />
                 <field name="package_id" />
                 <field name="location_id" />
-                <field name="quantity_before" />
+                <field name="quantity" />
                 <field name="quantity_counted" />
                 <field name="difference" decoration-muted="difference == 0"
                     decoration-danger="difference &lt; 0" decoration-success="difference &gt; 0"

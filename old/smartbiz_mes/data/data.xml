@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+<!-- Record Email Template -->
+<!-- Record SMS Template -->
+<!-- Record Mobile Template -->
+<!-- Record Notifications -->
+        <record model="ir.sequence" id="seq_smartbiz_mes_package_ok">
+            <field name="name">Package</field>
+            <field name="code">smartbiz_mes.package</field>
+            <field name="prefix">OK</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval = "False" />
+        </record>
+
+        <record model="ir.sequence" id="seq_smartbiz_mes_request_preq">
+            <field name="name">Request</field>
+            <field name="code">smartbiz_mes.request</field>
+            <field name="prefix">PREQ</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval = "False" />
+        </record>
+
+<!-- Auto Schedule -->
+        <record model="ir.cron" id="auto_mes_–_auto_close_shift">
+            <field name="name">MES – Auto close shift</field>
+            <field name="code">model.auto_close_open_activity()</field>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall" eval="-1" />
+            <field name="active" eval="True" />
+            <field name="model_id" ref="model_smartbiz_mes_production_activity" />
+        </record>
+
+
+    </data>
+</odoo>

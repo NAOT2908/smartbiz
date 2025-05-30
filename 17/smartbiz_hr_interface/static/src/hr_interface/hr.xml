@@ -1,0 +1,96 @@
+<templates>
+  <t t-name="smartbiz_hr_interface" owl="1">
+    <div class="o_hr_interface">
+      <!--===============HEADER ===============-->
+      <header t-ref="header" t-attf-class="header #{state.sidebarVisible}" class="header">
+        <div class="header__container">
+          <button t-on-click="() => this.home.toggle(true)" class="header__logo">
+                            <i class="oi oi-chevron-left" />
+            </button>
+          <button t-on-click="toggleSidebar" t-ref="toggleBtn" class="header__toggle">
+            <i class="fa fa-bars"></i>
+          </button>
+        </div>
+      </header>
+
+      <!--=============== SIDEBAR ===============-->
+      <nav t-ref="sidebar" class="sidebar" t-attf-class="sidebar #{state.sidebarVisible ? 'show-sidebar' : ''}">
+        <div class="sidebar__container">
+          <div class="sidebar__user">
+            <div class="sidebar__img">
+              <img src="static/description/perfil.png" alt="image" />
+            </div>
+            <div class="sidebar__info">
+              <h3>TOAN</h3>
+              <span>rix123@email.com</span>
+            </div>
+          </div>
+
+          <div class="sidebar__content">
+            <div>
+              <h3 class="sidebar__title">MANAGE</h3>
+              <div class="sidebar__list" t-ref="sidebarLinks">
+                <a href="#" class="sidebar__link active-link">
+                  <i class="fa fa-calendar-check-o"></i>
+                  <span>Attendence</span>
+                </a>
+                <a href="#" class="sidebar__link">
+                  <i class="fa fa-calendar"></i>
+                  <span>Time Off</span>
+                </a>
+                <a href="#" class="sidebar__link">
+                  <i class="fa fa-odnoklassniki"></i>
+                  <span>Overtime</span>
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="sidebar__title">SETTINGS</h3>
+              <div class="sidebar__list">
+                <a href="#" class="sidebar__link">
+                  <i class="fa fa-cog"></i>
+                  <span>Settings</span>
+                </a>
+                <a href="#" class="sidebar__link">
+                  <i class="fa fa-comment-o"></i>
+                  <span>My Messages</span>
+                </a>
+                <a href="#" class="sidebar__link">
+                  <i class="fa fa-bell"></i>
+                  <span>Notifications</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar__actions">
+            <button>
+              <i class="fa fa-moon-o sidebar__link sidebar__theme" t-ref="themeButton">
+                <span>Theme</span>
+              </i>
+            </button>
+            <button class="sidebar__link">
+              <i class="fa fa-sign-out"></i>
+              <span>Log Out</span>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <!--=============== MAIN ===============-->
+      <main t-attf-class="main #{state.sidebarVisible}" class="main container" t-ref="main">
+        <h1>Sidebar Menu</h1>
+        <div t-if="state.view === 'attendance'">
+            Attendence
+        </div>
+        <div t-if="state.view === 'time_off'">
+            Time Off
+        </div>
+        <div t-if="state.view === 'overtime'">
+            Overtime
+        </div>
+      </main>
+    </div>
+  </t>
+</templates>

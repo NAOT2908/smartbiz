@@ -105,9 +105,29 @@ export class AllInOneDashboard extends Component {
         // Biến lưu tạm timer (setInterval)
         this.refreshTimer = null;
 
-        // Khi component đã mount, bắt đầu auto-refresh
+        /* --- REF ------------------------------------------------------- */
+        this.refs = useRef("progressWrapper", "faultyWrapper");
+
+        /* --- HÀM CUỘN -------------------------------------------------- */
+        const scrollBottom = () => {
+            for (const k of ["progressWrapper", "faultyWrapper"]) {
+                const node = this.refs[k]?.el;
+                if (node) node.scrollTop = node.scrollHeight;
+            }
+        };
+        /* -------------- lifecycle -------------------------------- */
         onMounted(() => {
             this._startAutoRefresh();
+        });
+
+        onPatched(() => {
+            if (this.state.view === "WorkOrder") {
+                // Đẩy xuống micro-task -> chắc chắn bản vá cuối cùng đã xong
+                Promise.resolve().then(() => {
+                    // Đẩy thêm 1 frame, chắn chắn layout tính xong
+                    requestAnimationFrame(scrollBottom);
+                });
+            }
         });
 
         // Khi unmount, dừng auto-refresh để tránh rò rỉ bộ nhớ
@@ -123,6 +143,8 @@ export class AllInOneDashboard extends Component {
             await this._fetchWorkOrderData();
             //await this._fetchAnalyticsData();
         });
+
+
     }
     // ==============================
     // HÀM QUẢN LÝ AUTO REFRESH
@@ -245,6 +267,7 @@ export class AllInOneDashboard extends Component {
         const duration1 = performance.now() - startTime1;
     
         this.state.dashboardData = resp1.data || [];
+        // console.log(this.state.dashboardData)
         this.state.steps = resp1.steps || [];
         this.state.kpi = resp1.kpi || {};
     
@@ -254,7 +277,7 @@ export class AllInOneDashboard extends Component {
     
         this.state.faultyData = resp2.data || [];
         this.state.steps_faulty = resp1.steps || [];
-    
+      
         // console.log(`Thời gian chạy get_dashboard_data: ${duration1.toFixed(2)} ms`);
         // console.log(`Thời gian chạy get_faulty_data: ${duration2.toFixed(2)} ms`);
     }

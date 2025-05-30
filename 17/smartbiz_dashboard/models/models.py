@@ -94,7 +94,8 @@ class WorkOrderDashboard(models.Model):
         ) if shift_num else acts_all
 
         # KPI
-        prods_kpi = acts_all.mapped('work_order_id.production_id')
+        # prods_kpi = acts_all.mapped('work_order_id.production_id')
+        prods_kpi = self.env['mrp.production'].browse(set(acts_all.mapped('work_order_id.production_id').ids))
         acts_kpi  = acts_all.filtered(
             lambda a: a.finish and a.quality >= 0.9 and a.activity_type != 'paused'
         )
@@ -119,6 +120,7 @@ class WorkOrderDashboard(models.Model):
 
         now   = fields.Datetime.context_timestamp(self, fields.Datetime.now())
         rows  = []
+        lots = len(prods_det)
         for stt, prod in enumerate(prods_det, 1):
             acts = acts_det.filtered(lambda a: a.work_order_id.production_id.id == prod.id)
             m = {s: {
@@ -136,11 +138,14 @@ class WorkOrderDashboard(models.Model):
                 if sname not in m:
                     continue
                 rec = m[sname]
-                if a.activity_type == 'paused' and not a.finish:
+                if a.activity_type == 'paused':
+                    dur = 0
                     rec['paused'] = True
-
-                start_local = fields.Datetime.context_timestamp(self, a.start)
-                dur = a.duration if a.finish else (now - start_local).total_seconds() / 60
+                elif a.finish:
+                    dur = a.duration
+                else:
+                    start_local = fields.Datetime.context_timestamp(self, a.start)
+                    dur = (now - start_local).total_seconds() / 60
                 rec['actual_time'] += dur
                 rec['time'] += dur / (a.work_order_id.workcenter_id.equipment_quantity or 1)
                 rec['qty']  += a.quantity
@@ -157,14 +162,17 @@ class WorkOrderDashboard(models.Model):
                 else:
                     rec['status'] = 'done'
 
-            total_actual = sum(r['actual_time'] for r in m.values())
+            # total_actual = sum(r['actual_time'] for r in m.values())
+            total_actual = sum(r['actual_time'] for k, r in m.items()
+                            if k.strip().lower() != 'đóng gói'
+                        )
             row = {
                 'stt'                 : stt,
                 'kh'                  : prod.origin or "",
                 'lot'                 : prod.name,
-                'item'                : prod.product_id.display_name,
+                'item'                : prod.product_id.name,
                 'so_luong'            : prod.product_qty,
-                'thoi_gian_tieu_chuan': 0,                      # không tính khi bỏ mặc định
+                'thoi_gian_tieu_chuan': round(total_actual/(lots or 1), 2),                      # không tính khi bỏ mặc định
                 'thoi_gian_thuc_te'   : round(total_actual, 2),
             }
             for s in all_steps:

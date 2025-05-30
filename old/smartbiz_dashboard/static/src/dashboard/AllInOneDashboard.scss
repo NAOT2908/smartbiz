@@ -1,0 +1,177 @@
+.all_in_one_dashboard {
+    padding: 16px;
+    box-sizing: border-box;
+    font-family: "Open Sans", sans-serif;
+    /* Nếu muốn cuộn toàn bộ dashboard khi nội dung quá cao */
+    max-height: 100vh;
+    overflow-y: auto;
+
+    .dashboard_nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+
+        .nav_left, .nav_right {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            padding: 6px 12px;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            &:hover {
+                background-color: #e2e2e2;
+            }
+            &.active {
+                background-color: #007bff;
+                color: #fff;
+                border-color: #007bff;
+            }
+        }
+        .excel_btn {
+            border: 1px solid #007bff;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            i {
+                margin-right: 4px;
+            }
+        }
+    }
+
+    .workorder_filters, .analytics_filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 16px;
+
+        .filter_item {
+            display: flex;
+            flex-direction: column;
+            label {
+                font-weight: 600;
+                margin-bottom: 4px;
+            }
+            input, select {
+                padding: 4px;
+                min-width: 120px;
+            }
+        }
+    }
+
+    .card_section {
+        background-color: #fff;
+        padding: 16px;
+        margin-bottom: 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        h2 {
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            th, td {
+                border: 1px solid #ddd;
+                padding: 6px 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f8f8f8;
+            }
+        }
+    }
+
+    /* Thêm container cuộn cho phần chart */
+    .chart_wrapper {
+        max-height: calc(100vh - 100px); /* Số 300px có thể điều chỉnh dựa vào chiều cao của các thành phần khác trong dashboard */
+        overflow-y: auto;
+        margin-bottom: 16px;
+    }
+
+    .chart_row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 16px;
+
+        .chart_card {
+            flex: 1 1 48%;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+        }
+    }
+}
+.step_done {
+    background-color: #ccffcc !important; /* Xanh nhạt */
+}
+.step_working {
+    background-color: #00cc66 !important; /* Xanh đậm hơn */
+}
+.step_paused{
+    background:#ffcc80 !important;   /* cam nhạt */
+}
+
+/* === KPI CARDS ======================================== */
+.kpi_wrapper{
+    display:flex;
+    gap:32px;
+    margin:24px 0 32px;
+    flex-wrap:wrap;
+}
+
+.kpi_card{
+    flex:1 1 40px;                  /* rộng tối thiểu 240 px – tự giãn */
+    position:relative;
+    overflow:hidden;
+    padding:14px 10px;
+    border-radius:10px;
+    color:#fff;
+    text-align:center;
+    box-shadow:0 8px 32px rgba(0,0,0,.25);
+    isolation:isolate;               /* để ::after nằm dưới nội dung */
+}
+
+.kpi_card::after{                    /* vệt sáng chéo nhẹ */
+    content:"";
+    position:absolute;
+    top:-50%; right:-50%;
+    width:140%; height:300%;
+    background:rgba(255,255,255,.07);
+    transform:rotate(25deg);
+    z-index:-1;
+}
+
+.kpi_label{
+    font-size:1.4rem;
+    font-weight:300;
+    letter-spacing:.2px;
+    margin-bottom:8px;
+    opacity:.9;
+}
+
+.kpi_value{
+    font-size:3rem;                  /* rất lớn cho tivi */
+    font-weight:400;
+    line-height:1;
+}
+
+/* ==== PALETTE MÀU (4 thẻ) ============================= */
+.accent1{ background:linear-gradient(135deg,#1d4ed8,#3b82f6); }
+.accent2{ background:linear-gradient(135deg,#047857,#10b981); }
+.accent3{ background:linear-gradient(135deg,#7c3aed,#c084fc); }
+.accent4{ background:linear-gradient(135deg,#3083bb,#4096cf); }
+
+/* ==== RESPONSIVE – tăng cỡ khi >1920px ================= */
+@media(min-width:1920px){
+    .kpi_value{ font-size:7rem; }
+    .kpi_card{ padding:36px 28px; }
+}

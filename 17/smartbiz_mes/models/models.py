@@ -20,6 +20,7 @@ _logger = logging.getLogger(__name__)
 from io import BytesIO
 import xlsxwriter
 from openpyxl import load_workbook
+import re
 
 class RES_Users(models.Model):
     _inherit = ['res.users']
@@ -1026,10 +1027,9 @@ class mrp_Workorder(models.Model):
                 
                 ok_quantity = 0
                 ng_quantity = 0
-                cancel_quantity = 0
                 producing_ok_quantity = 0
                 producing_ng_quantity = 0
-                producing_cancel_quantity = 0
+                cancel_quantity = 0
                 batch_quantity = 20                
                 quantity = order.production_id.product_qty / order.production_id.bom_id.product_qty * comp.quantity              
                 
@@ -1051,16 +1051,17 @@ class mrp_Workorder(models.Model):
                         'reason': pa.reason_id.name,
                         'activity_type':pa.activity_type
                     })
-                    if pa.start and pa.finish:
-                        if pa.quality > 0.9:
-                            ok_quantity += pa.quantity
-                        else:
-                            ng_quantity += pa.quantity
-                    elif pa.start and not pa.finish:
-                        if pa.quality > 0.9:
-                            producing_ok_quantity += pa.quantity
-                        else:
-                            producing_ng_quantity += pa.quantity
+                    if pa.activity_type != 'cancel' and pa.activity_type != 'paused':
+                        if pa.start and pa.finish:
+                            if pa.quality > 0.9:
+                                ok_quantity += pa.quantity
+                            else:
+                                ng_quantity += pa.quantity
+                        elif pa.start and not pa.finish:
+                            if pa.quality > 0.9:
+                                producing_ok_quantity += pa.quantity
+                            else:
+                                producing_ng_quantity += pa.quantity
                     elif pa.activity_type == 'cancel':
                         cancel_quantity += pa.quantity
                         
@@ -1068,7 +1069,7 @@ class mrp_Workorder(models.Model):
                 lot_name =  order.production_id.lot_producing_id.name
                 producing_quantity = producing_ok_quantity + producing_ng_quantity
                 produced_quantity = ok_quantity + ng_quantity + cancel_quantity
-                remain_quantity = quantity - (producing_quantity + produced_quantity )
+                remain_quantity = quantity - (producing_quantity + produced_quantity)
                 if remain_quantity < 0:
                     remain_quantity = 0
    
@@ -1083,7 +1084,6 @@ class mrp_Workorder(models.Model):
                     'batch_quantity':batch_quantity,
                     'ok_quantity':ok_quantity,
                     'ng_quantity':ng_quantity,
-                    'cancel_quantity':cancel_quantity,
                     'producing_quantity':producing_quantity,
                     'remain_quantity':remain_quantity,
                     'producing_ok_quantity':producing_ok_quantity,
@@ -1091,6 +1091,7 @@ class mrp_Workorder(models.Model):
                     'lot_id':lot_id,
                     'lot_name':lot_name,
                     'produced_quantity':produced_quantity,
+                    'cancel_quantity':cancel_quantity,
                     'activities':activities
                     
                 })
@@ -1129,13 +1130,8 @@ class mrp_Workorder(models.Model):
     
     def cancel_activity(self,workorder_id,production_activity):        
         activity = self.env['smartbiz_mes.production_activity'].browse(production_activity)
-        now = fields.Datetime.now()
-        activity.write({
-            'activity_type':'cancel',
-            'start': now,
-            'finish': now,
-            'status':'cancel'
-            })
+        
+        activity.write({'activity_type':'cancel','finish':fields.Datetime.now(),'start':False})
         
         return self.get_data(workorder_id)
     
@@ -1971,10 +1967,96 @@ class mrp_Workorder(models.Model):
                 label.print_label_auto(printer, act)
 
 class mrp_BoM(models.Model):
-    _inherit = ['mrp.bom']
+    _inherit = 'mrp.bom'
+
+    # Liên kết smartbiz_mes.bom_components
     components_ids = fields.One2many('smartbiz_mes.bom_components', 'bom_id')
 
-    
+    # -----------------------------------------------------------------
+    # Helpers
+    # -----------------------------------------------------------------
+    def _get_next_code(self, base_code):
+        """
+        Tạo mã chạy số:  base  ➜ base-1 ➜ base-2 …
+        """
+        self.env.cr.execute("""
+            SELECT code
+            FROM mrp_bom
+            WHERE code = %s OR code ~ %s
+        """, (base_code, r'^\m' + re.escape(base_code) + r'-(\d+)\M'))
+        codes = [r[0] for r in self.env.cr.fetchall() if r[0]]
+        if base_code not in codes:
+            return f'{base_code}-1'
+        max_no = 0
+        for c in codes:
+            m = re.match(r'^%s-(\d+)$' % re.escape(base_code), c)
+            if m:
+                max_no = max(max_no, int(m.group(1)))
+        return f'{base_code}-{max_no + 1}'
+
+    # -----------------------------------------------------------------
+    # Override copy – clone sâu
+    # -----------------------------------------------------------------
+    def copy(self, default=None):
+        """
+        Duplicate BoM + toàn bộ components/operations liên quan.
+        Tránh đệ quy bằng cờ context `skip_deep_clone`.
+        """
+        default = dict(default or {})
+
+        # 1. Khi đã có cờ => dùng copy gốc (tránh vòng lặp)
+        if self.env.context.get('skip_deep_clone'):
+            return super().copy(default)
+
+        self.ensure_one()
+        BomComp = self.env['smartbiz_mes.bom_components']
+        RouteWork = self.env['mrp.routing.workcenter']
+
+        # 2. Tạo BoM mới (shallow) bằng super().copy()
+        new_code = self._get_next_code(
+            self.code or self.product_tmpl_id.default_code or 'BOM'
+        )
+        default.update({'code': new_code})
+
+        new_bom = super(mrp_BoM, self.with_context(skip_deep_clone=True)).copy(default)
+
+        # 3. Clone components
+        comp_map = {}          # {old_id: new_comp}
+        for comp in self.components_ids:
+            comp_vals = comp.copy_data()[0]
+            comp_vals.update({'bom_id': new_bom.id})
+            new_comp = BomComp.create(comp_vals)
+            comp_map[comp.id] = new_comp
+
+        # 4. Clone operations
+        op_map = {}            # {old_id: new_op}
+        for op in self.operation_ids:
+            op_vals = op.copy_data()[0]
+            new_op = RouteWork.create(op_vals)
+            op_map[op.id] = new_op
+
+        # 5. Khôi phục quan hệ N-N Component ↔ Operation
+        # 5.1 Component → Operation
+        for old_comp, new_comp in comp_map.items():
+            new_op_ids = [
+                op_map[o.id].id
+                for o in self.env['smartbiz_mes.bom_components'].browse(old_comp).operations_ids
+                if o.id in op_map
+            ]
+            if new_op_ids:
+                new_comp.operations_ids = [(6, 0, new_op_ids)]
+
+        # 5.2 Operation → Component
+        for old_op, new_op in op_map.items():
+            new_comp_ids = [
+                comp_map[c.id].id
+                for c in self.env['mrp.routing.workcenter'].browse(old_op).components_ids
+                if c.id in comp_map
+            ]
+            if new_comp_ids:
+                new_op.components_ids = [(6, 0, new_comp_ids)]
+
+        return new_bom
 
 class mrp_bomline(models.Model):
     _inherit = ['mrp.bom.line']
