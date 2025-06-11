@@ -16,6 +16,18 @@ body {
 }
 
 
+.s_pager {
+    position: fixed; /* Cố định vị trí */
+    bottom: 0;       /* Đặt ở cuối màn hình */
+    left: 0;         /* Đặt từ lề trái */
+    width: 100%;     /* Chiếm toàn bộ chiều rộng */
+    background-color: #f8f9fa; /* Màu nền */
+    border-top: 1px solid #dee2e6; /* Đường viền trên */
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1); /* Tạo bóng */
+    z-index: 1000; /* Đảm bảo nó nằm trên các phần tử khác */
+    /* Các thuộc tính flexbox đã có trong template */
+}
+
 /* General Navigation Styles */
 .inventory_nav {
     display: flex;

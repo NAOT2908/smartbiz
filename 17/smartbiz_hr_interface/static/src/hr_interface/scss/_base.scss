@@ -26,3 +26,65 @@ img{
 button{
 	all: unset;
 }
+
+.document-container {
+    // Để làm popup, nó cần hiển thị trên các nội dung khác
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); // Căn giữa chính xác
+    z-index: 1000; // Đảm bảo nó luôn ở trên cùng
+
+    background-color: #fff;
+    border-radius: 12px; // Góc bo tròn nhẹ
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); // Đổ bóng tạo chiều sâu
+    padding: 25px; // Khoảng cách bên trong
+    max-width: 90%; // Chiều rộng tối đa trên các màn hình nhỏ
+    max-height: 90vh; // Chiều cao tối đa, tránh tràn màn hình
+    width: 600px; // Chiều rộng mặc định cho popup
+    display: flex;
+    flex-direction: column;
+
+    // Lớp phủ bên ngoài để làm mờ background
+    &::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5); // Màu đen mờ
+        z-index: -1; // Đặt dưới popup nhưng trên nội dung khác
+        backdrop-filter: blur(3px); // Hiệu ứng làm mờ nền
+    }
+
+    .close-pdf-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        background: none;
+        border: none;
+        font-size: 28px;
+        color: #888;
+        cursor: pointer;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: #333;
+        }
+    }
+
+    .document-content {
+        flex-grow: 1; // Cho phép nội dung lấp đầy không gian còn lại
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden; // Đảm bảo iframe không tràn ra ngoài
+
+        .o_pdfview_iframe {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px; // Bo tròn góc của iframe
+        }
+    }
+}

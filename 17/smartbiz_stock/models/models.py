@@ -519,35 +519,34 @@ class SmartbizStock_TransferRequest(models.Model):
                     else:
                         used_qty = quantity_needed
                     
-                    if 'VW' in product.name and onhand <= 0:
+                    if ('VW' in product.name or 'HANGER' in product.name) and onhand <= 0:
                         continue
                     
                     if used_qty < 0:
                         continue
 
                     key = picking_type.id
-                    if key not in pickings:
-                        pickings[key] = {
-                            'picking_type': picking_type,
-                            'location_src':  location_src,
-                            'location_dest': location_dest,
-                            'origin':        origin,
-                            'transfer_request_id': record.id,
-                            'products':      [],
-                        }
+                    if used_qty > 0:
+                        if key not in pickings:
+                            pickings[key] = {
+                                'picking_type': picking_type,
+                                'location_src':  location_src,
+                                'location_dest': location_dest,
+                                'origin':        origin,
+                                'transfer_request_id': record.id,
+                                'products':      [],
+                            }
 
-                    # lưu đúng phần thực lấy ở hoạt động này
-                    pickings[key]['products'].append({
-                        'product': product,
-                        'quantity': quantity_needed,
-                        'lots_ids': lots_ids,
-                        'transfer_request_line_id': trl.id,
-                    })
+                        pickings[key]['products'].append({
+                            'product': product,
+                            'quantity': quantity_needed,
+                            'lots_ids': lots_ids,
+                            'transfer_request_line_id': trl.id,
+                        })
 
-                    quantity_needed -= used_qty
-                    if quantity_needed <= 0:
-                        # đủ rồi, không cần đi tiếp các hoạt động sau
-                        break
+                        quantity_needed -= used_qty
+                        if quantity_needed <= 0:
+                            break
 
             # tạo pickings & moves chỉ với các products đã được append (used_qty>0)
             for picking_data in pickings.values():

@@ -221,6 +221,26 @@
                     </div>
                 </div>
             </div>
+            <div class="s_pager d-flex align-items-center justify-content-center py-2 bg-light border-top">
+                <button class="btn btn-sm btn-secondary me-2"
+                        t-on-click="previousPage"
+                        t-att-disabled="state.currentPage === 1 || state.isLoading">
+                    &lt;
+                </button>
+
+                <!-- Ô input để nhập chỉ số bắt đầu -->
+                <input t-model="state.rangeInput"
+                    t-on-change="onRangeChange"
+                    class="form-control form-control-sm mx-2"
+                    style="width: 60px;" />
+                <span>/ <t t-esc="state.totalOrders"/></span>
+
+                <button class="btn btn-sm btn-secondary ms-2"
+                        t-on-click="nextPage"
+                        t-att-disabled="state.currentPage === totalPages || state.isLoading">
+                    &gt;
+                </button>
+            </div>
         </div>
         <div t-if="state.view === 'DetailInventory'" class="inventory-content">
             <div class="inventorytabs">
@@ -253,7 +273,7 @@
                         </div>
                         <div>
                             <t t-esc="item.quantity_counted" /> /
-                            <t t-esc="item.quantity_before" />
+                            <t t-esc="item.quantity" />
                         </div>
                     </div>
                     <div class="o_line_buttons py-1 text-end">
@@ -478,7 +498,7 @@
                 
                 <div class="s_inventory_row">
                     <div class="s_inventory_label">Số lượng:</div>
-                    <div class="s_inventory_value" t-esc="state.line.quantity_before" />
+                    <div class="s_inventory_value" t-esc="state.line.quantity" />
                 </div>
                 
                 <div class="s_inventory_row">

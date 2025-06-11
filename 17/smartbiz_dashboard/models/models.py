@@ -146,6 +146,7 @@ class WorkOrderDashboard(models.Model):
                 else:
                     start_local = fields.Datetime.context_timestamp(self, a.start)
                     dur = (now - start_local).total_seconds() / 60
+                    
                 rec['actual_time'] += dur
                 rec['time'] += dur / (a.work_order_id.workcenter_id.equipment_quantity or 1)
                 rec['qty']  += a.quantity

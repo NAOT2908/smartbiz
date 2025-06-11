@@ -135,7 +135,17 @@ class smartbiz_hr_OvertimeRequest(models.Model):
                 rec.duration = 0
 
     def action_draft_send_to_approve(self):
+        admin_users = self.env.ref('base.group_system').users
+
         self.write({'state': 'to_approve'})
+
+        for admin in admin_users:
+            self.message_subscribe(partner_ids=[admin.partner_id.id])  # Đảm bảo họ nhận thông báo
+
+        self.message_post(
+            body=_("Yêu cầu làm thêm giờ <b>%s</b> đã được gửi để phê duyệt.") % self.name,
+            subtype_xmlid="mail.mt_comment",
+        )
 
     def _is_public_holiday(self, day_date, employee):
         """
@@ -177,29 +187,38 @@ class smartbiz_hr_OvertimeRequest(models.Model):
             if rec.state != 'to_approve':
                 raise UserError(_("Only requests awaiting approval can be approved."))
 
-            # Xác định mã OT: OT150 / OT200 / OT300
-            type_code = rec._get_ot_type_code().upper()      # 'OT150' ...
-
-            # Tìm Work Entry Type có code tương ứng (tạo tay)
+            type_code = rec._get_ot_type_code().upper()
             wetype = WEType.search([('code', '=', type_code)], limit=1)
             if not wetype:
                 raise UserError(_(
-                    "Work Entry Type with code %s not found. "
-                    "Please create it in Settings → Work Entry Types.") % type_code)
+                    "Work Entry Type with code %s not found. "
+                    "Please create it in Settings → Work Entry Types.") % type_code)
 
-            # Đổi trạng thái & tạo Work Entry OT
-            rec.write({'state': 'approved', 'approver_ids': [(4,self.env.uid)]})
-            self.env['hr.work.entry'].create({
-                'name': 'OT',
-                'employee_id'       : rec.employee_id.id,
-                'contract_id'       : rec.employee_id.contract_id.id,
-                'date_start'        : rec.start_date,
-                'date_stop'         : rec.end_date,
-                'work_entry_type_id': wetype.id,
-                'state'             : 'validated',
+            rec.write({
+                'state': 'approved',
+                'approver_ids': [(4, self.env.uid)],
             })
 
-        
+            self.env['hr.work.entry'].create({
+                'name': 'OT',
+                'employee_id': rec.employee_id.id,
+                'contract_id': rec.employee_id.contract_id.id,
+                'date_start': rec.start_date,
+                'date_stop': rec.end_date,
+                'work_entry_type_id': wetype.id,
+                'state': 'validated',
+            })
+
+            # Đảm bảo nhân viên được nhận tin nhắn
+            if rec.employee_id.user_id:
+                rec.message_subscribe(partner_ids=[rec.employee_id.user_id.partner_id.id])
+
+            rec.message_post(
+                body=_("Yêu cầu OT <b>%s</b> đã được phê duyệt.") % self.name,
+                subtype_xmlid="mail.mt_comment",
+                partner_ids=[rec.employee_id.user_id.partner_id.id],  # Tạo mail.notification
+                message_type="notification",  # bắt buộc để tạo mail.notification
+            )
         
     def action_to_approve_refuce(self):
         self.write({'state': 'refused', 'approver_ids': [(4,self.env.uid)]})

@@ -265,63 +265,63 @@ class Inventory(models.Model):
             'target': 'new',
             'context': {'default_inventory_id': self.id},
         }
-    def get_order(self):
-        """Lấy danh sách các phiếu kiểm kê đang thực hiện, kèm theo chi tiết dòng kiểm kê"""
+    # def get_order(self):
+    #     """Lấy danh sách các phiếu kiểm kê đang thực hiện, kèm theo chi tiết dòng kiểm kê"""
         
-        current_user = self.env.user
-        inventories = self.env['smartbiz.inventory'].search([('state', '=', 'in_progress'),'|',
-        ('user_id', '=', current_user.id),
-        ('user_id', '=', False),])
-        users = self.env['res.users'].search([]).read(['name','barcode'], load=False)
-        result = []
-        for inventory in inventories:
-            if not inventory.user_id:
-                inventory.user_id = current_user
+    #     current_user = self.env.user
+    #     inventories = self.env['smartbiz.inventory'].search([('state', '=', 'in_progress'),'|',
+    #     ('user_id', '=', current_user.id),
+    #     ('user_id', '=', False),])
+    #     users = self.env['res.users'].search([]).read(['name','barcode'], load=False)
+    #     result = []
+    #     for inventory in inventories:
+    #         if not inventory.user_id:
+    #             inventory.user_id = current_user
             
-            lines = []
-            for line in inventory.line_ids:
-                lines.append({
-                    'id': line.id,
-                    'product_id': line.product_id.id,
-                    'product_name': line.product_id.display_name,
-                    'product_image': line.product_id.image_1920,
-                    'product_uom_id': line.product_id.uom_id.id if line.product_id else False,
-                    'product_uom_name': line.product_id.uom_id.name if line.product_id else '',
-                    'lot_id': line.lot_id.id if line.lot_id else False,
-                    'lot_name': line.lot_id.name if line.lot_id else '',
-                    'package_id': line.package_id.id if line.package_id else False,
-                    'package_name': line.package_id.name if line.package_id else '',
-                    'location_id': line.location_id.id,
-                    'location_name': line.location_id.display_name,
-                    'quantity': line.quantity,
-                    'quantity_counted': line.quantity_counted,
-                    'difference': line.difference,
-                    'quant_id': line.quant_id.id if line.quant_id else False,
-                })
+    #         lines = []
+    #         for line in inventory.line_ids:
+    #             lines.append({
+    #                 'id': line.id,
+    #                 'product_id': line.product_id.id,
+    #                 'product_name': line.product_id.display_name,
+    #                 'product_image': line.product_id.image_1920,
+    #                 'product_uom_id': line.product_id.uom_id.id if line.product_id else False,
+    #                 'product_uom_name': line.product_id.uom_id.name if line.product_id else '',
+    #                 'lot_id': line.lot_id.id if line.lot_id else False,
+    #                 'lot_name': line.lot_id.name if line.lot_id else '',
+    #                 'package_id': line.package_id.id if line.package_id else False,
+    #                 'package_name': line.package_id.name if line.package_id else '',
+    #                 'location_id': line.location_id.id,
+    #                 'location_name': line.location_id.display_name,
+    #                 'quantity': line.quantity,
+    #                 'quantity_counted': line.quantity_counted,
+    #                 'difference': line.difference,
+    #                 'quant_id': line.quant_id.id if line.quant_id else False,
+    #             })
             
-            result.append({
-                'id': inventory.id,
-                'name': inventory.name,
-                'state': inventory.state,
-                'company_id': inventory.company_id.id,
-                'company_name': inventory.company_id.name,
-                'date': inventory.date,
-                'warehouse_ids': inventory.warehouse_ids.ids,
-                'warehouse_names': inventory.warehouse_ids.mapped('name'),
-                'inventory_location_ids': inventory.inventory_location_ids.ids,
-                'inventory_location_names': inventory.inventory_location_ids.mapped('name'),
-                'product_ids': inventory.product_ids.ids,
-                'product_names': inventory.product_ids.mapped('name'),
-                'user_id': inventory.user_id.id,
-                'lines': lines,
-            })
+    #         result.append({
+    #             'id': inventory.id,
+    #             'name': inventory.name,
+    #             'state': inventory.state,
+    #             'company_id': inventory.company_id.id,
+    #             'company_name': inventory.company_id.name,
+    #             'date': inventory.date,
+    #             'warehouse_ids': inventory.warehouse_ids.ids,
+    #             'warehouse_names': inventory.warehouse_ids.mapped('name'),
+    #             'inventory_location_ids': inventory.inventory_location_ids.ids,
+    #             'inventory_location_names': inventory.inventory_location_ids.mapped('name'),
+    #             'product_ids': inventory.product_ids.ids,
+    #             'product_names': inventory.product_ids.mapped('name'),
+    #             'user_id': inventory.user_id.id,
+    #             'lines': lines,
+    #         })
             
-        data = {
-        'orders':result,
-        'users':users
-        }
+    #     data = {
+    #     'orders':result,
+    #     'users':users
+    #     }
         
-        return data
+    #     return data
 
     
     def get_data(self, inventory_id):
@@ -367,6 +367,83 @@ class Inventory(models.Model):
             'user_id': inventory.user_id.id,
         }
         return data
+    
+    def get_order(self, offset=0, limit=None):
+        """Lấy danh sách các phiếu kiểm kê đang thực hiện, kèm theo chi tiết dòng kiểm kê (có phân trang)"""
+
+        current_user = self.env.user
+        # Áp dụng offset và limit vào truy vấn chính để lấy các phiếu kiểm kê
+        inventories = self.env['smartbiz.inventory'].search([
+            ('state', '=', 'in_progress'),
+            '|',
+            ('user_id', '=', current_user.id),
+            ('user_id', '=', False),
+        ], offset=offset, limit=limit, order='date desc') # Thêm order để đảm bảo kết quả nhất quán khi phân trang
+
+        users = self.env['res.users'].search([]).read(['name','barcode'], load=False)
+        result = []
+        for inventory in inventories:
+            if not inventory.user_id:
+                inventory.user_id = current_user
+            
+            # Lines bên trong mỗi inventory cũng có thể cần phân trang nếu số lượng quá lớn
+            # Tuy nhiên, thông thường thì các dòng trong một phiếu kiểm kê không nhiều đến mức cần phân trang riêng
+            # Nếu cần, bạn sẽ phải gọi một hàm get_lines riêng với offset/limit cho từng inventory.
+            lines = []
+            for line in inventory.line_ids: # Lấy tất cả dòng cho mỗi phiếu
+                lines.append({
+                    'id': line.id,
+                    'product_id': line.product_id.id,
+                    'product_name': line.product_id.display_name,
+                    'product_image': line.product_id.image_1920,
+                    'product_uom_id': line.product_id.uom_id.id if line.product_id else False,
+                    'product_uom_name': line.product_id.uom_id.name if line.product_id else '',
+                    'lot_id': line.lot_id.id if line.lot_id else False,
+                    'lot_name': line.lot_id.name if line.lot_id else '',
+                    'package_id': line.package_id.id if line.package_id else False,
+                    'package_name': line.package_id.name if line.package_id else '',
+                    'location_id': line.location_id.id,
+                    'location_name': line.location_id.display_name,
+                    'quantity': line.quantity,
+                    'quantity_counted': line.quantity_counted,
+                    'difference': line.difference,
+                    'quant_id': line.quant_id.id if line.quant_id else False,
+                })
+            
+            result.append({
+                'id': inventory.id,
+                'name': inventory.name,
+                'state': inventory.state,
+                'company_id': inventory.company_id.id,
+                'company_name': inventory.company_id.name,
+                'date': inventory.date,
+                'warehouse_ids': inventory.warehouse_ids.ids,
+                'warehouse_names': inventory.warehouse_ids.mapped('name'),
+                'inventory_location_ids': inventory.inventory_location_ids.ids,
+                'inventory_location_names': inventory.inventory_location_ids.mapped('name'),
+                'product_ids': inventory.product_ids.ids,
+                'product_names': inventory.product_ids.mapped('name'),
+                'user_id': inventory.user_id.id,
+                'lines': lines,
+            })
+            
+        # Tính tổng số lượng bản ghi để phục vụ phân trang ở frontend
+        total_records = self.env['smartbiz.inventory'].search_count([
+            ('state', '=', 'in_progress'),
+            '|',
+            ('user_id', '=', current_user.id),
+            ('user_id', '=', False),
+        ])
+
+        data = {
+            'orders': result,
+            'users': users,
+            'total_orders': total_records,
+        }
+        
+        return data
+    
+    
     
     def get_inventory_barcode_data(self,barcode,filters,barcodeType):
         """

@@ -224,7 +224,13 @@ export class AdjustmentInventory extends Component {
       activeTab: "Counting",
       image: null,
       currentLocation : null,
+      currentPage: 1,
+      itemsPerPage: 20,
+      totalOrders: 0,
+      rangeInput: '1-20',
+      pageStep: 20,
     });
+    //  this.state.rangeInput = `${this.startIndex}-${this.endIndex}`;
 
     this.stateMapping = {
       pending: "X",
@@ -266,14 +272,18 @@ export class AdjustmentInventory extends Component {
 
   async loadInventoryData() {
     try {
+      this.state.isLoading = true;
+      const offset = (this.state.currentPage - 1) * this.state.itemsPerPage;
+      const limit = this.state.itemsPerPage;
       const data = await this.orm.call(
         "smartbiz.inventory",
         "get_order",
         [,],
-        {}
+        { offset: offset, limit: limit }
       );
       this.state.inventoryData = data.orders;
       this.state.data = data.orders;
+      this.state.totalOrders = data.total_orders; 
       console.log(data);
     } catch (error) {
       console.error("Error loading data:", error);
@@ -281,7 +291,73 @@ export class AdjustmentInventory extends Component {
         type: "danger",
       });
     }
+    finally {
+        this.state.isLoading = false; // Tắt cờ loading dù thành công hay thất bại
+    }
   }
+
+  onRangeChange() {
+  const match = this.state.rangeInput.match(/^(\d+)\s*-\s*(\d+)$/);
+  if (!match) return;
+
+  const start = parseInt(match[1], 10);
+  const end = parseInt(match[2], 10);
+
+  if (start > end || start < 1 || end > this.state.totalOrders) return;
+
+  this.state.pageStep = end - start + 1; // lưu lại step
+
+  this.loadInventoryDataFromRange(start, end);
+}
+  nextPage() {
+  const match = this.state.rangeInput.match(/^(\d+)\s*-\s*(\d+)$/);
+  if (!match) return;
+
+  const start = parseInt(match[1], 10);
+  const end = parseInt(match[2], 10);
+  const step = this.state.pageStep; // luôn dùng step này, không tự tính lại
+
+  let newStart = end + 1;
+  let newEnd = end + step;
+
+  if (newStart > this.state.totalOrders) return;
+
+  if (newEnd > this.state.totalOrders) {
+    newEnd = this.state.totalOrders;
+  }
+
+  this.state.rangeInput = `${newStart}-${newEnd}`;
+  this.loadInventoryDataFromRange(newStart, newEnd);
+}
+previousPage() {
+  const match = this.state.rangeInput.match(/^(\d+)\s*-\s*(\d+)$/);
+  if (!match) return;
+
+  const start = parseInt(match[1], 10);
+  const step = this.state.pageStep;
+
+  let newStart = start - step;
+  if (newStart < 1) newStart = 1;
+
+  let newEnd = newStart + step - 1;
+  if (newEnd > this.state.totalOrders) {
+    newEnd = this.state.totalOrders;
+  }
+
+  this.state.rangeInput = `${newStart}-${newEnd}`;
+  this.loadInventoryDataFromRange(newStart, newEnd);
+}
+loadInventoryDataFromRange(start, end) {
+  const offset = start - 1;
+  const limit = end - start + 1;
+
+  this.state.itemsPerPage = limit;
+  this.state.currentPage = Math.floor(offset / limit) + 1;
+
+  this.loadInventoryData();
+}
+
+
 
   changeTab(tabName) {
     this.state.activeTab = tabName;
@@ -464,7 +540,7 @@ export class AdjustmentInventory extends Component {
         package_name: "",
         location_id: null,
         location_name: "",
-        quantity_before: 0,
+        quantity: 0,
         quantity_counted: 0,
         note: "",
       };
@@ -519,11 +595,11 @@ export class AdjustmentInventory extends Component {
     // console.log(line)
     let cl = " ";
     if (line.state === "counting") {
-      if (Number(line.quantity_counted) == Number(line.quantity_before)) {
+      if (Number(line.quantity_counted) == Number(line.quantity)) {
         cl += " bg-green ";
-      } else if (Number(line.quantity_counted) < Number(line.quantity_before)) {
+      } else if (Number(line.quantity_counted) < Number(line.quantity)) {
         cl += " bg-yellow ";
-      } else if (Number(line.quantity_counted) > Number(line.quantity_before)) {
+      } else if (Number(line.quantity_counted) > Number(line.quantity)) {
         cl += " bg-red ";
       } else {
         cl += " ";
@@ -570,7 +646,7 @@ export class AdjustmentInventory extends Component {
     }
 
     if (id.state === "pending") {
-        id.quantity_counted = id.quantity_before;
+        id.quantity_counted = id.quantity;
         id.state = "counting";
     } else if (id.state === "counting") {
         id.state = "pending";

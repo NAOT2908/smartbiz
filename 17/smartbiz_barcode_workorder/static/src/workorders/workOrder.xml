@@ -1,10 +1,10 @@
 <templates>
     <t t-name="WorkOrder">
-        <div class="main work-order">
+        <div class="work-order">
             <div class="work-order-header">
                 <nav class="work-order_nav">
                     <nav class="work-order_nav_left">
-                        <button t-on-click="() => this.home())" class="work-order_nav-link">
+                        <button t-on-click="() => this.home()" class="work-order_nav-link">
                             <i class="oi oi-chevron-left" />
                         </button>
                         <div class="work-order_nav_title">

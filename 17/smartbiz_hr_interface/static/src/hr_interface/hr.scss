@@ -131,6 +131,9 @@ body.dark-theme {
     font-size: 1.5rem;
     color: var(--title-color);
     cursor: pointer;
+    display: flex;
+    gap: 20px;
+    align-items: center;
 }
 
 
@@ -270,6 +273,18 @@ body.dark-theme {
 .show-sidebar {
     left: 0;
 }
+// .sidebar__overlay {
+//   position: fixed;
+//   top: 0;
+//   left: 288x; /* Bắt đầu từ vị trí của sidebar */
+//   width: 100vw;
+//   height: 100vh;
+// margin: .75rem;
+// border-radius: 1rem;
+//   background-color: rgba(0, 0, 0, 0.4); /* mờ mờ */
+//   z-index: 999; /* cao hơn nội dung thường, thấp hơn sidebar nếu cần */
+// }
+
 
 /* Active link */
 .active-link {
@@ -362,7 +377,7 @@ body.dark-theme {
     }
 
     .show-sidebar .sidebar__title {
-        padding-left: 20px;
+        padding-left: 32px;
         // margin-inline: auto;
     }
 
@@ -396,6 +411,7 @@ body.dark-theme {
 
     .header__toggle {
         order: 2;
+        
     }
 
     .sidebar {
@@ -424,11 +440,12 @@ body.dark-theme {
     }
 
     .show-sidebar .sidebar__title {
-        padding-left: 20px;
+        padding-left: 32px;
         // margin-inline: auto;
     }
 
     .main {
+        padding-left: 340px;
         padding-top: 8rem;
         transition: padding .4s;
     }

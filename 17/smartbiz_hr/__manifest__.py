@@ -14,7 +14,7 @@
 
     # Any module necessary for this one to work correctly
     'depends': [
-        'base','smartbiz','hr_payroll_community','smartbiz_mes','hr_attendance','hr_skills',
+        'base','smartbiz','hr_payroll','smartbiz_mes','hr_attendance','hr_skills',
         'mail',
     ],
 

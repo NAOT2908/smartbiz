@@ -25,7 +25,8 @@ class RES_Partner(models.Model):
         permissions = [{'group':'smartbiz_tcc.group_roles_lien_he___chi_doc_9','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Sale_OrderLine(models.Model):
     _inherit = ['sale.order.line']
     tc_cost = fields.Float(string='TC Cost', compute='_compute_tc_cost', store=True, groups="smartbiz_tcc.group_roles_ban_hang___bao_cao_day_du_1")
@@ -255,7 +256,8 @@ class Product_Product(models.Model):
         permissions = [{'group':'smartbiz_tcc.group_roles_san_pham___chi_doc_12','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_Picking(models.Model):
     _inherit = ['stock.picking']
     sender = fields.Char(string='Sender')
@@ -426,7 +428,8 @@ class Stock_Picking(models.Model):
         permissions = [{'group':'smartbiz_tcc.group_roles_hoat_dong_kho___chi_doc_4','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Product_Template(models.Model):
     _inherit = ['product.template']
     standard_price = fields.Float(store='True', groups="smartbiz_tcc.group_roles_kho___bao_cao_co_ban_13")
@@ -441,7 +444,8 @@ class Product_Template(models.Model):
         permissions = [{'group':'smartbiz_tcc.group_roles_san_pham___chi_doc_12','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_quant(models.Model):
     _inherit = ['stock.quant']
     vendor_id = fields.Many2one('res.partner', string='Vendor', compute='_compute_vendor_id', store=True)
@@ -490,7 +494,8 @@ class Stock_quant(models.Model):
         permissions = [{'group':'smartbiz_tcc.group_roles_hoat_dong_kho___chi_doc_4','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_Move(models.Model):
     _inherit = ['stock.move']
     package_code = fields.Char(string='')
@@ -549,7 +554,8 @@ class Stock_Move(models.Model):
         permissions = [{'group':'smartbiz_tcc.group_roles_hoat_dong_kho___chi_doc_4','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_Warehouse(models.Model):
     _inherit = ['stock.warehouse']
     customize_reception = fields.Boolean(string='Customize Reception', default = 'True')
@@ -600,7 +606,8 @@ class Stock_Warehouse(models.Model):
         permissions = [{'group':'smartbiz_tcc.group_roles_cau_hinh_kho___chi_doc_3','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_PickingType(models.Model):
     _inherit = ['stock.picking.type']
 
@@ -612,7 +619,8 @@ class Stock_PickingType(models.Model):
         permissions = [{'group':'smartbiz_tcc.group_roles_cau_hinh_kho___chi_doc_3','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Product_Category(models.Model):
     _inherit = ['product.category']
 
@@ -624,7 +632,8 @@ class Product_Category(models.Model):
         permissions = [{'group':'smartbiz_tcc.group_roles_cau_hinh_kho___chi_doc_3','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Uom_Uom(models.Model):
     _inherit = ['uom.uom']
 
@@ -636,7 +645,8 @@ class Uom_Uom(models.Model):
         permissions = [{'group':'smartbiz_tcc.group_roles_cau_hinh_kho___chi_doc_3','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Uom_Category(models.Model):
     _inherit = ['uom.category']
 
@@ -648,7 +658,8 @@ class Uom_Category(models.Model):
         permissions = [{'group':'smartbiz_tcc.group_roles_cau_hinh_kho___chi_doc_3','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_Lot(models.Model):
     _inherit = ['stock.lot']
     product_qty = fields.Float(store='True')
@@ -661,7 +672,8 @@ class Stock_Lot(models.Model):
         permissions = [{'group':'smartbiz_tcc.group_roles_hoat_dong_kho___chi_doc_4','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class tcc_StockReport(models.Model):
     _name = "tcc.stock_report"
     _inherit = ['mail.thread', 'mail.activity.mixin']
