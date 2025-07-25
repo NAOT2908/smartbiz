@@ -511,8 +511,7 @@ export class ProductionEntryDialog extends Component {
         processedPackages: [],
         scannedPackageName: '',
         combinedProductData: [],
-        modalProductData: [],
-        
+        modalProductData: {},
 
       });
       const services = {
@@ -604,9 +603,41 @@ export class ProductionEntryDialog extends Component {
         this.state.combinedProductData = Array.from(productMap.values());
         console.log(this.state.combinedProductData);
     }
-    openDetailsModal() {
-        this.state.showDetailsModal = true;
+    openDetailsModal(productName, quantityDone, quantityNeeded) {
+    // Tìm productId
+    const product = this.state.combinedProductData.find(p => p.productName === productName);
+    const productId = product ? product.productId : null;
+
+    // Gom các package chứa sản phẩm này
+    const relatedPackages = [];
+    this.state.processedPackages.forEach((pkg) => {
+        if (pkg.record && pkg.record.products) {
+        pkg.record.products.forEach((p) => {
+            if (p.product_id === productId) {
+            relatedPackages.push({
+                packageId: pkg.id,
+                packageName: pkg.name,
+                quantity: p.quantity,
+                location: p.location_name || '',
+                lot: p.lot_name || '',
+            });
+            }
+        });
+        }
+    });
+
+    // Gán dữ liệu modal
+    this.state.modalProductData = {
+        productId: productId,
+        productName: productName,
+        quantityDone: quantityDone,
+        quantityNeeded: quantityNeeded,
+        packages: relatedPackages || [],
+    };
+
+    this.state.showDetailsModal = true;
     }
+
     closeDialogDetails() {
         this.state.showDetailsModal = false;
     }

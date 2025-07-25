@@ -151,7 +151,7 @@
                 </div>
 
                 <div class="s-product-quantities-section">
-                    <h2 class="s-product-quantities-title">Tổng số lượng sản phẩm</h2>
+                    <h3 class="s-product-quantities-title">Tổng số lượng sản phẩm</h3>
                         <div class="s-table-responsive-wrapper">
                             <table class="s-product-table">
                                 <thead class="s-bg-purple-200">
@@ -169,7 +169,7 @@
                                                 <t t-esc="data.quantityDone"/> / <t t-esc="data.quantityNeeded"/>
                                             </td>
                                             <td class="s-py-2 s-px-3">
-                                                <button t-on-click="() => this.openDetailsModal()"
+                                                <button t-on-click="() => this.openDetailsModal(data.productName, data.quantityDone, data.quantityNeeded)"
                                                         class="s-detail-button">
                                                     Chi tiết ✨
                                                 </button>
@@ -198,49 +198,35 @@
                     <div class="s-modal-overlay">
                         <div class="s-modal-content">
                             <div class="s-modal-header">
-                                <h3 class="s-modal-title">Chi tiết sản phẩm: <t t-esc="state.modalProductData.productName"/></h3>
-                                <button t-on-click="this.closeDialog"
-                                        class="s-modal-close-button"
-                                        aria-label="Đóng">
-                                    &amp;times;
-                                </button>
+                                <h4 class="s-modal-title">Chi tiết sản phẩm: <t t-esc="state.modalProductData.productName"/></h4>
                             </div>
 
                             <div class="s-mb-4">
-                                <h4 class="s-modal-section-title">Mô tả sản phẩm:</h4>
-                                <p class="s-modal-text">
-                                    <t t-if="state.modalProductData.isLoadingDescription">
-                                        <span class="s-flex s-items-center">
-                                            <svg class="s-animate-spin s-minus-ml-1 s-mr-3 s-h-5 s-w-5 s-text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                              <circle class="s-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                              <path class="s-opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            Đang tạo mô tả...
-                                        </span>
+                                <h4 class="s-modal-section-title">Danh sách package chứa sản phẩm:</h4>
+                                <table class="s-modal-package-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Package</th>
+                                        <th>Số lượng</th>
+                                        <th>Vị trí</th>
+                                        <th>Lot</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <t t-foreach="state.modalProductData.packages" t-as="pkg" t-key="pkg.packageId">
+                                        <tr>
+                                        <td><t t-esc="pkg.packageName" /></td>
+                                        <td><t t-esc="pkg.quantity" /></td>
+                                        <td><t t-esc="pkg.location" /></td>
+                                        <td><t t-esc="pkg.lot" /></td>
+                                        </tr>
                                     </t>
-                                    <t t-else="">
-                                        <t t-esc="state.modalProductData.description"/>
+                                    <t t-if="!state.modalProductData.packages || state.modalProductData.packages.length === 0">
+                                        <tr><td colspan="4">Không có dữ liệu.</td></tr>
                                     </t>
-                                </p>
-                            </div>
-
-                            <div class="s-mb-4">
-                                <h4 class="s-modal-section-title">Bước tiếp theo:</h4>
-                                <p class="s-modal-text">
-                                    <t t-if="state.modalProductData.isLoadingNextSteps">
-                                        <span class="s-flex s-items-center">
-                                            <svg class="s-animate-spin s-minus-ml-1 s-mr-3 s-h-5 s-w-5 s-text-teal-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                              <circle class="s-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                              <path class="s-opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            Đang tạo bước tiếp theo...
-                                        </span>
-                                    </t>
-                                    <t t-else="">
-                                        <t t-esc="state.modalProductData.nextSteps"/>
-                                    </t>
-                                </p>
-                            </div>
+                                    </tbody>
+                                </table>
+                                </div>
 
                             <div class="s-modal-footer">
                                 <button t-on-click="this.closeDialogDetails"
