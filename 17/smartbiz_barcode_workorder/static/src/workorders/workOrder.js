@@ -12,6 +12,7 @@ import {
   useSubEnv,
   xml,
   useEnv,
+  onWillUnmount
 } from "@odoo/owl";
 import { useService, useBus, useHistory } from "@web/core/utils/hooks";
 import * as BarcodeScanner from "@web/webclient/barcode/barcode_scanner";
@@ -21,7 +22,7 @@ import { ManualBarcodeScanner } from "@smartbiz_barcode/Components/manual_barcod
 import { url } from "@web/core/utils/urls";
 import { utils as uiUtils } from "@web/core/ui/ui_service";
 import { KeyPads } from "@smartbiz_barcode/Components/keypads";
-import { DialogModal } from "./dialogModal";
+import { DialogModal } from "@smartbiz/Components/dialogModal";
 import { useFileViewer } from "@web/core/file_viewer/file_viewer_hook";
 import { patch } from "@web/core/utils/patch";
 
@@ -57,25 +58,26 @@ function localInputToUtc(localString, tz) {
 class WorkOrderList extends Component {
   static template = "WorkOrderList";
   static props = [
-    "workOrders",
-    "selectWorkOrder",
-    "selectedWorkOrder",
-    "searchQuery",
-    "searchWorkOrders",
-    "stateMapping",
+      "workOrders",          // danh sách sau khi lọc  (state.workOrders)
+      "activeTab",           // 'active' | 'done'
+      "selectTab",           // hàm đổi tab
+      "selectWorkOrder",     // chọn 1 WO
+      "selectedWorkOrder",   // id WO hiện hành
+      "stateMapping",        // map state → tiếng Việt
   ];
 
   setup() {
-    this.rpc = useService("rpc");
-    this.orm = useService("orm");
-    this.notification = useService("notification");
-    this.dialog = useService("dialog");
-    this.action = useService("action");
-    this.home = useService("home_menu");
-    // this.state = useState({
-    //   workOrders: this.props.workOrder,
-    // });
-    // console.log(this.props.selectedWorkOrder);
+      this.notification = useService("notification");
+  }
+
+  getStateClass(state){
+      switch (state){
+          case "progress": return "state-progress";
+          case "pending" : return "state-pending";
+          case "ready"   : return "state-ready";
+          case "waiting" : return "state-waiting";
+          default        : return "state-default";
+      }
   }
 }
 
@@ -198,10 +200,32 @@ class ActionDetail extends Component {
 
     this.state = useState({
       keyPadTitle: {},
-     
+      duration: this.props.component.actual_duration || 0,
     });
 
+    this.intervalId = setInterval(() => this.updateTimer(), 1000);
+    onWillUnmount(() => {
+      clearInterval(this.intervalId);
+    });
     console.log({buttonStatusSetup:this.props.buttonStatus});
+  }
+  updateTimer() {
+    const { actual_duration, activities } = this.props.component;
+    const running = activities.find(a => a.start && !a.finish && a.activity_type === "ok");
+    let extraMinutes = 0;
+    if (running) {
+      const startDT = DateTime.fromFormat(
+        running.start,
+        "yyyy-LL-dd HH:mm:ss",
+        { zone: "utc" }
+      );
+      const nowUTC = DateTime.utc();
+      extraMinutes = nowUTC.diff(startDT, "minutes").minutes;
+    }
+    // Tổng thời gian
+    const total = actual_duration + extraMinutes;
+    // Làm tròn xuống 2 chữ số thập phân
+    this.state.duration = Math.round(total * 100) / 100;
   }
   activityButtonsStatus(button, activity) {
       const type   = activity.activity_type;  // 'ok' | 'ng' | 'paused' | 'cancel'
@@ -231,7 +255,7 @@ class ActionDetail extends Component {
       }
   }
 
-  
+
   getClass(line) {
     const type     = line.activity_type;   // 'ok' | 'ng' | 'paused' | 'cancel'
     const started  = Boolean(line.start);
@@ -300,6 +324,9 @@ export class WorkOrder extends Component {
 
     this.selectedActivity = null;
     this.state = useState({
+      ordersActive: [],     // NEW
+      ordersDone:   [],     // NEW
+      activeWOtab: "active",// NEW  ('active' | 'done')
       workOrders: [],
       selectedWorkOrder: {},
       selectedActivity: null,
@@ -375,6 +402,31 @@ export class WorkOrder extends Component {
     });
     
   }
+  /* ---------- HÀM TIỆN ÍCH MỚI ---------- */
+  refreshDisplayedWorkOrders(){
+    // 1. chọn nguồn theo tab
+    const src = this.state.activeWOtab === "active"
+              ? this.state.ordersActive
+              : this.state.ordersDone;
+
+    // 2. lọc theo Workcenter (nếu có)
+    const wcId = this.state.workCenter ? this.state.workCenter.id : null;
+    let list = wcId ? src.filter(o => o.workcenter_id === wcId) : src;
+
+    // 3. lọc theo search
+    const q = (this.state.searchInput || "").trim().toLowerCase();
+    if (q){
+        list = list.filter(o =>
+            Object.values(o).some(v =>
+                String(v).toLowerCase().includes(q)));
+    }
+    // 4. gán vào biến hiển thị
+    this.state.workOrders = list;
+  }
+  selectTab(tab){
+      this.state.activeWOtab = tab;
+      this.refreshDisplayedWorkOrders();
+  }
   // WorkOrder.js  – thêm vào class WorkOrder
   async fetchLots() {
     const lots = await this.orm.searchRead("stock.lot", [], ["name"]);
@@ -395,14 +447,54 @@ export class WorkOrder extends Component {
         pause_action:[
             {name:'quantity',label:'Số lượng OK',type:'number', required: true},
             {name:'ng_qty',  label:'Số lượng NG',type:'number'},
-            {name: 'reason_id', label:'Lý do tạm dừng', type: 'select', options: this.pauseReasons.filter(r => r.type === 'pause'), required: true },
+            {name: 'reason_id', label:'Lý do tạm dừng', type: 'select', options: this.pauseReasons.filter(r => r.type === 'pause'), required: true,dialog: true},
             {name:'note',    label:'Ghi chú',type:'textarea'},
+            {
+              name    : "serial_ids",
+              label   : "Danh sách số sê-ri",
+              type    : "multiselect",
+              required: true,
+              visible_if: { field: "reason_id", operator: "!=", value: 0 },
+              options : [
+                { id:1, name:"SN001", batch:"B1" },
+                { id:2, name:"SN002", batch:"B1" },
+                { id:3, name:"SN001", batch:"B1" },
+                { id:4, name:"SN002", batch:"B1" },
+                { id:5, name:"SN001", batch:"B1" },
+                { id:6, name:"SN002", batch:"B1" },
+                { id:7, name:"SN001", batch:"B1" },
+                { id:8, name:"SN002", batch:"B1" },
+                { id:9, name:"SN001", batch:"B1" },
+                { id:10, name:"SN002", batch:"B1" },
+                { id:11, name:"SN001", batch:"B1" },
+                { id:12, name:"SN002", batch:"B1" },
+                { id:13, name:"SN001", batch:"B1" },
+                { id:14, name:"SN002", batch:"B1" },
+                { id:15, name:"SN001", batch:"B1" },
+                { id:16, name:"SN002", batch:"B1" },
+                { id:17, name:"SN001", batch:"B1" },
+                { id:18, name:"SN002", batch:"B1" },
+                { id:19, name:"SN001", batch:"B1" },
+                { id:20, name:"SN002", batch:"B1" },
+                { id:21, name:"SN001", batch:"B1" },
+                { id:22, name:"SN002", batch:"B1" },
+                { id:23, name:"SN001", batch:"B1" },
+                { id:24, name:"SN002", batch:"B1" },
+                { id:25, name:"SN001", batch:"B1" },
+                { id:26, name:"SN002", batch:"B1" },
+                { id:27, name:"SN001", batch:"B1" },
+                { id:28, name:"SN002", batch:"B1" },
+                { id:29, name:"SN001", batch:"B1" },
+                { id:30, name:"SN002", batch:"B1" },
+                // …
+              ],
+            }
         ],
         edit_productivity: [
             {name:'quantity',label:'Số lượng',type:'number', required: true},     
             {name:'lot_id',  label:'Lô sản xuất', type:'select', options: this.state.lots || []},
-            {name:'start',label:'Bắt đầu', type:'datetime-local' },
-            {name:'finish',label:'Kết thúc', type:'datetime-local'},
+            {name:'start',label:'Bắt đầu', type:'datetime-local',readonly: true},
+            {name:'finish',label:'Kết thúc', type:'datetime-local',readonly: true},
             {name:'note',    label:'Ghi chú',type:'textarea'},
         ],
     };
@@ -466,8 +558,7 @@ export class WorkOrder extends Component {
 
   updateWorkOrders(){
     this.state.title = (this.state.workCenter.name || '-')
-    this.state.workOrders = this.state.data.orders.filter(x=>x.workcenter_id == this.state.workCenter.id);
-    //console.log({user:this.state.user,workCenter:this.state.workCenter})
+    this.refreshDisplayedWorkOrders();
   }
   updateSelectedWorkOrder(data){
     if (data.workOrder && this.state.components){
@@ -478,12 +569,13 @@ export class WorkOrder extends Component {
     this.updateButton()
   }
   async initData() {
-    try {
-      let domain  = [["state", "in", ["progress", "pending", "ready"]]]
+ 
+      let domain  = []
       if(this.state.workCenter)
       {
         domain.push(["workcenter_id","=",this.state.workCenter.id])
       }
+      console.log("domain",domain)
       const data = await this.orm.call(
         "mrp.workorder",
         "get_orders",
@@ -508,15 +600,17 @@ export class WorkOrder extends Component {
       this.pauseReasons = await this.orm.searchRead(
           'smartbiz_mes.pause_reason', [['active', '=', true]], ['id', 'name', 'type']
       );
-      this.state.workOrders = data.orders.filter(x=>x.workcenter_id == this.state.workCenter.id);
+      this.state.ordersActive = data.orders_active || [];
+      this.state.ordersDone   = data.orders_done   || [];
+      this.refreshDisplayedWorkOrders(); // ← thêm dòng này
         this.state.view = "WorkOrders"
       
-    } catch (error) {
-      //console.error("Error loading data:", error);
-      this.notification.add("Failed to load inventory data", {
-        type: "danger",
-      });
-    }
+    //  catch (error) {
+    //   //console.error("Error loading data:", error);
+    //   this.notification.add("Failed to load inventory data", {
+    //     type: "danger",
+    //   });
+    // }
     // this.updateButton()
   }
   changeTab(tab) {
@@ -577,9 +671,9 @@ export class WorkOrder extends Component {
   }
 
 
-  handleInput(event) {
-    this.state.searchInput = event.target.value;
-    this.search(); // Gọi hàm tìm kiếm
+  handleInput(ev){
+      this.state.searchInput = ev.target.value;
+      this.refreshDisplayedWorkOrders();
   }
   showKeypad = (keyPadTitle, component,type) => {
     var quantity = 0
@@ -622,7 +716,7 @@ export class WorkOrder extends Component {
     }
     this.state.showkeypad = false;
   };
-  async search() {
+async search() {
     const query = this.state.searchInput.trim().toLowerCase();
     if (this.state.view === "WorkOrders") {
       if (this.state.workCenter) {
@@ -689,7 +783,7 @@ export class WorkOrder extends Component {
         "smartbiz_barcode.smartbiz_barcode_main_menu_action"
       );
     } else if (this.state.view === "WorkOrderDetail") {
-      let domain  = [["state", "in", ["progress", "pending", "ready"]]]
+      let domain  = []
       if(this.state.workCenter)
       {
         domain.push(["workcenter_id","=",this.state.workCenter.id])
@@ -883,11 +977,12 @@ export class WorkOrder extends Component {
 
   // Khi người dùng chọn một thành phần
   selectComponent(component) {
-    
+   
     this.state.selectedComponent = component;
+    console.log("Selected component:", this.state.selectedComponent);
     this.updateButton();
     
-    const pdfUrl = `/web/content?model=mrp.workorder&field=worksheet&id=${this.state.selectedWorkOrder.id}`;
+    const pdfUrl = `/web/content?model=mrp.workorder&field=worksheet&id=${this.state.selectedWorkOrder?.id}`;
     //this.state.showPDF = true;
     this.state.document = {
       type: "pdf",
@@ -1136,7 +1231,7 @@ export class WorkOrder extends Component {
             
             this.state.workCenter = this.workCenters.find(x=>x.id == barcodeData.record.id)
 
-            let domain  = [["state", "in", ["progress", "pending", "ready"]]]
+            let domain  = []
             if(this.state.workCenter)
             {
               domain.push(["workcenter_id","=",this.state.workCenter.id])

@@ -117,10 +117,11 @@
                                                 <td t-esc="row.item"/>
                                                 <td t-esc="row.so_luong"/>
                                                 <td t-esc="row.thoi_gian_tieu_chuan"/>
-                                                <td t-esc="row.thoi_gian_thuc_te"/>
+                                                <td t-esc="row.thoi_gian_thuc_te" t-att-class="row.thoi_gian_thuc_te > row.thoi_gian_tieu_chuan? 'over_threshold' :''"/>
                                                 <t t-if="state.steps">
                                                     <t t-foreach="state.steps" t-as="st2" t-key="st2">
                                                         <td t-if="row[st2]"  t-att-class="
+                                                                                        row[st2]?.time > row.thoi_gian_tieu_chuan? 'over_threshold' :
                                                                                         row[st2]?.status === 'done'    ? 'step_done'    :
                                                                                         row[st2]?.status === 'working' ? 'step_working' :
                                                                                         row[st2]?.status === 'paused'  ? 'step_paused'  : ''">

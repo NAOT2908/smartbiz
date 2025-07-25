@@ -9,9 +9,9 @@
       <field name="inherit_id" ref="hr_work_entry.hr_work_entry_view_form" />
       <field name="arch" type="xml">
            <xpath expr="//field[@name='company_id']" position="after">
-                   <field name="workcenter_id"/>
-                   <field name="ok_quantity"/>
-                   <field name="ng_quantity"/>
+                   <field name="workcenter_id" widget=""/>
+                   <field name="ok_quantity" widget=""/>
+                   <field name="ng_quantity" widget=""/>
            </xpath>
       </field>
     </record>
@@ -23,32 +23,66 @@
       <field name="arch" type="xml">
         <form string="Form Overtime Request">
             <header>
-                <button name="action_draft_send_to_approve" string="Send to Approve" type = "object" class="oe_highlight" invisible="state != 'draft'"/>
-                <button name="action_to_approve_approve" string="Approve" type = "object" class="oe_highlight" invisible="state != 'to_approve'"/>
-                <button name="action_to_approve_refuce" string="Refuce" type = "object"  invisible="state != 'to_approve'"/>
+                <button name="action_draft_submit" string="Submit" type = "object" class="oe_highlight" invisible="state != 'draft'"/>
+                <button name="action_to_submit_approve" string="Approve" type = "object" class="oe_highlight" invisible="state != 'to_submit'" groups="smartbiz_hr.group_roles_hr_checker_4"/>
+                <button name="action_to_submit_refuse" string="Refuse" type = "object"  invisible="state not in [ 'to_submit', 'to_approve']" groups="smartbiz_hr.group_roles_hr_checker_4, smartbiz_hr.group_roles_hr_approver_5"/>
+                <button name="action_to_approve_approve" string="Approve" type = "object" class="oe_highlight" invisible="state != 'to_approve'" groups="smartbiz_hr.group_roles_hr_approver_5"/>
                 <field name="state" widget="statusbar" />
             </header>
       <sheet>
             <group col="2">
             <group>
-                   <field name="name"/>
-                   <field name="employee_id"/>
-                   <field name="contract_id"/>
+                   <field name="name" widget=""/>
+                   <field name="employee_ids" widget="many2many_tags"/>
             </group>
             <group>
-                   <field name="start_date"/>
-                   <field name="end_date"/>
-                   <field name="duration"/>
+                   <field name="start_date" widget=""/>
+                   <field name="end_date" widget=""/>
+                   <field name="duration" widget=""/>
             </group>
             </group>
             <notebook>
-            <page string="Note">
-                   <field name="note"/>
+            <page string="Detail">
+                   <field name="lines_ids" widget=""/>
             </page>
-            <page string="Approvers">
-                   <field name="approver_ids" widget="many2many_tags"/>
+            <page string="Notes">
+            <group>
+                   <field name="note" widget=""/>
+                   <field name="approver_ids" widget=""/>
+            </group>
             </page>
             </notebook>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_request_line_form">
+      <field name="name">smartbiz_hr_request_line_form</field>
+      <field name="model">smartbiz_hr.request_line</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Request Line">
+            <header>
+                <button name="action_draft_submit" string="Submit" type = "object"  invisible="state != 'draft'"/>
+                <button name="action_to_submit_approve" string="Approve" type = "object"  invisible="state != 'to_submit'" groups="smartbiz_hr.group_roles_hr_checker_4"/>
+                <button name="action_to_submit_refuse" string="Refuse" type = "object"  invisible="state not in [ 'to_submit', 'to_approve']" groups="smartbiz_hr.group_roles_hr_checker_4, smartbiz_hr.group_roles_hr_approver_5"/>
+                <button name="action_to_approve_approve" string="Approve" type = "object"  invisible="state != 'to_approve'" groups="smartbiz_hr.group_roles_hr_approver_5"/>
+                <field name="state" widget="statusbar" />
+            </header>
+      <sheet>
+          <group col="1">
+                   <field name="request_id" widget=""/>
+                   <field name="employee_id" widget=""/>
+                   <field name="start_date" widget=""/>
+                   <field name="end_date" widget=""/>
+                   <field name="duration" widget=""/>
+          </group>
       </sheet>
       <div class="oe_chatter">
              <field name = "message_follower_ids" widget="mail_followers"/>
@@ -67,11 +101,11 @@
         <form string="Form Work Entry Rule Category">
       <sheet>
             <group>
-                   <field name="name"/>
+                   <field name="name" widget=""/>
             </group>
             <notebook>
             <page string="Rules">
-                   <field name="rules_ids"/>
+                   <field name="rules_ids" widget=""/>
             </page>
             </notebook>
       </sheet>
@@ -88,21 +122,21 @@
       <sheet>
             <group col="2">
             <group>
-                   <field name="name"/>
-                   <field name="category_id"/>
-                   <field name="active"/>
+                   <field name="name" widget=""/>
+                   <field name="category_id" widget=""/>
+                   <field name="active" widget=""/>
             </group>
             <group>
-                   <field name="when"/>
-                   <field name="rule_type"/>
+                   <field name="when" widget=""/>
+                   <field name="rule_type" widget=""/>
             </group>
             </group>
             <notebook>
             <page string="Conditions">
-                   <field name="condition_ids"/>
+                   <field name="condition_ids" widget=""/>
             </page>
             <page string="Actions">
-                   <field name="action_ids"/>
+                   <field name="action_ids" widget=""/>
             </page>
             </notebook>
       </sheet>
@@ -118,11 +152,11 @@
         <form string="Form WE Rule Condition">
       <sheet>
             <group>
-                   <field name="rule_id"/>
+                   <field name="rule_id" widget=""/>
             </group>
             <notebook>
             <page string="Python Code">
-                   <field name="python_code"/>
+                   <field name="python_code" widget=""/>
             </page>
             </notebook>
       </sheet>
@@ -139,15 +173,15 @@
       <sheet>
             <group col="2">
             <group>
-                   <field name="rule_id"/>
+                   <field name="rule_id" widget=""/>
             </group>
             <group>
-                   <field name="action_type"/>
+                   <field name="action_type" widget=""/>
             </group>
             </group>
             <notebook>
             <page string="Parameters">
-                   <field name="parameter"/>
+                   <field name="parameter" widget=""/>
             </page>
             </notebook>
       </sheet>
@@ -163,9 +197,9 @@
         <form string="Form WE Rule Log">
       <sheet>
           <group col="1">
-                   <field name="rule_id"/>
-                   <field name="work_entry_id"/>
-                   <field name="employee_id"/>
+                   <field name="rule_id" widget=""/>
+                   <field name="work_entry_id" widget=""/>
+                   <field name="employee_id" widget=""/>
           </group>
       </sheet>
         </form>
@@ -181,9 +215,9 @@
       <field name="priority" eval="7"/>
       <field name="arch" type="xml">
            <xpath expr="//field[@name='date_stop']" position="after">
-            <field name="workcenter_id" optional="show"/>
-            <field name="ok_quantity" optional="show"/>
-            <field name="ng_quantity" optional="show"/>
+            <field name="workcenter_id" widget="" optional="show"/>
+            <field name="ok_quantity" widget="" optional="show"/>
+            <field name="ng_quantity" widget="" optional="show"/>
            </xpath>
       </field>
     </record>
@@ -195,14 +229,30 @@
       <field name="arch" type="xml">
         <tree string="Tree Overtime Request" >
             <field name="state" />
-            <field name="name" optional="show"/>
-            <field name="employee_id" optional="show"/>
-            <field name="contract_id" optional="show"/>
-            <field name="start_date" optional="show"/>
-            <field name="end_date" optional="show"/>
-            <field name="duration" optional="show"/>
-            <field name="note" optional="show"/>
-            <field name="approver_ids" widget="many2many_tags" optional="show"/>
+            <field name="name" widget="" optional="show"/>
+            <field name="employee_ids" widget="many2many_tags" optional="show"/>
+            <field name="start_date" widget="" optional="show"/>
+            <field name="end_date" widget="" optional="show"/>
+            <field name="duration" widget="" optional="show"/>
+            <field name="lines_ids" widget="" optional="show"/>
+            <field name="note" widget="" optional="show"/>
+            <field name="approver_ids" widget="" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_request_line_tree">
+      <field name="name">smartbiz_hr_request_line_tree</field>
+      <field name="model">smartbiz_hr.request_line</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Request Line" >
+            <field name="state" />
+            <field name="request_id" widget="" optional="show"/>
+            <field name="employee_id" widget="" optional="show"/>
+            <field name="start_date" widget="" optional="show"/>
+            <field name="end_date" widget="" optional="show"/>
+            <field name="duration" widget="" optional="show"/>
         </tree>
       </field>
     </record>
@@ -213,7 +263,7 @@
       <field name="priority" eval="7"/>
       <field name="arch" type="xml">
         <tree string="Tree Work Entry Rule Category" >
-            <field name="name" optional="show"/>
+            <field name="name" widget="" optional="show"/>
         </tree>
       </field>
     </record>
@@ -224,12 +274,12 @@
       <field name="priority" eval="7"/>
       <field name="arch" type="xml">
         <tree string="Tree Work Entry Rule" >
-            <field name="name" optional="show"/>
+            <field name="name" widget="" optional="show"/>
             <field name="sequence" widget="tree_handle" optional="show"/>
-            <field name="when" optional="show"/>
-            <field name="rule_type" optional="show"/>
-            <field name="condition_ids" optional="show"/>
-            <field name="action_ids" optional="show"/>
+            <field name="when" widget="" optional="show"/>
+            <field name="rule_type" widget="" optional="show"/>
+            <field name="condition_ids" widget="" optional="show"/>
+            <field name="action_ids" widget="" optional="show"/>
         </tree>
       </field>
     </record>
@@ -240,8 +290,8 @@
       <field name="priority" eval="7"/>
       <field name="arch" type="xml">
         <tree string="Tree WE Rule Condition" >
-            <field name="rule_id" optional="show"/>
-            <field name="python_code" optional="show"/>
+            <field name="rule_id" widget="" optional="show"/>
+            <field name="python_code" widget="" optional="show"/>
         </tree>
       </field>
     </record>
@@ -252,9 +302,9 @@
       <field name="priority" eval="7"/>
       <field name="arch" type="xml">
         <tree string="Tree WE Rule Action" >
-            <field name="rule_id" optional="show"/>
-            <field name="action_type" optional="show"/>
-            <field name="parameter" optional="show"/>
+            <field name="rule_id" widget="" optional="show"/>
+            <field name="action_type" widget="" optional="show"/>
+            <field name="parameter" widget="" optional="show"/>
         </tree>
       </field>
     </record>
@@ -265,9 +315,9 @@
       <field name="priority" eval="7"/>
       <field name="arch" type="xml">
         <tree string="Tree WE Rule Log" >
-            <field name="rule_id" optional="show"/>
-            <field name="work_entry_id" optional="show"/>
-            <field name="employee_id" optional="show"/>
+            <field name="rule_id" widget="" optional="show"/>
+            <field name="work_entry_id" widget="" optional="show"/>
+            <field name="employee_id" widget="" optional="show"/>
         </tree>
       </field>
     </record>
@@ -290,9 +340,7 @@
       <field name="arch" type="xml">
         <search string="Tree Overtime Request">
             <field name="name"/>
-            <field name="employee_id"/>
-            <field name="contract_id"/>
-            <field name="note"/>
+            <field name="employee_ids"/>
         </search>
       </field>
     </record>
@@ -350,6 +398,14 @@
       <field name="context">{}</field>
     </record>
 
+    <record model="ir.actions.act_window" id="smartbiz_hr_request_line_action">
+      <field name="name">Request Line</field>
+      <field name="res_model">smartbiz_hr.request_line</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
     <record model="ir.actions.act_window" id="smartbiz_hr_work_entry_rule_category_action">
       <field name="name">Work Entry Rule Category</field>
       <field name="res_model">smartbiz_hr.work_entry_rule_category</field>
@@ -394,7 +450,7 @@
 
 <!-- Top menu item -->
 
-    <menuitem name="SmartBiz HR"
+    <menuitem name="SmartBiz HR" 
        id="menu_smartbiz_hr_1"
        sequence ="1"
        web_icon="smartbiz_hr,static/description/hr icon.png"
@@ -403,7 +459,7 @@
        id="menu_employee_2"
        sequence ="2"
     />
-    <menuitem name="Attendance"
+    <menuitem name="Attendance" 
        id="menu_attendance_3"
        sequence ="3"
     />

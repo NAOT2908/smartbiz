@@ -1,0 +1,49 @@
+      <templates xml:space="preserve">
+
+    <!-- Cropper dialog -->
+    <t t-name="my_camera.CropperDialog">
+      <div class="cropper-overlay">
+        <div class="cropper-content">
+          <img t-ref="img" t-att-src="props.src"/>
+          <div class="cropper-btns">
+            <button class="btn-cancel"  t-on-click="props.onCancel">Huỷ</button>
+            <button class="btn-ok"      t-on-click="confirm">OK</button>
+          </div>
+        </div>
+      </div>
+    </t>
+
+    <!-- Camera modal -->
+    <t t-name="my_camera.CameraAI">
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <button class="close-btn fa-solid fa-xmark" t-on-click="close">x</button>
+          <video t-ref="video"
+              autoplay="autoplay"
+              playsinline="playsinline"
+              width="100%"
+              height="auto"/>
+          <button class="capture-btn" t-if="!state.busy"
+                  t-on-click="takePhoto">Chụp</button>
+          <div class="loading" t-if="state.busy">Đang xử lý…</div>
+
+          <!-- <img t-if="state.previewURL" t-att-src="state.previewURL"
+               class="preview-img"/> -->
+
+          <pre class="result" t-if="state.result">
+            <t t-esc="state.result"/>
+          </pre>
+        </div>
+      </div>
+
+      <!-- Dialog cropper -->
+        <t t-if="state.showCropper">
+          <CropperDialog
+            src="state.capturedURL"
+            onCancel="() => { state.showCropper = false; videoRef.el.play(); }"
+            onOK="_sendCropped"   
+          />
+        </t>
+    </t>
+
+  </templates>

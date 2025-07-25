@@ -64,6 +64,24 @@
       </field>
     </record>
 
+    <record id="view_stock_picking_batch_form_inherit_custom" model="ir.ui.view">
+      <field name="name">stock.picking.batch.form.inherit.custom</field>
+      <field name="model">stock.picking.batch</field>
+      <field name="inherit_id" ref="stock_picking_batch.stock_picking_batch_form" />
+      <field name="arch" type="xml">
+          <xpath expr="//div[@class='oe_button_box']" position="inside">
+            <button name="action_lines"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-bars"
+                    string="Detailed Operations"
+                    >
+            </button>
+        </xpath>
+      </field>
+    </record>
+
+
 <!-- calendars -->
 
 <!-- kanbans -->

@@ -1,15 +1,107 @@
-from collections import defaultdict
-import json
+# -*- coding: utf-8 -*-
+import os
+import io
+import base64
+import time
+import logging
+from collections import defaultdict     # (vẫn còn dùng ở chỗ khác?)
+import requests
 from odoo import http, _
 from odoo.http import request
 from odoo.exceptions import UserError
-from odoo.osv import expression
-from odoo.tools import pdf, split_every
-from odoo.tools.misc import file_open
-import base64,pytz,logging
+
 _logger = logging.getLogger(__name__)
 
 class StockBarcodeController(http.Controller):
+    @http.route("/camera/upload", type="json", auth="user", methods=["POST"])
+    def upload(self, image, prompt):
+        if "," in image:
+            image = image.split(",", 1)[1]
+        try:
+            img_bytes = base64.b64decode(image)
+        except Exception:
+            return {"status": "error", "message": "Ảnh base64 không hợp lệ"}
+
+        # Đọc cấu hình backend
+        config = request.env["ir.config_parameter"].sudo()
+        backend = config.get_param("ai_backend", "internal")
+
+        if backend == "internal":
+            return self._call_internal_ai_server(img_bytes, prompt)
+        elif backend == "openai":
+            return self._call_openai_api(img_bytes, prompt, config)
+        elif backend == "lmstudio":
+            return self._call_openai_api(img_bytes, prompt, config, is_lmstudio=True)
+        else:
+            return {"status": "error", "message": f"Backend không hỗ trợ: {backend}"}
+
+    def _call_internal_ai_server(self, img_bytes, prompt):
+        try:
+            files = {"image": ("capture.jpg", img_bytes, "image/jpeg")}
+            data = {"user_prompt": prompt}
+            start = time.perf_counter()
+            resp = requests.post(
+                "http://192.168.68.61:9000/infer",
+                files=files,
+                data=data,
+                timeout=120,
+            )
+            resp.raise_for_status()
+            res = resp.json()
+            elapsed = time.perf_counter() - start
+            if res.get("status") == "ok":
+                return {
+                    "status": "ok",
+                    "answer": res["answer"],
+                    "inference_time_s": res.get("time_s", round(elapsed, 3)),
+                }
+            return {"status": "error", "message": res.get("message", "Unknown")}
+        except Exception as e:
+            _logger.exception("Lỗi gọi AI nội bộ")
+            return {"status": "error", "message": "Không kết nối được AI-server"}
+
+    def _call_openai_api(self, img_bytes, prompt, config, is_lmstudio=False):
+        if not openai:
+            return {"status": "error", "message": "Thiếu thư viện openai. pip install openai"}
+
+        try:
+            openai.api_key = config.get_param("openai_api_key", "lm-studio" if is_lmstudio else "")
+            openai.api_base = config.get_param("openai_api_base", "http://localhost:1234/v1" if is_lmstudio else "https://api.openai.com/v1")
+            if is_lmstudio:
+                openai.api_type = "open_ai_compatible"
+
+            b64_img = base64.b64encode(img_bytes).decode("utf-8")
+            start = time.perf_counter()
+
+            res = openai.ChatCompletion.create(
+                model="gpt-4o",  # hoặc model tương ứng của LM Studio
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:image/jpeg;base64,{b64_img}"}
+                            }
+                        ]
+                    }
+                ],
+                max_tokens=1000,
+                temperature=0.5,
+            )
+            elapsed = time.perf_counter() - start
+            answer = res["choices"][0]["message"]["content"]
+
+            return {
+                "status": "ok",
+                "answer": answer,
+                "inference_time_s": round(elapsed, 3),
+            }
+
+        except Exception as e:
+            _logger.exception("Lỗi gọi OpenAI API")
+            return {"status": "error", "message": f"Lỗi OpenAI API: {str(e)}"}
 
     @http.route('/smartbiz_barcode/scan_from_main_menu', type='json', auth='user')
     def main_menu(self, barcode):

@@ -33,6 +33,8 @@
                     <button t-on-click="() => this.openSelector(1)" t-if="state.detailMoveLine.picking_type_code == 'internal'">Chia Package</button>
                     <button t-on-click="() => this.openSelector(8)" t-if="state.detailMoveLine.picking_type_code == 'incoming'">Đóng Package loạt</button>
                     <button t-on-click="() => this.openSelector(9)" t-if="state.detailMoveLine.product_tracking == 'serial'">Nhận theo số Sê-ri</button>
+                    <button t-on-click="() => this.openCamera()">Mở Camera AI</button>
+                    <button t-on-click="unReserve" t-if="state.order_state != 'done' &amp;&amp; state.order_state != 'cancel'">Huỷ dự trữ</button>
                     <button t-on-click="cancelOrder" t-if="state.order_state != 'done' &amp;&amp; state.order_state != 'cancel'">Hủy đơn</button>
                     
                 </div>
@@ -56,6 +58,10 @@
                 </div>
                 <t t-if="state.view === 'Move_line'">
                     <div class="s_detailEdit">
+                        <div name="product" class="s_moveline_counter">
+                            <i class="fa fa-fw fa-list-ul"></i>
+                            <span><strong t-esc="state.scanned_lines"/>/<strong t-esc="state.total_lines"/></span>
+                        </div>
                         <div name="product"><i class="fa fa-fw fa-tags"></i><span class="product-label"><t t-out="state.detailMoveLine.product_name"/></span></div>
                         <div class="s_element">
                             <div name="quantity" class="s_left">
@@ -140,43 +146,102 @@
                 </t>
                 <div class="s_content-area">
                     <t t-if="state.view === 'Move'">
-                        <t t-foreach="state.moves" t-as="move" t-key="move.id">
-                            <div  t-on-click="() => this.select(move.id)" t-att-data-id="move.id" t-attf-class="{{moveClass(move)}}">
-                                <div >
-                                    <div class="o_barcode_line_title" t-if="batch_id">
-                                        <i class="fa fa-fw fa-tags"></i><span class="o_barcode_product_ref h5 fw-bold"><t t-out="move.picking_name"/></span>
-                                    </div>
-                                    <div class="o_barcode_line_title">
-                                        <i class="fa fa-fw fa-tags"></i><span class="o_barcode_product_ref h5 fw-bold"><t t-out="move.product_name"/></span>
-                                    </div>
-                                    <div name="quantity"><i class="fa fa-fw fa-cube"></i><span
-                                            class="o_barcode_scanner_qty font-monospace badge"><span
-                                                class="qty-done d-inline-block text-start"><t t-out="move.quantity"/></span><span>/ <t t-out="move.product_uom_qty"/></span></span>
-                                                <span 
-                                                class="o_line_uom"><t t-out="move.product_uom"/></span>
-                                    </div>
-                                
-                                </div>
-                                <div class="s_right">
+                        <div t-if="state.activeTab === 'OrderDetail'">
+                            <t t-foreach="state.moves" t-as="move" t-key="move.id">
+                                <div  t-on-click="() => this.select(move.id)" t-att-data-id="move.id" t-attf-class="{{moveClass(move)}}">
+                                    <div >
+                                        <div class="o_barcode_line_title" t-if="batch_id">
+                                            <i class="fa fa-fw fa-tags"></i><span class="o_barcode_product_ref h5 fw-bold"><t t-out="move.picking_name"/></span>
+                                        </div>
+                                        <div class="o_barcode_line_title">
+                                            <i class="fa fa-fw fa-tags"></i><span class="o_barcode_product_ref h5 fw-bold"><t t-out="move.product_name"/></span>
+                                        </div>
+                                        <div name="quantity"><i class="fa fa-fw fa-cube"></i><span
+                                                class="o_barcode_scanner_qty font-monospace badge"><span
+                                                    class="qty-done d-inline-block text-start"><t t-out="move.quantity"/></span><span>/ <t t-out="move.product_uom_qty"/></span></span>
+                                                    <span 
+                                                    class="o_line_uom"><t t-out="move.product_uom"/></span>
+                                        </div>
                                     
-                                    <button class="s_line-icon" t-on-click="() => this.editMove(move.id)">
-                                        <i class="fa fa-2x fa-pencil"></i>
-                                    </button>
-                                    <button class="s_line-icon" t-on-click="() => this.deleteMove(move.id)">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                    </button>
+                                    </div>
+                                    <div class="s_right">
+                                        
+                                        <button class="s_line-icon" t-on-click="() => this.editMove(move.id)">
+                                            <i class="fa fa-2x fa-pencil"></i>
+                                        </button>
+                                        <button class="s_line-icon" t-on-click="() => this.deleteMove(move.id)">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
                                 </div>
+                            </t> 
+                        </div>
+                        <div t-if="state.activeTab === 'OrderOverview'">
+                            <div class="s_order_overview">
+                                <div class="s_order_info">
+                                    <div class="s_order_info_item">
+                                        <span class="s_info_label">Lệnh:</span>
+                                        <span class="s_info_value" t-out="state.data.name || '-'"/>
+                                    </div>
+                                    <div class="s_order_info_item">
+                                        <span class="s_info_label">Trạng thái:</span>
+                                        <span class="s_info_value" t-out="state.data.state_name || '-'"/>
+                                    </div>
+                                    <div class="s_order_info_item">
+                                        <span class="s_info_label">Đối tác:</span>
+                                        <span class="s_info_value" t-out="state.data.partner_name || '-'"/>
+                                    </div>
+                                    
+                                    <div class="s_order_info_item">
+                                        <span class="s_info_label">Người phụ trách:</span>
+                                        <span class="s_info_value" t-out="state.data.user_name || '-'"/>
+                                    </div>
+                                    <div class="s_order_info_item">
+                                        <span class="s_info_label">Vị trí nguồn:</span>
+                                        <span class="s_info_value" t-out="state.data.location_name || '-'"/>
+                                    </div>
+                                    <div class="s_order_info_item">
+                                        <span class="s_info_label">Vị trí đích:</span>
+                                        <span class="s_info_value" t-out="state.data.location_dest_name || '-'"/>
+                                    </div>
+                                </div>
+                            </div>  
+                        </div>
+                        <div t-if="state.activeTab === 'Packages'">
+                            <div>
+                                <Packages t-props="{
+                                data:state.data,
+                                updateData:(data) => this.updateData(data),
+                                showModal:(modal,data) => this.showModal(modal,data)
+                                }" />
+                               
+                                <t t-if="state.modal == 'editPackage'">
+                                    <EditPackage t-props="{
+                                        packageInfo:state.packageInfo,
+                                        unpacked_move_lines:state.unpacked_move_lines,
+                                        closeModal: (modal,data) => this.closeModal(modal,data),
+                                    }" />
+                                </t>
+
+                               
+                                <t t-if="state.modal == 'createPackages'">
+                                    <CreatePackages t-props="{
+                                        orderInfo:state.data.order,
+                                        unpacked_products:state.data.unpacked_moves,
+                                        closeModal: (modal,data) => this.closeModal(modal,data),
+                                    }" />
+                                </t>
                             </div>
-                        </t>                       
+                        </div>                      
                     </t>
                     <t t-if="state.view === 'Move_line'">                      
                         <t t-foreach="state.lines" t-as="line" t-key="line.id">
                             <div  t-on-click="() => this.select(line.id)" t-att-data-id="line.id" t-attf-class="{{lineClass(line)}}">
                                 <div class="s_move_line_left">                    
-                                    <div>
+                                    <!-- <div>
                                         <i class="fa fa-fw fa-tags"></i>
                                         <span class="product-label"><t t-out="line.product_name"/></span>
-                                    </div>
+                                    </div> -->
                                     <div name="quantity">
                                         <i class="fa fa-fw fa-cube"></i>
                                         <span style="padding: 0px 10px;color:red;"><t t-out="line.quantity"/></span>
@@ -234,12 +299,18 @@
                 <button class="s_primary-button" t-on-click="save" t-if="state.showSave">Lưu</button>
                 <button class="s_primary-button" t-on-click="cancel" t-if="state.showSave">Hủy</button>
                 <button class="s_primary-button" t-on-click="actionDone" t-if="state.showValidate">Xác nhận</button>
+                <button class="s_primary-button" t-on-click="() => this.showModal('createPackages',false)" t-if="state.showPackMulti">Đóng gói loạt</button>
             </footer>
         </div>
         <KeyPad t-if="state.showKeypad" 
             t-props="{
                 detailMoveLine:state.detailMoveLine,
                 keyClick:keyClick
+        }"/>
+        <CameraAI t-if="state.cameraActive" 
+            t-props="{
+                prompt:state.prompt,
+                onResult:() => this.closeCamera()
         }"/>
         <Selector t-if="state.showSelector" 
             t-props="{
@@ -248,7 +319,7 @@
                 closeSelector:(data) => this.closeSelector(data),
                 title:selectorTitle,move:move,
                 isSelector:state.isSelector,
-                lots:env.model.data.lots
+                lots:state.data.lots
         }"/>
     </t>
 </templates>

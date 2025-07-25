@@ -1,7 +1,48 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
-import re
+from datetime import datetime, time, timedelta
+from odoo.exceptions import UserError
+import pytz, re
 
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+
+    avg_cycle_time   = fields.Float(
+        string='Avg Cycle Time (min)',
+        digits='Product Unit of Measure',
+        help='Thời gian làm 1 sản phẩm (phút) – trung bình 3 tháng gần nhất'
+    )
+    avg_cycle_sample = fields.Integer(
+        string='Cycle Sample',
+        help='Số lệnh sản xuất dùng để tính avg_cycle_time'
+    )
+
+class MrpProduction(models.Model):
+    _inherit = 'mrp.production'
+
+    @api.model
+    def _cron_update_avg_cycle_time(self, months=3):
+        """Chạy mỗi ngày 02:00 – gom 3 tháng gần nhất"""
+        date_from = fields.Date.today() - timedelta(days=30*months)
+        self.env.cr.execute("""
+            SELECT
+                prod.product_id,
+                SUM(act.duration) / NULLIF(COUNT(DISTINCT prod.id),0)::float AS avg_time,
+                COUNT(DISTINCT prod.id)                            AS sample
+            FROM smartbiz_mes_production_activity act
+            JOIN mrp_workorder            wo   ON wo.id   = act.work_order_id
+            JOIN mrp_production           prod ON prod.id = wo.production_id
+            WHERE act.finish   >= %s
+              AND act.activity_type <> 'paused'
+              AND act.finish IS NOT NULL
+               AND act.start IS NOT NULL             
+            GROUP BY prod.product_id
+        """, (date_from,))
+        for pid, avg_time, sample in self.env.cr.fetchall():
+            self.env['product.product'].browse(pid).sudo().write({
+                'avg_cycle_time':   round(avg_time or 0.0, 2),
+                'avg_cycle_sample': sample,
+            })
 # ------------------------------------------------------------------
 # utility
 # ------------------------------------------------------------------
@@ -71,84 +112,166 @@ class WorkOrderDashboard(models.Model):
         t = fields.Datetime.context_timestamp(self, dt)   # local‑time (naive)
         return 1 if (t.hour, t.minute) < self.SHIFT_CUTOFF else 2
 
+    _CYCLE_WINDOW_MONTHS = 3
+    _PACK_STEP_NAME      = 'đóng gói'
     # ================================================================
-    # 1) DASHBOARD
+    # 0. Helper: chuyển ngày local (user) thành khoảng UTC
+    # ================================================================
+    def _local_day_to_utc_range(self, date_str):
+        """
+        Nhập 'YYYY-MM-DD' (theo TZ người dùng) → tuple (utc_from, utc_to)
+        """
+        if not date_str:
+            return None, None
+        user_tz = pytz.timezone(self.env.context.get('tz') or 'UTC')
+        day_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+        local_fr = user_tz.localize(datetime.combine(day_obj, time.min))
+        local_to = user_tz.localize(datetime.combine(day_obj, time.max))
+        return local_fr.astimezone(pytz.utc), local_to.astimezone(pytz.utc)
+
+    # ================================================================
+    # 1) DASHBOARD CHÍNH
     # ================================================================
     @api.model
     def get_dashboard_data(self, date="", line="", shift=""):
+        """
+        Dashboard tổng hợp theo ngày / line / ca.
+        Trả về:
+          { 'steps': [...], 'data': [...], 'kpi': {...} }
+        """
+
+        # ----------------------------------------------------------------
+        # 1. Xây domain activity – ĐÃ CHUYỂN DATE LOCAL → UTC
+        # ----------------------------------------------------------------
         dom_act = [('start', '!=', False)]
-        if date:
-            dom_act += [('start', '>=', f"{date} 00:00:00"),
-                        ('start', '<=', f"{date} 23:59:59")]
+        utc_fr, utc_to = self._local_day_to_utc_range(date)
+        if utc_fr and utc_to:
+            dom_act += [('start', '>=', utc_fr), ('start', '<=', utc_to)]
         if line:
             dom_act.append(('work_order_id.production_line_id.name', 'ilike', line))
 
         acts_all = self.env['smartbiz_mes.production_activity'].search(dom_act)
 
-        # lọc theo ca nếu cần
+        # -- lọc ca nếu truyền shift
         shift_num = 0
-        if re.search(r'\b1\b', str(shift)): shift_num = 1
-        if re.search(r'\b2\b', str(shift)): shift_num = 2
+        if re.search(r'\b1\b', str(shift)):
+            shift_num = 1
+        elif re.search(r'\b2\b', str(shift)):
+            shift_num = 2
         acts_det = acts_all.filtered(
             lambda a: self._shift_idx_from_start(a.start) == shift_num
         ) if shift_num else acts_all
 
-        # KPI
-        # prods_kpi = acts_all.mapped('work_order_id.production_id')
-        prods_kpi = self.env['mrp.production'].browse(set(acts_all.mapped('work_order_id.production_id').ids))
-        acts_kpi  = acts_all.filtered(
-            lambda a: a.finish and a.quality >= 0.9 and a.activity_type != 'paused'
-        )
+        # ----------------------------------------------------------------
+        # 2. KPI: kế hoạch + thực tế
+        #     • total_plan_qty => dựa thẳng trên mrp.production
+        # ----------------------------------------------------------------
+        dom_prod = [('state', 'not in', ['draft', 'cancel'])]
+        if utc_fr and utc_to:
+            dom_prod += [('plan_start', '>=', utc_fr), ('plan_start', '<=', utc_to)]
+        if line:
+            dom_prod.append(('production_line_id.name', 'ilike', line))
+        # (nếu muốn lọc shift ở KPI cũng thêm điều kiện shift tại đây)
+
+        prods_kpi = self.env['mrp.production'].search(dom_prod)
+
         kpi = {
             'total_plan_qty'  : sum(prods_kpi.mapped('product_qty')),
             'finish_shift1'   : 0,
             'finish_shift2'   : 0,
             'packing_progress': 0,
         }
+        acts_kpi = acts_all.filtered(
+            lambda a: a.finish and a.quality >= 0.9 and a.activity_type != 'paused'
+        )
         for act in acts_kpi:
-            if (act.work_order_id.operation_id.name or "").strip().lower() != 'đóng gói':
+            if (act.work_order_id.operation_id.name or '').strip().lower() != 'đóng gói':
                 continue
             kpi['packing_progress'] += act.quantity
             idx = self._shift_idx_from_start(act.start)
-            if idx == 1: kpi['finish_shift1'] += act.quantity
-            if idx == 2: kpi['finish_shift2'] += act.quantity
+            if idx == 1:
+                kpi['finish_shift1'] += act.quantity
+            elif idx == 2:
+                kpi['finish_shift2'] += act.quantity
 
-        # bảng 1.1
+        # ----------------------------------------------------------------
+        # 3. Xác định thứ tự bước & MO cần hiển thị
+        # ----------------------------------------------------------------
         prods_det = acts_det.mapped('work_order_id.production_id')
         all_steps = self.__get_all_steps_ordered(prods_det)
         step_disp = {s: s.capitalize() for s in all_steps}
 
-        now   = fields.Datetime.context_timestamp(self, fields.Datetime.now())
-        rows  = []
-        lots = len(prods_det)
-        for stt, prod in enumerate(prods_det, 1):
-            acts = acts_det.filtered(lambda a: a.work_order_id.production_id.id == prod.id)
-            m = {s: {
-                    'time': 0, 'qty': 0, 'not': 0,
-                    'paused': False, 'status': 'none', 'actual_time': 0
-                } for s in all_steps}
+        # ----------------------------------------------------------------
+        # 4. Thời gian tiêu chuẩn (TTC) cho từng product
+        # ----------------------------------------------------------------
+        std_time_by_pid = {
+            prod.product_id.id: prod.product_id.avg_cycle_time or 0.0
+            for prod in prods_det
+        }
+        pids_need = [p for p, v in std_time_by_pid.items() if not v]
+        if pids_need:
+            window_start = fields.Datetime.now() - \
+                           timedelta(days=30 * self._CYCLE_WINDOW_MONTHS)
+            acts_window = self.env['smartbiz_mes.production_activity'].search([
+                ('product_id', 'in', pids_need),
+                ('finish', '>=', window_start),
+                ('finish', '!=', False),
+                ('activity_type', '!=', 'paused'),
+            ])
+            time_sum, mo_set = {}, {}
+            for a in acts_window:
+                pid = a.product_id.id
+                time_sum[pid] = time_sum.get(pid, 0.0) + a.duration
+                mo_set.setdefault(pid, set()).add(a.production_id.id)
+            for pid in pids_need:
+                cnt = len(mo_set.get(pid, set()))
+                std_time_by_pid[pid] = round(time_sum.get(pid, 0.0) / cnt, 2) if cnt else 0.0
 
+        # ----------------------------------------------------------------
+        # 5. Sắp xếp MO theo thời điểm cập nhật mới nhất
+        # ----------------------------------------------------------------
+        # last_update = {}
+        # for a in acts_det:
+        #     pid = a.work_order_id.production_id.id
+        #     ts  = a.finish or a.start
+        #     if not last_update.get(pid) or ts > last_update[pid]:
+        #         last_update[pid] = ts
+        # prods_det = sorted(
+        #     prods_det,
+        #     key=lambda p: last_update.get(p.id, fields.Datetime.to_datetime('1970-01-01')),
+        #     reverse=True
+        # )
+        prods_det = sorted(
+            prods_det,
+            key=lambda p: fields.Datetime.from_string(p.plan_start or '1970-01-01 00:00:00'),
+            reverse=False
+        )
+        # ----------------------------------------------------------------
+        # 6. Xây bảng chi tiết
+        # ----------------------------------------------------------------
+        now = fields.Datetime.context_timestamp(self, fields.Datetime.now())
+        rows = []
+        for idx, prod in enumerate(prods_det, 1):
+            acts = acts_det.filtered(lambda a: a.work_order_id.production_id.id == prod.id)
+            m = {s: {'time': 0, 'qty': 0, 'not': 0,
+                     'paused': False, 'status': 'none', 'actual_time': 0}
+                 for s in all_steps}
             for a in acts:
-                sname = (
-                    a.work_order_id.operation_id.name or
-                    a.work_order_id.name or
-                    (a.work_order_id.workcenter_id and a.work_order_id.workcenter_id.name) or
-                    "unknown"
-                ).strip().lower()
+                sname = (a.work_order_id.operation_id.name or
+                         a.work_order_id.name or
+                         (a.work_order_id.workcenter_id and a.work_order_id.workcenter_id.name) or
+                         'unknown').strip().lower()
                 if sname not in m:
                     continue
                 rec = m[sname]
-                if a.activity_type == 'paused':
-                    dur = 0
+                if a.activity_type == 'paused' and not a.finish:
                     rec['paused'] = True
-                elif a.finish:
-                    dur = a.duration
-                else:
-                    start_local = fields.Datetime.context_timestamp(self, a.start)
-                    dur = (now - start_local).total_seconds() / 60
-                    
-                rec['actual_time'] += dur
-                rec['time'] += dur / (a.work_order_id.workcenter_id.equipment_quantity or 1)
+
+                start_local = fields.Datetime.context_timestamp(self, a.start)
+                dur = a.duration if a.finish else (now - start_local).total_seconds() / 60
+                if a.activity_type not in ('paused', 'cancel') and sname != self._PACK_STEP_NAME:
+                    rec['actual_time'] += dur
+                    rec['time'] += dur / (a.work_order_id.workcenter_id.equipment_quantity or 1)
                 rec['qty']  += a.quantity
                 if not a.finish:
                     rec['not'] += 1
@@ -163,29 +286,25 @@ class WorkOrderDashboard(models.Model):
                 else:
                     rec['status'] = 'done'
 
-            # total_actual = sum(r['actual_time'] for r in m.values())
-            total_actual = sum(r['actual_time'] for k, r in m.items()
-                            if k.strip().lower() != 'đóng gói'
-                        )
             row = {
-                'stt'                 : stt,
-                'kh'                  : prod.origin or "",
+                'stt'                 : idx,
+                'kh'                  : prod.origin or '',
                 'lot'                 : prod.name,
                 'item'                : prod.product_id.name,
                 'so_luong'            : prod.product_qty,
-                'thoi_gian_tieu_chuan': round(total_actual/(lots or 1), 2),                      # không tính khi bỏ mặc định
-                'thoi_gian_thuc_te'   : round(total_actual, 2),
+                'thoi_gian_tieu_chuan': std_time_by_pid.get(prod.product_id.id, 0.0),
+                'thoi_gian_thuc_te'   : round(sum(r['actual_time'] for r in m.values()), 2),
             }
             for s in all_steps:
-                d = step_disp[s]
-                r = m[s]
+                disp = step_disp[s]
+                r    = m[s]
                 if r['qty'] or r['time'] or r['status'] != 'none':
-                    row[d] = {
-                        'time'    : round(r['time'],2),
+                    row[disp] = {
+                        'time'    : round(r['time'], 2),
                         'quantity': r['qty'],
                         'status'  : r['status'],
                     }
-            for disp in step_disp.values():              # chính là list 'steps' frontend nhận
+            for disp in step_disp.values():   # bước chưa có dữ liệu
                 row.setdefault(disp, {
                     'time'    : '-',
                     'quantity': 0,
@@ -193,6 +312,9 @@ class WorkOrderDashboard(models.Model):
                 })
             rows.append(row)
 
+        # ----------------------------------------------------------------
+        # 7. Trả về
+        # ----------------------------------------------------------------
         return {
             'steps': [step_disp[s] for s in all_steps],
             'data' : rows,
@@ -209,9 +331,11 @@ class WorkOrderDashboard(models.Model):
             ('start', '!=', False),
             ('finish', '!=', False),
         ]
-        if date:
-            dom += [('start', '>=', f"{date} 00:00:00"),
-                    ('start', '<=', f"{date} 23:59:59")]
+
+        utc_fr, utc_to = self._local_day_to_utc_range(date)
+        if utc_fr and utc_to:
+            dom += [('start', '>=', utc_fr), ('start', '<=', utc_to)]
+
         if line:
             dom.append(('work_order_id.production_line_id.name', 'ilike', line))
 

@@ -422,6 +422,15 @@ class Stock_Picking(models.Model):
         )
         move_line_ids = quantity_move_line_ids.filtered(lambda ml: ml.picked and (ml.lot_name or ml.lot_id))
         return move_line_ids  
+    
+    @api.model_create_multi
+    def create(self, vals_list):
+        pickings = super().create(vals_list)
+        for picking in pickings:
+            if picking.return_id:
+                original = picking.return_id
+                picking.origin = original.origin or f"Trả hàng: {original.name}"
+        return pickings
 
 class stock_moveline(models.Model):
     _inherit = ['stock.move.line']
@@ -495,3 +504,18 @@ class stock_move(models.Model):
                     update_qty = 0
                     move.picking_id.action_assign()
         return moves
+
+class Stock_PickingBatch(models.Model):
+    _inherit = ['stock.picking.batch']
+    name = fields.Char(store='True')
+            
+    def action_lines(self):
+        self.ensure_one()
+        return {
+            'name': 'Stock Move Lines',
+            'type': 'ir.actions.act_window',
+            'res_model': 'stock.move.line',
+            'view_mode': 'tree,form',
+            'domain': [('batch_id', '=', self.id)],
+            'context': {'default_batch_id': self.id},
+        }

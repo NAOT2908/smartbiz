@@ -115,15 +115,17 @@
         <field name="arch" type="xml">
             <form string="Inventory">
                 <header>
-                    <button name="action_start" type="object" string="Start Inventory"
-                        class="btn-primary" invisible="state in ['done', 'cancel']" />
+                    <button name="action_start" type="object" string="Start"
+                        class="btn-primary" invisible="state in ['done', 'cancel', 'in_progress']" />
+                    <button name="action_generate_inventory" type="object" string="Generate Inventory"
+                        class="btn-primary" invisible="state in ['done', 'cancel', 'in_progress']" />
                     <button name="open_confirm_wizard" type="object" string="Validate"
-                        class="btn-success" invisible="state in ['done', 'cancel']" />
+                        class="btn-success" invisible="state in ['done', 'cancel', 'draft']" />
                     <button name="open_cancel_wizard" type="object" string="Cancel"
-                        class="btn-secondary" invisible="state in ['done', 'cancel']" />
+                        class="btn-secondary" invisible="state in ['done', 'cancel', 'draft']" />
                     <button name="action_open_quant_selector" type="object" string="Chọn"
                         class="btn-primary" invisible="state in ['done', 'cancel']" />
-                    <button name="cancel_inventory_line" type="object" class="btn-secondary" string="Hủy dự trữ" invisible="state in ['done', 'cancel']"/>
+                    <button name="cancel_inventory_line" type="object" class="btn-secondary" string="Hủy dự trữ" invisible="state in ['done', 'cancel', 'draft']"/>
                     <field name="state" widget="statusbar" />
                 </header>
                 <sheet>
@@ -149,6 +151,7 @@
                             <field name="warehouse_ids" widget="many2many_tags" />
                             <field name="category_ids" widget="many2many_tags" />
                             <field name="product_ids" widget="many2many_tags" />
+                            <field name="lot_ids" widget="many2many_tags" />
                             <field name="inventory_location_ids" widget="many2many_tags" />
                         </group>
                     </group>

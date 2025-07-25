@@ -26,7 +26,7 @@ class InventoryConfirmWizard(models.TransientModel):
     def action_confirm_and_create_new(self):
         if self.apply_inventory:
             # Gọi validate nhưng chỉ cho dòng đã đếm
-            lines_to_validate = self.inventory_id.line_ids.filtered(lambda l: l.state == 'counting')
+            lines_to_validate = self.inventory_id.line_ids.filtered(lambda l: l.state == 'counting' or l.state == 'done')
             lines_to_validate.write({'state': 'done'})
             
             for line in lines_to_validate:
@@ -39,7 +39,7 @@ class InventoryConfirmWizard(models.TransientModel):
                     'location_id': line.location_id.id,
                     'company_id': self.inventory_id.company_id.id,
                     'user_id': self.inventory_id.user_id.id if self.inventory_id.user_id else False,
-                    'quantity_before': line.quantity_before,
+                    'quantity': line.quantity,
                     'quantity_after': line.quantity_counted,
                     'difference': line.difference,
                     'date': fields.Datetime.now(),
@@ -63,7 +63,7 @@ class InventoryConfirmWizard(models.TransientModel):
                         'lot_id': line.lot_id.id if line.lot_id else False,
                         'package_id': line.package_id.id if line.package_id else False,
                         'location_id': line.location_id.id,
-                        'quantity_before': line.quantity_before,
+                        'quantity': line.quantity,
                         'state': 'pending',
                     })
                 
@@ -73,18 +73,22 @@ class InventoryConfirmWizard(models.TransientModel):
         return {'type': 'ir.actions.act_window_close'}
 
     def _generate_inventory_name(self):
-        """ Tạo tên cho kiểm kê mới theo định dạng tự động """
-        last_inv = self.env['smartbiz.inventory'].search([('company_id', '=', self.inventory_id.company_id.id)],
-                                                        order='id desc', limit=1)
-        if last_inv:
-            # Nếu có đơn kiểm kê trước đó, tăng số cuối cùng lên 1
-            last_number = int(last_inv.name.split()[-1])  # Giả sử tên đơn kiểm kê có định dạng '001', '002', ...
-            new_number = str(last_number + 1).zfill(3)  # Tăng số và đảm bảo có 3 chữ số
-        else:
-            # Nếu không có đơn kiểm kê nào trước đó, bắt đầu từ 001
-            new_number = '001'
-        
-        return f"{self.inventory_id.name} - {new_number}"
+        """ Tạo tên kiểm kê mới theo format '<tên gốc> + số thứ tự tăng dần' """
+        base_name = self.inventory_id.name
+
+        # Tìm tất cả các bản ghi có tên bắt đầu bằng tên gốc
+        existing_names = self.env['smartbiz.inventory'].search([
+            ('name', 'ilike', base_name)
+        ])
+
+        max_number = 0
+        for rec in existing_names:
+            suffix = rec.name.replace(base_name, '').strip()
+            if suffix.isdigit():
+                max_number = max(max_number, int(suffix))
+
+        new_number = str(max_number + 1).zfill(3)
+        return f"{base_name}-{new_number}"
 
     def action_cancel(self):
         """Hủy, không làm gì cả"""

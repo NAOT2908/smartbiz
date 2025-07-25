@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from odoo.osv import expression
-from odoo import models, fields, api, exceptions,_, tools
+from odoo import models, fields, api, exceptions, tools
+from odoo.tools.translate import _
 import os
 import base64,pytz,logging
 from datetime import datetime, timedelta
@@ -235,7 +236,6 @@ class Stock_Picking(models.Model):
                 return True
         return False
 
-
     def get_barcode_data(self,barcode,filters,barcodeType):
         if barcodeType:
             if barcodeType == 'lots':
@@ -406,6 +406,87 @@ class Stock_Picking(models.Model):
             'lot_name':mv.picking_id.lot or '',
 
         })
+        
+        pkg_data = {}
+        for ml in moves.move_line_ids.filtered(lambda ml: ml.result_package_id):
+            pkg_id = ml.result_package_id.id
+            pkg_name = ml.result_package_id.name or ''
+            prod_id = ml.product_id.id
+            product_uom = ml.product_id.uom_id.name
+            product_uom_id = ml.product_id.uom_id.id
+            prod_name = ml.product_id.display_name or ''
+            product_uom_qty = ml.move_id.product_uom_qty
+            qty = ml.quantity
+            remain_qty = product_uom_qty - qty
+
+            # Nếu package chưa tồn tại trong pkg_data, khởi tạo
+            if pkg_id not in pkg_data:
+                pkg_data[pkg_id] = {
+                    'name': pkg_name,
+                    'package_id': pkg_id,
+                    'products': {},
+                    'lines': []  # Khởi tạo danh sách lines rỗng
+                }
+            
+            # Tính toán thông tin sản phẩm trong package
+            if prod_id not in pkg_data[pkg_id]['products']:
+                pkg_data[pkg_id]['products'][prod_id] = {
+                    'id': prod_id,
+                    'product_name': prod_name,
+                    'product_uom': product_uom,
+                    'product_uom_id':product_uom_id,
+                    'quantity': 0,
+                    'product_uom_qty': product_uom_qty,
+                    'remain_qty': remain_qty
+                }
+            pkg_data[pkg_id]['products'][prod_id]['quantity'] += qty
+
+            # Thêm thông tin move line vào danh sách lines của package
+            line_data = ml.read(self._get_fields('stock.move.line'))
+            pkg_data[pkg_id]['lines'].append(line_data[0])
+
+        # Tạo danh sách finish_packages với cả thông tin products và lines
+        finish_packages = []
+        for pkg in pkg_data.values():
+            product_list = []
+            for prod in pkg['products'].values():
+                product_list.append(prod)
+            finish_packages.append({
+                'name': pkg['name'],
+                'id': pkg['package_id'],
+                'products': product_list,
+                'lines': pkg['lines'],  # Bổ sung thông tin các move line cho package
+            })
+        unpacked_move_lines = moves.move_line_ids.filtered(lambda ml: not ml.result_package_id)
+        unpacked_products = []
+        for mv in moves:
+            total_finished_qty = mv.product_uom_qty or 0.0
+            # Hoặc có thể xài move.quantity (tuỳ code cũ)
+            
+            # Tính tổng quantity đã được đóng gói (có result_package_id)
+            packed_lines = mv.move_line_ids.filtered(lambda ml: ml.result_package_id)
+            
+            total_packed_qty = sum(packed_lines.mapped('quantity'))
+
+            available_qty = total_finished_qty - total_packed_qty
+            if available_qty > 0:
+                # Gom thông tin cho form "đóng gói"
+                # Gắn kèm move_id, product tracking, location... tuỳ ý
+                product_data = {
+                    'move_id': mv.id,
+                    'product_id': mv.product_id.id,
+                    'product_name': mv.product_id.display_name or '',
+                    'product_tracking': mv.product_id.tracking,
+                    'location_id': mv.location_id.id,
+                    'location_dest_id': mv.location_dest_id.id,
+                    'available_quantity': available_qty,
+                    # Tuỳ logic: 
+                    #   - Mặc định 'qtyPerPackage' = 0 (người dùng sẽ nhập)
+                    #   - 'packageCount' = 0 
+                }
+                unpacked_products.append(product_data)
+
+        # Lấy thông tin các kiện hàng
         packs = []
         for pack in packages:
             prods = []
@@ -431,16 +512,49 @@ class Stock_Picking(models.Model):
             'partner_id':picking.partner_id.id if not batch_id else picking[0].partner_id.id if picking else False,
             'partner_name':picking.partner_id.name if not batch_id else picking[0].partner_id.name if picking else '',
             'user_id':picking.user_id.id if not batch_id else picking[0].user_id.id if picking else False,
-            'user_name': picking.user_id.name if not batch_id else picking[0].user_id.name if picking else '',
-            'lot_name': picking.lot if not batch_id else picking[0].lot if picking else '',
+            'user_name': picking.user_id.name or '' if not batch_id else picking[0].user_id.name or '' if picking else '',
+            'lot_name': picking.lot or '' if not batch_id else picking[0].lot or '' if picking else '',
             'location_id':picking.location_id.id if not batch_id else picking[0].location_id.id if picking else False,
-            'location_name':picking.location_id.display_name if not batch_id else picking[0].location_id.display_name if picking else False,
+            'location_name':picking.location_id.display_name or '' if not batch_id else picking[0].location_id.display_name or '' if picking else '',
             'location_dest_id': picking.location_dest_id.id if not batch_id else picking[0].location_dest_id.id if picking else False,
+            'location_dest_name': picking.location_dest_id.display_name or '' if not batch_id else picking[0].location_dest_id.display_name or '' if picking else '',
             'picking_type_code': batch_id.picking_type_id.code if batch_id else picking.picking_type_id.code,
-            'state': batch_id.state if batch_id else picking.state,
+            'state_name': self.sel_display(batch_id or picking, 'state'),
+            'state':(batch_id or picking).state,
             'name': batch_id.name if batch_id else picking.name,
+
+            'order':[{'lot_name':picking.lot or '' if not batch_id else picking[0].lot or '' if picking else '',}],
+            'finish_packages': finish_packages,
+            'unpacked_moves':unpacked_products,
+            'unpacked_move_lines':unpacked_move_lines.read(self._get_fields('stock.move.line')),
         }
         return data
+
+       
+    def sel_display(self, record, field_name):
+        """
+        Trả về nhãn hiển thị (đã dịch) của một trường Selection bất kể version.
+        - record : môi trường bản ghi (stock.picking, mrp.batch, …)
+        - field  : tên trường selection (str), ví dụ 'state'
+        """
+        value = record[field_name]
+           # Không phải selection thì trả mã kỹ thuật
+
+        # id của trường trong ir.model.fields
+        field_id = record.env['ir.model.fields']._get(
+            record._name, field_name
+        ).id
+
+        # Tra nhãn
+        sel_rec = record.env['ir.model.fields.selection'].sudo().search([
+            ('field_id', '=', field_id),
+            ('value', '=', value),
+        ], limit=1)
+        if sel_rec:
+            return sel_rec.name
+        else:
+            return value
+
     def create_move(self,picking_id,values,batch_id=False):
         move = self.env['stock.move'].create(values)
         data = self.get_data(picking_id,batch_id)
@@ -505,7 +619,52 @@ class Stock_Picking(models.Model):
             
 
         return {'id':package_id.id,'name':package_name}
-        
+
+    def update_package(self,picking_id,batch_id,lines):
+        for l in lines:  
+            line = self.env['stock.move.line'].browse(l['id'])
+            qty = float(l['quantity'])
+            #raise UserError(_("line %s" % line ))
+            if qty <= 0:
+                line.write({'result_package_id':False})
+            else:
+                line.write({'result_package_id':l['result_package_id'],'quantity':qty})
+            
+        return self.get_data(picking_id,batch_id)
+
+    def create_packages(self,picking_id,batch_id,lines):
+        for data in lines:
+            move_id = data['move_id']
+            product_id = data['product_id']
+            product = self.env['product.product'].browse(product_id)
+            product_uom_id = product.uom_id.id
+            lot_id = False
+            if data['lot_id']:
+                lot_id = data['lot_id']
+            elif data['lot_name']:
+                lot_id = self.env['stock.lot'].search([('name','=',data['lot_name']),('product_id','=',product_id)],limit=1)
+                if not lot_id:
+                    lot_id = self.env['stock.lot'].create({'name':data['lot_name'],'product_id':product_id})
+                lot_id = lot_id.id
+            quantity = data['quantity']
+            #raise UserError("data %s lot_name %s lot_id %s" % (data ,data['lot_name'],lot_id) )
+            self.env['stock.move.line'].create({
+                'move_id':move_id,
+                'product_id':product_id,
+                'product_uom_id':product_uom_id,
+                'quantity':quantity,
+                'location_id':data['location_id'],
+                'location_dest_id':data['location_dest_id'],
+                'lot_id':lot_id,
+                'package_id':data['package_id'],
+                'result_package_id':data['result_package_id'],
+                'state':'assigned',
+                'picked':True
+            })
+            
+        return self.get_data(picking_id,batch_id)    
+    
+
     def delete_move_line(self,picking_id,move_line_id,batch_id=False):
         self.env['stock.move.line'].browse(move_line_id).unlink()
         return self.get_data(picking_id,batch_id)
@@ -544,7 +703,7 @@ class Stock_Picking(models.Model):
                         # Tính tổng số lượng trong stock.quant cho package và sản phẩm cụ thể
                         total_qty_package = sum(self.env['stock.quant'].search([
                             ('package_id', '=', package_id.id),
-                            # ('product_id', '=', product_id.id)
+                            #('product_id', '=', product_id.id)
                         ]).mapped('quantity'))
 
                         # Kiểm tra sự khác biệt giữa tổng số lượng
@@ -573,7 +732,7 @@ class Stock_Picking(models.Model):
                         # Tính tổng số lượng trong stock.quant cho package và sản phẩm cụ thể
                         total_qty_package = sum(self.env['stock.quant'].search([
                             ('package_id', '=', package_id.id),
-                            # ('product_id', '=', product_id.id)
+                            #('product_id', '=', product_id.id)
                         ]).mapped('quantity'))
 
                         # Kiểm tra sự khác biệt giữa tổng số lượng
@@ -581,7 +740,9 @@ class Stock_Picking(models.Model):
                             Picking = ', '.join(line.picking_id.name or 'Unknown' for line in lines)
                             e.append(("Kiện hàng '%s' với sản phẩm '%s' đã có trong đơn hàng '%s'. Vui lòng kiểm tra lại.") 
                                   % (package_id.name, product_id.name, Picking))
-            
+            for line in picking.move_line_ids:
+                package_id = line.package_id  
+                result_package_id = line.result_package_id
                 if result_package_id:
                     lines = self.env['stock.move.line'].search([('package_id','=',result_package_id.id),('picking_id','!=',picking_id),('location_id','!=',line.location_dest_id.id),('state','not in',['done','cancel'])])
                     if lines:

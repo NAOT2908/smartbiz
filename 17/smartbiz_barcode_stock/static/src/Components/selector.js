@@ -100,6 +100,22 @@ export class Selector extends Component {
                 }
                 
             }
+            else if (barcodeData.barcodeType == "serials") {
+                if (this.props.title === 'Nhận theo số sê-ri') {    
+                    if(!this.state.processedSerials.find(x=>x == barcodeData.barcode)){
+                        if(this.containsLineBreak(barcodeData.barcode)) 
+                        {
+                            const normalized = barcodeData.barcode.replace(/\r\n|[;,]/g, '\n'); // đổi toàn bộ CRLF thành LF
+                            const lines2 = normalized.split('\n');
+
+                            for (var line of lines2){
+                                this.state.processedSerials.push(line)
+                            }   
+                        }
+
+                    }
+                }
+            }
             else{            
                 const message = _t(`Barcode: ${barcode} không phải là Packages!`);
                 this.notification.add(message, { type: "warning" });
@@ -132,6 +148,7 @@ export class Selector extends Component {
 
         }
     }
+
     async openMobileScanner() {
         const barcode = await BarcodeScanner.scanBarcode(this.env);
         await this.onBarcodeScanned(barcode);

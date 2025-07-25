@@ -928,7 +928,7 @@ body {
     --color-bg-new:         #FFFFFF;
   
     /* Đang thực hiện */
-    --color-bg-inprogress:  #e9f358;  /* vàng nhạt */
+    --color-bg-inprogress:  #f0fa61;  /* xanh dương nhạt */
   
     /* Hoàn thành OK */
     --color-bg-finish-ok:   #8ff38b;  /* xanh lá nhạt */
@@ -1054,4 +1054,13 @@ body {
         .btn-label{display:none;}  /* chỉ icon để tiết kiệm chỗ */
     }
   }
-  
+  .wol_tabs{
+    display:flex; gap:6px; margin:4px 0 6px;
+
+    button{
+        flex:1; padding:3px 0; border:none; cursor:pointer;
+        background:#d7d7d7; font-weight:600;
+        &.active{background:#1976d2; color:#fff;}
+    }
+}
+.wo-name{font-size:18px;font-weight:700}

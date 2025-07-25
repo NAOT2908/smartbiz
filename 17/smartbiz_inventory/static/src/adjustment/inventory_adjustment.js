@@ -224,6 +224,7 @@ export class AdjustmentInventory extends Component {
       activeTab: "Counting",
       image: null,
       currentLocation : null,
+      showEditLine: false,
       currentPage: 1,
       itemsPerPage: 20,
       totalOrders: 0,
@@ -297,65 +298,76 @@ export class AdjustmentInventory extends Component {
   }
 
   onRangeChange() {
-  const match = this.state.rangeInput.match(/^(\d+)\s*-\s*(\d+)$/);
-  if (!match) return;
+    const match = this.state.rangeInput.match(/^(\d+)\s*-\s*(\d+)$/);
+    if (!match) return;
 
-  const start = parseInt(match[1], 10);
-  const end = parseInt(match[2], 10);
+    let start = parseInt(match[1], 10);
+    let end = parseInt(match[2], 10);
 
-  if (start > end || start < 1 || end > this.state.totalOrders) return;
+    // Không để start nhỏ hơn 1
+    if (start < 1) start = 1;
 
-  this.state.pageStep = end - start + 1; // lưu lại step
+    // Không cho end vượt quá tổng số dữ liệu
+    if (end > this.state.totalOrders) end = this.state.totalOrders;
 
-  this.loadInventoryDataFromRange(start, end);
-}
+    // Nếu end nhỏ hơn start thì sai logic
+    if (start > end) {
+      this.notification.add("Khoảng nhập không hợp lệ (bắt đầu lớn hơn kết thúc)", { type: "warning" });
+      return;
+    }
+
+    this.state.pageStep = end - start + 1;
+    this.state.rangeInput = `${start}-${end}`; // Cập nhật lại nếu có thay đổi
+    this.loadInventoryDataFromRange(start, end);
+  }
+
   nextPage() {
-  const match = this.state.rangeInput.match(/^(\d+)\s*-\s*(\d+)$/);
-  if (!match) return;
+    const match = this.state.rangeInput.match(/^(\d+)\s*-\s*(\d+)$/);
+    if (!match) return;
 
-  const start = parseInt(match[1], 10);
-  const end = parseInt(match[2], 10);
-  const step = this.state.pageStep; // luôn dùng step này, không tự tính lại
+    const start = parseInt(match[1], 10);
+    const end = parseInt(match[2], 10);
+    const step = this.state.pageStep; // luôn dùng step này, không tự tính lại
 
-  let newStart = end + 1;
-  let newEnd = end + step;
+    let newStart = end + 1;
+    let newEnd = end + step;
 
-  if (newStart > this.state.totalOrders) return;
+    if (newStart > this.state.totalOrders) return;
 
-  if (newEnd > this.state.totalOrders) {
-    newEnd = this.state.totalOrders;
+    if (newEnd > this.state.totalOrders) {
+      newEnd = this.state.totalOrders;
+    }
+
+    this.state.rangeInput = `${newStart}-${newEnd}`;
+    this.loadInventoryDataFromRange(newStart, newEnd);
   }
+  previousPage() {
+    const match = this.state.rangeInput.match(/^(\d+)\s*-\s*(\d+)$/);
+    if (!match) return;
 
-  this.state.rangeInput = `${newStart}-${newEnd}`;
-  this.loadInventoryDataFromRange(newStart, newEnd);
-}
-previousPage() {
-  const match = this.state.rangeInput.match(/^(\d+)\s*-\s*(\d+)$/);
-  if (!match) return;
+    const start = parseInt(match[1], 10);
+    const step = this.state.pageStep;
 
-  const start = parseInt(match[1], 10);
-  const step = this.state.pageStep;
+    let newStart = start - step;
+    if (newStart < 1) newStart = 1;
 
-  let newStart = start - step;
-  if (newStart < 1) newStart = 1;
+    let newEnd = newStart + step - 1;
+    if (newEnd > this.state.totalOrders) {
+      newEnd = this.state.totalOrders;
+    }
 
-  let newEnd = newStart + step - 1;
-  if (newEnd > this.state.totalOrders) {
-    newEnd = this.state.totalOrders;
+    this.state.rangeInput = `${newStart}-${newEnd}`;
+    this.loadInventoryDataFromRange(newStart, newEnd);
   }
+  loadInventoryDataFromRange(start, end) {
+    const offset = start - 1;
+    const limit = end - start + 1;
 
-  this.state.rangeInput = `${newStart}-${newEnd}`;
-  this.loadInventoryDataFromRange(newStart, newEnd);
-}
-loadInventoryDataFromRange(start, end) {
-  const offset = start - 1;
-  const limit = end - start + 1;
+    this.state.itemsPerPage = limit;
+    this.state.currentPage = Math.floor(offset / limit) + 1;
 
-  this.state.itemsPerPage = limit;
-  this.state.currentPage = Math.floor(offset / limit) + 1;
-
-  this.loadInventoryData();
-}
+    this.loadInventoryData();
+  }
 
 
 
@@ -446,11 +458,12 @@ loadInventoryDataFromRange(start, end) {
       );
       console.log(get_data)
       // this.state.data = get_data.orders;
-      this.state.inventoryLine = get_data.lines
-      this.state.lines = get_data.lines;
+      // this.state.inventoryLine = get_data.lines
+      // this.state.lines = get_data.lines;
+      this.updatedata(get_data);
       this.updateFilteredLines();
     }
-    this.state.view = "DetailInventory";
+    this.state.showEditLine = false;
   }
   toggleMenu = () => {
     this.state.menuVisible = !this.state.menuVisible;
@@ -545,7 +558,7 @@ loadInventoryDataFromRange(start, end) {
         note: "",
       };
     }
-    this.state.view = "DetailInventoryLine";
+    this.state.showEditLine = true;
   }
   
   async deleteItem(id) {
@@ -721,8 +734,22 @@ loadInventoryDataFromRange(start, end) {
             this.notification.add(message, { type: "warning" });
           }
           else if (barcodeData.barcodeType === "lots"){
-              const message = _t(`Đợi chút đang làm!`);
-              this.notification.add(message, { type: "warning" });
+            this.state.selectedLine = this.state.lines.find((line) => line.lot_id === barcodeData.record.id)?.id;
+              // Kiểm tra xem mã vạch có thuộc đúng vị trí đã chọn không
+              if (barcodeData.record.location_id[0] && barcodeData.record.location_id[0] === this.state.currentLocation.id) {
+                  const response = await this.orm.call(
+                      "smartbiz.inventory",
+                      "process_barcode_scan",
+                      [, this.state.selectedOrder, barcodeData],
+                      {}
+                  );
+                  console.log(response)
+                  this.updatedata(response);
+              } else {
+                  const message = _t(`Số lô: ${barcodeData.barcode} không nằm ở vị trí ${this.state.currentLocation.display_name}!`);
+                  this.notification.add(message, { type: "warning" });
+              }
+              
           }
       } else {
           if (barcodeData.barcodeType === "products"){
@@ -737,15 +764,15 @@ loadInventoryDataFromRange(start, end) {
             }
           }
           else if (barcodeData.barcodeType === "lots"){
-              // if(this.state.selectedLine){
-              //   let line = this.state.lines.find((line) => line.id === this.state.selectedLine);
-              //   if (line) {
-                  
-              //   } else {
-              //     const message = _t(`Không tìm thấy thông tin!`);
-              //     this.notification.add(message, { type: "warning" });
-              //   }
-              // }
+              if(this.state.selectedLine){
+                let line = this.state.lines.find((line) => line.product_id === barcodeData.record.product_id[0]);
+                if (line) {
+                  this.state.selectedLine = line.id;
+                } else {
+                  const message = _t(`Không tìm thấy thông tin Lots/Sê-ri!`);
+                  this.notification.add(message, { type: "warning" });
+                }
+              }
         } else {
           this.notification.add(_t("Bạn cần quét vị trí trước!"), { type: "warning" });
         }

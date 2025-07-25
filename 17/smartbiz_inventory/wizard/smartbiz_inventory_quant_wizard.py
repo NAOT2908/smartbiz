@@ -21,7 +21,7 @@ class InventoryQuantSelectWizard(models.TransientModel):
                 'package_id': quant.package_id.id if quant.package_id else False,
                 'location_id': quant.location_id.id,
                 'company_id': self.inventory_id.company_id.id,
-                'quantity_before': quant.quantity,
+                'quantity': quant.quantity,
                 'quantity_counted': 0 if self.inventory_id.set_count == 'empty' else quant.quantity,
                 'quant_id': quant.id,
                 'note': '',

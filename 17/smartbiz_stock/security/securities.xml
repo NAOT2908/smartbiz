@@ -62,6 +62,18 @@
             <field name="category_id" ref="security_category"/>
         </record>
 
+        <record model="res.groups" id="smartbiz_stock.group_roles_stock_inventory___admin_10">
+            <field name="name">Stock Inventory - Admin</field>
+            <field name="type">roles</field>
+            <field name="category_id" ref="security_category"/>
+        </record>
+
+        <record model="res.groups" id="smartbiz_stock.group_roles_stock_inventory___user_11">
+            <field name="name">Stock Inventory - User</field>
+            <field name="type">roles</field>
+            <field name="category_id" ref="security_category"/>
+        </record>
+
         <record model="res.groups" id="smartbiz_stock.group_roles_inventory___full_report_2">
             <field name="implied_ids" eval="[(6, 0, [ref('smartbiz_stock.group_roles_inventory___basic_report_1'),])]"/>
         </record>

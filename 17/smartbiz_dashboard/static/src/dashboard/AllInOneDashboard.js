@@ -104,7 +104,7 @@ export class AllInOneDashboard extends Component {
 
         // Biến lưu tạm timer (setInterval)
         this.refreshTimer = null;
-
+        this.dateResetTimer  = null;   // <─ thêm dòng này
         /* --- REF ------------------------------------------------------- */
         this.refs = useRef("progressWrapper", "faultyWrapper");
 
@@ -150,31 +150,36 @@ export class AllInOneDashboard extends Component {
     // HÀM QUẢN LÝ AUTO REFRESH
     // ==============================
     _startAutoRefresh() {
-        // Trước khi setInterval mới, clearInterval cũ (nếu có)
+        // Dừng tất cả timer cũ trước
         this._stopAutoRefresh();
-
-        // Tính ra thời gian (ms) dựa theo state.autoRefreshInterval
-        const intervalMs = parseInt(this.state.autoRefreshInterval) * 1000;
-        if (intervalMs <= 0) {
-            // Nếu người dùng nhập 0 hoặc giá trị âm => không auto refresh
-            return;
+    
+        /* --- interval refresh (giây) ---------------------- */
+        const intervalMs = parseInt(this.state.autoRefreshInterval || 0) * 1000;
+        if (intervalMs > 0) {
+            this.refreshTimer = setInterval(() => {
+                if (this.state.view === "WorkOrder") {
+                    this._fetchWorkOrderData();
+                } else {
+                    this._fetchAnalyticsData();
+                }
+            }, intervalMs);
         }
-
-        // Thiết lập setInterval, mỗi lần sẽ fetch lại dữ liệu
-        this.refreshTimer = setInterval(() => {
-            if (this.state.view === "WorkOrder") {
-                this._fetchWorkOrderData();
-            } else {
-                this._fetchAnalyticsData();
+    
+        /* --- interval reset ngày (20 phút) ---------------- */
+        const RESET_MS = 5 * 60 * 1000;          // 1 200 000 ms
+        this.dateResetTimer = setInterval(() => {
+            const today = this._getToday();       // yyyy-mm-dd
+            if (this.state.productionDate !== today) {
+                this.state.productionDate = today;
+                if (this.state.view === "WorkOrder") {
+                    this._fetchWorkOrderData();   // refresh cho đúng ngày
+                }
             }
-        }, intervalMs);
+        }, RESET_MS);
     }
-
     _stopAutoRefresh() {
-        if (this.refreshTimer) {
-            clearInterval(this.refreshTimer);
-            this.refreshTimer = null;
-        }
+        if (this.refreshTimer)   { clearInterval(this.refreshTimer);   this.refreshTimer   = null; }
+        if (this.dateResetTimer) { clearInterval(this.dateResetTimer); this.dateResetTimer = null; }
     }
 
     // Sự kiện khi người dùng thay đổi tần số
@@ -267,7 +272,6 @@ export class AllInOneDashboard extends Component {
         const duration1 = performance.now() - startTime1;
     
         this.state.dashboardData = resp1.data || [];
-        // console.log(this.state.dashboardData)
         this.state.steps = resp1.steps || [];
         this.state.kpi = resp1.kpi || {};
     

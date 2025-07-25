@@ -1,0 +1,696 @@
+<templates>
+  <t t-name="smartbiz_hr_interface" owl="1">
+    <div class="o_hr_interface">
+      <!--===============HEADER ===============-->
+      <header t-ref="header" t-attf-class="header #{state.sidebarVisible}" class="header">
+        <div class="header__container">
+          <button t-on-click="() => this.home.toggle(true)" class="header__logo">
+                            <i class="oi oi-chevron-left" />
+          </button>
+          
+          <div class="header__toggle">
+            <div class="hr_search-box" >
+                        <!-- <input class="inventory_search-input" 
+                                 placeholder="Tìm kiếm" /> -->
+                                
+                            <div class="input-wrapper">
+                            <button class="icon">
+                                <svg
+                                width="25px"
+                                height="25px"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                >
+                                <path
+                                    d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+                                    stroke="#fff"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                ></path>
+                                <path
+                                    d="M22 22L20 20"
+                                    stroke="#fff"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                ></path>
+                                </svg>
+                            </button>
+                            <input type="text" name="text" class="input" placeholder="Tìm kiếm..." t-model="state.search"
+                                t-on-change="onSearchChange"
+                            />
+                            </div>
+                          </div>
+            <div class="inventory_nav-link" t-on-click="openManualScanner">
+                <i class="fa fa-barcode" />
+            </div>
+            <button t-on-click="toggleSidebar" t-ref="toggleBtn" >
+            <i class="fa fa-bars"></i>
+          </button>
+          </div>
+          
+        </div>
+      </header>
+
+      <!--=============== SIDEBAR ===============-->
+      <nav t-ref="sidebar" class="sidebar" t-attf-class="sidebar #{state.sidebarVisible ? 'show-sidebar' : ''}">
+        <div class="sidebar__container">
+          <div class="sidebar__user">
+            <div class="sidebar__img">
+              <img t-if="state.img" class=" ImageField" t-att-src="'data:image/png;base64,' + state.img" alt="image" />
+            </div>
+            <div class="sidebar__info">
+              <h3 ><t t-esc="state.employee_name"></t></h3>
+              <span >ID:<t t-esc="state.employee" /></span>
+            </div>
+            <!-- <div t-if="state.sidebarVisible" class="sidebar__overlay" t-on-click="toggleSidebar">X</div> -->
+          </div>
+
+          <div class="sidebar__content" t-ref="sidebarLinks">
+            <div>
+              <h3 class="sidebar__title">MANAGE</h3>
+              <div class="sidebar__list" >
+                <a href="#" t-on-click="() => this.changeTab('attendance')" class="sidebar__link active-link">
+                  <i class="fa fa-calendar-check-o"></i>
+                  <span>Attendence</span>
+                </a>
+                <a href="#" t-on-click="() => this.changeTab('timeoff')" class="sidebar__link">
+                  <i class="fa fa-calendar"></i>
+                  <span>Time Off</span>
+                </a>
+                <a href="#" t-on-click="() => this.changeTab('overtime')" class="sidebar__link">
+                  <i class="fa fa-odnoklassniki"></i>
+                  <span>Overtime</span>
+                </a>
+                <a href="#" t-on-click="() => this.changeTab('salary')" class="sidebar__link">
+                  <i class="fa fa-credit-card"></i>
+                  <span>Salary</span>
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="sidebar__title">SETTINGS</h3>
+              <div class="sidebar__list" >
+                  <a href="#" class="sidebar__link" t-on-click="() => this.changeTab('chat')">
+                        <i class="fa fa-comment-o"></i>
+                        <span>My Messages</span>
+                    </a>
+                    <a href="#" class="sidebar__link" t-on-click="() => this.changeTab('notifications')">
+                        <i class="fa fa-bell"></i>
+                        <span>Notifications</span>
+                    </a>
+                    <a href="#" class="sidebar__link" t-on-click="() => this.changeTab('settings')">
+                        <i class="fa fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar__actions">
+            <button>
+              <i class="fa fa-moon-o sidebar__link sidebar__theme" t-ref="themeButton">
+                <span>Theme</span>
+              </i>
+            </button>
+            <button class="sidebar__link" t-on-click="() => this.logout()">
+              <i class="fa fa-sign-out"></i>
+              <span>Log Out</span>
+            </button>
+          </div>
+        </div>
+      </nav>
+      
+      <!--=============== MAIN ===============-->
+     <main t-attf-class="main-hr #{state.sidebarVisible}" class="main container" t-ref="main">
+        
+        <div class="hr-dashboard-container">
+            <div t-if="state.view === 'attendance'" class="content-view">
+                <button class="btn btn-primary" t-on-click="() => this.showModal('Attendance', 'attendance_data', {
+                        employee_id: state.employee_id,
+                        employee_name: state.employee_name,
+                    })">New</button>
+                <!-- <h3 class="section-title">
+                    <i class="fas fa-user-clock section-icon"></i> Attendance
+                </h3> -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-gradient-blue text-white rounded-xl shadow-lg p-6 flex items-center space-x-4 transform transition duration-300 hover:scale-105">
+                        <div class="flex-shrink-0 p-3 bg-blue-700 rounded-full shadow-inner text-center">
+                            <i class="fa fa-check w-8 "></i>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-90">Total Check-ins Today</p>
+                            <p class="text-3xl font-extrabold"><t t-esc="state.attendanceSummary.totalCheckinsToday"/></p> <!-- Placeholder for state.attendanceSummary.totalCheckinsToday -->
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-green text-white rounded-xl shadow-lg p-6 flex items-center space-x-4 transform transition duration-300 hover:scale-105">
+                        <div class="flex-shrink-0 p-3 bg-green-700 rounded-full shadow-inner text-center">
+                            <i class="fa fa-clock-o w-8 "></i>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-90">Currently Working</p>
+                            <p class="text-3xl font-extrabold"><t t-esc="state.attendanceSummary.currentlyCheckedIn"/></p> <!-- Placeholder for state.attendanceSummary.currentlyCheckedIn -->
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-red text-white rounded-xl shadow-lg p-6 flex items-center space-x-4 transform transition duration-300 hover:scale-105">
+                        <div class="flex-shrink-0 p-3 bg-red-700 rounded-full shadow-inner text-center">
+                            <i class="fa fa-user-times w-8 "></i>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-90">Not Checked-out</p>
+                            <p class="text-3xl font-extrabold"><t t-esc="state.attendanceSummary.notCheckedOut"/></p> <!-- Placeholder for state.attendanceSummary.notCheckedOut -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View Toggle Buttons -->
+                <div class="flex justify-end mb-6 space-x-2">
+                    <button t-on-click="() => this.setMode('list')" 
+                        t-att-class="displayMode.mode === 'list' ? ' bg-blue-600 text-white rounded-lg' : ' '"
+                        class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700 ">
+                        <i class="oi-fw oi oi-view-list w-5 h-5"></i>
+                        <!-- <span>Table View</span> -->
+                    </button>
+                    <button t-on-click="() => this.setMode('card')" 
+                        t-att-class="displayMode.mode === 'card' ? ' bg-blue-600 text-white rounded-lg' : ' '"
+                        class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700">
+                        <i class="oi-fw oi oi-view-kanban w-5 h-5"></i>
+                        <!-- <span>Card View</span> -->
+                    </button>
+                </div>
+
+
+                <t t-if="state.attendance_data.length > 0">
+                    <!-- Conditional Rendering based on displayMode (Card View) -->
+                     <t t-if="displayMode.mode === 'card'">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Example Card (would be mapped from data) -->
+                            <t t-foreach="state.attendance_data" t-as="record" t-key="record.id">
+                                <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between border border-gray-200 transform transition duration-300 hover:shadow-xl">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <p class="text-xl font-semibold text-gray-900"><t t-esc="record.employee_id[1]"/></p>
+                                        <span class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                            Checked-out
+                                        </span>
+                                    </div>
+                                    <div class="space-y-3 text-gray-700">
+                                        <p class="flex items-center">
+                                            <!-- <i class="lucide-LogIn w-5 h-5 mr-2 text-blue-600"></i> -->
+                                            <span class="font-medium">Check-in:</span>
+                                            <span class="ml-auto"><t t-esc="this.formatDateTime(record.check_in)"/></span>
+                                        </p>
+                                        <p class="flex items-center">
+                                            <!-- <i class="lucide-LogOut w-5 h-5 mr-2 text-red-600"></i> -->
+                                            <span class="font-medium">Check-out:</span>
+                                            <span class="ml-auto"><t t-esc="record.check_out ? this.formatDateTime(record.check_out) : 'Not Checked-out'"/></span>
+                                        </p>
+                                        <p class="flex justify-between items-center">
+                                            <span class="font-medium">Work hours:</span>
+                                            <span class="font-semibold text-gray-800"><t t-esc="roundToTwo(record.worked_hours)"/>h</span>
+                                        </p>
+                                        <p class="flex justify-between items-center">
+                                            <span class="font-medium">OT:</span>
+                                            <span class="font-semibold text-gray-800"><t t-esc="roundToTwo(record.overtime_hours)"/>h</span>
+                                        </p>
+                                    </div>
+                                    <button class="mt-6 w-full py-2 bg-gray-100 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition duration-200 ease-in-out font-medium">
+                                        View Details
+                                    </button>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-if="displayMode.mode === 'list'">
+                        <!-- <p class="mt-4 text-sm text-gray-500">
+                            Selected IDs: <t t-esc="JSON.stringify(state.selectedIds)"/>
+                            </p> -->
+                        <!-- Conditional Rendering based on displayMode (List View) -->
+                        <div class="overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-200">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <input type="checkbox" t-att-checked="this.isAllSelected()"
+                                                    t-on-change="(ev) => this.toggleSelectAll(ev.target.checked)"
+                                                    class="form-checkbox h-4 w-4 text-blue-600 rounded" />
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Employee Name
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Check-in
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Check-out
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Worked Hours
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            OT
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status
+                                        </th>
+                                        <th scope="col" class="relative px-6 py-3">
+                                            <span class="sr-only">Edit</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <!-- Example Table Row (would be mapped from data) -->
+                                    <t t-foreach="state.attendance_data" t-as="record" t-key="record.id">
+                                        <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <input type="checkbox" 
+                                                t-att-checked="this.isSelected(record.id)"
+                                                t-on-change="(ev) => this.toggleSelect(record.id, ev.target.checked)"
+                                                class="form-checkbox h-4 w-4 text-blue-600 rounded" />
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <t t-esc="record.employee_id[1]"/>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                <t t-esc="this.formatDateTime(record.check_in)"/>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                <t t-esc="record.check_out ? this.formatDateTime(record.check_out) : 'Not Checked-out'"/>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                <t t-esc="roundToTwo(record.worked_hours)"/>h
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                <t t-esc="roundToTwo(record.overtime_hours)"/>h
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span t-att-class="this.getStatusBadgeClass(record.check_out ? 'status-checked-in' : 'status-not-checked-out')"><t t-esc="record.check_out ? 'Checked-out' : 'Not Checked-out'"/></span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <button class="text-blue-600 hover:text-blue-900 transition duration-150 ease-in-out">
+                                                    View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+                <t t-else="">
+                    <p class="no-data-message">No attendance data available.</p>
+                </t>
+            </div>
+            <div t-if="state.view === 'timeoff'" class="content-view">
+                <button class="btn btn-primary" t-on-click="() => this.showModal('Time Off', 'leave_data', {
+                    employee_id: state.employee_id,
+                    employee_name: state.employee_name,
+                })">New</button>
+                <button class="btn btn-primary" t-on-click="">Approve</button>
+                <t t-if="state.allocation_data.length > 0">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 text-white">
+                        <t t-foreach="state.allocation_data" t-as="alloc" t-key="alloc.id">
+                            <div t-if="alloc.holiday_status_id[1] == 'Nghỉ phép có lương'"
+                                class="bg-gradient-blue rounded-xl shadow-lg p-6 flex items-center space-x-4">
+                                <div class="p-3 bg-blue-700 rounded-full shadow-inner text-center">
+                                    <i class="fa fa-umbrella w-8"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm opacity-90" t-esc="alloc.name"/>
+                                    <p class="text-3xl font-extrabold">
+                                        <t t-esc="alloc.number_of_days_display or 0"/> ngày
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div t-if="alloc.holiday_status_id[1] == 'Nghỉ ốm'"
+                                class="bg-gradient-red rounded-xl shadow-lg p-6 flex items-center space-x-4">
+                                <div class="p-3 bg-red-700 rounded-full shadow-inner text-center">
+                                    <i class="fa fa-umbrella w-8"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm opacity-90" t-esc="alloc.name"/>
+                                    <p class="text-3xl font-extrabold">
+                                        <t t-esc="alloc.number_of_days_display or 0"/> ngày
+                                    </p>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 text-white">
+                        <div class="bg-gradient-purple text-white rounded-xl shadow-lg p-6 flex items-center space-x-4">
+                            <div class="p-3 bg-purple-700 rounded-full shadow-inner text-center">
+                                <i class="fas fa-calendar-alt w-8"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm opacity-90">Total Requests</p>
+                                <p class="text-3xl font-extrabold" t-esc="state.leaveSummary.totalLeaveRequests"/>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-yellow text-white rounded-xl shadow-lg p-6 flex items-center space-x-4">
+                            <div class="p-3 bg-yellow-700 rounded-full shadow-inner text-center">
+                                <i class="fas fa-hourglass-half w-8"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm opacity-90">Pending Approval</p>
+                                <p class="text-3xl font-extrabold" t-esc="state.leaveSummary.pendingLeaveRequests"/>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-blue text-white rounded-xl shadow-lg p-6 flex items-center space-x-4">
+                            <div class="p-3 bg-blue-700 rounded-full shadow-inner text-center">
+                                <i class="fas fa-check-circle w-8"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm opacity-90">Approved</p>
+                                <p class="text-3xl font-extrabold" t-esc="state.leaveSummary.approvedLeaveRequests"/>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+                <!-- Conditional Rendering based on displayMode (Card View) -->
+                <!-- View Toggle Buttons -->
+                <div class="flex justify-end mb-6 space-x-2">
+                    <button t-on-click="() => this.setMode('list')"
+                        t-att-class="displayMode.mode === 'list' ? ' bg-blue-600 text-white rounded-lg' : ''"
+                        class="px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center space-x-2 text-gray-700">
+                        <i class="oi oi-view-list w-5 h-5"></i>
+                    </button>
+                    <button t-on-click="() => this.setMode('card')"
+                        t-att-class="displayMode.mode === 'card' ? ' bg-blue-600 text-white rounded-lg' : ''"
+                        class="px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center space-x-2 text-gray-700">
+                        <i class="oi oi-view-kanban w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <t t-if="state.leave_data.length > 0">
+                    <t t-if="displayMode.mode === 'card'">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <t t-foreach="state.leave_data" t-as="record" t-key="record.id">
+                                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition duration-300">
+                                    <div class="flex justify-between mb-4">
+                                        <p class="text-xl font-semibold text-gray-900" t-esc="record.employee_id[1]"/>
+                                        <span t-att-class="this.getStatusBadgeClass(record.state)">
+                                            <t t-esc="this.mapLeaveStatus(record.state)"/>
+                                        </span>
+                                    </div>
+                                    <div class="space-y-2 text-gray-700">
+                                        <p><span class="font-medium">Leave Type:</span> <span t-esc="record.holiday_status_id[1]"/></p>
+                                        <p><span class="font-medium">From:</span> <span t-esc="this.formatDateTime(record.date_from)"/></p>
+                                        <p><span class="font-medium">To:</span> <span t-esc="this.formatDateTime(record.date_to)"/></p>
+                                        <p><span class="font-medium">Days:</span> <span t-esc="record.number_of_days"/></p>
+                                    </div>
+                                    <button class="mt-6 w-full py-2 bg-gray-100 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white font-medium transition">
+                                        View Details
+                                    </button>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-if="displayMode.mode === 'list'">
+                        <!-- Table view tương tự attendance -->
+                        <div class="overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-200">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <input type="checkbox" t-att-checked="this.isAllSelected()"
+                                                    t-on-change="(ev) => this.toggleSelectAll(ev.target.checked)"
+                                            class="form-checkbox h-4 w-4 text-blue-600 rounded" />
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Leave Type</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">From</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">To</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Days</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <t t-foreach="state.leave_data" t-as="record" t-key="record.id">
+                                        <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <input type="checkbox" 
+                                                t-att-checked="this.isSelected(record.id)"
+                                                t-on-change="(ev) => this.toggleSelect(record.id, ev.target.checked)"
+                                                class="form-checkbox h-4 w-4 text-blue-600 rounded" />
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><t t-esc="record.employee_id[1]"/></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><t t-esc="record.holiday_status_id[1]"/></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><t t-esc="this.formatDateTime(record.date_from)"/></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><t t-esc="this.formatDateTime(record.date_to)"/></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><t t-esc="record.number_of_days"/></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span t-att-class="this.getStatusBadgeClass(record.state)">
+                                                    <t t-esc="this.mapLeaveStatus(record.state)"/>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </t>
+                </t>
+                <t t-else="">
+                    <p class="no-data-message">No time off data available.</p>
+                </t>
+            </div>
+            <div t-if="state.view === 'overtime'" class="content-view">
+                <button class="btn btn-primary" t-on-click="() => this.showModal('Overtime', 'overtime_data', {
+                    employee_id: state.employee_id,
+                    employee_name: state.employee_name,
+                })">New</button>
+                <!-- <button class="btn btn-primary" t-on-click="">Approve</button> -->
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-gradient-indigo text-white rounded-xl shadow-lg p-6 flex items-center space-x-4">
+                        <div class="p-3 bg-indigo-700 rounded-full shadow-inner text-center">
+                            <i class="fas fa-business-time w-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-90">Total Requests</p>
+                            <p class="text-3xl font-extrabold" t-esc="state.overtimeSummary.totalOvertimeRequests"/>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-orange text-white rounded-xl shadow-lg p-6 flex items-center space-x-4">
+                        <div class="p-3 bg-orange-700 rounded-full shadow-inner text-center">
+                            <i class="fas fa-spinner w-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-90">Pending Approval</p>
+                            <p class="text-3xl font-extrabold" t-esc="state.overtimeSummary.pendingOvertimeRequests"/>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-teal text-white rounded-xl shadow-lg p-6 flex items-center space-x-4">
+                        <div class="p-3 bg-teal-700 rounded-full shadow-inner text-center">
+                            <i class="fas fa-hourglass-end w-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-90">Approved OT Hours</p>
+                            <p class="text-3xl font-extrabold" t-esc="state.overtimeSummary.approvedOvertimeHours + 'h'"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View Toggle Buttons -->
+                <div class="flex justify-end mb-6 space-x-2">
+                    <button t-on-click="() => this.setMode('list')" t-att-class="displayMode.mode === 'list' ? ' bg-blue-600 text-white rounded-lg' : ''"
+                        class="px-4 py-2 rounded-lg shadow-md flex items-center space-x-2 text-gray-700">
+                        <i class="oi oi-view-list w-5 h-5"></i>
+                    </button>
+                    <button t-on-click="() => this.setMode('card')" t-att-class="displayMode.mode === 'card' ? ' bg-blue-600 text-white rounded-lg' : ''"
+                        class="px-4 py-2 rounded-lg shadow-md flex items-center space-x-2 text-gray-700">
+                        <i class="oi oi-view-kanban w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <t t-if="state.overtime_data.length > 0">
+                    <t t-if="displayMode.mode === 'card'">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <t t-foreach="state.overtime_data" t-as="record" t-key="record.id">
+                                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition duration-300">
+                                    <div class="flex justify-between mb-4">
+                                        <p class="text-xl font-semibold text-gray-900" t-esc="record.employee_id[1]"/>
+                                        <span t-att-class="this.getStatusBadgeClass(record.state)">
+                                            <t t-esc="this.mapOvertimeStatus(record.state)"/>
+                                        </span>
+                                    </div>
+                                    <div class="space-y-2 text-gray-700">
+                                        <p><span class="font-medium">Request Name:</span> <span t-esc="record.name"/></p>
+                                        <p><span class="font-medium">Start:</span> <span t-esc="this.formatDateTime(record.start_date)"/></p>
+                                        <p><span class="font-medium">End:</span> <span t-esc="this.formatDateTime(record.end_date)"/></p>
+                                        <p><span class="font-medium">Duration:</span> <span t-esc="record.duration + 'h'"/></p>
+                                    </div>
+                                    <button class="mt-6 w-full py-2 bg-gray-100 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white font-medium transition">
+                                        View Details
+                                    </button>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-if="displayMode.mode === 'list'">
+                        <div class="overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-200">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <input type="checkbox" 
+                                            t-att-checked="this.isAllSelected()"
+                                                    t-on-change="(ev) => this.toggleSelectAll(ev.target.checked)"
+                                            class="form-checkbox h-4 w-4 text-blue-600 rounded" />
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">End</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <t t-foreach="state.overtime_data" t-as="record" t-key="record.id">
+                                        <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <input type="checkbox" 
+                                                t-att-checked="this.isSelected(record.id)"
+                                                t-on-change="(ev) => this.toggleSelect(record.id, ev.target.checked)"
+                                                class="form-checkbox h-4 w-4 text-blue-600 rounded" />
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><t t-esc="record.employee_id[1]"/></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><t t-esc="record.name"/></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><t t-esc="this.formatDateTime(record.start_date)"/></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><t t-esc="this.formatDateTime(record.end_date)"/></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><t t-esc="record.duration"/>h</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span t-att-class="this.getStatusBadgeClass(record.state)">
+                                                    <t t-esc="this.mapOvertimeStatus(record.state)"/>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </t>
+                </t>
+                <t t-else="">
+                    <p class="no-data-message">No overtime data available.</p>
+                </t>
+            </div>
+            <div t-if="state.view === 'salary'" class="content-view">
+                <!-- <button class="btn btn-primary" t-on-click="() => this.showModal('Payslip', 'payslip_data', {
+                        employee_id: state.employee_id,
+                        employee_name: state.employee_name,
+                    })">New</button> -->
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl shadow-lg p-6 flex items-center space-x-4">
+                        <div class="p-3 bg-purple-700 rounded-full shadow-inner">
+                            <i class="fas fa-calendar-alt w-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-90">Total Paid Salary</p>
+                            <p class="text-3xl font-extrabold" t-esc="this.formatCurrency(state.salarySummary.totalPaidSalary)"/>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl shadow-lg p-6 flex items-center space-x-4">
+                        <div class="p-3 bg-yellow-700 rounded-full shadow-inner">
+                            <i class="fas fa-hourglass-half w-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-90">Average Salary</p>
+                            <p class="text-3xl font-extrabold" t-esc="this.formatCurrency(state.salarySummary.averageSalary)"/>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl shadow-lg p-6 flex items-center space-x-4">
+                        <div class="p-3 bg-blue-700 rounded-full shadow-inner">
+                            <i class="fas fa-check-circle w-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-90">Number of Payslips</p>
+                            <p class="text-3xl font-extrabold" t-esc="state.salarySummary.totalPayslips"/>
+                        </div>
+                    </div>
+                </div>
+                <t t-if="state.payslip_data.length > 0">
+                    <div class="data-list-grid">
+                        <t t-foreach="state.payslip_data" t-as="record" t-key="record.id">
+                            <div class="data-card">
+                                <div class="card-header">
+                                    <p class="employee-name" t-esc="record.employee_id[1]"/>
+                                    <span t-attf-class="status-badge #{this.getStatusBadgeClass(record.state)}">
+                                        <t t-esc="record.state === 'done' ? 'Paid' : (record.state === 'draft' ? 'Draft' : record.state)"/>
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <p class="data-row">
+                                        <i class="fas fa-calendar-alt icon-color text-gray-dark"></i>
+                                        <span class="data-label">Payroll Period:</span>
+                                        <span class="data-value" t-esc="record.date_from + ' - ' + record.date_to"/>
+                                    </p>
+                                    <p class="data-row">
+                                        <i class="fas fa-money-bill-wave icon-color text-green-dark"></i>
+                                        <span class="data-label">Net Wage:</span>
+                                        <span class="data-value font-semibold" t-esc="this.formatCurrency(record.net_wage)"/>
+                                    </p>
+                                </div>
+                                <button t-on-click="() => this.viewPDF(record)" class="view-details-btn" >View details</button>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <t t-else="">
+                    <p class="no-data-message">No payslip data available.</p>
+                </t>
+            </div>
+            <div t-if="state.view === 'settings'">
+                Settings
+            </div>
+            <div t-if="state.view === 'chat'">
+                Chat
+            </div>
+            <div t-if="state.view === 'notifications'">
+                Notifications
+            </div>
+        </div>
+      </main>
+    </div>
+    <DialogModal t-if="state.showDialogModal" t-props="{
+            title:state.dialogTitle,
+            action:state.dialogAction,
+            fields:state.dialogFields,
+            records:state.dialogRecords,
+            closeModal:closeModal.bind(this),
+            defaultValues: state.dialogDefault, 
+        }"/>
+    <div t-if="state.showPDF" class="">
+        <div class="pdf-container">
+            <button class="close-pdf-btn" t-on-click="this.closePDF">×</button>
+            <!-- <div class="section_header">Tài liệu</div> -->
+            <div class="pdf-content">
+                <t t-if="state.pdf.type === 'pdf'">
+                    <iframe
+                        class="o_pdfview_iframe"
+                        t-att-src="state.pdf.url"
+                        alt="PDF viewer"
+                        width="100%"
+                        height="100%"
+                        frameborder="0"
+                        t-on-error="onLoadFailed"
+                    />
+                </t>
+            </div>
+        </div>
+    </div>
+  </t>
+
+</templates>

@@ -1,10 +1,10 @@
 <templates>
     <t t-name="WorkOrder">
-        <div class="work-order">
+        <div class="main work-order">
             <div class="work-order-header">
                 <nav class="work-order_nav">
                     <nav class="work-order_nav_left">
-                        <button t-on-click="() => this.home()" class="work-order_nav-link">
+                        <button t-on-click="exit" class="work-order_nav-link">
                             <i class="oi oi-chevron-left" />
                         </button>
                         <div class="work-order_nav_title">
@@ -60,12 +60,13 @@
             <div t-if="state.view === 'WorkOrders'" class="s_app_contents">
                 <WorkOrderList
                     t-props="{
-                        workOrders: state.workOrders,
+                        workOrders:    state.workOrders,
+                        activeTab:     state.activeWOtab,
+                        selectTab:     selectTab.bind(this),
+
                         selectWorkOrder: selectWorkOrder.bind(this),
                         selectedWorkOrder: state.selectedWorkOrder,
-                        searchQuery: state.searchQuery,
-                        searchWorkOrders: searchWorkOrders.bind(this),
-                        stateMapping: stateMapping
+                        stateMapping:  stateMapping
                     }"
                 />
             </div>
@@ -155,35 +156,42 @@
     </t>
 
     <t t-name="WorkOrderList">
-        <div class="section_header">Danh sách Work Order</div>
+
+
+        <!-- Tabs -->
+        <div class="wol_tabs">
+            <button t-att-class="{'active': props.activeTab==='active'}"
+                    t-on-click="() => props.selectTab('active')">
+                Đang làm
+            </button>
+            <button t-att-class="{'active': props.activeTab==='done'}"
+                    t-on-click="() => props.selectTab('done')">
+                Đã xong
+            </button>
+        </div>
+
+        <!-- Danh sách -->
         <div class="workorder-items">
-            <div
-                t-foreach="props.workOrders"
-                t-as="order"
-                t-key="order.id"
+            <div  t-foreach="props.workOrders"
+                t-as="order" t-key="order.id"
                 t-on-click="() => props.selectWorkOrder(order.id)"
-                t-att-class="{selected: order.id === props.selectedWorkOrder?.id}"
-            >
+                t-att-class="{selected: order.id === props.selectedWorkOrder?.id}">
                 <div class="item">
                     <div class="item-content">
-                        <div style="font-size: 20px;font-weight: bold;" t-esc="order.name" />
+                        <div class="wo-name" t-esc="order.name"/>
                         <div>
-                            <span
-                                t-att-class="'state-label ' + (order.state === 'progress' ? 'state-progress' : 
-                                        order.state === 'pending' ? 'state-pending' : 
-                                        order.state === 'ready' ? 'state-ready' : 
-                                        order.state === 'waiting' ? 'state-waiting' : 'state-default')"
-                                t-esc="props.stateMapping[order?.state] || order?.state" />
+                            <span t-att-class="'state-label '+getStateClass(order.state)"
+                                t-esc="props.stateMapping[order.state] || order.state"/>
                         </div>
                     </div>
-                    <div>Lô sản xuất: <span t-esc="order.production_name" /></div>
-                    <div>Sản phẩm: <span t-esc="order.product_name" /></div>
-                    <div>Số lượng: <span t-esc="order.quantity" /></div>
-
+                    <div>Lô SX: <span t-esc="order.production_name"/></div>
+                    <div>Sản phẩm: <span t-esc="order.product_name"/></div>
+                    <div>Số lượng: <span t-esc="order.quantity"/></div>
                 </div>
             </div>
         </div>
     </t>
+
 
     <t t-name="WorkOrderDetail">
         <div class="s_detail_content">
@@ -294,23 +302,26 @@
                     <span class="s_detail_value" t-esc="props.component?.lot_name || '-'" />
                 </div>
                 <div class="s_detail_row">
-                    <span class="s_detail_label">Yêu cầu/Hoàn thành:</span>
+                    <span class="s_detail_label">Hoàn thành/Yêu cầu:</span>
                     <span class="s_detail_value">
-                        <t t-esc="props.component?.quantity || '-'" /> / <t
-                            t-esc="props.component?.produced_quantity || '-'" />
+                        <t t-esc="props.component?.produced_quantity || '-'" /> / 
+                        <t t-esc="props.component?.quantity || '-'" />  
+                        
                     </span>
                 </div>
                 <div class="s_detail_row">
-                    <span class="s_detail_label">OK:</span>
-                    <span class="s_detail_value" t-esc="props.component?.ok_quantity || '-'" />
+                    <span class="s_detail_label">OK/NG/Cancel:</span>
+                    <span class="s_detail_value">
+                        <t t-esc="props.component?.ok_quantity || '-'" /> / 
+                        <t t-esc="props.component?.ng_quantity || '-'" /> / 
+                        <t t-esc="props.component?.cancel_quantity || '-'" />
+                    </span>
                 </div>
                 <div class="s_detail_row">
-                    <span class="s_detail_label">NG:</span>
-                    <span class="s_detail_value" t-esc="props.component?.ng_quantity || '-'" />
-                </div>
-                <div class="s_detail_row">
-                    <span class="s_detail_label">C:</span>
-                    <span class="s_detail_value" t-esc="props.component?.cancel_quantity || '-'" />
+                    <span class="s_detail_label">Thời gian làm việc:</span>
+                    <span class="s_detail_value">
+                        <t t-esc="state.duration || '-'" /> 
+                    </span>
                 </div>
             </div>
             <div class="s_action_buttons">
@@ -408,9 +419,6 @@
 
         </div>
     </t>
-
-
-
 
     <t t-name="ActionDocument">
         <div class="document-container">

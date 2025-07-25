@@ -2,9 +2,10 @@
 
 from odoo.osv import expression
 from odoo import models, fields, api, exceptions,_, tools
-import os
-import base64,pytz,logging,unidecode
+import os,json,re
+import base64,pytz,logging,unidecode,textwrap
 from datetime import datetime, timedelta, time
+from zoneinfo import ZoneInfo
 import random
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import config, float_compare
@@ -13,17 +14,12 @@ from io import BytesIO
 import xlsxwriter
 from openpyxl import load_workbook
 
-from collections import defaultdict
-
-
 class HR_WorkEntry(models.Model):
     _inherit = ['hr.work.entry']
     workcenter_id = fields.Many2one('mrp.workcenter', string='Workcenter')
     ok_quantity = fields.Float(string='OK Quantity')
     ng_quantity = fields.Float(string='NG Quantity')
 
-
-   
 
 class HR_Payslip(models.Model):
     _inherit = ['hr.payslip']
@@ -116,14 +112,14 @@ class smartbiz_hr_OvertimeRequest(models.Model):
     _inherit = ['smartbiz.workflow_base', 'mail.thread', 'mail.activity.mixin']
     _description = "Overtime Request"
     name = fields.Char(string='Name')
-    employee_id = fields.Many2one('hr.employee', string='Employee')
-    contract_id = fields.Many2one('hr.contract', string='Contract')
+    employee_ids = fields.Many2many('hr.employee', string='Employee')
     start_date = fields.Datetime(string='Start Date')
     end_date = fields.Datetime(string='End Date')
     duration = fields.Float(string='Duration', compute='_compute_duration', store=True)
+    lines_ids = fields.One2many('smartbiz_hr.request_line', 'request_id')
     note = fields.Text(string='Note')
-    approver_ids = fields.Many2many('res.users', string='Approver', readonly=True)
-    state = fields.Selection([('draft','Draft'),('to_approve','To Approve'),('approved','Approved'),('refused','Refused'),], string= 'Status', readonly= False, copy = True, index = False, default = 'draft')
+    approver_ids = fields.Many2many('res.users', 'overtime_request_users_rel',  string='Approver')
+    state = fields.Selection([('draft','Draft'),('to_submit','To Submit'),('to_approve','To Approve'),('approved','Approved'),('refused','Refused'),], string= 'Status', readonly= False, copy = True, index = False, tracking = True, default = 'draft')
 
 
     @api.depends('start_date', 'end_date')
@@ -134,97 +130,224 @@ class smartbiz_hr_OvertimeRequest(models.Model):
             else:
                 rec.duration = 0
 
-    def action_draft_send_to_approve(self):
-        admin_users = self.env.ref('base.group_system').users
+    def action_draft_submit(self):
+        for req in self:
+            # Tạo / cập nhật line
+            vals_list = []
+            for emp in req.employee_ids:
+                line = req.lines_ids.filtered(lambda l: l.employee_id == emp)
+                if line:
+                    line.write({
+                        'start_date': req.start_date,
+                        'end_date'  : req.end_date,
+                        'state'     : 'to_submit',
+                    })
+                else:
+                    vals_list.append({
+                        'request_id': req.id,
+                        'employee_id': emp.id,
+                        'start_date': req.start_date,
+                        'end_date'  : req.end_date,
+                        'state'     : 'to_submit',
+                    })
+            if vals_list:
+                self.env['smartbiz_hr.request_line'].create(vals_list)
 
+            old = req.state
+            req.write({'state': 'to_submit'})
+            req._post_state_message(old)
+        return True
+
+        
+        
+    def action_to_submit_approve(self):
+        for req in self:
+            req._set_lines_state('to_approve')
+            old = req.state
+            req.state = 'to_approve'
+            req._post_state_message(old)
+        return True
+
+        
+        
+    def action_to_submit_refuse(self):
+        for req in self:
+            req._set_lines_state('refused')
+            old = req.state
+            req.write({'state': 'refused', 'approver_ids': [(4, self.env.uid)]})
+            req._post_state_message(old)
+            if reason:
+                req.message_post(body=_("Lý do từ chối") ,
+                                 subtype_xmlid='mail.mt_comment')
+        return True
+
+        
+        
+    def action_to_approve_approve(self):
+        for req in self:
+            if req.state != 'to_approve':
+                raise UserError(_("Chỉ có yêu cầu đang 'Chờ duyệt' mới được duyệt."))
+
+            req._set_lines_state('approved')  # Line sẽ tự tạo Work Entry
+            old = req.state
+            req.write({
+                'state': 'approved',
+                'approver_ids': [(4, self.env.uid)],
+            })
+            req._post_state_message(old)
+        return True
+
+        
+        
+    # Đặt cùng state cho tất cả line
+    def _set_lines_state(self, new_state):
+        for req in self:
+            req.lines_ids.write({'state': new_state})
+
+    # Tính lại state cha dựa trên line
+    def _sync_state_from_lines(self):
+        PRIORITY = ['refused', 'to_approve', 'to_submit', 'draft']  # approved check riêng
+        for req in self:
+            line_states = set(req.lines_ids.mapped('state'))
+            if not line_states:
+                target = 'draft'
+            elif line_states == {'approved'}:
+                target = 'approved'
+            else:
+                target = next((st for st in PRIORITY if st in line_states), 'draft')
+            if req.state != target:
+                old = req.state
+                req.state = target
+                req._post_state_message(old)
+
+    # Gửi message vào chatter khi state đổi
+    def _post_state_message(self, old_state):
+        sel = dict(self._fields['state'].selection)
+        for req in self:
+            req.message_post(
+                body=_("Trạng thái thay đổi từ <b>%s</b> → <b>%s</b> bởi %s.") %
+                     (sel.get(old_state, old_state),
+                      sel.get(req.state, req.state),
+                      self.env.user.display_name),
+                subtype_xmlid='mail.mt_comment'
+            )
+
+class smartbiz_hr_RequestLine(models.Model):
+    _name = "smartbiz_hr.request_line"
+    _inherit = ['smartbiz.workflow_base', 'mail.thread', 'mail.activity.mixin']
+    _description = "Request Line"
+    request_id = fields.Many2one('smartbiz_hr.overtime_request', string='Request')
+    employee_id = fields.Many2one('hr.employee', string='Employee')
+    start_date = fields.Datetime(string='Start Date')
+    end_date = fields.Datetime(string='End Date')
+    duration = fields.Float(string='Duration', compute='_compute_duration', store=True)
+    state = fields.Selection([('draft','Draft'),('to_submit','To Submit'),('to_approve','To Approve'),('approved','Approved'),('refused','Refused'),], string= 'Status', readonly= False, copy = True, index = False, tracking = True, default = 'draft')
+
+
+    @api.depends('start_date', 'end_date')
+    def _compute_duration(self):
+        for rec in self:
+            if rec.end_date and rec.start_date:
+                rec.duration = (rec.end_date - rec.start_date).total_seconds() / 3600
+            else:
+                rec.duration = 0
+
+    def action_draft_submit(self):
+        self.write({'state': 'to_submit'})
+
+        
+        
+    def action_to_submit_approve(self):
         self.write({'state': 'to_approve'})
 
-        for admin in admin_users:
-            self.message_subscribe(partner_ids=[admin.partner_id.id])  # Đảm bảo họ nhận thông báo
+        
+        
+    def action_to_submit_refuse(self):
+        self.write({'state': 'refused'})
 
-        self.message_post(
-            body=_("Yêu cầu làm thêm giờ <b>%s</b> đã được gửi để phê duyệt.") % self.name,
-            subtype_xmlid="mail.mt_comment",
-        )
+        
+        
+    def action_to_approve_approve(self):
+        self.write({'state': 'approved'})
 
+        
+        
+    # ------  OT type helper (giữ nguyên như đã gửi trước) ------
     def _is_public_holiday(self, day_date, employee):
-        """
-        Kiểm tra day_date (date) có phải ngày nghỉ lễ công ty.
-        Dựa trên resource.calendar.leaves được gắn với calendar của employee.
-        """
         cal = employee.resource_calendar_id or self.env.ref('resource.resource_calendar_std')
         Leave = self.env['resource.calendar.leaves']
         return bool(Leave.search([
             ('calendar_id', '=', cal.id),
             ('date_from', '<=', datetime.combine(day_date, datetime.min.time())),
             ('date_to',   '>=', datetime.combine(day_date, datetime.max.time())),
-        
         ], limit=1))
 
     def _get_ot_type_code(self):
-        """
-        Trả về chuỗi 'ot150' / 'ot200' / 'ot300' cho bản ghi self
-        (dựa trên ngày bắt đầu OT)
-        """
         self.ensure_one()
-        start_local = self.start_date.astimezone()   # dùng tz môi trường
+        if not self.start_date:
+            return 'ot150'
+        start_local = self.start_date.astimezone()
         day_date = start_local.date()
-        emp = self.employee_id
-
-        # 1) Ưu tiên lễ
-        if self._is_public_holiday(day_date, emp):
+        if self._is_public_holiday(day_date, self.employee_id):
             return 'ot300'
-        # 2) Cuối tuần
-        if start_local.weekday() >= 5:          # 5=thứ7, 6=chủ nhật
+        if start_local.weekday() >= 5:
             return 'ot200'
-        # 3) Bình thường
-        return 'ot150'          
-        
-    def action_to_approve_approve(self):
+        return 'ot150'
+
+    # ------  Work Entry creator  ------
+    def _create_or_update_work_entry(self):
+        WE     = self.env['hr.work.entry']
         WEType = self.env['hr.work.entry.type']
-
-        for rec in self:
-            if rec.state != 'to_approve':
-                raise UserError(_("Only requests awaiting approval can be approved."))
-
-            type_code = rec._get_ot_type_code().upper()
-            wetype = WEType.search([('code', '=', type_code)], limit=1)
+        for line in self.filtered(lambda l: l.state == 'approved'):
+            code = line._get_ot_type_code().upper()
+            wetype = WEType.search([('code', '=', code)], limit=1)
             if not wetype:
-                raise UserError(_(
-                    "Work Entry Type with code %s not found. "
-                    "Please create it in Settings → Work Entry Types.") % type_code)
+                raise UserError(_("Chưa khai báo Work Entry Type code %s.") % code)
 
-            rec.write({
-                'state': 'approved',
-                'approver_ids': [(4, self.env.uid)],
-            })
-
-            self.env['hr.work.entry'].create({
+            domain = [
+                ('employee_id', '=', line.employee_id.id),
+                ('date_start',  '<=', line.end_date),
+                ('date_stop',   '>=', line.start_date),
+                ('work_entry_type_id', '=', wetype.id),
+            ]
+            entry = WE.search(domain, limit=1)
+            vals = {
                 'name': 'OT',
-                'employee_id': rec.employee_id.id,
-                'contract_id': rec.employee_id.contract_id.id,
-                'date_start': rec.start_date,
-                'date_stop': rec.end_date,
+                'employee_id': line.employee_id.id,
+                'contract_id': line.employee_id.contract_id.id,
+                'date_start': line.start_date,
+                'date_stop': line.end_date,
                 'work_entry_type_id': wetype.id,
                 'state': 'validated',
-            })
+            }
+            if entry:
+                entry.sudo().write(vals)
+            else:
+                WE.sudo().create(vals)
 
-            # Đảm bảo nhân viên được nhận tin nhắn
-            if rec.employee_id.user_id:
-                rec.message_subscribe(partner_ids=[rec.employee_id.user_id.partner_id.id])
+    # ----------------------------------------------------------
+    #  Override write: đồng bộ state + thông báo
+    # ----------------------------------------------------------
+    def write(self, vals):
+        state_changed = 'state' in vals
+        old_states = {rec.id: rec.state for rec in self} if state_changed else {}
+        res = super().write(vals)
 
-            rec.message_post(
-                body=_("Yêu cầu OT <b>%s</b> đã được phê duyệt.") % self.name,
-                subtype_xmlid="mail.mt_comment",
-                partner_ids=[rec.employee_id.user_id.partner_id.id],  # Tạo mail.notification
-                message_type="notification",  # bắt buộc để tạo mail.notification
-            )
-        
-    def action_to_approve_refuce(self):
-        self.write({'state': 'refused', 'approver_ids': [(4,self.env.uid)]})
+        if state_changed:
+            sel = dict(self._fields['state'].selection)
+            for line in self:
+                line.message_post(
+                    body=_("Trạng thái thay đổi từ <b>%s</b> → <b>%s</b> bởi %s.") %
+                         (sel.get(old_states[line.id], old_states[line.id]),
+                          sel.get(line.state, line.state),
+                          self.env.user.display_name),
+                    subtype_xmlid='mail.mt_comment'
+                )
+            # Sau khi log → đồng bộ cha & tạo work-entry nếu cần
+            self._create_or_update_work_entry()
+            self.mapped('request_id')._sync_state_from_lines()
+        return res
 
-        
-        
 class smartbiz_hr_WorkEntryRuleCategory(models.Model):
     _name = "smartbiz_hr.work_entry_rule_category"
     _description = "Work Entry Rule Category"

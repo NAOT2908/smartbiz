@@ -21,10 +21,10 @@ _logger = logging.getLogger(__name__)
 
 from odoo.osv import expression
 from odoo import models, fields, api, exceptions,_, tools
-import os
-import base64,pytz,logging
-from datetime import datetime, timedelta
-import datetime as date_time
+import os,json,re
+import base64,pytz,logging,unidecode,textwrap
+from datetime import datetime, timedelta, time
+from zoneinfo import ZoneInfo
 import random
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import config, float_compare
@@ -470,7 +470,7 @@ class SmartBiz_Condition(models.Model):
     name = fields.Char(string='Condition Name', compute='_compute_name', store=True)
     rule_id = fields.Many2one('smartbiz.rule', string='Rule', ondelete='cascade')
     field_id = fields.Many2one('ir.model.fields', string='Field')
-    operator = fields.Selection([('=','Bằng'),('!=','Khác'),('>','Lớn hơn'),('<','Nhỏ hơn'),('>=','Lớn hơn hoặc bằng'),('<=','Nhỏ hơn hoặc bằng'),('in','Trong'),('not in','Không trong'),('like','Giống'),('ilike','Giống - ilike'),], string='Operator')
+    operator = fields.Selection([('=','Equal to'),('!=','Not equal to'),('>','Greater than'),('<','Less than'),('>=','Greater than or equal to'),('<=','Less than or equal to'),('in','In (in set)'),('not in','Not in (not in set)'),('like','LIKE (case-sensitive)'),('ilike','ILIKE (case-insensitive)'),], string='Operator')
     value = fields.Char(string='Value')
 
 
@@ -572,7 +572,7 @@ class SmartBiz_Task(models.Model):
     model = fields.Char(string='Model', required=True)
     res_id = fields.Integer(string='Res ID', required=True)
     document_name = fields.Char(string='Document Name', compute='_compute_document_name', store=True)
-    task_definition_id = fields.Many2one('smartbiz.task_definition', string='Task Definition', required=True)
+    task_definition_id = fields.Many2one('smartbiz.task_definition', string='Task Definition', required=True, ondelete='cascade')
     deadline = fields.Datetime(string='Deadline')
     assignees_ids = fields.Many2many('res.users', 'task_users_rel',  string='Assignees')
     actual_users_ids = fields.Many2many('res.users', 'task_users_rel_12',  string='Actual Users')

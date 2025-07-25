@@ -1,5 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-
+  <template id="smartbiz_inventory.report_phieu_kiem_ke">
+    <t t-call="web.html_container">
+      <t t-call="web.external_layout">
+        <div class="page">
+          <h2 class="text-center">PHIẾU KIỂM KÊ</h2>
+          <br/>
+          <t t-set="locations" t-value="docs.line_ids.mapped('location_id')"/>
+          <table class="table table-sm table-bordered">
+            <thead>
+              <tr>
+                <th class="text-center"><strong>Vị trí</strong></th>
+                <th class="text-center"><strong>Sản phẩm</strong></th>
+                <th class="text-center"><strong>Mã vạch sản phẩm</strong></th>
+                <th class="text-center"><strong>Mã lô</strong></th>
+              </tr>
+            </thead>
+            <tbody>
+              <t t-foreach="locations" t-as="location">
+                <t t-set="lines" t-value="docs.line_ids.filtered(lambda l: l.location_id.id == location.id)"/>
+                <t t-if="lines">
+                  <tr>
+                    <td colspan="4" style="border-bottom: 1px solid black;"><strong t-esc="location.display_name"/></td>
+                  </tr>
+                  <tr t-foreach="lines" t-as="line">
+                    <td/>
+                    <td class="text-center" style="border: 1px solid black;">
+                      <span t-field="line.product_id"/>
+                    </td>
+                    <td class="text-center" style="border: 1px solid black;">
+                      <div t-field="line.product_id.barcode"
+                           t-options="{'widget': 'barcode', 'width': 600, 'height': 100, 'img_style': 'width:300px; height:50px;'}"/>
+                      <div t-esc="line.product_id.barcode"/>
+                    </td>
+                    <td class="text-center" style="border: 1px solid black;">
+                      <div t-esc="line.lot_id.name or line.lot_name"
+                           t-options="{'widget': 'barcode', 'width': 600, 'height': 100, 'img_style': 'width:300px; height:50px;'}"/>
+                      <div t-esc="line.lot_id.name or line.lot_name"/>
+                    </td>
+                  </tr>
+                </t>
+              </t>
+            </tbody>
+          </table>
+        </div>
+      </t>
+    </t>
+  </template>
 </odoo>

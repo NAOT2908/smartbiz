@@ -431,7 +431,7 @@
                 <button class="btn btn-secondary" t-on-click="() =>this.validate()">Xác nhận</button>
             </div>
         </div>
-        <div t-if="state.view === 'DetailInventoryLine'" class="inventory-edit">
+        <div t-if="state.showEditLine" t-att-class="'inventory-edit' + (state.showEditLine ? ' show' : '')">
             <DetailInventoryLine t-props = "{line: state.line,
                                             closeEdit: closeEdit.bind(this),
                                             deleteItem: deleteItem.bind(this),

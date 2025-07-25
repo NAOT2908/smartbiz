@@ -13,6 +13,8 @@ import { useService,useBus } from "@web/core/utils/hooks";
 import SmartBizBarcodePickingModel from "@smartbiz_barcode/Models/barcode_picking";
 import { utils as uiUtils } from "@web/core/ui/ui_service";
 
+
+
 export class Selector extends Component {
     setup() {
         this.rpc = useService('rpc');
@@ -483,3 +485,33 @@ export class Selector extends Component {
 }
 Selector.props = ['records', 'multiSelect?', 'closeSelector','title','isSelector?', 'move?'];
 Selector.template = 'Selector'
+
+
+
+export class ProductionEntryDialog extends Component {
+    static template = "ProductionEntryDialog";
+    static props = [
+      "closeDialog",
+      "materialMoves",
+      "finishedMoves",
+    ];
+    setup() {
+      this.state = useState({
+        productionDialog: false,
+        showDetailsModal: false,
+        detailMoveLine: null,
+        showDetailsModal: [],
+        processedPackages: [],
+        scannedPackageName: '',
+        combinedProductData: [],
+        
+
+      });
+      // console.log(this.props.detailMoveLine)
+      
+    }
+    closeDialog() {
+        this.props.closeDialog();
+    }
+    
+  }

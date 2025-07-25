@@ -216,13 +216,13 @@
             </group>
             </group>
             <notebook>
-            <page string="Đơn vị thành viên">
+            <page string="Child Units">
                    <field name="child_units_ids"/>
             </page>
-            <page string="Vị trí">
+            <page string="Position">
                    <field name="position_ids"/>
             </page>
-            <page string="Lịch sử">
+            <page string="History">
             <group>
                    <field name="established_date"/>
             </group>
@@ -271,13 +271,13 @@
             </group>
             </group>
             <notebook>
-            <page string="Người dùng">
+            <page string="Users">
                    <field name="users_ids"/>
             </page>
-            <page string="Vai trò">
+            <page string="Roles">
                    <field name="roles_ids"/>
             </page>
-            <page string="Báo cáo tới">
+            <page string="Report To">
                    <field name="reports_to_ids"/>
             </page>
             </notebook>
@@ -402,10 +402,10 @@
             </group>
             </group>
             <notebook>
-            <page string="Điều kiện">
+            <page string="Condition">
                    <field name="condition_ids" context="{'default_rule_id':id}"/>
             </page>
-            <page string="Nguồn lực">
+            <page string="Resource">
                    <field name="resource_ids" context="{'default_rule_id':id}"/>
             </page>
             </notebook>
@@ -520,10 +520,10 @@
             </group>
             </group>
             <notebook>
-            <page string="Quy tắc">
+            <page string="Rules">
                    <field name="rule_ids"/>
             </page>
-            <page string="Hành động">
+            <page string="Actions">
                    <field name="action_ids"/>
             </page>
             </notebook>
@@ -1129,7 +1129,7 @@
       <field name="priority">2</field>
       <field name="inherit_id" ref="base.view_res_partner_filter" />
       <field name="arch" type="xml">
-        <search>
+	  <search>
             <filter string="Account" domain="[('partner_type','=','account')]" name="account_filter"/>
             <separator/>
             <filter string="Site" domain="[('partner_type','=','site')]" name="site_filter"/>
@@ -1139,9 +1139,9 @@
             <filter string="User" domain="[('partner_type','=','user')]" name="user_filter"/>
             <separator/>
           <group expand="0" string="Group By">
-            <filter string="Group by Type"  name="group_by_type_filter" domain="[]" context="{ 'group_by':'partner_type'}"/>
+            <filter string="Partner type"  name="partner_type_filter" domain="[]" context="{ 'group_by':'partner_type'}"/>
           </group>
-        </search>
+		  </search>
       </field>
     </record>
 
@@ -1151,7 +1151,7 @@
       <field name="priority">2</field>
       <field name="inherit_id" ref="base.view_groups_search" />
       <field name="arch" type="xml">
-        <search>
+	  <search>
             <field name="type"/>
             <filter string="Product" domain="[('type','=','product')]" name="product_filter"/>
             <separator/>
@@ -1165,7 +1165,7 @@
             <separator/>
             <filter string="Position" domain="[('type','=','position')]" name="position_filter"/>
             <separator/>
-        </search>
+			</search>
       </field>
     </record>
 
@@ -1388,6 +1388,22 @@
        id="menu_smartbiz_2"
        sequence ="2"
     />
+    <menuitem name="Workflow" 
+       id="menu_workflow_3"
+       sequence ="3"
+    />
+    <menuitem name="Device" 
+       id="menu_device_4"
+       sequence ="4"
+    />
+    <menuitem name="Log" 
+       id="menu_log_5"
+       sequence ="5"
+    />
+    <menuitem name="OMS" 
+       id="menu_oms_6"
+       sequence ="6"
+    />
     <record id="menu_smartbiz_2" model="ir.ui.menu">
        <field name="parent_id" ref="base.menu_custom"/>
     </record>
@@ -1396,138 +1412,154 @@
          <field name="groups_id" eval="[(6, 0, [ref('smartbiz.group_roles_administrator_2'),])]"/>
     </record>
 
+    <record id="menu_workflow_3" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_smartbiz_2"/>
+    </record>
+
+    <record id="menu_device_4" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_smartbiz_2"/>
+    </record>
+
+    <record id="menu_log_5" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_workflow_3"/>
+    </record>
+
+    <record id="menu_oms_6" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_smartbiz_2"/>
+    </record>
+
 <!-- Menu item action -->
 
     <menuitem name="Workflow Definition" 
        id="smartbiz_workflow_definition_menuitem"
        action ="smartbiz_workflow_definition_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_workflow_3"
        sequence ="22"
     />
     <menuitem name="Rabbitmq Sever" 
        id="smartbiz_rabbitmq_sever_menuitem"
        action ="smartbiz_rabbitmq_sever_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_device_4"
        sequence ="25"
     />
     <menuitem name="Device Register" 
        id="smartbiz_device_register_menuitem"
        action ="smartbiz_device_register_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_device_4"
        sequence ="26"
     />
     <menuitem name="Workflow State" 
        id="smartbiz_workflow_state_menuitem"
        action ="smartbiz_workflow_state_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_workflow_3"
        sequence ="32"
     />
     <menuitem name="Delegation" 
        id="smartbiz_delegation_menuitem"
        action ="smartbiz_delegation_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_workflow_3"
        sequence ="33"
     />
     <menuitem name="Organization Unit" 
        id="smartbiz_organization_unit_menuitem"
        action ="smartbiz_organization_unit_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_oms_6"
        sequence ="34"
     />
     <menuitem name="Role" 
        id="smartbiz_role_menuitem"
        action ="smartbiz_role_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_oms_6"
        sequence ="35"
     />
     <menuitem name="Position" 
        id="smartbiz_position_menuitem"
        action ="smartbiz_position_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_oms_6"
        sequence ="36"
     />
     <menuitem name="Level" 
        id="smartbiz_level_menuitem"
        action ="smartbiz_level_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_oms_6"
        sequence ="37"
     />
     <menuitem name="Task Type" 
        id="smartbiz_task_type_menuitem"
        action ="smartbiz_task_type_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_workflow_3"
        sequence ="38"
     />
     <menuitem name="Task Definition" 
        id="smartbiz_task_definition_menuitem"
        action ="smartbiz_task_definition_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_workflow_3"
        sequence ="39"
     />
     <menuitem name="Rule" 
        id="smartbiz_rule_menuitem"
        action ="smartbiz_rule_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_workflow_3"
        sequence ="40"
     />
     <menuitem name="Condition" 
        id="smartbiz_condition_menuitem"
        action ="smartbiz_condition_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_workflow_3"
        sequence ="41"
     />
     <menuitem name="Resource" 
        id="smartbiz_resource_menuitem"
        action ="smartbiz_resource_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_workflow_3"
        sequence ="42"
     />
     <menuitem name="Action" 
        id="smartbiz_action_menuitem"
        action ="smartbiz_action_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_workflow_3"
        sequence ="43"
     />
     <menuitem name="Function" 
        id="smartbiz_function_menuitem"
        action ="smartbiz_function_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_workflow_3"
        sequence ="44"
     />
     <menuitem name="Task" 
        id="smartbiz_task_menuitem"
        action ="smartbiz_task_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_workflow_3"
        sequence ="45"
     />
     <menuitem name="Work Log" 
        id="smartbiz_work_log_menuitem"
        action ="smartbiz_work_log_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_log_5"
        sequence ="46"
     />
     <menuitem name="Notification Condition" 
        id="smartbiz_notification_condition_menuitem"
        action ="smartbiz_notification_condition_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_workflow_3"
        sequence ="47"
     />
     <menuitem name="Transfer Condition" 
        id="smartbiz_transfer_condition_menuitem"
        action ="smartbiz_transfer_condition_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_workflow_3"
        sequence ="48"
     />
     <menuitem name="Notification Log" 
        id="smartbiz_notification_log_menuitem"
        action ="smartbiz_notification_log_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_log_5"
        sequence ="49"
     />
     <menuitem name="Transfer Log" 
        id="smartbiz_transfer_log_menuitem"
        action ="smartbiz_transfer_log_action"
-       parent ="menu_smartbiz_2"
+       parent ="menu_log_5"
        sequence ="50"
     />
 

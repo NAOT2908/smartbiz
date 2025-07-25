@@ -12,8 +12,11 @@ import { url } from '@web/core/utils/urls';
 import { utils as uiUtils } from "@web/core/ui/ui_service";
 import { KeyPad } from "./keypad";
 import { Selector } from "./selector";
+import {DialogModal} from "@smartbiz/Components/dialogModal";
+import { Packages,EditPackage,CreatePackages } from "@smartbiz_barcode/Components/Package";
 import SmartBizBarcodePickingModel from "../Models/barcode_picking";
 import { Component, EventBus, onPatched, onWillStart, useState, useSubEnv, xml } from "@odoo/owl";
+import { CameraAI } from "@smartbiz_barcode/Components/camera_ai";
 
 // Lets `barcodeGenericHandlers` knows those commands exist so it doesn't warn when scanned.
 COMMANDS["O-CMD.MAIN-MENU"] = () => { };
@@ -30,10 +33,18 @@ const bus = new EventBus();
  */
 
 class StockPicking extends Component {
-    //--------------------------------------------------------------------------
-    // Lifecycle
-    //--------------------------------------------------------------------------
-
+    static props = ["action?", "actionId?", "className?", "globalState?", "resId?"];
+    static template = 'smartbiz_barcode.StockPicking';
+    static components = {
+        KeyPad, 
+        Selector, 
+        ManualBarcodeScanner,
+        CameraAI,
+        Packages,
+        EditPackage,
+        CreatePackages,
+        DialogModal
+    };
     setup() {
         this.rpc = useService('rpc');
         this.orm = useService('orm');
@@ -65,12 +76,17 @@ class StockPicking extends Component {
         onWillStart(async () => {
             await this.initData()        
         });
+        onPatched(() => {
+            //console.log("Patched", this.state);
+            this.env.model.data = this.state.data;
+        });
         this.state = useState({
             view: "Move", // Could be also 'printMenu' or 'editFormView'.
             displayNote: false,
             inputValue: "",
             moves: [],
             lines: [],
+            data: {},
             selectedPicking: 0,
             selectedMove: 0,
             selectedMoveLine: 0,
@@ -91,6 +107,15 @@ class StockPicking extends Component {
             scannedLine:false,
             isSelector: true,
             activeTab:'OrderDetail',
+            total_lines:0,
+            scanned_lines:0,
+            prompt: "chiết xuất thông tin thành dạng json",
+            result: null,
+            score: null,
+            cameraActive: false,
+
+
+            modal: '',
         });
 
         this.records = [];
@@ -104,6 +129,24 @@ class StockPicking extends Component {
          //Cấu hình cho phép xác nhận đơn thiếu
          this.allowConfirmLackOrder = true;
     }
+    openCamera() {
+        if (!this.state.prompt) {
+          return alert("Vui lòng nhập prompt trước!");
+        }
+        this.state.cameraActive = true;
+      }
+    
+      // onResult(answer, score, cancelled)
+      closeCamera(answer, score, cancelled = false) {
+        // Nếu user hủy (click outside hoặc nút ×) thì answer=null & cancelled=true
+        if (!cancelled && answer !== null) {
+          this.state.result = answer;
+          this.state.score = score;
+        }
+        // Tắt modal
+        console.log("Đóng camera, kết quả:", { answer, score, cancelled });
+        this.state.cameraActive = false;
+      }
     roundToTwo(num) {
         return Math.round(num * 100) / 100;
     }
@@ -114,11 +157,11 @@ class StockPicking extends Component {
     {
         var data = await this.orm.call('stock.picking', 'get_data', [,this.picking_id,this.batch_id], {});
         this.state.moves = data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
-        this.env.model.data = data
+        this.state.data = data
         this.updateButton()
         if(this.batch_id && data.moves.length == 0)
         {
-            await this.createBatch(this.env.model.data.batch_picking_type_id)
+            await this.createBatch(this.state.data.batch_picking_type_id)
         }
     }
     async createBatch(picking_type_id){
@@ -159,7 +202,7 @@ class StockPicking extends Component {
         this.state.search = this.state.search ? false : true;
         this.state.searchInput = '';
         if (!this.state.search) {
-            this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+            this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
             this.state.lines = this.lines
         }
     }
@@ -171,19 +214,20 @@ class StockPicking extends Component {
     search() {
         if (this.state.searchInput !== '') {
             if (this.state.view === 'Move') {
-                this.state.moves = this.filterArrayByString(this.env.model.data.moves, this.state.searchInput).sort((a, b) => b.product_name.localeCompare(a.product_name));
+                this.state.moves = this.filterArrayByString(this.state.data.moves, this.state.searchInput).sort((a, b) => b.product_name.localeCompare(a.product_name));
             }
             if (this.state.view === 'Move_line') {
                 this.state.lines = this.filterArrayByString(this.lines, this.state.searchInput)
             }
         }
         else {
-            this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+            this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
             this.state.lines = this.lines
         }
     }
     changeTab(tab) { 
         this.state.activeTab = tab;
+        this.updateButton();
     }
     focusClass(item) {
         if (item === this.state.focus) {
@@ -211,9 +255,9 @@ class StockPicking extends Component {
     }
 
     async save() {
-        this.env.model.data = await this.orm.call('stock.picking', 'save_data', [,this.picking_id, this.state.detailMoveLine,this.batch_id], {});
-        this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
-        this.lines = this.env.model.data.move_lines.filter(x => x.move_id === this.state.detailMoveLine.move_id)
+        this.state.data = await this.orm.call('stock.picking', 'save_data', [,this.picking_id, this.state.detailMoveLine,this.batch_id], {});
+        this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+        this.lines = this.state.data.move_lines.filter(x => x.move_id === this.state.detailMoveLine.move_id)
         this.state.lines = this.lines
         var lot_id = this.state.detailMoveLine.lot_id
         var lot_name = this.state.detailMoveLine.lot_name
@@ -224,12 +268,12 @@ class StockPicking extends Component {
 
     }
     async doneMove(id) {
-        this.env.model.data = await this.orm.call('stock.picking', 'done_move', [,this.picking_id, id,this.batch_id], {});
-        this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+        this.state.data = await this.orm.call('stock.picking', 'done_move', [,this.picking_id, id,this.batch_id], {});
+        this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
     }
     async doneMoveLine(id) {
-        this.env.model.data = await this.orm.call('stock.picking', 'done_move_line', [,this.picking_id, id,this.batch_id], {});
-        this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+        this.state.data = await this.orm.call('stock.picking', 'done_move_line', [,this.picking_id, id,this.batch_id], {});
+        this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
     }
     async actionDone(id) {
         const params = {
@@ -244,8 +288,8 @@ class StockPicking extends Component {
                 }
                 else
                 {
-                    this.env.model.data = res
-                    this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                    this.state.data = res
+                    this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
                     this.updateButton()
                 }
             },
@@ -263,8 +307,8 @@ class StockPicking extends Component {
             body: _t("Bạn có chắc chắn muốn hủy đơn này."),
             confirm: async () => {
                 var res = await this.orm.call('stock.picking', 'cancel_order', [,this.picking_id,this.batch_id],{});
-                this.env.model.data = res
-                this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                this.state.data = res
+                this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
                 this.updateButton()
                 
             },
@@ -275,13 +319,57 @@ class StockPicking extends Component {
         this.dialog.add(ConfirmationDialog, params);  
         
     }
+    async unReserve() {
+        this.state.menuVisible = false;
+        if(this.state.view == "Move") {
+            const params = {
+            title: _t("Xác nhận hủy dự trữ"),
+            body: _t("Bạn có chắc chắn muốn hủy dự trữ đơn này."),
+            confirm: async () => {
+                var res = await this.orm.call('stock.picking', 'unreserve', [,this.picking_id,this.batch_id],{});
+                console.log(res)
+                this.state.data = res
+                this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                this.updateButton()
+            },
+                cancel: () => { },
+                confirmLabel: _t("Có, xác nhận."),
+                cancelLabel: _t("Hủy bỏ"),
+            };
+            this.dialog.add(ConfirmationDialog, params);
+        } 
+        if(this.state.view == "Move_line") {
+            const unpickedLineIds = this.lines.filter(x => !x.picked).map(line => line.id);
+            const params = {
+            title: _t("Xác nhận xóa"),
+            body: _t("Bạn có chắc chắn muốn xóa tất cả dòng di chuyển chưa lấy không? Thao tác này không thể hoàn tác."),
+            confirm: async () => {
+                this.state.data = await this.orm.call('stock.picking', 'delete_move_line', [,this.picking_id, unpickedLineIds,this.batch_id], {});
+                this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+
+                this.lines = this.state.data.move_lines.filter(x => x.move_id === this.state.detailMoveLine.move_id);
+                this.state.lines = this.lines;
+                var lot_id = this.state.detailMoveLine.lot_id;
+                var lot_name = this.state.detailMoveLine.lot_name;
+                this.editMove(this.state.detailMoveLine.move_id);
+                this.state.detailMoveLine.lot_id = lot_id;
+                this.state.detailMoveLine.lot_name = lot_name;
+                this.updateButton()
+            },
+                cancel: () => { },
+                confirmLabel: _t("Có, xóa nó"),
+                cancelLabel: _t("Hủy bỏ"),
+            };
+            this.dialog.add(ConfirmationDialog, params);
+        } 
+    }
     
     async createPack(package_name=false) {
         var data = await this.orm.call('stock.picking', 'create_pack', [,this.picking_id, this.state.detailMoveLine, package_name,this.batch_id], {});       
-        var line =  data.move_lines.find(aItem => !(this.env.model.data.move_lines.some(bItem => bItem.id === aItem.id)) )
-        this.env.model.data = data
-        this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
-        this.lines = this.env.model.data.move_lines.filter(x => x.move_id === this.state.detailMoveLine.move_id)
+        var line =  data.move_lines.find(aItem => !(this.state.data.move_lines.some(bItem => bItem.id === aItem.id)) )
+        this.state.data = data
+        this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+        this.lines = this.state.data.move_lines.filter(x => x.move_id === this.state.detailMoveLine.move_id)
         this.state.lines = this.lines
         var lot_id = this.state.detailMoveLine.lot_id
         var lot_name = this.state.detailMoveLine.lot_name
@@ -303,10 +391,10 @@ class StockPicking extends Component {
             title: _t("Xác nhận xóa"),
             body: _t("Bạn có chắc chắn muốn xóa dòng di chuyển này không? Thao tác này không thể hoàn tác."),
             confirm: async () => {
-                this.env.model.data = await this.orm.call('stock.picking', 'delete_move_line', [,this.picking_id, id,this.batch_id], {});
-                this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                this.state.data = await this.orm.call('stock.picking', 'delete_move_line', [,this.picking_id, id,this.batch_id], {});
+                this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
 
-                this.lines = this.env.model.data.move_lines.filter(x => x.move_id === this.state.detailMoveLine.move_id);
+                this.lines = this.state.data.move_lines.filter(x => x.move_id === this.state.detailMoveLine.move_id);
                 this.state.lines = this.lines;
                 var lot_id = this.state.detailMoveLine.lot_id;
                 var lot_name = this.state.detailMoveLine.lot_name;
@@ -326,8 +414,8 @@ class StockPicking extends Component {
             title: _t("Xác nhận xóa"),
             body: _t("Bạn có chắc chắn muốn xóa dòng di chuyển này không? Thao tác này không thể hoàn tác."),
             confirm: async () => {
-                this.env.model.data = await this.orm.call('stock.picking', 'delete_move', [,this.picking_id, id,this.batch_id], {});
-                this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                this.state.data = await this.orm.call('stock.picking', 'delete_move', [,this.picking_id, id,this.batch_id], {});
+                this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
                 this.updateButton()
       
             },
@@ -350,18 +438,18 @@ class StockPicking extends Component {
     }
     editMove(id) {
         this.state.view = "Move_line";
-        this.move = this.env.model.data.moves.find(x => x.id === id)
+        this.move = this.state.data.moves.find(x => x.id === id)
         var move = this.move;
         this.state.detailTitle = this.move.picking_name
         this.picking_id = this.move.picking_id
         this.state.search = false;
         this.state.searchInput = '';
-        this.lines = this.env.model.data.move_lines.filter(x => x.move_id === id)
+        this.lines = this.state.data.move_lines.filter(x => x.move_id === id)
         this.state.lines = this.lines
         var location_id = this.state?.detailMoveLine?.location_id ? this.state.detailMoveLine.location_id : move.location_id
         var location_name = this.state?.detailMoveLine?.location_id ? this.state.detailMoveLine.location_name : move.location_name
         var lot_id = this.state?.detailMoveLine?.lot_id ? this.state.detailMoveLine.lot_id : false
-        var lot_name = this.state?.detailMoveLine?.lot_id ? this.state.detailMoveLine.lot_name : this.env.model.data.lot_name
+        var lot_name = this.state?.detailMoveLine?.lot_id ? this.state.detailMoveLine.lot_name : this.state.data.lot_name
         this.state.detailMoveLine = {
             id: 0,
             move_id: move.id,
@@ -462,31 +550,31 @@ class StockPicking extends Component {
         }
         if (option == 2)//Chọn số Lot
         {
-            this.records = this.env.model.data.lots.filter(x => x.product_id[0] == this.move.product_id)
+            this.records = this.state.data.lots.filter(x => x.product_id[0] == this.move.product_id)
             this.multiSelect = false
             this.selectorTitle = "Chọn số Lô/Sê-ri"
         }
         if (option == 3)//Chọn vị trí nguồn
         {
-            this.records = this.env.model.data.locations
+            this.records = this.state.data.locations
             this.multiSelect = false
             this.selectorTitle = "Chọn vị trí nguồn"
         }
         if (option == 4)//Chọn vị trí đích
         {
-            this.records = this.env.model.data.locations
+            this.records = this.state.data.locations
             this.multiSelect = false
             this.selectorTitle = "Chọn vị trí đích"
         }
         if (option == 5)//Chọn gói nguồn
         {
-            this.records = this.env.model.data.packages
+            this.records = this.state.data.packages
             this.multiSelect = false
             this.selectorTitle = "Chọn kiện nguồn"
         }
         if (option == 6)//Chọn gói đích
         {
-            this.records = this.env.model.data.packages
+            this.records = this.state.data.packages
             this.multiSelect = false
             this.selectorTitle = "Chọn kiện đích"
         }
@@ -512,14 +600,14 @@ class StockPicking extends Component {
             if (this.selectorTitle == "Chia tách Packages") {
                 for (var line of data) {
                     //console.log(line)
-                    this.env.model.data = await this.orm.call(
+                    this.state.data = await this.orm.call(
                         "stock.picking",
                         "save_data",
                         [, this.picking_id, line, this.batch_id],
                         {}
                     );
-                    this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
-                    this.lines = this.env.model.data.move_lines.filter((x) => x.move_id === line.move_id);
+                    this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                    this.lines = this.state.data.move_lines.filter((x) => x.move_id === line.move_id);
                     this.state.lines = this.lines;
                 }
                 this.clearSelector();
@@ -527,14 +615,14 @@ class StockPicking extends Component {
             if (this.selectorTitle == "Đóng Packages loạt") {
                 for (var line of data) {
                     //console.log(line)
-                    this.env.model.data = await this.orm.call(
+                    this.state.data = await this.orm.call(
                         "stock.picking",
                         "save_data",
                         [, this.picking_id, line, this.batch_id],
                         {}
                     );
-                    this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
-                    this.lines = this.env.model.data.move_lines.filter((x) => x.move_id === line.move_id);
+                    this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                    this.lines = this.state.data.move_lines.filter((x) => x.move_id === line.move_id);
                     this.state.lines = this.lines;
                 }
                 this.clearSelector();
@@ -542,14 +630,14 @@ class StockPicking extends Component {
             if (this.selectorTitle == "Nhận theo số sê-ri") {
                 for (var line of data) {
                     //console.log(line)
-                    this.env.model.data = await this.orm.call(
+                    this.state.data = await this.orm.call(
                         "stock.picking",
                         "save_data",
                         [, this.picking_id, line, this.batch_id],
                         {}
                     );
-                    this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
-                    this.lines = this.env.model.data.move_lines.filter((x) => x.move_id === line.move_id);
+                    this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                    this.lines = this.state.data.move_lines.filter((x) => x.move_id === line.move_id);
                     this.state.lines = this.lines;
                 }
                 this.clearSelector();
@@ -598,12 +686,12 @@ class StockPicking extends Component {
                 var product_id = data.product_id
                 var name = data.display_name
                 var product_uom_qty = data.quantity || 0
-                var location_id = this.env.model.data.location_id
-                var location_dest_id = this.env.model.data.location_dest_id
+                var location_id = this.state.data.location_id
+                var location_dest_id = this.state.data.location_dest_id
                 var values = { picking_id:this.picking_id, product_id, name, location_id, location_dest_id ,product_uom_qty}
                 var data = await this.orm.call('stock.picking', 'create_move', [, this.picking_id, values,this.batch_id], {});
-                this.env.model.data = data.data
-                this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                this.state.data = data.data
+                this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
                 this.state.selectedMove = data.move_id
                 this.clearSelector()
             }
@@ -612,8 +700,8 @@ class StockPicking extends Component {
                 
                 var values = { picking_ids:data,state:'in_progress'}
                 console.log(values)
-                this.env.model.data = await this.orm.call('stock.picking', 'update_batch_picking', [, this.picking_id, values,this.batch_id], {});
-                this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                this.state.data = await this.orm.call('stock.picking', 'update_batch_picking', [, this.picking_id, values,this.batch_id], {});
+                this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
                 this.clearSelector()
                 
             }
@@ -674,25 +762,96 @@ class StockPicking extends Component {
     footerClass() {
         var cl = "s_footer";
         if (this.state.view === "Move") {
-            if (this.env.model.data.state === "done"){
+            if (this.state.data.state === "done"){
                 cl += " s_footer_done";
             }
         }
         return cl;
     }
+    showModal(modal,data){   
+        
+        if(data && modal =="editPackage"){
+            let cl = this.state.data.finish_packages.find(x=>x.id ==data.id).lines;
+            let line = this.state.data.unpacked_move_lines;
+            line = [...cl,...line]
+            let unpacked_move_lines = []
+
+            for (var l of line) 
+            {
+            var modified_quantity = l.result_package_id?l.quantity:0;
+            var package_name = l.result_package_id?l.result_package_id[1]:''
+            var package_id = l.result_package_id?l.result_package_id[0]:false
+            unpacked_move_lines.push({
+                id:l.id,product_name:l.product_id[1],
+                current_quantity:l.quantity,
+                modified_quantity:modified_quantity,
+                package_name:package_name,
+                result_package_id:package_id
+            })
+            }
+            this.state.packageInfo = data
+            this.state.unpacked_move_lines = unpacked_move_lines
+
+        }
+        if(modal =="createPackages"){
+            
+        }
+        this.state.modal = modal
+       
+    }
+    async closeModal(modal,data){
+        console.log({modal,data})
+        if(data && modal =="editPackage")
+        {
+            let values =  await this.orm.call(
+            "stock.picking",
+            "update_package",
+            [, this.picking_id,this.batch_id,data],
+            {}
+            );
+
+            this.updateData(values)
+        }
+        if(data && modal =="createPackages")
+            {
+            let values =  await this.orm.call(
+                "stock.picking",
+                "create_packages",
+                [, this.picking_id,this.batch_id,data],
+                {}
+            );
+            this.updateData(values)
+            }
+        this.state.modal = ''
+    }
+    updateData(data){
+        this.env.model.data = data;
+        this.state.data = data;
+        this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+        this.lines = this.state.data.move_lines.filter((x) => x.move_id === line.move_id);
+        this.state.lines = this.lines;
+
+    
+        this.updateButton();
+    
+      }
     updateButton() {
         this.state.showNewProduct = false
         this.state.showSave = false
         this.state.showValidate = false
         this.state.finished = false;
         this.state.finished_message = '';
-        this.state.order_state = this.env.model.data.state
-        if(this.env.model.data.state == 'done')
+
+        this.state.showPackMulti = false;
+        this.state.order_state = this.state.data.state
+        this.state.total_lines = this.state.lines.length
+        this.state.scanned_lines = this.state.lines.filter(x => x.picked).length
+        if(this.state.data.state == 'done')
         {
             this.state.finished = true;
             this.state.finished_message = 'Đã hoàn tất';
         }
-        else if(this.env.model.data.state == 'cancel')
+        else if(this.state.data.state == 'cancel')
         {
             this.state.finished = true;
             this.state.finished_message = 'Đã bị hủy';
@@ -700,35 +859,45 @@ class StockPicking extends Component {
         else
         {
             if (this.state.view === "Move") {
-                this.state.detailTitle = this.env.model.data.name
-                if (!['done','cancel'].includes(this.env.model.data.state) ) {
-                    if (this.requiredAllMoveDone){
-                        const allMoveLinesPicked = this.env.model.data.move_lines.every(line => line.picked);
-                        const allDone = this.env.model.data.moves.every(move => move.quantity >= move.product_uom_qty);
-                        if(this.env.model.data.moves.length && allMoveLinesPicked && allDone)
-                        {
-                            this.state.showValidate = true
-                        }
-                    }
-                    else{
-                        const someMoveLinesPicked = this.env.model.data.move_lines.some(line => line.picked);
-                        const someDone = this.env.model.data.moves.some(move => move.quantity >= move.product_uom_qty);
-                        if(this.env.model.data.moves.length && someMoveLinesPicked && someDone)
-                        {
-                            this.state.showValidate = true
-                        }
-                    }
-                    if(this.allowConfirmLackOrder)
-                    {
-                        const allMoveLinesPicked = this.env.model.data.move_lines.every(line => line.picked);
-                        if(this.env.model.data.moves.length && allMoveLinesPicked)
+                this.state.detailTitle = this.state.data.name
+                if (!['done','cancel'].includes(this.state.data.state) ) {
+                    if(this.state.activeTab == 'OrderOverview')
+                    {                    
+                        if (this.requiredAllMoveDone){
+                            const allMoveLinesPicked = this.state.data.move_lines.every(line => line.picked);
+                            const allDone = this.state.data.moves.every(move => move.quantity >= move.product_uom_qty);
+                            if(this.state.data.moves.length && allMoveLinesPicked && allDone)
                             {
                                 this.state.showValidate = true
                             }
+                        }
+                        else{
+                            const someMoveLinesPicked = this.state.data.move_lines.some(line => line.picked);
+                            const someDone = this.state.data.moves.some(move => move.quantity >= move.product_uom_qty);
+                            if(this.state.data.moves.length && someMoveLinesPicked && someDone)
+                            {
+                                this.state.showValidate = true
+                            }
+                        }
+                        if(this.allowConfirmLackOrder)
+                        {
+                            const allMoveLinesPicked = this.state.data.move_lines.every(line => line.picked);
+                            if(this.state.data.moves.length && allMoveLinesPicked)
+                                {
+                                    this.state.showValidate = true
+                                }
+                        }
                     }
-                        
-                    this.state.showNewProduct = true
+                    if(this.state.activeTab == 'OrderDetail')
+                    {                   
+                        this.state.showNewProduct = true 
+                    }
+                    if(this.state.activeTab == 'Packages')
+                    {
+                        this.state.showPackMulti = true
+                    }
                 }
+               
             }
             if (this.state.view === "Move_line") {
                 if (this.state.detailMoveLine.product_tracking != 'none') {
@@ -775,7 +944,7 @@ class StockPicking extends Component {
             }
         } else {
             //this.toggleBarcodeLines();
-            this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+            this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
             this.state.view = "Move"
             this.state.scannedLine = false
             this.updateButton()
@@ -887,18 +1056,18 @@ class StockPicking extends Component {
                 if (barcodeData.match) {
                     if (barcodeData.barcodeType == "products") {
                         if (barcodeData.fromCache) {
-                            var move = this.env.model.data.moves.find(x => x.product_id == barcodeData.record.id)
+                            var move = this.state.data.moves.find(x => x.product_id == barcodeData.record.id)
                             this.state.selectedMove = move.id
                         }
                         else {
                             var product_id = barcodeData.record.id
                             var name = barcodeData.record.display_name
-                            var location_id = this.env.model.data.location_id
-                            var location_dest_id = this.env.model.data.location_dest_id
+                            var location_id = this.state.data.location_id
+                            var location_dest_id = this.state.data.location_dest_id
                             var values = { picking_id, product_id, name, location_id, location_dest_id }
                             var data = await this.orm.call('stock.picking', 'create_move', [, picking_id, values], {});
-                            this.env.model.data = data.data
-                            this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                            this.state.data = data.data
+                            this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
                             this.state.selectedMove = data.move_id
                             console.log(data)
                         }
@@ -906,14 +1075,14 @@ class StockPicking extends Component {
                     if (barcodeData.barcodeType == "packages") {
                         if (barcodeData.fromCache) {
                             for (var product of barcodeData.record.products) {
-                               var move = this.env.model.data.moves.find(x => x.product_id == product.product_id)
+                               var move = this.state.data.moves.find(x => x.product_id == product.product_id)
                                this.state.selectedMove = move.id
                             }
                         }
                         else {
-                            if ((this.env.model.data.state != 'done' && this.env.model.data.state != 'cancel')) {
-                                if (this.env.model.data.picking_type_code != "incoming") {
-                                    // if(await this.orm.call('stock.picking', 'check_package_location', [,barcodeData.record.id,this.env.model.data.location_id],{})) 
+                            if ((this.state.data.state != 'done' && this.state.data.state != 'cancel')) {
+                                if (this.state.data.picking_type_code != "incoming") {
+                                    // if(await this.orm.call('stock.picking', 'check_package_location', [,barcodeData.record.id,this.state.data.location_id],{})) 
                                     // {
                                         var values = {}
                                         for (var product of barcodeData.record.products) {
@@ -921,7 +1090,7 @@ class StockPicking extends Component {
                                             values.product_id = product.product_id
                                             values.product_uom_id = product.product_uom_id
                                             values.location_id = product.location_id
-                                            values.location_dest_id = this.env.model.data.location_dest_id
+                                            values.location_dest_id = this.state.data.location_dest_id
                                             values.lot_id = product.lot_id
                                             values.lot_name = false
                                             values.package_id = barcodeData.record.id
@@ -932,18 +1101,18 @@ class StockPicking extends Component {
                                             values.id = false
                                             values.move_id = false
                                             var data = await this.orm.call('stock.picking', 'save_data', [, picking_id, values,this.batch_id], {});
-                                            this.env.model.data = data
-                                            this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                                            this.state.data = data
+                                            this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
                                         }
                                     // }
                                     // else{
-                                    //     const message = _t(`${barcode}: Không đang ở vị trí ${this.env.model.data.location_name} !`);
+                                    //     const message = _t(`${barcode}: Không đang ở vị trí ${this.state.data.location_name} !`);
                                     //     this.notification.add(message, { type: "warning" });
                                     // }
                                     
                                 }
                                 else{
-                                    var line_incoming = this.env.model.data.move_lines.find(x=>x.result_package_id == barcodeData.record.id)
+                                    var line_incoming = this.state.data.move_lines.find(x=>x.result_package_id == barcodeData.record.id)
                                     var move_incoming = this.state.moves.find(x=>x.id == line_incoming.move_id) 
                                     if(move_incoming){
                                         this.editMove(move_incoming.id)
@@ -962,8 +1131,8 @@ class StockPicking extends Component {
                     }
                     if(barcodeData.barcodeType == "lots"){
                        
-                        if ((this.env.model.data.state != 'done' && this.env.model.data.state != 'cancel')) {
-                            if (this.env.model.data.picking_type_code != "incoming") {
+                        if ((this.state.data.state != 'done' && this.state.data.state != 'cancel')) {
+                            if (this.state.data.picking_type_code != "incoming") {
                                 let quants = await this.orm.searchRead('stock.quant', [['lot_id','=',barcodeData.record.id],['location_id.usage','=','internal']], ['id', 'available_quantity','package_id','location_id','product_id','product_uom_id']);
                                 if (quants){
                                     for (var quant of quants){
@@ -972,7 +1141,7 @@ class StockPicking extends Component {
                                             values.product_id = quant.product_id[0]
                                             values.product_uom_id = quant.product_uom_id[0]
                                             values.location_id =  quant.location_id[0]
-                                            values.location_dest_id = this.env.model.data.location_dest_id
+                                            values.location_dest_id = this.state.data.location_dest_id
                                             values.lot_id = barcodeData.record.id
                                             values.lot_name = barcode
                                             values.package_id = quant.package_id[0]
@@ -983,8 +1152,8 @@ class StockPicking extends Component {
                                             values.id = false
                                             values.move_id = false
                                             var data = await this.orm.call('stock.picking', 'save_data', [, picking_id, values,this.batch_id], {});
-                                            this.env.model.data = data
-                                            this.state.moves = this.env.model.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                                            this.state.data = data
+                                            this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
                                         }
                                         
                                     }
@@ -1026,7 +1195,7 @@ class StockPicking extends Component {
                                 console.log(this.state.scannedLine)
                                 if(this.state.scannedLine.result_package_name == barcodeData.barcode){
                                     var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, this.state.scannedLine,this.batch_id], {});
-                                    this.env.model.data = data
+                                    this.state.data = data
                                     this.editMove(this.state.detailMoveLine.move_id)
                                     this.state.scannedLine = false
                                 }
@@ -1037,7 +1206,7 @@ class StockPicking extends Component {
                                 
                             }
                             else{
-                                if (this.env.model.data.picking_type_code != "incoming") {
+                                if (this.state.data.picking_type_code != "incoming") {
                                     if (this.state.detailMoveLine.location_id == barcodeData.record.location)
                                     {
                                         for(var prod of barcodeData.record.products.filter(x=>x.product_id == this.state.detailMoveLine.product_id))
@@ -1049,7 +1218,7 @@ class StockPicking extends Component {
                                                     if(prod.product_id == this.state.detailMoveLine.product_id)
                                                     {
                                                         console.log({prod,lots:this.props.lots})
-                                                        var lot = this.env.model.data.lots.find(x=> x.expiration_date <  prod.expiration_date)
+                                                        var lot = this.state.data.lots.find(x=> x.expiration_date <  prod.expiration_date)
                                                         if(lot){
                                                             const message = _t(`Số lô: ${prod.lot_name} có ngày hết hạn lớn hơn ngày hết hạn của lô: ${lot.name}!`);
                                                             this.notification.add(message, { type: "warning" });
@@ -1066,7 +1235,7 @@ class StockPicking extends Component {
                                                                 }
                                                                 this.state.detailMoveLine.location_id = prod.location_id
                                                                 var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, this.state.detailMoveLine,this.batch_id], {});
-                                                                this.env.model.data = data
+                                                                this.state.data = data
                                                                 this.editMove(this.state.detailMoveLine.move_id)
                                                                 
                                                             }
@@ -1083,15 +1252,15 @@ class StockPicking extends Component {
                                                             this.state.detailMoveLine.lot_id = prod.lot_id
                                                             this.state.detailMoveLine.lot_name =false
                                                             var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, this.state.detailMoveLine,this.batch_id], {});
-                                                            this.env.model.data = data
+                                                            this.state.data = data
                                                             this.editMove(this.state.detailMoveLine.move_id)
                                                         }
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    console.log({prod,lots:this.env.model.data.lots})
-                                                        var lot = this.env.model.data.lots.find(x=> x.expiration_date <  prod.expiration_date)
+                                                    console.log({prod,lots:this.state.data.lots})
+                                                        var lot = this.state.data.lots.find(x=> x.expiration_date <  prod.expiration_date)
                                                         if(lot){
                                                             const message = _t(`Số lô: ${prod.lot_name} có ngày hết hạn lớn hơn ngày hết hạn của lô: ${lot.name}!`);
                                                             this.notification.add(message, { type: "warning" });
@@ -1119,10 +1288,13 @@ class StockPicking extends Component {
                                                         }
                                                         else{
                                                             var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, line,this.batch_id], {});
-                                                            this.env.model.data = data
+                                                            this.state.data = data
                                                             this.editMove(this.state.detailMoveLine.move_id)
                                                         }
                                                         
+                                                       
+                                                        
+                                                      
                                                     }
                                                     else
                                                     {
@@ -1160,7 +1332,7 @@ class StockPicking extends Component {
                                                                     }
                                                                     this.state.detailMoveLine.location_id = prod.location_id
                                                                     var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, this.state.detailMoveLine,this.batch_id], {});
-                                                                    this.env.model.data = data
+                                                                    this.state.data = data
                                                                     this.editMove(this.state.detailMoveLine.move_id)
                                                                     
                                                                 }
@@ -1176,7 +1348,7 @@ class StockPicking extends Component {
                                                                 this.state.detailMoveLine.lot_id = prod.lot_id
                                                                 this.state.detailMoveLine.lot_name =false
                                                                 var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, this.state.detailMoveLine,this.batch_id], {});
-                                                                this.env.model.data = data
+                                                                this.state.data = data
                                                                 this.editMove(this.state.detailMoveLine.move_id)
                                                             }
                                                         }
@@ -1199,7 +1371,7 @@ class StockPicking extends Component {
                                                             line.location_id = prod.location_id
                                                             console.log({'prod':prod,line})
                                                             var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, line,this.batch_id], {});
-                                                            this.env.model.data = data
+                                                            this.state.data = data
                                                             this.editMove(this.state.detailMoveLine.move_id)
                                                             //console.log({'detailMoveLine':this.state.detailMoveLine,'prod':prod,line})
                                                         }
@@ -1243,7 +1415,7 @@ class StockPicking extends Component {
                                     var incoming_line = this.state.lines.find(x=>x.result_package_id == barcodeData.record.id)
                                     if(incoming_line){
                                         var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, incoming_line,this.batch_id], {});
-                                        this.env.model.data = data
+                                        this.state.data = data
                                         this.editMove(this.state.detailMoveLine.move_id)
                                         
                                     }
@@ -1265,7 +1437,7 @@ class StockPicking extends Component {
                                 let line_serial = this.state.lines.find(x=>x.lot_name == barcode)
                                 if(line_serial){
                                     var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, line_serial,this.batch_id], {});
-                                    this.env.model.data = data
+                                    this.state.data = data
                                     this.editMove(this.state.detailMoveLine.move_id)
                                 }
                                 else{
@@ -1318,7 +1490,7 @@ class StockPicking extends Component {
                             let line_serial = this.state.lines.find(x=>x.lot_name == barcode)
                             if(line_serial){
                                 var data = await this.orm.call('stock.picking', 'save_data', [, this.picking_id, line_serial,this.batch_id], {});
-                                this.env.model.data = data
+                                this.state.data = data
                                 this.editMove(this.state.detailMoveLine.move_id)
                             }
                             else{ 
@@ -1433,11 +1605,7 @@ class StockPicking extends Component {
 }
 
 
-StockPicking.props = ["action?", "actionId?", "className?", "globalState?", "resId?"];
-StockPicking.template = 'smartbiz_barcode.StockPicking';
-StockPicking.components = {
-    KeyPad, Selector, ManualBarcodeScanner
-};
+
 
 registry.category("actions").add("smartbiz_barcode_picking_action", StockPicking);
 

@@ -18,9 +18,9 @@ class InventoryPeriod(models.Model):
     _name = 'smartbiz.inventory.period'
     _description = 'Inventory Period'
 
-    name = fields.Char(string="Period Name", required=True)
-    date_start = fields.Date(string="Start Date", required=True)
-    date_end = fields.Date(string="End Date", required=True)
+    name = fields.Char(string="Name", required=True)
+    date_start = fields.Date(string="Date Start", required=True)
+    date_end = fields.Date(string="Date End", required=True)
     company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company)
     inventory_ids = fields.One2many('smartbiz.inventory', 'inventory_period_id', string="Inventories")
 
@@ -29,23 +29,19 @@ class Inventory(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Stock Inventory'
 
-    name = fields.Char(string="Inventory Name", required=True, default='New')
-    date = fields.Datetime(string="Inventory Date", default=fields.Datetime.now, required=True)
+    name = fields.Char(string="Name", required=True, default='New')
+    date = fields.Datetime(string="Date", default=fields.Datetime.now, required=True)
     company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company)
-    product_ids = fields.Many2many('product.product', string="Product",
-                                   default=lambda self: self.env[
-                                       'product.product'].search([], limit=1),
-                                   help="Select multiple products "
+    product_ids = fields.Many2many('product.product', string="Product", help="Select multiple products "
                                         "from the list.")
-    category_ids = fields.Many2many('product.category', string="Category",
-                                    default=lambda self: self._default_categ_ids(),
-                                    help="Select multiple categories "
+    category_ids = fields.Many2many('product.category', string="Category", help="Select multiple categories "
                                          "from the list")
     warehouse_ids = fields.Many2many('stock.warehouse', string="Warehouse",
                                      default=lambda self: self._default_warehouse_ids(),
                                      help="Select multiple warehouses "
                                           "from the list.")
     user_id = fields.Many2one('res.users', string="User", default=lambda self: self.env.user)
+    lot_ids = fields.Many2many('stock.lot', string="Lots/Serials", help="Filter inventory by selected lot or serial numbers.")
     inventory_period_id = fields.Many2one('smartbiz.inventory.period', string="Inventory Period", required=True, default=lambda self: self.env['smartbiz.inventory.period'].search([], limit=1).id)
     inventory_location_ids = fields.Many2many('stock.location', string="Inventory Location")
     line_ids = fields.One2many('smartbiz.inventory.line', 'inventory_id', string="Inventory Line")
@@ -53,7 +49,7 @@ class Inventory(models.Model):
     set_count = fields.Selection([
         ('empty', 'Empty'),
         ('set', 'Set Quantity'),
-    ], string="Số lượng", default='empty')
+    ], string="Set Count", default='empty')
     
     state = fields.Selection([
         ('draft', 'Draft'),
@@ -99,7 +95,7 @@ class Inventory(models.Model):
         if model == 'stock.quant.package':
             return ['name','location_id']
         if model == 'stock.lot':
-            return ['name', 'ref', 'product_id','expiration_date','create_date','product_qty']
+            return ['name', 'ref', 'product_id','expiration_date','create_date','product_qty', 'location_id', 'product_qty']
         if model == 'uom.uom':
             return ['name','category_id','factor','rounding',]
         if model == 'stock.quant':
@@ -118,9 +114,13 @@ class Inventory(models.Model):
         warehouse = self.env['stock.warehouse'].search([], limit=1)
         return [(6, 0, [warehouse.id])] if warehouse else []
     
+    
     def action_start(self):
         """ Bắt đầu kiểm kê - lọc danh sách kiểm kê theo location nếu có """
         self.state = 'in_progress'
+        
+    def action_generate_inventory(self):
+        """ Bắt đầu kiểm kê - lọc danh sách kiểm kê theo location nếu có """
         self.line_ids.unlink()
         self._generate_inventory_lines()
     
@@ -129,7 +129,7 @@ class Inventory(models.Model):
         self.state = 'cancel'
         self.line_ids.unlink()
     def action_open_quant_selector(self):
-        action = self.env.ref('smartbiz_inventory.action_open_stock_quant_editable').read()[0]  
+        action = self.env.ref('smartbiz_inventory.action_open_stock_quant_editable').sudo().read()[0]  
         action['domain'] = [('company_id', '=', self.company_id.id),('location_id.usage', '=', 'internal')]  
         action['context'] = {
             'default_inventory_id': self.id,
@@ -140,17 +140,20 @@ class Inventory(models.Model):
 
     
     def _generate_inventory_lines(self):
-        """Tạo danh sách kiểm kê dựa trên location hoặc warehouse nếu có"""
+        """Tạo danh sách kiểm kê dựa trên location, warehouse, product, category và lot nếu có"""
         domain = [('company_id', '=', self.company_id.id)]
 
         if self.product_ids:
             domain.append(('product_id', 'in', self.product_ids.ids))
+
         if self.category_ids:
             domain.append(('product_categ_id', 'in', self.category_ids.ids))
 
+        if self.lot_ids:
+            domain.append(('lot_id', 'in', self.lot_ids.ids))
+
         location_domain = []
 
-        # Nếu có warehouse_ids, lấy toàn bộ vị trí con của các kho
         if self.warehouse_ids:
             for warehouse in self.warehouse_ids:
                 warehouse_locations = self.env['stock.location'].search([
@@ -158,37 +161,37 @@ class Inventory(models.Model):
                 ]).ids
                 location_domain.extend(warehouse_locations)
 
-        # Nếu có inventory_location_ids, chỉ dùng danh sách này và bỏ qua vị trí từ kho
         if self.inventory_location_ids:
             location_domain = self.inventory_location_ids.ids
 
-        # Thêm domain lọc theo vị trí nếu có dữ liệu hợp lệ
         if location_domain:
             domain.append(('location_id', 'in', location_domain))
 
         quants = self.env['stock.quant'].search(domain, order='location_id, product_id desc')
 
-        vals_list = [{
-            'inventory_id': self.id,
-            'product_id': quant.product_id.id,
-            'lot_id': quant.lot_id.id if quant.lot_id else False,
-            'package_id': quant.package_id.id if quant.package_id else False,
-            'location_id': quant.location_id.id,
-            'company_id': self.company_id.id,
-            'quantity': quant.quantity,
-            'quantity_counted': 0 if self.set_count == 'empty' else quant.quantity,
-            'quant_id': quant.id,
-            'note': '',
-        } for quant in quants]
+        vals_list = []
+        for quant in quants:
+            vals_list.append({
+                'inventory_id': self.id,
+                'product_id': quant.product_id.id,
+                'lot_id': quant.lot_id.id if quant.lot_id else False,
+                'package_id': quant.package_id.id if quant.package_id else False,
+                'location_id': quant.location_id.id,
+                'company_id': self.company_id.id,
+                'quantity': quant.quantity,
+                'quantity_counted': 0 if self.set_count == 'empty' else quant.quantity,
+                'quant_id': quant.id,
+                'note': '',
+            })
 
         if vals_list:
             self.env['smartbiz.inventory.line'].create(vals_list)
-            
+       
     def action_validate(self):
         """ Xác nhận kiểm kê - lưu vào lịch sử nhưng KHÔNG cập nhật stock.quant ngay """
         self.state = 'done'
-        lines_to_validate = self.line_ids.filtered(lambda l: l.state == 'counting')
-        lines_to_validate.write({'state': 'done'})
+        lines_to_validate = self.line_ids.filtered(lambda l: l.state == 'done' or l.state == 'counting')
+        # lines_to_validate.write({'state': 'done'})
         for line in lines_to_validate:
             line.write({'state': 'done'})
             self.env['smartbiz.inventory.history'].create({
@@ -278,27 +281,6 @@ class Inventory(models.Model):
     #         if not inventory.user_id:
     #             inventory.user_id = current_user
             
-    #         lines = []
-    #         for line in inventory.line_ids:
-    #             lines.append({
-    #                 'id': line.id,
-    #                 'product_id': line.product_id.id,
-    #                 'product_name': line.product_id.display_name,
-    #                 'product_image': line.product_id.image_1920,
-    #                 'product_uom_id': line.product_id.uom_id.id if line.product_id else False,
-    #                 'product_uom_name': line.product_id.uom_id.name if line.product_id else '',
-    #                 'lot_id': line.lot_id.id if line.lot_id else False,
-    #                 'lot_name': line.lot_id.name if line.lot_id else '',
-    #                 'package_id': line.package_id.id if line.package_id else False,
-    #                 'package_name': line.package_id.name if line.package_id else '',
-    #                 'location_id': line.location_id.id,
-    #                 'location_name': line.location_id.display_name,
-    #                 'quantity': line.quantity,
-    #                 'quantity_counted': line.quantity_counted,
-    #                 'difference': line.difference,
-    #                 'quant_id': line.quant_id.id if line.quant_id else False,
-    #             })
-            
     #         result.append({
     #             'id': inventory.id,
     #             'name': inventory.name,
@@ -313,7 +295,6 @@ class Inventory(models.Model):
     #             'product_ids': inventory.product_ids.ids,
     #             'product_names': inventory.product_ids.mapped('name'),
     #             'user_id': inventory.user_id.id,
-    #             'lines': lines,
     #         })
             
     #     data = {
@@ -340,7 +321,8 @@ class Inventory(models.Model):
             'id': line.id,
             'product_id': line.product_id.id if line.product_id else False,
             'product_name': line.product_id.display_name if line.product_id else '',
-            'product_image': line.product_id.image_1920 if line.product_id else False,
+            'product_image': False,
+            # 'product_image': line.product_id.image_128 if line.product_id else False,
             'product_uom_id': line.product_id.uom_id.id if line.product_id else False,
             'product_uom_name': line.product_id.uom_id.name if line.product_id else '',
             'lot_id': line.lot_id.id if line.lot_id else False,
@@ -355,6 +337,12 @@ class Inventory(models.Model):
             'state': line.state,
             'note': line.note,
         } for line in lines]
+        
+        lines_data = sorted(lines_data, key=lambda x: (
+            x['product_name'].lower(),
+            x['product_id'] or 0,
+            x['location_id'] or 0
+        ))
         
         data = {
             'inventory': inventory.read(['id', 'name', 'state', 'company_id', 'user_id', 'date'])[0],
@@ -386,29 +374,6 @@ class Inventory(models.Model):
             if not inventory.user_id:
                 inventory.user_id = current_user
             
-            # Lines bên trong mỗi inventory cũng có thể cần phân trang nếu số lượng quá lớn
-            # Tuy nhiên, thông thường thì các dòng trong một phiếu kiểm kê không nhiều đến mức cần phân trang riêng
-            # Nếu cần, bạn sẽ phải gọi một hàm get_lines riêng với offset/limit cho từng inventory.
-            lines = []
-            for line in inventory.line_ids: # Lấy tất cả dòng cho mỗi phiếu
-                lines.append({
-                    'id': line.id,
-                    'product_id': line.product_id.id,
-                    'product_name': line.product_id.display_name,
-                    'product_image': line.product_id.image_1920,
-                    'product_uom_id': line.product_id.uom_id.id if line.product_id else False,
-                    'product_uom_name': line.product_id.uom_id.name if line.product_id else '',
-                    'lot_id': line.lot_id.id if line.lot_id else False,
-                    'lot_name': line.lot_id.name if line.lot_id else '',
-                    'package_id': line.package_id.id if line.package_id else False,
-                    'package_name': line.package_id.name if line.package_id else '',
-                    'location_id': line.location_id.id,
-                    'location_name': line.location_id.display_name,
-                    'quantity': line.quantity,
-                    'quantity_counted': line.quantity_counted,
-                    'difference': line.difference,
-                    'quant_id': line.quant_id.id if line.quant_id else False,
-                })
             
             result.append({
                 'id': inventory.id,
@@ -424,7 +389,7 @@ class Inventory(models.Model):
                 'product_ids': inventory.product_ids.ids,
                 'product_names': inventory.product_ids.mapped('name'),
                 'user_id': inventory.user_id.id,
-                'lines': lines,
+                # 'lines': lines,
             })
             
         # Tính tổng số lượng bản ghi để phục vụ phân trang ở frontend
@@ -506,7 +471,13 @@ class Inventory(models.Model):
                                                            fields=self._get_fields('stock.lot'))
                 if record:
                     return {'barcode': barcode, 'match': True, 'barcodeType': 'lots', 'record': record[0], 'fromCache': False}
-
+            
+            # Tìm kiếm lô hàng (lot) theo mã vạch và sản phẩm (nếu có)
+            record = self.env['stock.lot'].search_read([('name', '=', barcode)], limit=1,
+                                                           fields=self._get_fields('stock.lot'))
+            if record:
+                return {'barcode': barcode, 'match': True, 'barcodeType': 'lots', 'record': record[0], 'fromCache': False}
+                
             # Tìm kiếm sản phẩm theo mã vạch
             record = self.env['product.product'].search_read([('barcode', '=', barcode)], limit=1,
                                                              fields=self._get_fields('product.product'))
@@ -598,6 +569,61 @@ class Inventory(models.Model):
 
             return self.get_data(inventory_id)
         
+        if scanned_type == "lots":
+            lot_id = record.get("id")
+            product_id = record.get("product_id")[0]
+            location_id = record.get("location_id")[0] if record.get("location_id") else False
+            
+            # Kiểm tra xem lô hàng đã có trong inventory chưa
+            existing_lot_line = inventory.line_ids.filtered(
+                lambda l: l.inventory_id.id == inventory_id
+                and l.lot_id.id == lot_id
+                and l.product_id.id == product_id
+                # and l.state not in ["done", "counting"]
+            )
+            product = self.env['product.product'].browse(product_id)
+            tracking = product.tracking
+
+            if existing_lot_line:
+                for line in existing_lot_line.filtered(lambda l: l.state not in ["done"]):
+                    if tracking == 'serial':
+                        if line.quantity_counted == 0:
+                            # Nếu chưa có số lượng đếm, đặt số lượng đếm là 1
+                            line.write({
+                                "quantity_counted": 1,
+                                "state": "counting",
+                            })
+                        else:
+                            return UserError(_("Lô hàng đã được kiểm kê, không thể thêm số lượng mới."))
+                    else:
+                        line.write({
+                            "quantity_counted": line.quantity_counted + 1,
+                            "state": "counting",
+                        })
+            else:
+                if tracking == 'serial':
+                    inventory.line_ids.create({
+                        "inventory_id": inventory.id,
+                        "product_id": product_id,
+                        "location_id": location_id,
+                        "lot_id": lot_id,
+                        "quantity": 1,
+                        "quantity_counted": 1,
+                        "state": "counting",
+                    })
+                else:
+                    inventory.line_ids.create({
+                        "inventory_id": inventory.id,
+                        "product_id": product_id,
+                        "location_id": location_id,
+                        "lot_id": lot_id,
+                        "quantity": 0,  
+                        "quantity_counted": 1,
+                        "state": "counting",
+                    })
+
+            return self.get_data(inventory_id)
+            
         # if scanned_type == "products":
         #     product_id = record.get("id")
             
@@ -612,7 +638,7 @@ class Inventory(models.Model):
 
         #     return self.get_data(inventory_id)
 
-        return {"error": "Loại barcode không được hỗ trợ!"}  
+        return UserError (_("Loại barcode không được hỗ trợ!"  )) 
   
     def save_order(self, inventory_id, data):
         """Cập nhật hoặc tạo mới dòng kiểm kê"""
@@ -695,12 +721,12 @@ class InventoryLine(models.Model):
     package_id = fields.Many2one('stock.quant.package', string="Package")
     location_id = fields.Many2one('stock.location', string="Location", required=True)
     company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company)
-    quantity = fields.Float(string="Inventory Quantity", readonly=True)
-    quantity_counted = fields.Float(string="Counted Quantity")
+    quantity = fields.Float(string="Quantity", readonly=True)
+    quantity_counted = fields.Float(string="Quantity Counted")
     difference = fields.Float(string="Difference", compute="_compute_difference")
     note = fields.Html(string="Note")
 
-    quant_id = fields.Many2one('stock.quant', string="Related Stock Quant")
+    quant_id = fields.Many2one('stock.quant', string="Quant")
     state = fields.Selection([
         ('pending', 'Chờ kiểm kê'),
         ('counting', 'Đang kiểm kê'),
@@ -731,7 +757,7 @@ class InventoryHistory(models.Model):
     date = fields.Datetime(string="Date", required=True, default=fields.Datetime.now)
     location_id = fields.Many2one("stock.location", string="Location", required=True)
     product_id = fields.Many2one("product.product", string="Product", required=True)
-    quantity = fields.Float(string="Quantity Before", readonly=True)
+    quantity = fields.Float(string="Quantity", readonly=True)
     quantity_after = fields.Float(string="Quantity After", readonly=True)
     difference = fields.Float(string="Difference", compute="_compute_difference")
     lot_id = fields.Many2one("stock.lot", string="Lot/Serial Number")
@@ -762,6 +788,7 @@ class StockQuant(models.Model):
     def action_add_lines(self):
         inventory_id = self.env.context.get('inventory_id')
         inventory = self.env['smartbiz.inventory'].browse(inventory_id)
+        inventory.state = 'in_progress'
         vals_list = []
         for quant in self:
             vals_list.append({
@@ -813,7 +840,7 @@ class StockMove(models.Model):
     _inherit = 'stock.move'
 
     def action_open_quant_selector(self):
-        action = self.env.ref('smartbiz_inventory.action_open_stock_quant_editable').read()[0]
+        action = self.env.ref('smartbiz_inventory.action_open_stock_quant_editable').sudo().read()[0]
         action['domain'] = [
             ('company_id', '=', self.company_id.id),
             ('location_id.usage', '=', 'internal'),

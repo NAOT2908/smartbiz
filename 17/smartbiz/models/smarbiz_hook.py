@@ -3,7 +3,6 @@ from odoo.exceptions import AccessError, ValidationError
 from odoo import api, fields, models, _
 import json,unidecode
 
-
 def check_action_permission(method):
     method._check_permission_decorated = True  # Đánh dấu phương thức đã được trang trí
 
@@ -109,7 +108,6 @@ def check_action_permission(method):
                 return method(record, *args, **kwargs)
 
     return wrapper
-
 
 class SmartBiz_WorkflowBase(models.AbstractModel):
     _name = "smartbiz.workflow_base"

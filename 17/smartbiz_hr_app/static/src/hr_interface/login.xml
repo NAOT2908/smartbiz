@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="LoginComponent" owl="true">
+        <t t-if="state.view == 'login'">
+            <div class="o_login_component_wrapper bg-gradient-to-r from-blue-500 to-purple-600 min-h-screen flex items-center justify-center p-4">
+                <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-105">
+                    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Login</h2>
+
+                    <div class="mb-6" t-att-class="{ 'hidden': state.employee }">
+                        <label for="card-swipe" class="block text-gray-700 text-sm font-semibold mb-2">Scan QR</label>
+                        <div id="card-swipe"
+                            class="w-full bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-6 flex items-center justify-center text-gray-500 text-lg font-medium h-32 transition-all duration-200 hover:bg-gray-200 hover:border-gray-400 cursor-pointer"
+                            t-on-click="openManualScanner">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2 text-center">
+                            (Scan Card, QR or Type ID)
+                        </p>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="receive-id" class="block text-gray-700 text-sm font-semibold mb-2">ID</label>
+                        <input
+                            type="text"
+                            id="receive-id"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                            placeholder="Type your ID here or scan your card."
+                            t-model="state.employee"
+                            t-att-value="state.employee"
+                            t-on-change="onReceiveIdKeyup"
+                        />
+                    </div>
+                    <div class="block text-gray-700 text-sm font-semibold mb-2" t-att-class="{ 'hidden': !state.employee }">
+                        Name: <span t-esc="state.employee_name" class="font-semibold"></span>
+                    </div>
+                    <div id="password-field-container" class="mb-6" t-att-class="{ 'hidden': !state.employee }">
+                        <label for="password" class="block text-gray-700 text-sm font-semibold mb-2">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                            placeholder="Please enter your password."
+                            t-model="state.password"
+                            t-on-keydown="onKeydown"
+                        />
+                    </div>
+
+                    <button
+                        id="login-button"
+                        class="w-full text-center pt-3 pb-3 bg-blue-600 text-white rounded-lg font-semibold text-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105"
+                        t-att-class="{ 'hidden': !state.employee }"
+                        t-on-click="onLoginClick"
+                        
+                    >
+                        Login
+                    </button>
+                </div>
+            </div>
+        </t>
+        <t t-if="state.view == 'hr_interface'">
+            <HrInterface t-props="{employee_id: state.employee_id, logOut: logOut.bind(this), employee: state.employee, employee_name: state.employee_name}"/>
+        </t>
+    </t>
+</templates>

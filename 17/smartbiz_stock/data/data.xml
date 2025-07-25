@@ -13,6 +13,14 @@
             <field name="company_id" eval = "False" />
         </record>
 
+        <record model="ir.sequence" id="seq_smartbiz_stock_inventory_kk">
+            <field name="name">Inventory</field>
+            <field name="code">smartbiz_stock.inventory</field>
+            <field name="prefix">KK</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval = "False" />
+        </record>
+
 <!-- Auto Schedule -->
 
     </data>

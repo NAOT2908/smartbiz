@@ -68,6 +68,7 @@
                    <field name="status"/>
                    <field name="last_checked"/>
                    <field name="iot_id"/>
+                   <field name="temperature"/>
             </group>
             </group>
       </sheet>
@@ -194,6 +195,7 @@
             <field name="status" optional="show"/>
             <field name="last_checked" optional="show"/>
             <field name="iot_id" optional="show"/>
+            <field name="temperature" optional="show"/>
         </tree>
       </field>
     </record>

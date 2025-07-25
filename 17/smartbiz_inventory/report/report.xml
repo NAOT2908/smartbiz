@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="0">
-
+        <record id="action_report_phieu_kiem_ke" model="ir.actions.report">
+            <field name="name">Phiếu kiểm kê</field>
+            <field name="model">smartbiz.inventory</field>
+            <field name="report_type">qweb-html</field>
+            <field name="report_name">smartbiz_inventory.report_phieu_kiem_ke</field>
+            <field name="report_file">smartbiz_inventory.report_phieu_kiem_ke</field>
+            <field name="binding_model_id" ref="smartbiz_inventory.model_smartbiz_inventory"/>
+            <field name="binding_type">report</field>
+        </record>
     </data>
 </odoo>
