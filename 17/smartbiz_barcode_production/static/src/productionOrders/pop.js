@@ -209,8 +209,9 @@ export class ProductOrderDetail extends Component {
   }
 // Hiển thị dialog
 openDialog() {
- 
-  this.state.ProductionEntryDialog = true;
+  
+    this.state.ProductionEntryDialog = true;
+  
 }
 closeDialog() {
   // reset

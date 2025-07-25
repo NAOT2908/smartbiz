@@ -496,22 +496,156 @@ export class ProductionEntryDialog extends Component {
       "finishedMoves",
     ];
     setup() {
+        this.rpc = useService('rpc');
+        this.orm = useService('orm');
+        this.notification = useService('notification');
+        this.dialog = useService('dialog');
+        this.action = useService('action');
+        this.home = useService("home_menu");
+
       this.state = useState({
         productionDialog: false,
         showDetailsModal: false,
         detailMoveLine: null,
-        showDetailsModal: [],
+        showDetailsModal: false,
         processedPackages: [],
         scannedPackageName: '',
         combinedProductData: [],
+        modalProductData: [],
         
 
       });
+      const services = {
+            rpc: this.rpc,
+            orm: this.orm,
+            notification: this.notification,
+            action: this.action,
+          };
+          this._scrollBehavior = "smooth";
+          this.isMobile = uiUtils.isSmall();
+          this.barcodeService = useService("barcode");
+          useBus(this.barcodeService.bus, "barcode_scanned", (ev) =>
+            this.onBarcodeScanned(ev.detail.barcode)
+          );
+          const model = new SmartBizBarcodePickingModel(
+            "mrp.production",
+            this.production_id,
+            services
+          );
+          useSubEnv({ model });
       // console.log(this.props.detailMoveLine)
       
     }
     closeDialog() {
         this.props.closeDialog();
+        this.state.processedPackages = [];
+        this.state.scannedPackageName = '';
+    }
+
+
+
+    async openMobileScanner() {
+            const barcode = await BarcodeScanner.scanBarcode(this.env);
+            await this.onBarcodeScanned(barcode);
+        }
+    openManualScanner() {
+        
+        this.dialog.add(ManualBarcodeScanner, {
+            openMobileScanner: async () => {
+                await this.openMobileScanner();
+            },
+            onApply: async (barcode) => {
+                await this.onBarcodeScanned(barcode);
+            },
+        });
+    }
+
+    async onBarcodeScanned(barcode){
+        if (barcode) {
+            await this.processBarcode(barcode);
+      
+            if ("vibrate" in window.navigator) {
+              window.navigator.vibrate(100);
+            }
+          } else {
+            const message = _t("Please, Scan again!");
+            this.notification.add(message, { type: "warning" });
+          }
+    }
+    removeProcessedPackage(pkgId) {
+        const idx = this.state.processedPackages.findIndex(p => p.id === pkgId);
+        if (idx > -1) {
+            this.state.processedPackages.splice(idx, 1);
+            this.rebuildCombinedProductData();
+        }
+    }
+    rebuildCombinedProductData() {
+        const productMap = new Map();
+
+        this.state.processedPackages.forEach((pkg) => {
+            if (pkg.record && pkg.record.products) {
+                pkg.record.products.forEach((product) => {
+                    const key = product.product_id;
+                    if (productMap.has(key)) {
+                        productMap.get(key).quantityDone += product.quantity;
+                    } else {
+                        productMap.set(key, {
+                            productId: product.product_id,
+                            productName: product.product_name,
+                            quantityDone: product.quantity,
+                            quantityNeeded: 0, // Gán nếu có
+                        });
+                    }
+                });
+            }
+        });
+
+        // Gán lại state
+        this.state.combinedProductData = Array.from(productMap.values());
+        console.log(this.state.combinedProductData);
+    }
+    openDetailsModal() {
+        this.state.showDetailsModal = true;
+    }
+    closeDialogDetails() {
+        this.state.showDetailsModal = false;
+    }
+    async processBarcode(barcode) {
+        var barcodeData = await this.env.model.parseBarcodeMrp(barcode, false, false, false);
+        console.log(barcodeData)
+        if (!barcodeData.match) {
+            // const message = _t(`Không tìm thấy thông tin của barcode: ${barcode}!`);
+            // this.notification.add(message, { type: "warning" });
+            let data = await this.orm.call("mrp.production", "create_package", [null, barcode], {});
+            if (!data || !data.id) {
+                console.error("Lỗi khi tạo package!");
+                return;
+            }
+
+        }
+    
+        if (barcodeData.barcodeType !== "packages") {
+            const message = _t(`Barcode: ${barcode} không phải là Packages!`);
+            this.notification.add(message, { type: "warning" });
+            return;
+        }
+    
+        let packageInfo = {
+            id: barcodeData.record.id,
+            name: barcodeData.barcode,
+            record: barcodeData.record,
+        };
+        
+        const exists = this.state.processedPackages.find(pkg => pkg.id === packageInfo.id);
+        if (!exists) {
+            this.state.processedPackages.push(packageInfo);
+            this.rebuildCombinedProductData();
+        } else {
+            this.notification.add(`Package ${packageInfo.name} đã được quét rồi!`, {
+                type: "warning",
+            });
+        }
+
     }
     
   }

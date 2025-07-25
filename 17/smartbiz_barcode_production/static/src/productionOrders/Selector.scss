@@ -187,334 +187,341 @@
 
 /* Kiểu dáng SCSS tùy chỉnh cho ứng dụng QR Scanner - Responsive */
 
-// Biến màu sắc cơ bản (tương ứng với Tailwind)
-$s-color-gray-100: #f3f4f6;
-$s-color-gray-800: #1f2937;
-$s-color-blue-50: #eff6ff;
-$s-color-blue-200: #bfdbfe;
-$s-color-blue-300: #93c5fd;
-$s-color-blue-800: #1e40af;
-$s-color-blue-900: #1e3a8a;
-$s-color-purple-50: #f5f3ff;
-$s-color-purple-200: #ddd6fe;
-$s-color-purple-800: #5b21b6;
-$s-color-green-600: #16a34a;
-$s-color-green-700: #047857;
-$s-color-red-100: #fee2e2;
-$s-color-red-400: #f87171;
-$s-color-red-600: #dc2626;
-$s-color-red-700: #b91c1c;
-$s-color-gray-500: #6b7280;
-$s-color-gray-600: #4b5563;
-$s-color-gray-700: #374151;
-$s-color-gray-200: #e5e7eb;
-$s-color-gray-300: #d1d5db;
-$s-color-white: #ffffff;
-$s-color-teal-500: #14b8a6;
-
-
-// Kiểu dáng chung cho toàn bộ ứng dụng
+// Kiểu dáng chung cho toàn bộ ứng dụng (Bây giờ là lớp phủ modal)
 .s-app-container {
-  min-height: 100vh;
-  background-color: $s-color-gray-100;
-  padding: 1rem; // p-4
-  font-family: 'Inter', sans-serif;
+  position: fixed; /* Đặt vị trí cố định trên màn hình */
+  inset: 0; /* Chiếm toàn bộ màn hình */
+  background-color: rgba(107, 114, 128, 0.5); /* Nền xám trong suốt (như overlay) */
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 1rem; /* p-4 */
+  font-family: 'Inter', sans-serif;
+  z-index: 50; /* Đảm bảo modal nằm trên các phần tử khác */
 }
+
 
 .s-main-content-wrapper {
   width: 100%;
-  max-width: 28rem; // max-w-md (for mobile/small screens)
+  max-width: 28rem; /* max-w-md (cho màn hình di động/nhỏ) */
   margin-left: auto;
   margin-right: auto;
-  background-color: $s-color-white;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); // shadow-lg
-  border-radius: 0.75rem; // rounded-xl
-  padding: 1.5rem; // p-6
+  background-color: #ffffff; /* Nền trắng (nội dung modal) */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Đổ bóng lớn */
+  border-radius: 0.75rem; /* Góc bo tròn lớn */
+  padding: 1.5rem; /* p-6 */
   display: flex;
   flex-direction: column;
 
-  @media (min-width: 768px) { // md: breakpoint
-    max-width: 48rem; // md:max-w-2xl or similar for tablets
-    padding: 2rem; // md:p-8
+  /* Điều chỉnh kích thước cho các màn hình lớn hơn */
+  @media (min-width: 640px) { /* breakpoint sm */
+    max-width: 32rem; /* sm:max-w-lg or similar for slightly larger modals */
+  }
+  @media (min-width: 768px) { /* breakpoint md */
+    max-width: 40rem; /* md:max-w-xl or similar for tablets */
+    padding: 2rem; /* md:p-8 */
   }
 
-  @media (min-width: 1024px) { // lg: breakpoint
-    max-width: 64rem; // lg:max-w-4xl or similar for desktops
+  @media (min-width: 1024px) { /* breakpoint lg */
+    max-width: 48rem; /* lg:max-w-2xl or similar for desktops */
   }
 }
 
 .s-app-title {
-  font-size: 1.5rem; // text-2xl
-  font-weight: 700; // font-bold
-  text-align: center; // text-center
-  color: $s-color-gray-800;
-  margin-bottom: 1.5rem; // mb-6
+  text-align: center; /* text-center */
+  color: #1f2937; /* Màu chữ xám đậm */
 
-  @media (min-width: 768px) {
-    font-size: 1.875rem; // md:text-3xl
-  }
 }
 
-.s-error-message {
-  background-color: $s-color-red-100;
-  border: 1px solid $s-color-red-400;
-  color: $s-color-red-700;
-  padding: 0.75rem 1rem; // px-4 py-3
-  border-radius: 0.375rem; // rounded-md
-  position: relative;
-  margin-bottom: 1rem; // mb-4
-  width: 100%;
-
-  strong {
-    font-weight: 700; // font-bold
-  }
-
-  span {
-    display: block;
-    @media (min-width: 640px) { // sm:inline
-      display: inline;
-      margin-left: 0.5rem; // sm:ml-2
-    }
-  }
-}
 
 // Phần danh sách đã quét
 .s-scanned-codes-section {
-  background-color: $s-color-blue-50;
-  padding: 1rem; // p-4
-  border-radius: 0.5rem; // rounded-lg
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); // shadow-inner
-  margin-bottom: 1.5rem; // mb-6
+  background-color: #eff6ff; /* Nền xanh nhạt */
+  padding: 1rem; /* p-4 */
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); /* Đổ bóng bên trong */
+  margin-bottom: 1.5rem; /* mb-6 */
 }
 
 .s-scanned-codes-title {
-  font-size: 1.25rem; // text-xl
-  font-weight: 600; // font-semibold
-  color: $s-color-blue-800;
-  margin-bottom: 0.75rem; // mb-3
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 600; /* font-semibold */
+  color: #1e40af; /* Màu chữ xanh đậm */
+  margin-bottom: 0.75rem; /* mb-3 */
 }
 
 .s-empty-list-message {
-  color: $s-color-gray-600;
+  color: #4b5563; /* Màu chữ xám */
 }
 
-.s-scanned-codes-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem; // gap-2
-  max-height: 10rem; // max-h-40 (for mobile)
-  overflow-y: auto;
-
-  @media (min-width: 768px) { // md: breakpoint
-    max-height: 12rem; // md:max-h-48 or similar
-  }
-}
-
-.s-scanned-code-widget {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem; // px-3 py-1
-  border-radius: 9999px; // rounded-full
-  background-color: $s-color-blue-200;
-  color: $s-color-blue-800;
-  font-size: 0.875rem; // text-sm
-  font-weight: 500; // font-medium
-  cursor: pointer;
-  transition-property: background-color; // transition-colors
-  transition-duration: 200ms; // duration-200
-
-  &:hover {
-    background-color: $s-color-blue-300;
-  }
-
-  button {
-    margin-left: 0.5rem; // ml-2
-    margin-right: -0.25rem; // -mr-1
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 1rem; // h-4
-    width: 1rem; // w-4
-    border-radius: 9999px; // rounded-full
-    background-color: $s-color-blue-300;
-    color: $s-color-blue-900;
-    font-size: 0.75rem; // text-xs
-    font-weight: 700; // font-bold
-    border: none;
-    background: none; // Reset background for button
-    cursor: pointer;
-
-    &:hover {
-      background-color: $s-color-blue-400;
-    }
-  }
-}
 
 // Phần bảng tổng số lượng sản phẩm
 .s-product-quantities-section {
-  background-color: $s-color-purple-50;
-  padding: 1rem; // p-4
-  border-radius: 0.5rem; // rounded-lg
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); // shadow-inner
-  margin-bottom: 1.5rem; // mb-6
+  background-color: #f5f3ff; /* Nền tím nhạt */
+  padding: 1rem; /* p-4 */
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); /* Đổ bóng bên trong */
+  margin-bottom: 1.5rem; /* mb-6 */
 }
 
 .s-product-quantities-title {
-  font-size: 1.25rem; // text-xl
-  font-weight: 600; // font-semibold
-  color: $s-color-purple-800;
-  margin-bottom: 0.75rem; // mb-3
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 600; /* font-semibold */
+  color: #5b21b6; /* Màu chữ tím đậm */
+  margin-bottom: 0.75rem; /* mb-3 */
 }
 
 .s-table-responsive-wrapper {
-  overflow-x: auto;
+  overflow-x: auto; /* Cho phép cuộn ngang bảng trên màn hình nhỏ */
 }
 
 .s-product-table {
-  min-width: 100%; // min-w-full
-  background-color: $s-color-white;
-  border-radius: 0.375rem; // rounded-md
+  min-width: 100%; /* min-w-full */
+  background-color: #ffffff; /* Nền trắng */
+  border-radius: 0.375rem; /* rounded-md */
   overflow: hidden;
-  font-size: 0.875rem; // text-sm
+  font-size: 0.875rem; /* text-sm */
+    border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
 
   thead {
-    background-color: $s-color-purple-200;
+    background-color: #ddd6fe; /* Nền tím nhạt */
     th {
-      padding: 0.5rem 0.75rem; // py-2 px-3
-      text-align: left; // text-left
-      color: $s-color-purple-800;
-      font-weight: 600; // font-semibold
+      padding: 0.5rem 0.75rem; /* py-2 px-3 */
+      text-align: left; /* text-left */
+      color: #5b21b6; /* Màu chữ tím đậm */
+      font-weight: 600; /* font-semibold */
+      position: sticky;
+        top: 0;
+        background-color: #ddd6fe; /* giữ màu nền để không xuyên qua */
+        z-index: 1;
       &:first-child {
-        border-top-left-radius: 0.375rem; // rounded-tl-md
+        border-top-left-radius: 0.375rem; /* Góc bo tròn trên trái */
       }
       &:last-child {
-        border-top-right-radius: 0.375rem; // rounded-tr-md
+        border-top-right-radius: 0.375rem; /* Góc bo tròn trên phải */
       }
     }
   }
 
   tbody {
     tr {
-      border-bottom: 1px solid $s-color-purple-100;
+      border-bottom: 1px solid #e9d5ff; /* Viền dưới */
       &:last-child {
         border-bottom: none;
       }
       &:hover {
-        background-color: $s-color-purple-50;
+        background-color: #f5f3ff; /* Nền khi hover */
       }
       td {
-        padding: 0.5rem 0.75rem; // py-2 px-3
-        color: $s-color-gray-700;
+        padding: 0.5rem 0.75rem; /* py-2 px-3 */
+        color: #374151; /* Màu chữ xám */
         &.s-quantity-cell {
-          font-weight: 700; // font-bold
+          font-weight: 700; /* font-bold */
         }
       }
     }
   }
 }
 
+/* ---------------------------------------------
+   Fix cứng chiều cao, cuộn nội dung
+   Cho .s-scanned-codes-section và .s-product-quantities-section
+--------------------------------------------- */
+/* Bọc bảng trong một khung cuộn */
+.s-table-responsive-wrapper {
+  max-height: 12rem; /* mobile */
+  overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+  .s-table-responsive-wrapper {
+    max-height: 16rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .s-table-responsive-wrapper {
+    max-height: 20rem;
+  }
+}
+
+
+.s-scanned-codes-content {
+  overflow-y: auto;
+  flex: 1 1 auto;
+
+  scrollbar-width: thin; /* Firefox */
+  &::-webkit-scrollbar {
+    width: 6px; /* Chrome */
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(107, 114, 128, 0.5);
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Chiều cao cố định */
+  max-height: 12rem; /* Mobile */
+}
+
+/* Responsive */
+@media (min-width: 360px) {
+  .s-scanned-codes-content{
+    max-height: 5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .s-scanned-codes-content{
+    max-height: 16rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .s-scanned-codes-content {
+    max-height: 20rem;
+  }
+}
+
 // Nút chi tiết trong bảng
 .s-detail-button {
-  padding: 0.25rem 0.75rem; // px-3 py-1
-  background-color: $s-color-gray-500;
-  color: $s-color-white;
-  font-size: 0.75rem; // text-xs
-  font-weight: 600; // font-semibold
-  border-radius: 0.375rem; // rounded-md
-  transition-property: background-color; // transition-colors
-  transition-duration: 200ms; // duration-200
-  border: none; // Ensure no default button border
+  padding: 0.25rem 0.75rem; /* px-3 py-1 */
+  background-color: #6b7280; /* Màu xám */
+  color: #ffffff; /* Màu chữ trắng */
+  font-size: 0.75rem; /* text-xs */
+  font-weight: 600; /* font-semibold */
+  border-radius: 0.375rem; /* rounded-md */
+  transition-property: background-color; /* transition-colors */
+  transition-duration: 200ms; /* duration-200 */
+  border: none; /* Bỏ viền mặc định của button */
 
   &:hover {
-    background-color: $s-color-gray-600;
+    background-color: #4b5563; /* Màu xám khi hover */
   }
 }
 
 // Phần nút hành động
+/* --- Wrapper nút --- */
 .s-action-buttons-wrapper {
-  margin-top: 1rem; // mt-4
-  text-align: center; // text-center
+  margin-top: 1rem; /* mt-4 */
+  text-align: center; /* text-center */
   width: 100%;
   display: flex;
-  flex-direction: column; // Default to column for mobile
-  gap: 1rem; // gap-4
+  flex-direction: column; /* Mặc định: cột cho mobile */
+  gap: 1rem; /* Khoảng cách giữa các nút */
   justify-content: center;
-
-  @media (min-width: 640px) { // sm: breakpoint
-    flex-direction: row; // sm:flex-row
-  }
 }
 
+/* Các nút hành động */
 .s-record-button,
 .s-reset-button {
-  padding: 0.75rem 1.5rem; // px-6 py-3
-  font-weight: 600; // font-semibold
-  border-radius: 0.5rem; // rounded-lg
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); // shadow-md
-  transition: all 300ms ease-in-out; // transition duration-300 ease-in-out
-  transform: scale(1); // transform hover:scale-105
+  padding: 0.75rem 1.5rem; /* px-6 py-3 */
+  font-weight: 600; /* font-semibold */
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+  transition: all 300ms ease-in-out; /* transition-all */
+  transform: scale(1);
   flex: 1;
-  border: none; // Ensure no default button border
-  width: 100%; // Full width on mobile
-
-  @media (min-width: 640px) { // sm: breakpoint
-    width: auto; // Auto width on larger screens
-  }
+  border: none;
+  width: 100%; /* full width trên mobile */
 }
 
+/* Nút Ghi nhận */
 .s-record-button {
-  background-color: $s-color-green-600;
-  color: $s-color-white;
-
-  &:hover {
-    background-color: $s-color-green-700;
-    transform: scale(1.05);
-  }
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5), 0 0 0 2px rgba(22, 163, 74, 0.75); // focus:ring-2 focus:ring-green-500 focus:ring-opacity-75
-  }
+  background-color: #16a34a; /* xanh lá */
+  color: #ffffff;
 }
 
+.s-record-button:hover {
+  background-color: #047857; /* xanh lá đậm */
+  transform: scale(1.05);
+}
+
+.s-record-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5),
+              0 0 0 2px rgba(22, 163, 74, 0.75);
+}
+
+/* Nút Huỷ */
 .s-reset-button {
-  background-color: $s-color-red-600;
-  color: $s-color-white;
+  background-color: #dc2626; /* đỏ */
+  color: #ffffff;
+}
 
-  &:hover {
-    background-color: $s-color-red-700;
-    transform: scale(1.05);
+.s-reset-button:hover {
+  background-color: #b91c1c; /* đỏ đậm */
+  transform: scale(1.05);
+}
+
+.s-reset-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5),
+              0 0 0 2px rgba(220, 38, 38, 0.75);
+}
+
+/* --- Responsive: đổi sang row ở màn hình rộng hơn --- */
+@media (min-width: 640px) {
+  .s-action-buttons-wrapper {
+    flex-direction: row; /* sm:flex-row */
   }
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5), 0 0 0 2px rgba(220, 38, 38, 0.75); // focus:ring-2 focus:ring-red-500 focus:ring-opacity-75
+
+  .s-record-button,
+  .s-reset-button {
+    width: auto; /* Không chiếm full chiều ngang nữa */
   }
 }
 
-// Modal chung
+/* --- Responsive: làm nút nhỏ lại cho tablet --- */
+@media (max-width: 768px) {
+  .s-record-button,
+  .s-reset-button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* --- Responsive: làm nút nhỏ hơn nữa cho mobile nhỏ --- */
+@media (max-width: 480px) {
+  .s-record-button,
+  .s-reset-button {
+    font-size: 0.9rem;
+    box-shadow: 0 3px 5px -1px rgba(0,0,0,0.1),
+                0 1px 3px -1px rgba(0,0,0,0.06);
+  }
+  .s-action-buttons-wrapper {
+    flex-direction: row; /* sm:flex-row */
+  }
+}
+
+
+/* Modal chung (được sử dụng cho Combined Product Details Modal) */
 .s-modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(107, 114, 128, 0.5); // bg-gray-600 bg-opacity-50
+  background-color: rgba(107, 114, 128, 0.5); /* Nền xám trong suốt */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem; // p-4
-  z-index: 50;
+  padding: 1rem; /* p-4 */
+  z-index: 50; /* Đảm bảo modal nằm trên các phần tử khác */
 }
 
 .s-modal-content {
-  background-color: $s-color-white;
-  border-radius: 0.5rem; // rounded-lg
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); // shadow-xl
-  padding: 1.5rem; // p-6
+  background-color: #ffffff; /* Nền trắng */
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* Đổ bóng lớn */
+  padding: 1.5rem; /* p-6 */
   width: 100%;
-  max-width: 24rem; // max-w-sm (for mobile)
+  max-width: 24rem; /* max-w-sm (cho di động) */
 
-  @media (min-width: 640px) { // sm: breakpoint
-    max-width: 28rem; // sm:max-w-md or similar for slightly larger modals
+  @media (min-width: 640px) { /* breakpoint sm */
+    max-width: 28rem; /* sm:max-w-md */
   }
 }
 
@@ -522,53 +529,53 @@ $s-color-teal-500: #14b8a6;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem; // mb-4
+  margin-bottom: 1rem; /* mb-4 */
 }
 
 .s-modal-title {
-  font-size: 1.25rem; // text-xl
-  font-weight: 700; // font-bold
-  color: $s-color-gray-800;
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 700; /* font-bold */
+  color: #1f2937; /* Màu chữ xám đậm */
 }
 
 .s-modal-close-button {
-  color: $s-color-gray-500;
+  color: #6b7280; /* Màu xám */
   &:hover {
-    color: $s-color-gray-700;
+    color: #374151; /* Màu xám đậm hơn khi hover */
   }
-  font-size: 1.5rem; // text-2xl
-  font-weight: 700; // font-bold
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700; /* font-bold */
   border: none;
   background: none;
   cursor: pointer;
 }
 
 .s-modal-section-title {
-  font-size: 1.125rem; // text-lg
-  font-weight: 600; // font-semibold
-  color: $s-color-gray-700;
-  margin-bottom: 0.5rem; // mb-2
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 600; /* font-semibold */
+  color: #374151; /* Màu chữ xám */
+  margin-bottom: 0.5rem; /* mb-2 */
 }
 
 .s-modal-text {
-  color: $s-color-gray-700;
-  margin-bottom: 1rem; // mb-4
+  color: #374151; /* Màu chữ xám */
+  margin-bottom: 1rem; /* mb-4 */
 }
 
 .s-modal-loading-spinner {
   display: flex;
   align-items: center;
   svg {
-    animation: spin 1s linear infinite; // animate-spin
-    margin-right: 0.75rem; // mr-3
-    height: 1.25rem; // h-5
-    width: 1.25rem; // w-5
+    animation: spin 1s linear infinite; /* Hiệu ứng xoay */
+    margin-right: 0.75rem; /* mr-3 */
+    height: 1.25rem; /* h-5 */
+    width: 1.25rem; /* w-5 */
   }
   .s-spinner-blue {
-    color: $s-color-blue-500;
+    color: #3b82f6; /* Màu xanh dương */
   }
   .s-spinner-teal {
-    color: $s-color-teal-500;
+    color: #14b8a6; /* Màu xanh ngọc */
   }
 }
 
@@ -586,15 +593,16 @@ $s-color-teal-500: #14b8a6;
 }
 
 .s-modal-footer-button {
-  padding: 0.5rem 1rem; // px-4 py-2
-  background-color: $s-color-gray-200;
-  color: $s-color-gray-800;
-  border-radius: 0.375rem; // rounded-md
-  transition-property: background-color; // transition-colors
-  transition-duration: 200ms; // duration-200
-  border: none; // Ensure no default button border
+  padding: 0.5rem 1rem; /* px-4 py-2 */
+  background-color: #e5e7eb; /* Nền xám nhạt */
+  color: #1f2937; /* Màu chữ xám đậm */
+  border-radius: 0.375rem; /* rounded-md */
+  transition-property: background-color; /* transition-colors */
+  transition-duration: 200ms; /* duration-200 */
+  border: none; /* Bỏ viền mặc định của button */
 
   &:hover {
-    background-color: $s-color-gray-300;
+    background-color: #d1d5db; /* Nền xám khi hover */
   }
 }
+
