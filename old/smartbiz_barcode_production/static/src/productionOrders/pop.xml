@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="ProductOrderDetail">
+        <div class="pop-header">
+            <nav class="pop_nav">
+                <nav class="pop_nav_left">
+                    <button t-on-click="exit" class="pop_nav-link">
+                        <i class="oi oi-chevron-left" />
+                    </button>
+                    <div class="pop_nav_title"> <span class="s_nav_title" t-out="state.detailTitle"></span>
+                        <div class="pop_search-box" t-if="state.search">
+                            <input class="pop_search-input" t-on-input="handleInput" t-att-value="state.searchInput"
+                                placeholder="Tìm kiếm" />
+                        </div>
+                    </div>
+                </nav>
+                <nav class="pop_nav_right">
+                    <div class="pop_nav-link" t-on-click="searchClick">
+                        <i class="fa fa-search" />
+                    </div>
+                    <div class="pop_nav-link" t-on-click="openManualScanner">
+                        <i class="fa fa-barcode" />
+                    </div>
+                    <div class="pop_nav-link" t-on-click="toggleMenu">
+                        <i class="fa fa-bars"></i>
+                    </div>
+                </nav>
+            </nav>
+        </div>
+        <div t-if="state.menuVisible" class="menu-overlay" t-on-click="toggleMenu"></div>
+        <div t-if="state.menuVisible" class="menu">
+            <div class="menu-header">
+                <span class="close-icon" t-on-click="toggleMenu">
+                    <i class="fa fa-times"></i>
+                </span>
+            </div>
+            <div class="menu-items">
+                <button t-if="state.view !== 'orderdetails'" t-on-click="() => this.openSelector(9)" >Chia Package</button>
+                <button t-if="state.view !== 'orderdetails'" t-on-click="() => this.openSelector(8)" >Đóng Package loạt</button>
+          
+                <button t-on-click="() => this.openDialog()" >Ghi nhận sản lượng</button>
+                <button t-on-click="() => this.openDialog()" >Ghi nhận tiêu thụ</button>
+            </div>
+        </div>
+        <div class="s_tabs" t-if="state.view ==='orderdetails'">
+                <div t-attf-class="s_menutab #{state.activeTab === 'info' ? 'active' : ''}" t-on-click="() => this.changeTab('info')">
+                    Chi tiết lệnh
+                </div>
+                <div t-attf-class="s_menutab #{state.activeTab === 'material' ? 'active' : ''}" t-on-click="() => this.changeTab('material')">
+                    Nguyên liệu
+                </div>
+                <div t-attf-class="s_menutab #{state.activeTab === 'finished' ? 'active' : ''}" t-on-click="() => this.changeTab('finished')">
+                    Sản phẩm
+                </div>
+                <div t-attf-class="s_menutab #{state.activeTab === 'packaging' ? 'active' : ''}" t-on-click="() => this.changeTab('packaging')">
+                    Đóng gói
+                </div>
+            </div>
+        <div class="s_container_tab" t-if="state.view ==='orderdetails'">
+            <div  class="orderdetails">               
+                <div t-if="state.activeTab === 'info'">
+                    <!-- ╭────── Order Detail (dùng chung style với Order Overview) ──────╮ -->
+                    <div class="s_order_overview">
+                        <div class="s_order_info">
+
+                            <div class="s_order_info_item">
+                                <span class="s_info_label">Sản phẩm:</span>
+                                <span class="s_info_value" t-out="state.order.product_id[1] || '-'"/>
+                            </div>
+
+                            <div class="s_order_info_item">
+                                <span class="s_info_label">Thời gian bắt đầu:</span>
+                                <span class="s_info_value" t-out="state.order.date_start || '-'"/>
+                            </div>
+
+                            <div class="s_order_info_item">
+                                <span class="s_info_label">Thời gian kết thúc:</span>
+                                <span class="s_info_value" t-out="state.order.date_finished || '-'"/>
+                            </div>
+
+                            <div class="s_order_info_item">
+                                <span class="s_info_label">Yêu cầu:</span>
+                                <span class="s_info_value" t-out="state.order.product_uom_qty || '-'"/>
+                            </div>
+
+                            <div class="s_order_info_item">
+                                <span class="s_info_label">Đang sản xuất:</span>
+                                <span class="s_info_value" t-out="state.order.qty_producing || '-'"/>
+                            </div>
+
+                            <div class="s_order_info_item">
+                                <span class="s_info_label">Đã hoàn thành:</span>
+                                <span class="s_info_value" t-out="state.order.qty_produced || '-'"/>
+                            </div>
+
+                            <div class="s_order_info_item">
+                                <span class="s_info_label">Người phụ trách:</span>
+                                <span class="s_info_value" t-out="state.order.user_id[1] || '-'"/>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div t-if="state.activeTab === 'material'">
+                    <div>
+                        <Moves t-props="{
+                            stockMoves: state.materialMoves,
+                            selectedMove: state.selectedMaterial,
+                            moveClick: materialMoveClick,
+                            selectItem: selectItem,
+                        }" />
+                    </div>
+                </div>
+                <div t-if="state.activeTab === 'finished'">
+                    <div >
+                        <Moves t-props="{
+                            stockMoves: state.finishedMoves,
+                            selectedMove: state.selectedFinished,
+                            moveClick: finishedMoveClick,
+                            selectItem: selectItem,
+                        }" />
+                    </div>
+                </div>
+                
+                <div t-if="state.activeTab === 'packaging'">
+                    <div>
+                        <Packages t-props="{
+                        data:state.data,
+                        updateData:(data) => this.updateData(data),
+                        showModal:(modal,data) => this.showModal(modal,data)
+                        }" />
+                        <!-- Form EditPackageForm, show/hide dựa trên state.showEditPackageForm -->
+                        <t t-if="state.modal == 'editPackage'">
+                            <EditPackage t-props="{
+                                packageInfo:state.packageInfo,
+                                unpacked_move_lines:state.unpacked_move_lines,
+                                closeModal: (modal,data) => this.closeModal(modal,data),
+                            }" />
+                        </t>
+
+                        <!-- Form CreatePackageForm, show/hide dựa trên state.showCreatePackageForm -->
+                        <t t-if="state.modal == 'createPackages'">
+                            <CreatePackages t-props="{
+                                orderInfo:state.data.order,
+                                unpacked_products:state.data.unpacked_moves,
+                                closeModal: (modal,data) => this.closeModal(modal,data),
+                            }" />
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="s_container" t-if="state.view !== 'orderdetails'">
+            <div t-if="state.view === 'editMove'">
+                <div class="edit-finishedMoves">
+                    <MoveLineEdit t-props="{
+                            order: state.order,
+                            detailMoveLine: state.detailMoveLine,
+                            quantity: state.quantity,
+                            locations: state.locations,
+                            lots: state.lots,
+                            selectedButton: state.selectedButton,
+                            handleButtonClick: handleButtonClick,
+                            saveOrder: saveOrder,
+                            packMoveLine: packMoveLine,
+                            validate: validate,
+                            print_lines: print_lines,
+                            createLot: createLot,
+                            editQuantityClick: editQuantityClick,
+                            openSelector: openSelector,
+                            clearResultPackage:clearResultPackage,
+                            buttonStatus:state.buttonStatus,
+                            resetDetailMoveLine:resetDetailMoveLine
+                        }" />
+                    <MoveLines t-props="{
+                            moveLines: state.moveLines,
+                            selectedMoveLine: state.selectedMoveLine,
+                            moveLineClick: moveLineClick,
+                            deleteMoveLine: deleteMoveLine,
+                            print: print,
+                        }" />
+                    <EditQuantityModal t-if="state.showEditQuantityModal" t-props="{   
+                            detailMoveLine: state.detailMoveLine,
+                            closeQuantityModal: closeQuantityModal,          
+                        }" />
+                    <Selector t-if="state.showSelector" t-props="{
+                        records:records,
+                        multiSelect:multiSelect,
+                        closeSelector:closeSelector,
+                        title:selectorTitle,
+                        isSelector:state.isSelector,
+                        move: move,
+                    }"/>
+                </div>
+            </div>
+            <div t-if="state.view === 'editMaterial'">
+                <div class="edit-finishedMoves">
+                    <MoveLineEdit t-props="{
+                            order: state.order,
+                            detailMoveLine: state.detailMoveLine,
+                            quantity: state.quantity,
+                            locations: state.locations,
+                            lots: state.lots,
+                            selectedButton: state.selectedButton,
+                            handleButtonClick: handleButtonClick,
+                            saveOrder: saveOrder,
+                            packMoveLine: packMoveLine,
+                            validate: validate,
+                            print_lines: print_lines,
+                            createLot: createLot,
+                            editQuantityClick: editQuantityClick,
+                            openSelector: openSelector,
+                            clearResultPackage:clearResultPackage,
+                            buttonStatus: state.buttonStatus,
+                            resetDetailMoveLine:resetDetailMoveLine
+                        }" /> 
+                    <MoveLines t-props="{
+                            moveLines: state.moveLines,
+                            selectedMoveLine: state.selectedMoveLine,
+                            moveLineClick: moveLineClick,
+                            deleteMoveLine: deleteMoveLine,
+                            print: print,
+                        }" />
+
+                    <EditQuantityModal t-if="state.showEditQuantityModal" t-props="{   
+                            detailMoveLine: state.detailMoveLine,
+                            closeQuantityModal: closeQuantityModal,          
+                        }" />
+
+                    <Selector t-if="state.showSelector" t-props="{
+                            records:records,
+                            multiSelect:multiSelect,
+                            closeSelector:closeSelector,
+                            title:selectorTitle,
+                            isSelector:state.isSelector,
+                            move: move,
+                        }"/>
+                </div>
+            </div>
+
+        </div>
+        <footer t-attf-class="{{footerClass()}}">
+            <div t-if="state.showInfo" class="s_finished_message"><t t-esc="state.finished_message"/></div>
+            <button class="s_primary-button" t-on-click="() => this.cancelOrder()" t-if="state.showCancelOrder" >Hủy đơn</button>
+            <button class="s_primary-button" t-on-click="() => this.button_post_prepared_lines()" t-if="state.showRegisterMaterial" >Ghi nhận tiêu thụ</button>
+            <button class="s_primary-button" t-on-click="() => this.button_post_prepared_lines()" t-if="state.showRegisterProduct" >Ghi nhận sản lượng</button>
+            <button class="s_primary-button" t-on-click="() => this.validate()"  t-if="state.showDoneOrder">Xác nhận đơn</button>
+           
+            <button class="s_primary-button" t-on-click="()=>saveOrder()"  t-if="state.showSave">Lưu</button>
+            <button class="s_primary-button" t-on-click="()=>resetDetailMoveLine()"  t-if="state.showSave">Hủy</button> 
+            <button class="s_primary-button" t-on-click="()=>print_lines()"  t-if="state.showPrintLines">In</button>
+
+            <button class="s_primary-button" t-on-click="() => this.showModal('createPackages',false)" t-if="state.showPackMulti">Đóng gói loạt</button>
+            
+        </footer>
+        <DialogModal t-if="state.showDialogModal" t-props="{
+            title:state.dialogTitle,
+            action:state.dialogAction,
+            fields:state.dialogFields,
+            records:state.dialogRecords,
+            closeModal:closeDialog.bind(this),
+            defaultValues: state.dialogDefault, 
+        }"/>
+        <ProductionEntryDialog t-if="state.ProductionEntryDialog" t-props="{
+            closeDialog: closeDialog.bind(this),
+            finishedMoves: state.finishedMoves,
+            materialMoves: state.materialMoves,
+        }"/>
+    </t>
+   
+    
+</templates>

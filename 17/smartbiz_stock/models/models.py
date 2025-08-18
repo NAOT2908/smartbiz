@@ -39,7 +39,8 @@ class Product_Product(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___product_readonly_4','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Product_Template(models.Model):
     _inherit = ['product.template']
     allow_negative_stock = fields.Boolean(string='Allow Negative Stock')
@@ -66,7 +67,8 @@ class Product_Template(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___product_readonly_4','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_Quant(models.Model):
     _inherit = ['stock.quant']
     warehouse_id = fields.Many2one('stock.warehouse', store='True')
@@ -148,7 +150,8 @@ class Stock_Quant(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___move_readonly_6','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_Lot(models.Model):
     _inherit = ['stock.lot']
     product_qty = fields.Float(store='True')
@@ -161,7 +164,8 @@ class Stock_Lot(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___move_readonly_6','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_Move(models.Model):
     _inherit = ['stock.move']
     lots = fields.Many2many('stock.lot', string='Lots')
@@ -187,7 +191,8 @@ class Stock_Move(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___move_readonly_6','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_Warehouse(models.Model):
     _inherit = ['stock.warehouse']
     customize_reception = fields.Boolean(string='Customize Reception', default = 'True')
@@ -239,7 +244,8 @@ class Stock_Warehouse(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_PickingType(models.Model):
     _inherit = ['stock.picking.type']
 
@@ -251,7 +257,8 @@ class Stock_PickingType(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Product_Category(models.Model):
     _inherit = ['product.category']
     allow_negative_stock = fields.Boolean(string='Allow Negative Stock')
@@ -264,7 +271,8 @@ class Product_Category(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Uom_Uom(models.Model):
     _inherit = ['uom.uom']
 
@@ -276,7 +284,8 @@ class Uom_Uom(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Uom_Category(models.Model):
     _inherit = ['uom.category']
 
@@ -288,7 +297,8 @@ class Uom_Category(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_MoveLine(models.Model):
     _inherit = ['stock.move.line']
     picking_type_id = fields.Many2one('stock.picking.type', store='True')
@@ -301,7 +311,8 @@ class Stock_MoveLine(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___move_readonly_6','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_Location(models.Model):
     _inherit = ['stock.location']
     capacity = fields.Float(string='Capacity')
@@ -316,7 +327,8 @@ class Stock_Location(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_Route(models.Model):
     _inherit = ['stock.route']
 
@@ -328,7 +340,8 @@ class Stock_Route(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_Rule(models.Model):
     _inherit = ['stock.rule']
 
@@ -340,7 +353,8 @@ class Stock_Rule(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class Stock_quantpackage(models.Model):
     _inherit = ['stock.quant.package']
     _sql_constraints = [
@@ -383,7 +397,8 @@ class Stock_Picking(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___move_readonly_6','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
 class SmartbizStock_StockReport(models.Model):
     _name = "smartbiz_stock.stock_report"
     _inherit = ['smartbiz.workflow_base', 'mail.thread', 'mail.activity.mixin']
@@ -1349,8 +1364,11 @@ class SmartbizStock_MoveLineReport(models.Model):
                 sml.quantity            AS quantity,
                 sml.date,
                 sml.lot_id,
+                sl.name                 AS lot_name,           
                 sml.package_id,
+                sp.name                 AS package_name,      
                 sml.result_package_id,
+                rsp.name                AS result_package_name, 
                 sml.location_id,
                 sml.location_dest_id,
                 sm.picking_type_id,
@@ -1360,8 +1378,11 @@ class SmartbizStock_MoveLineReport(models.Model):
                 sm.state
             FROM   stock_move_line sml
             JOIN   stock_move      sm  ON sm.id = sml.move_id
-            JOIN product_product pp ON pp.id = sml.product_id
+            JOIN   product_product pp  ON pp.id = sml.product_id
             LEFT JOIN product_template pt ON pp.product_tmpl_id = pt.id
+            LEFT JOIN stock_lot sl ON sl.id = sml.lot_id                
+            LEFT JOIN stock_quant_package sp ON sp.id = sml.package_id  
+            LEFT JOIN stock_quant_package rsp ON rsp.id = sml.result_package_id 
             GROUP BY
                 sml.id,
                 sml.product_id,
@@ -1369,8 +1390,11 @@ class SmartbizStock_MoveLineReport(models.Model):
                 sml.quantity,
                 sml.date,
                 sml.lot_id,
+                sl.name,                
                 sml.package_id,
+                sp.name,                
                 sml.result_package_id,
+                rsp.name,               
                 sml.location_id,
                 sml.location_dest_id,
                 sm.picking_type_id,
@@ -1739,7 +1763,7 @@ class SmartbizStock_DynamicInventoryReport(models.Model):
                 sml.product_id,
                 wh.warehouse_id,
                 sml.lot_id,
-                pp.standard_price         AS standard_price,  -- <‑‑ mới
+                pt.standard_price         AS standard_price,  -- <‑‑ mới
                 --[[EXTRA_SELECT]]
 
                 /* ===== tồn đầu kỳ chung ===== */

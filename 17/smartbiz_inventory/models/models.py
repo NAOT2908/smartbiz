@@ -95,7 +95,7 @@ class Inventory(models.Model):
         if model == 'stock.quant.package':
             return ['name','location_id']
         if model == 'stock.lot':
-            return ['name', 'ref', 'product_id','expiration_date','create_date','product_qty', 'location_id', 'product_qty']
+            return ['name', 'ref', 'product_id','expiration_date','create_date','product_qty', 'location_id']
         if model == 'uom.uom':
             return ['name','category_id','factor','rounding',]
         if model == 'stock.quant':

@@ -122,10 +122,19 @@ export class DialogModal extends Component {
     idx===-1 ? tmp.push(id) : tmp.splice(idx,1);
     this.state.multi.temp=tmp;
   }
-  toggleAll(ev){
-    this.state.multi.temp = ev.target.checked
-      ? this.state.multi.field.options.map(o=>o.id)
-      : [];
+  // toggleAll(ev){
+  //   this.state.multi.temp = ev.target.checked
+  //     ? this.state.multi.field.options.map(o=>o.id)
+  //     : [];
+  // }
+  toggleAll(ev) {
+    const display = this.getMultiDisplay();
+    const ids = display.map(o => o.id);
+    if (ev.target.checked) {
+      this.state.multi.temp = Array.from(new Set([...this.state.multi.temp, ...ids]));
+    } else {
+      this.state.multi.temp = this.state.multi.temp.filter(id => !ids.includes(id));
+    }
   }
   closeMulti(){ this.state.multi.field=null; }
   confirmMulti(){

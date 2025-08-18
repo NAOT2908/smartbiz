@@ -194,8 +194,11 @@
                                 <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between border border-gray-200 transform transition duration-300 hover:shadow-xl">
                                     <div class="flex justify-between items-start mb-4">
                                         <p class="text-xl font-semibold text-gray-900"><t t-esc="record.employee_id[1]"/></p>
-                                        <span class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                        <!-- <span class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
                                             Checked-out
+                                        </span> -->
+                                        <span t-att-class="this.getStatusBadgeClass(record.check_out ? 'status-checked-in' : 'status-not-checked-out')">
+                                            <t t-esc="record.check_out ? 'Checked-out' : 'Not Checked-out'"/>
                                         </span>
                                     </div>
                                     <div class="space-y-3 text-gray-700">
@@ -218,7 +221,7 @@
                                             <span class="font-semibold text-gray-800"><t t-esc="roundToTwo(record.overtime_hours)"/>h</span>
                                         </p>
                                     </div>
-                                    <button class="mt-6 w-full py-2 bg-gray-100 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition duration-200 ease-in-out font-medium">
+                                    <button class="mt-6 w-full py-2 bg-gray-100 text-blue-600 text-center border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition duration-200 ease-in-out font-medium">
                                         View Details
                                     </button>
                                 </div>
@@ -395,8 +398,8 @@
                             <t t-foreach="state.leave_data" t-as="record" t-key="record.id">
                                 <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition duration-300">
                                     <div class="flex justify-between mb-4">
-                                        <p class="text-xl font-semibold text-gray-900" t-esc="record.employee_id[1]"/>
-                                        <span t-att-class="this.getStatusBadgeClass(record.state)">
+                                        <span class="text-xl font-semibold text-gray-900" t-esc="record.employee_id[1]"/>
+                                        <span t-att-class="'status-badge ' + this.getStatusBadgeClass(record.state)">
                                             <t t-esc="this.mapLeaveStatus(record.state)"/>
                                         </span>
                                     </div>
@@ -406,7 +409,7 @@
                                         <p><span class="font-medium">To:</span> <span t-esc="this.formatDateTime(record.date_to)"/></p>
                                         <p><span class="font-medium">Days:</span> <span t-esc="record.number_of_days"/></p>
                                     </div>
-                                    <button class="mt-6 w-full py-2 bg-gray-100 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white font-medium transition">
+                                    <button class="mt-6 w-full py-2 bg-gray-100 text-blue-600 text-center border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white font-medium transition">
                                         View Details
                                     </button>
                                 </div>
@@ -447,7 +450,7 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><t t-esc="this.formatDateTime(record.date_to)"/></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><t t-esc="record.number_of_days"/></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                <span t-att-class="this.getStatusBadgeClass(record.state)">
+                                                <span t-att-class="'status-badge ' + this.getStatusBadgeClass(record.state)">
                                                     <t t-esc="this.mapLeaveStatus(record.state)"/>
                                                 </span>
                                             </td>
@@ -518,8 +521,8 @@
                             <t t-foreach="state.overtime_data" t-as="record" t-key="record.id">
                                 <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition duration-300">
                                     <div class="flex justify-between mb-4">
-                                        <p class="text-xl font-semibold text-gray-900" t-esc="record.employee_id[1]"/>
-                                        <span t-att-class="this.getStatusBadgeClass(record.state)">
+                                        <span class="text-xl font-semibold text-gray-900" t-esc="record.employee_id[1]"/>
+                                        <span t-att-class="'status-badge ' + this.getStatusBadgeClass(record.state)">
                                             <t t-esc="this.mapOvertimeStatus(record.state)"/>
                                         </span>
                                     </div>
@@ -529,7 +532,7 @@
                                         <p><span class="font-medium">End:</span> <span t-esc="this.formatDateTime(record.end_date)"/></p>
                                         <p><span class="font-medium">Duration:</span> <span t-esc="record.duration + 'h'"/></p>
                                     </div>
-                                    <button class="mt-6 w-full py-2 bg-gray-100 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white font-medium transition">
+                                    <button class="mt-6 w-full py-2 bg-gray-100 text-blue-600 text-center border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white font-medium transition">
                                         View Details
                                     </button>
                                 </div>
@@ -570,7 +573,7 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><t t-esc="this.formatDateTime(record.end_date)"/></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><t t-esc="record.duration"/>h</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                <span t-att-class="this.getStatusBadgeClass(record.state)">
+                                                <span t-att-class="'status-badge ' + this.getStatusBadgeClass(record.state)">
                                                     <t t-esc="this.mapOvertimeStatus(record.state)"/>
                                                 </span>
                                             </td>
@@ -626,8 +629,8 @@
                         <t t-foreach="state.payslip_data" t-as="record" t-key="record.id">
                             <div class="data-card">
                                 <div class="card-header">
-                                    <p class="employee-name" t-esc="record.employee_id[1]"/>
-                                    <span t-attf-class="status-badge #{this.getStatusBadgeClass(record.state)}">
+                                    <span class="employee-name" t-esc="record.employee_id[1]"/>
+                                    <span t-attf-class="'status-badge ' + this.getStatusBadgeClass(record.state)">
                                         <t t-esc="record.state === 'done' ? 'Paid' : (record.state === 'draft' ? 'Draft' : record.state)"/>
                                     </span>
                                 </div>

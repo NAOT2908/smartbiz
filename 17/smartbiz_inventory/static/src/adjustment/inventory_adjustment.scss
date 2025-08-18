@@ -896,10 +896,6 @@ textarea.s_inventory_editable {
     }
 
     .s_detail_element_right {
-        position: absolute;
-        right: 5px;
-        top: 50%;
-        transform: translateY(-50%);
         z-index: 2;
         /* đảm bảo nó nằm trên cùng */
     }
