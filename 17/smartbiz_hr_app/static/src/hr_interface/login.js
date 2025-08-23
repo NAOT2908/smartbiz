@@ -48,15 +48,15 @@ export class LoginComponent extends Component {
         this.state = owl.useState({
             showPasswordField: false,
             receiveId: '',
-            password: '',
+            password: '123456',
             message: null,
             messageType: null,
             img : "",
-            employee: "",
-            employee_id: null,
-            employee_name: "",
+            employee: "433bcbed",
+            employee_id: 5,
+            employee_name: "Nguyễn Đức Toàn",
             employee_email: null,
-            view: "login",
+            view: "hr_interface",
         });
         this.rpc = useService("rpc");
         this.orm = useService("orm");

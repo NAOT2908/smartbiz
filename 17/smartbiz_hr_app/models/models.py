@@ -39,58 +39,73 @@ class HrEmployee(models.Model):
             'fromCache': False
         }
 
-    def getData(self, employee_id):
+    def getData(self, employee_id, date_from=None, date_to=None):
+        """Lấy dữ liệu nhân viên theo khoảng ngày"""
+
+        domain_attendance = [('employee_id', '=', employee_id)]
+        domain_leave = [('employee_id', '=', employee_id)]
+        domain_work = [('employee_id', '=', employee_id), ('state', '!=', 'conflict')]
+        domain_payslip = [('employee_id', '=', employee_id)]
+        domain_overtime = [('employee_id', '=', employee_id)]
         
-        hr_data = self.env['hr.employee'].search_read(
-            [('id', '=', employee_id)],
-            fields=['id', 'name', 'barcode', 'work_email', 'image_1920', 'pin'],
-            
-        )
-        
+        if date_from and date_to:
+            domain_attendance += ['&', ('check_in', '>=', date_from), ('check_out', '<=', date_to)]
+            domain_leave += ['&', ('date_from', '>=', date_from), ('date_to', '<=', date_to)]
+            domain_work += ['&', ('date_start', '>=', date_from), ('date_stop', '<=', date_to)]
+            domain_payslip += ['&', ('date_from', '>=', date_from), ('date_to', '<=', date_to)]
+            domain_overtime += ['&', ('start_date', '>=', date_from), ('end_date', '<=', date_to)]
+           
+    
+        # raise exceptions.UserError(_(
+        #         "Chỉ được chọn một trong hai khoảng thời gian: từ ngày đến ngày hoặc khoảng thời gian.\n"
+        #         "DEBUG: domain_work=%s, domain_attendance=%s" % (domain_work, domain_attendance)
+        #     ))
         attendance_data = self.env['hr.attendance'].search_read(
-            [('employee_id', '=', employee_id)],
+            domain_attendance,
             fields=['id', 'employee_id', 'check_in', 'check_out', 'overtime_hours', 'worked_hours'],
             order='check_in desc'
         )
 
         leave_data = self.env['hr.leave'].search_read(
-            [('employee_id', '=', employee_id)],
-            fields=['id', 'name', 'employee_id', 'all_employee_ids', 'holiday_status_id', 'state', 'date_from', 'date_to', 'number_of_days', 'activity_ids'],
+            domain_leave,
+            fields=['id', 'name', 'employee_id', 'holiday_status_id', 'state', 'date_from', 'date_to', 'number_of_days'],
             order='date_from desc'
         )
-        allocation_data = self.env['hr.leave.allocation'].search_read(
-            [
-                ('employee_id', '=', employee_id),
-                ('state', '=', 'validate')
-            ],
-            fields=['id', 'name', 'holiday_status_id', 'duration_display', 'number_of_days_display', 'number_of_days'],
+
+        workentry_data = self.env['hr.work.entry'].search_read(
+            domain_work,
+            fields=['id', 'name', 'employee_id', 'date_start', 'date_stop', 'duration', 'state', 'work_entry_type_id', 'code', 'leave_id'],
+            order='date_start desc'
         )
-        # overtime_data = self.env['smartbiz_hr.overtime_request'].search_read(
-        #     [('employee_ids', 'in', employee_id)],
-        #     fields=['id', 'name', 'employee_ids', 'start_date', 'end_date', 'duration', 'state'],
-        #     order='start_date desc'
-        # )
+        
+
         overtime_data = self.env['smartbiz_hr.request_line'].search_read(
-            [('employee_id', '=', employee_id)],
+            domain_overtime,
             fields=['id', 'employee_id', 'start_date', 'end_date', 'duration', 'state', 'request_id'],
             order='start_date desc'
         )
-        
-        # Truy vấn bảng lương của nhân viên
+
         payslip_data = self.env['hr.payslip'].search_read(
-            [('employee_id', '=', employee_id)],
-            fields=['id', 'employee_id', 'date_from', 'date_to', 'number', 'state', 'name', 'net_wage'],
+            domain_payslip,
+            fields=['id', 'employee_id', 'date_from', 'date_to', 'net_wage'],
             order='date_from desc'
         )
 
-        # Lấy danh sách ID của các payslip
-        payslip_ids = [slip['id'] for slip in payslip_data]
 
-        # Truy vấn file đính kèm liên kết tới các payslip
-        attachments = self.env['ir.attachment'].search_read(
-            [('res_model', '=', 'hr.payslip'), ('res_id', 'in', payslip_ids)],
-            fields=['id', 'name', 'datas', 'res_id', 'res_model', 'mimetype']
+        # hr_data (chỉ lấy 1 lần, không cần lọc theo ngày)
+        hr_data = self.env['hr.employee'].search_read(
+            [('id', '=', employee_id)],
+            fields=['id', 'name', 'barcode', 'work_email', 'image_1920', 'pin'],
         )
+
+
+        # leave allocation (không cần lọc theo ngày vì allocation thường dài hạn)
+        allocation_data = self.env['hr.leave.allocation'].search_read(
+            [('employee_id', '=', employee_id), ('state', '=', 'validate')],
+            fields=['id', 'name', 'holiday_status_id', 'duration_display',
+                    'number_of_days_display', 'number_of_days'],
+        )
+
 
         data = {
             'hr_data': hr_data,
@@ -99,6 +114,7 @@ class HrEmployee(models.Model):
             'overtime_data': overtime_data,
             'payslip_data': payslip_data,
             'allocations': allocation_data,
+            'workentry_data': workentry_data,
         }
         
         return data
@@ -161,3 +177,10 @@ class HrEmployee(models.Model):
             })
             results.append(self.getData(employee_id))
         return results
+
+class ResUsers(models.Model):
+    _inherit = "res.users"
+
+
+
+
