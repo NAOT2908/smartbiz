@@ -22,6 +22,8 @@
     'data': [
         'security/ir.model.access.csv',
         'views/views.xml',
+        'report/report.xml',
+        'report/report_templates.xml',
     ],
 
     'assets': {

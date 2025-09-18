@@ -98,7 +98,9 @@ $gray-darkest: #2d3748;
     }
 
     .card {
-        background-color: #fff;
+        background-color: #4faefc;
+        border: 1px solid #3884f5;
+        color: #fff;
         border-radius: 12px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         padding: 16px;
@@ -108,6 +110,7 @@ $gray-darkest: #2d3748;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        color: #fff;
     }
 
     .list-item-content {
@@ -125,15 +128,17 @@ $gray-darkest: #2d3748;
     }
 
     .text {
-        color: #4b5563;
+        color: #ffffff;
         /* gray-600 */
     }
 
     .arrow-icon {
-        color: #9ca3af;
-        /* gray-400 */
-        width: 20px;
-        height: 20px;
+        padding: 5px;
+        color: #ffffff;
+
+        .number {
+            color: #ffffff;
+        }
     }
 
     .grid-container {
@@ -144,20 +149,23 @@ $gray-darkest: #2d3748;
 
     .grid-card {
         display: flex;
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: center;
         gap: 8px;
+        justify-content: space-between;
+        padding: 16px;
     }
 
     .grid-card .number {
         font-size: 1.125rem;
         /* 18px */
+        color: #ffffff;
     }
 
     .grid-card .text {
         font-size: 0.875rem;
         /* 14px */
-        color: #6b7280;
+        color: #ffffff;
         /* gray-500 */
     }
 
@@ -176,8 +184,8 @@ $gray-darkest: #2d3748;
     width: 60%;
     height: 100%;
     box-sizing: border-box;
-    flex-grow: 1; // chiếm phần còn lại
-    -webkit-overflow-scrolling: touch;
+    flex-grow: 1;
+    overflow: hidden;
 }
 
 /* Responsive: khi màn hình nhỏ thì stack dọc */
@@ -196,29 +204,36 @@ $gray-darkest: #2d3748;
 
 /* ⚡ FIX TABLE RESPONSIVE TRÊN MOBILE */
 .workentry-content-view table {
-  width: 100%;
-  border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 .workentry-content-view .list-view {
-  overflow-x: auto; /* Cho phép cuộn ngang */
-  -webkit-overflow-scrolling: touch; /* Mượt trên iOS */
+    overflow-x: auto;
+    /* Cho phép cuộn ngang */
+    -webkit-overflow-scrolling: touch;
+    /* Mượt trên iOS */
 }
 
 .workentry-content-view table th,
 .workentry-content-view table td {
-  white-space: nowrap; /* Không bị xuống dòng */
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+    white-space: nowrap;
+    /* Không bị xuống dòng */
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
 }
 
 /* Ẩn bớt padding trên màn nhỏ để dễ đọc */
 @media (max-width: 640px) {
-  .workentry-content-view table th,
-  .workentry-content-view table td {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-  }
+    .workentry-content-view {
+        overflow: visible;
+    }
+
+    .workentry-content-view table th,
+    .workentry-content-view table td {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
 }
 
 .section-title {

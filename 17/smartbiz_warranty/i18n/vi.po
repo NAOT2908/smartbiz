@@ -1,0 +1,242 @@
+msgid ""
+msgstr ""
+
+#. module: smartbiz_warranty
+#: model:res.groups,name:smartbiz_warranty.group_roles_repair_admin_1
+msgid "Repair Admin"
+msgstr "Quản trị viên"
+
+#. module: smartbiz_warranty
+#: model:res.groups,name:smartbiz_warranty.group_roles_repair_user_2
+msgid "Repair User"
+msgstr "Người dùng"
+
+#. module: smartbiz_warranty
+#: model:ir.model,name:smartbiz_warranty.model_res_users
+#: model:ir.ui.menu,name:smartbiz_warranty.res_users_menuitem
+#: model:ir.actions.act_window,name:smartbiz_warranty.res_users_action
+msgid "Users"
+msgstr "Người dùng"
+
+#. module: smartbiz_warranty
+#: model:ir.model,name:smartbiz_warranty.model_res_partner
+#: model:ir.ui.menu,name:smartbiz_warranty.res_partner_menuitem
+#: model:ir.actions.act_window,name:smartbiz_warranty.res_partner_action
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_smartbiz_warranty_warranty_report__partner_id
+msgid "Partner"
+msgstr "Đối tác"
+
+#. module: smartbiz_warranty
+#: model:ir.model,name:smartbiz_warranty.model_hr_employee
+#: model:ir.ui.menu,name:smartbiz_warranty.hr_employee_menuitem
+#: model:ir.actions.act_window,name:smartbiz_warranty.hr_employee_action
+msgid "Employee"
+msgstr "Người lao động"
+
+#. module: smartbiz_warranty
+#: model:ir.model,name:smartbiz_warranty.model_ir_attachment
+#: model:ir.ui.menu,name:smartbiz_warranty.ir_attachment_menuitem
+#: model:ir.actions.act_window,name:smartbiz_warranty.ir_attachment_action
+msgid "Attachment"
+msgstr "Đính kèm"
+
+#. module: smartbiz_warranty
+#: model:ir.model,name:smartbiz_warranty.model_repair_order
+#: model:ir.ui.menu,name:smartbiz_warranty.repair_order_menuitem
+#: model:ir.actions.act_window,name:smartbiz_warranty.repair_order_action
+msgid "Order"
+msgstr "Lệnh sửa chữa"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_repair_order__replacement_serial_id
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_stock_lot__replacement_serial_id
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_smartbiz_warranty_warranty_report__replacement_serial_id
+msgid "Replacement Serial"
+msgstr "Số sê-ri thay thế"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_repair_order__repair_action_id
+#: model:ir.model,name:smartbiz_warranty.model_smartbiz_warranty_repair_action
+#: model:ir.ui.menu,name:smartbiz_warranty.smartbiz_warranty_repair_action_menuitem
+#: model:ir.actions.act_window,name:smartbiz_warranty.smartbiz_warranty_repair_action_action
+msgid "Repair Action"
+msgstr "Hành động sửa chữa"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_repair_order__repair_duration
+msgid "Repair Duration"
+msgstr "Thời gian sửa chữa"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_repair_order__repaired_quantity
+msgid "Repaired Quantity"
+msgstr "Số lượng đã sửa"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_repair_order__picking_id
+#: model:ir.model,name:smartbiz_warranty.model_stock_picking
+#: model:ir.ui.menu,name:smartbiz_warranty.stock_picking_menuitem
+#: model:ir.actions.act_window,name:smartbiz_warranty.stock_picking_action
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_smartbiz_warranty_warranty_report__picking_id
+msgid "Picking"
+msgstr "Lệnh điều chuyển"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_repair_order__done_date
+msgid "Done Date"
+msgstr "Ngày hoàn thành"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_repair_order__origin
+msgid "Origin"
+msgstr "Chứng từ gốc"
+
+#. module: smartbiz_warranty
+#: model:ir.model,name:smartbiz_warranty.model_stock_lot
+#: model:ir.ui.menu,name:smartbiz_warranty.stock_lot_menuitem
+#: model:ir.actions.act_window,name:smartbiz_warranty.stock_lot_action
+msgid "Lot"
+msgstr "Số lô/sê-ri"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_stock_lot__replaced_serial_id
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_smartbiz_warranty_warranty_report__replaced_serial_id
+msgid "Replaced Serial"
+msgstr "Được thay thế bởi số sê-ri"
+
+#. module: smartbiz_warranty
+#: model_terms:ir.ui.view,arch_db:smartbiz_warranty.stock_lot_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_warranty.product_template_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_warranty.stock_picking_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_warranty.stock_picking_type_form
+msgid "Warranty"
+msgstr "Bảo hành"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_stock_lot__sell_out_date
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_smartbiz_warranty_warranty_report__sell_out_date
+msgid "Sell Out Date"
+msgstr "Ngày bán"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_stock_lot__warranty_activation_date
+msgid "Warranty Activation Date"
+msgstr "Ngày kích hoạt bảo hành"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_stock_lot__warranty_expiration_date
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_smartbiz_warranty_warranty_report__warranty_expiration_date
+msgid "Warranty Expiration Date"
+msgstr "Ngày hết hạn bảo hành"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_stock_lot__last_repair_date
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_smartbiz_warranty_warranty_report__last_repair_date
+msgid "Last Repair Date"
+msgstr "Ngày sửa chữa cuối cùng"
+
+#. module: smartbiz_warranty
+#: model:ir.model,name:smartbiz_warranty.model_product_template
+#: model:ir.ui.menu,name:smartbiz_warranty.product_template_menuitem
+#: model:ir.actions.act_window,name:smartbiz_warranty.product_template_action
+msgid "Template"
+msgstr "Bản mẫu"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_product_template__warranty_duration
+msgid "Warranty Duration"
+msgstr "Thời gian bảo hành"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_product_template__warranty_uom
+msgid "Warranty UoM"
+msgstr "Đơn vị"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields.selection,name:smartbiz_warranty.selection__product_template__warranty_uom__day
+msgid "Day"
+msgstr "Ngày"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields.selection,name:smartbiz_warranty.selection__product_template__warranty_uom__month
+msgid "Month"
+msgstr "Tháng"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields.selection,name:smartbiz_warranty.selection__product_template__warranty_uom__year
+msgid "Year"
+msgstr "Năm"
+
+#. module: smartbiz_warranty
+#: model:ir.model,name:smartbiz_warranty.model_product_product
+#: model:ir.ui.menu,name:smartbiz_warranty.product_product_menuitem
+#: model:ir.actions.act_window,name:smartbiz_warranty.product_product_action
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_smartbiz_warranty_warranty_report__product_id
+msgid "Product"
+msgstr "Sản phẩm"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_stock_picking__repair_ids
+msgid "Repair"
+msgstr "Sửa chữa"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_stock_picking__create_repair_order
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_stock_picking_type__create_repair_order
+#: model_terms:ir.ui.view,arch_db:smartbiz_warranty.stock_picking_form
+msgid "Create Repair Order"
+msgstr "Tạo đơn sửa chữa"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_stock_picking__state
+msgid "State"
+msgstr "Trạng thái"
+
+#. module: smartbiz_warranty
+#: model:ir.model,name:smartbiz_warranty.model_stock_picking_type
+#: model:ir.ui.menu,name:smartbiz_warranty.stock_picking_type_menuitem
+#: model:ir.actions.act_window,name:smartbiz_warranty.stock_picking_type_action
+msgid "Picking.Type"
+msgstr "Kiểu điều chuyển"
+
+#. module: smartbiz_warranty
+#: model:ir.model,name:smartbiz_warranty.model_smartbiz_warranty_warranty_report
+#: model:ir.ui.menu,name:smartbiz_warranty.smartbiz_warranty_warranty_report_menuitem
+#: model:ir.actions.act_window,name:smartbiz_warranty.smartbiz_warranty_warranty_report_action
+msgid "Warranty Report"
+msgstr "Báo cáo bảo hành"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_smartbiz_warranty_warranty_report__serial_id
+msgid "Serial"
+msgstr "Số sê-ri"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_smartbiz_warranty_warranty_report__serial_name
+msgid "Serial Name"
+msgstr "Tên sê-ri"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_smartbiz_warranty_warranty_report__days_left
+msgid "Days Left"
+msgstr "Ngày còn lại"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_smartbiz_warranty_warranty_report__warranty_status
+msgid "Warranty Status"
+msgstr "Trạng thái bảo hành"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields.selection,name:smartbiz_warranty.selection__smartbiz_warranty_warranty_report__warranty_status__in_warranty
+msgid "In Warranty"
+msgstr "Còn bản hành"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields.selection,name:smartbiz_warranty.selection__smartbiz_warranty_warranty_report__warranty_status__expired
+msgid "Expired"
+msgstr "Hết hạn"
+
+#. module: smartbiz_warranty
+#: model:ir.model.fields,field_description:smartbiz_warranty.field_smartbiz_warranty_repair_action__name
+msgid "Name"
+msgstr "Tên"

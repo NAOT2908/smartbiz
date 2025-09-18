@@ -18,11 +18,11 @@ import { View } from "@web/views/view";
 import { ManualBarcodeScanner } from "@smartbiz_barcode/Components/manual_barcode";
 import { url } from "@web/core/utils/urls";
 import { utils as uiUtils } from "@web/core/ui/ui_service";
-import { DialogModal } from "@smartbiz/Components/dialogModal";
+import {DialogModal} from "@smartbiz/Components/dialogModal";
 import { MoveLineEdit,MoveLines,Moves} from "./stockMove.js";
 import { EditQuantityModal } from "./EditQuantityModal";
 import { Selector, ProductionEntryDialog } from "./Selector";
-import { Packages, EditPackage, CreatePackages } from "@smartbiz_barcode/Components/Package";
+import { Packages,EditPackage,CreatePackages } from "@smartbiz_barcode/Components/Package";
 import SmartBizBarcodePickingModel from "@smartbiz_barcode/Models/barcode_picking";
 
 COMMANDS["O-CMD.MAIN-MENU"] = () => {};
@@ -41,7 +41,7 @@ export class ProductOrderDetail extends Component {
     MoveLineEdit,
     EditQuantityModal,
     Selector,
-    ProductionEntryDialog,
+	ProductionEntryDialog,					  
     Packages,
     EditPackage,
     CreatePackages
@@ -114,7 +114,7 @@ export class ProductOrderDetail extends Component {
       dialogRecords: [],
       dialogFields:[],
       dialogDefault: null,
-      ProductionEntryDialog: false,
+	  ProductionEntryDialog: false,							   
     });
     this.lines = [];
     this.move = {};
@@ -208,16 +208,86 @@ export class ProductOrderDetail extends Component {
     this.state.modal = ''
   }
 // Hiển thị dialog
-openDialog() {
-  
-    this.state.ProductionEntryDialog = true;
-  
+openDialog(mode) {
+  // mode: 'material' | 'finished'
+  this.state.entryMode = mode;
+  this.state.ProductionEntryDialog = true;
 }
 closeDialog() {
   // reset
   this.state.ProductionEntryDialog=false;
-
 }
+
+
+
+// ★★★ Helper: tạo pack_spec mặc định ★★★
+buildDefaultPackSpec() {
+  // Có thể tinh chỉnh quy cách đóng gói mặc định ở đây
+  const order = this.state.order || {};
+  return {
+    target: 'finished',             // 'finished' (thành phẩm) hoặc 'raw' (nguyên liệu)
+    pack_size: 10,                  // số lượng / gói (mặc định)
+    default_package_type_id: false, // có thể điền ID của stock.package.type
+    group_by_lot: true,             // gom theo lô, tránh trộn lô trong 1 gói
+    allow_remainder: true,          // cho phép gói cuối < pack_size
+    skip_if_packed: true,  
+	unreserve_raw: true,	// bỏ qua dòng đã có result_package_id
+    package_name_prefix: order?.name || 'MO',
+    // location_dest_id: false,     // nếu muốn ép đích về 1 location, set ID ở đây
+    per_product: {
+      // <product_id>: { pack_size: 12, package_type_id: <int>, location_dest_id: <int> }
+    },
+  };
+}
+
+// ★★★ UI action: mở xác nhận và thực thi ★★★
+openUnreserveAndPack() {
+  // đóng menu trước khi mở dialog
+  this.state.menuVisible = false;
+
+  const spec = this.buildDefaultPackSpec();
+  const body = _t(
+    `Thao tác sẽ:
+• Hủy dự trữ phần nguyên liệu của lệnh hiện tại
+• Đóng gói ${spec.pack_size}/gói cho ${spec.target === 'finished' ? 'THÀNH PHẨM' : 'NGUYÊN LIỆU'}
+• Gộp theo lô: ${spec.group_by_lot ? 'Có' : 'Không'}
+Bạn có chắc chắn thực hiện?`
+  );
+
+  this.dialog.add(ConfirmationDialog, {
+    title: _t("Hủy dự trữ & Đóng gói"),
+    body,
+    confirmLabel: _t("Thực hiện"),
+    cancelLabel: _t("Hủy"),
+    confirm: async () => {
+      await this.doUnreserveAndPack(spec);
+    },
+    cancel: () => {},
+  });
+}
+
+// ★★★ Gọi server & refresh data ★★★
+async doUnreserveAndPack(packSpec) {
+
+    const res = await this.orm.call(
+		  "mrp.production",
+		  "pack_auto",
+		  [, this.production_id, packSpec], // <-- có 1 "lỗ" ở đầu mảng
+		  {}
+		);
+	console.log(res)
+    // Sau khi xử lý xong, refresh lại dữ liệu màn hình
+    await this.loadData();
+
+    const msg = _t(
+      `Đã hủy dự trữ ${res?.unreserved_moves || 0} move; ` +
+      `tạo ${res?.created_packages || 0} kiện; ` +
+      `gán ${res?.packed_lines || 0} dòng.`
+    );
+    this.notification.add(msg, { type: "success" });
+ 
+}
+
 
 //Các hàm sử lý Package - End
   async loadData() {

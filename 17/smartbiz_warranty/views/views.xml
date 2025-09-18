@@ -1,0 +1,429 @@
+<odoo>
+
+<!-- Forms -->
+
+    <record model="ir.ui.view" id="repair_order_form">
+      <field name="name">repair_order_form</field>
+      <field name="model">repair.order</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="repair.view_repair_order_form" />
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='parts_availability']" position="after">
+                   <field name="replacement_serial_id"/>
+                   <field name="repair_action_id"/>
+                   <field name="repair_duration"/>
+                   <field name="repaired_quantity"/>
+           </xpath>
+
+     <xpath expr="//field[@name='schedule_date']" position="after">
+                   <field name="done_date"/>
+                   <field name="origin"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_lot_form">
+      <field name="name">stock_lot_form</field>
+      <field name="model">stock.lot</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_production_lot_form" />
+      <field name="arch" type="xml">
+
+     <xpath expr="//notebook" position="inside">
+            <page string="Warranty">
+            <group col="2">
+            <group>
+                   <field name="replaced_serial_id"/>
+                   <field name="replacement_serial_id"/>
+                   <field name="sell_out_date"/>
+            </group>
+            <group>
+                   <field name="warranty_activation_date"/>
+                   <field name="warranty_expiration_date"/>
+                   <field name="last_repair_date"/>
+            </group>
+            </group>
+            </page>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_template_form">
+      <field name="name">product_template_form</field>
+      <field name="model">product.template</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="product.product_template_form_view" />
+      <field name="arch" type="xml">
+
+     <xpath expr="//notebook" position="inside">
+            <page string="Warranty">
+            <group col="2">
+            <group>
+                   <field name="warranty_duration"/>
+            </group>
+            <group>
+                   <field name="warranty_uom"/>
+            </group>
+            </group>
+            </page>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_picking_form">
+      <field name="name">stock_picking_form</field>
+      <field name="model">stock.picking</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_picking_form" />
+      <field name="arch" type="xml">
+            <xpath expr="//header" position ="inside">
+                <button name="action_create_repair_order" string="Create Repair Order" type = "object" class="oe_highlight" invisible="(bool(repair_ids) == True or bool(create_repair_order) != True or state != 'done')"/>
+            </xpath>
+
+           <xpath expr="//notebook" position="inside">
+            <page string="Warranty">
+                   <field name="repair_ids"/>
+                   <field name="create_repair_order" invisible="1"/>
+            </page>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_picking_type_form">
+      <field name="name">stock_picking_type_form</field>
+      <field name="model">stock.picking.type</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_picking_type_form" />
+      <field name="arch" type="xml">
+
+     <xpath expr="//notebook" position="inside">
+            <page string="Warranty">
+            <group col="2">
+            <group>
+                   <field name="create_repair_order"/>
+            </group>
+            </group>
+            </page>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_warranty_warranty_report_form">
+      <field name="name">smartbiz_warranty_warranty_report_form</field>
+      <field name="model">smartbiz_warranty.warranty_report</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Warranty Report">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="serial_id"/>
+                   <field name="serial_name"/>
+                   <field name="product_id"/>
+                   <field name="picking_id"/>
+            </group>
+            <group>
+                   <field name="partner_id"/>
+                   <field name="sell_out_date"/>
+                   <field name="warranty_expiration_date"/>
+                   <field name="days_left"/>
+                   <field name="warranty_status"/>
+            </group>
+            </group>
+            <group col="2">
+            <group>
+                   <field name="replaced_serial_id"/>
+                   <field name="replacement_serial_id"/>
+            </group>
+            <group>
+                   <field name="last_repair_date"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_warranty_repair_action_form">
+      <field name="name">smartbiz_warranty_repair_action_form</field>
+      <field name="model">smartbiz_warranty.repair_action</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Repair Action">
+      <sheet>
+          <group col="1">
+                   <field name="name"/>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+<!-- Trees -->
+
+    <record model="ir.ui.view" id="repair_order_tree">
+      <field name="name">repair_order_tree</field>
+      <field name="model">repair.order</field>
+      <field name="inherit_id" ref="repair.view_repair_order_tree" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='location_id']" position="after">
+            <field name="replacement_serial_id" optional="show"/>
+            <field name="repair_action_id" optional="show"/>
+            <field name="repair_duration" optional="show"/>
+            <field name="repaired_quantity" optional="show"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_lot_tree">
+      <field name="name">stock_lot_tree</field>
+      <field name="model">stock.lot</field>
+      <field name="inherit_id" ref="stock.view_production_lot_tree" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='product_qty']" position="after">
+            <field name="replaced_serial_id" optional="show"/>
+            <field name="replacement_serial_id" optional="show"/>
+            <field name="sell_out_date" optional="show"/>
+            <field name="warranty_activation_date" optional="show"/>
+            <field name="warranty_expiration_date" optional="show"/>
+            <field name="last_repair_date" optional="show"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_template_tree">
+      <field name="name">product_template_tree</field>
+      <field name="model">product.template</field>
+      <field name="inherit_id" ref="product.product_template_tree_view" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='barcode']" position="after">
+            <field name="warranty_duration" optional="hire"/>
+            <field name="warranty_uom" optional="hire"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_picking_type_tree">
+      <field name="name">stock_picking_type_tree</field>
+      <field name="model">stock.picking.type</field>
+      <field name="inherit_id" ref="stock.view_picking_type_tree" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='warehouse_id']" position="after">
+            <field name="create_repair_order" optional="show"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_warranty_warranty_report_tree">
+      <field name="name">smartbiz_warranty_warranty_report_tree</field>
+      <field name="model">smartbiz_warranty.warranty_report</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Warranty Report" >
+            <field name="serial_id" optional="show"/>
+            <field name="serial_name" optional="show"/>
+            <field name="product_id" optional="show"/>
+            <field name="picking_id" optional="show"/>
+            <field name="partner_id" optional="show"/>
+            <field name="sell_out_date" optional="show"/>
+            <field name="warranty_expiration_date" optional="show"/>
+            <field name="days_left" optional="show"/>
+            <field name="warranty_status" optional="show"/>
+            <field name="replaced_serial_id" optional="show"/>
+            <field name="replacement_serial_id" optional="show"/>
+            <field name="last_repair_date" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_warranty_repair_action_tree">
+      <field name="name">smartbiz_warranty_repair_action_tree</field>
+      <field name="model">smartbiz_warranty.repair_action</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Repair Action" >
+            <field name="name" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+<!-- calendars -->
+
+<!-- kanbans -->
+
+<!-- pivots -->
+
+<!-- graphs -->
+
+<!-- Gantt -->
+
+<!-- Search -->
+
+    <record model="ir.ui.view" id="repair_order_search">
+      <field name="name">repair_order_search</field>
+      <field name="model">repair.order</field>
+      <field name="priority">2</field>
+      <field name="inherit_id" ref="repair.view_repair_order_form_filter" />
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='product_id']" position="after">
+            <field name="replacement_serial_id"/>
+            <field name="repair_action_id"/>
+            <field name="repair_duration"/>
+            <field name="repaired_quantity"/>
+        </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_lot_search">
+      <field name="name">stock_lot_search</field>
+      <field name="model">stock.lot</field>
+      <field name="priority">2</field>
+      <field name="inherit_id" ref="stock.search_product_lot_filter" />
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='product_id']" position="after">
+            <field name="replaced_serial_id"/>
+            <field name="replacement_serial_id"/>
+            <field name="sell_out_date"/>
+            <field name="warranty_activation_date"/>
+            <field name="warranty_expiration_date"/>
+            <field name="last_repair_date"/>
+        </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_template_search">
+      <field name="name">product_template_search</field>
+      <field name="model">product.template</field>
+      <field name="priority">2</field>
+      <field name="inherit_id" ref="stock.product_template_search_form_view_stock" />
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='location_id']" position="after">
+        </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_picking_type_search">
+      <field name="name">stock_picking_type_search</field>
+      <field name="model">stock.picking.type</field>
+      <field name="priority">2</field>
+      <field name="inherit_id" ref="stock.view_pickingtype_filter" />
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='warehouse_id']" position="after">
+            <field name="create_repair_order"/>
+        </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_warranty_warranty_report_search">
+      <field name="name">smartbiz_warranty_warranty_report_search</field>
+      <field name="model">smartbiz_warranty.warranty_report</field>
+      <field name="arch" type="xml">
+        <search string="Tree Warranty Report">
+            <field name="serial_id"/>
+            <field name="serial_name"/>
+            <field name="product_id"/>
+            <field name="picking_id"/>
+            <field name="partner_id"/>
+            <field name="replaced_serial_id"/>
+            <field name="replacement_serial_id"/>
+        </search>
+      </field>
+    </record>
+
+<!-- Modified Views -->
+
+<!-- Modified Views Properties -->
+
+<!-- Modified Elements Properties -->
+
+<!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="repair_order_action">
+      <field name="name">Order</field>
+      <field name="res_model">repair.order</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_lot_action">
+      <field name="name">Lot</field>
+      <field name="res_model">stock.lot</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="product_template_action">
+      <field name="name">Template</field>
+      <field name="res_model">product.template</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_picking_action">
+      <field name="name">Picking</field>
+      <field name="res_model">stock.picking</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="stock_picking_type_action">
+      <field name="name">Picking.Type</field>
+      <field name="res_model">stock.picking.type</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_warranty_warranty_report_action">
+      <field name="name">Warranty Report</field>
+      <field name="res_model">smartbiz_warranty.warranty_report</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{'edit':False,'delete':False,'create':False,}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_warranty_repair_action_action">
+      <field name="name">Repair Action</field>
+      <field name="res_model">smartbiz_warranty.repair_action</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+<!-- Menu -->
+
+<!-- Top menu item -->
+
+<!-- Menu item action -->
+
+    <menuitem name="Warranty Report" 
+       id="smartbiz_warranty_warranty_report_menuitem"
+       action ="smartbiz_warranty_warranty_report_action"
+       parent ="repair.repair_menu_reporting"
+       sequence ="30"
+    />
+    <menuitem name="Repair Action" 
+       id="smartbiz_warranty_repair_action_menuitem"
+       action ="smartbiz_warranty_repair_action_action"
+       parent ="repair.repair_menu_config"
+       sequence ="31"
+    />
+
+</odoo>

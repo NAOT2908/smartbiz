@@ -370,56 +370,71 @@ class Stock_Picking(models.Model):
                         })
 
     def update_picking_data(self, moves):
+ 
         for move in moves:
-            origin = move.picking_id.origin
-            partner_id = move.picking_id.partner_id.id
-            job_code = move.picking_id.job_code
-            commodity_information = move.picking_id.commodity_information
-            customs_declaration = move.picking_id.customs_declaration
-            plan_approval = move.picking_id.plan_approval
-            quote_number = move.picking_id.quote_number
-            inspection_number = move.picking_id.inspection_number
-            request_number = move.picking_id.request_number
-            purchase_number = move.picking_id.purchase_number
-            sale_plan = move.picking_id.sale_plan
-            sale_team_id = move.picking_id.sale_team_id.id
-            reserve_period_id = move.picking_id.reserve_period_id.id
-            data = {}
-            move_dests = move.move_dest_ids
-            move.write({'origin':origin})
+            picking = move.picking_id
+            if picking.state == 'done':
+                continue  
+
+            origin = picking.origin
+            partner_id = picking.partner_id.id
+            job_code = picking.job_code
+            commodity_information = picking.commodity_information
+            customs_declaration = picking.customs_declaration
+            plan_approval = picking.plan_approval
+            quote_number = picking.quote_number
+            inspection_number = picking.inspection_number
+            request_number = picking.request_number
+            purchase_number = picking.purchase_number
+            sale_plan = picking.sale_plan
+            sale_team_id = picking.sale_team_id.id
+            reserve_period_id = picking.reserve_period_id.id
+
+            
+            move.write({'origin': origin})
+
             for l in move.move_line_ids:
-                l.write({'origin':origin})
-            for m in move_dests:
-                if origin != m.picking_id.origin and origin:
+                l_vals = {}
+                if origin and origin != l.origin:
+                    l_vals['origin'] = origin
+                if l_vals:
+                    l.write(l_vals)
+
+            pending_dests = [m for m in move.move_dest_ids if m.picking_id.state != 'done']
+            for m in pending_dests:
+                data = {}
+                if origin and origin != m.picking_id.origin:
                     data['origin'] = origin
-                if partner_id != m.picking_id.partner_id.id and partner_id:
+                if partner_id and partner_id != m.picking_id.partner_id.id:
                     data['partner_id'] = partner_id
-                if job_code != m.picking_id.job_code and job_code:
+                if job_code and job_code != m.picking_id.job_code:
                     data['job_code'] = job_code
-                if commodity_information != m.picking_id.commodity_information and commodity_information:
+                if commodity_information and commodity_information != m.picking_id.commodity_information:
                     data['commodity_information'] = commodity_information
-                if customs_declaration != m.picking_id.customs_declaration and customs_declaration:
+                if customs_declaration and customs_declaration != m.picking_id.customs_declaration:
                     data['customs_declaration'] = customs_declaration
-                if plan_approval != m.picking_id.plan_approval and plan_approval:
+                if plan_approval and plan_approval != m.picking_id.plan_approval:
                     data['plan_approval'] = plan_approval
-                if quote_number != m.picking_id.quote_number and quote_number:
+                if quote_number and quote_number != m.picking_id.quote_number:
                     data['quote_number'] = quote_number
-                if inspection_number != m.picking_id.inspection_number and inspection_number:
+                if inspection_number and inspection_number != m.picking_id.inspection_number:
                     data['inspection_number'] = inspection_number
-                if request_number != m.picking_id.request_number and request_number:
+                if request_number and request_number != m.picking_id.request_number:
                     data['request_number'] = request_number
-                if purchase_number != m.picking_id.purchase_number and purchase_number:
+                if purchase_number and purchase_number != m.picking_id.purchase_number:
                     data['purchase_number'] = purchase_number
-                if sale_plan != m.picking_id.sale_plan and sale_plan:
-                    data['sale_plan'] = sale_plan   
-                if sale_team_id != m.picking_id.sale_team_id.id and sale_team_id:
-                    data['sale_team_id'] = sale_team_id 
-                if reserve_period_id != m.picking_id.reserve_period_id.id and reserve_period_id:
+                if sale_plan and sale_plan != m.picking_id.sale_plan:
+                    data['sale_plan'] = sale_plan
+                if sale_team_id and sale_team_id != m.picking_id.sale_team_id.id:
+                    data['sale_team_id'] = sale_team_id
+                if reserve_period_id and reserve_period_id != m.picking_id.reserve_period_id.id:
                     data['reserve_period_id'] = reserve_period_id
-                m.picking_id.write(data)
-                self.update_picking_data(move_dests)
-                break
-            break
+
+                if data:
+                    m.picking_id.write(data)
+
+            if pending_dests:
+                self.update_picking_data(pending_dests)
 
     @api.model
     def check_access_rights(self, operation, raise_exception=True):

@@ -159,7 +159,7 @@ export default class SmartBizBarcodeModel extends EventBus {
             barcodeType:barcodeType,
             fromCache:true
         }
-        console.log(result)
+        // console.log(result)
         
         
         if (!cacheOnly)

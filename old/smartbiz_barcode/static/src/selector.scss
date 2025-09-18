@@ -1,3 +1,17 @@
+/* Các biến màu sắc */
+$color-overlay: rgba(0, 0, 0, 0.4);
+$color-background: #ffffff;
+$color-border: #ddd;
+$color-primary: #4e9ad5;   /* Xanh dương dịu */
+$color-primary-hover: darken($color-primary, 5%);
+$color-danger: #d54e4e;    /* Đỏ dịu */
+$color-danger-hover: darken($color-danger, 5%);
+$color-text: #333333;
+$color-header-bg: #f8f9fa;
+$color-th-bg: #f2f2f2;
+$font-family-base: 'Roboto', sans-serif;
+
+
 .s_selector-modal {
     display: flex;
     justify-content: center;
@@ -12,13 +26,27 @@
 }
 
 .s_selector-modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px; // Phù hợp cho cả mobile và desktop
+    background-color: $color-background;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh; /* Không vượt quá 90% chiều cao màn hình */
+    font-family: $font-family-base;
+    color: $color-text;
+    padding: 15px;
+    position: relative;
+    
+    display: flex;
+    flex-direction: column;
 }
+  /* Container cho bảng có thể cuộn */
+  .s_selector-content {
+    overflow-y: auto;
+    flex-grow: 1;
+    margin-bottom: 10px;
+  }
+
 
 .s_selector-header {
     text-align: center;
@@ -183,10 +211,15 @@ input:checked + .slider:before {
 }
 
 .package-tag {
-    background-color: #007bff;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 0.9em;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    background: #eef;
+    border-radius: 4px;
+    margin: 2px 4px;
 }
+.remove-icon {
+    margin-left: 4px;
+    cursor: pointer;
+}
+

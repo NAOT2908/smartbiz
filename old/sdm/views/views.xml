@@ -1,0 +1,411 @@
+<odoo>
+
+<!-- Forms -->
+
+    <record model="ir.ui.view" id="sdm_location_form">
+      <field name="name">sdm_location_form</field>
+      <field name="model">sdm.location</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Location">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+            </group>
+            <group>
+                   <field name="parent_location_id"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Vị trí con">
+                   <field name="children_location_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sdm_device_type_form">
+      <field name="name">sdm_device_type_form</field>
+      <field name="model">sdm.device_type</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Device Type">
+      <sheet>
+            <group>
+                   <field name="name"/>
+            </group>
+            <notebook>
+            <page string="Device">
+                   <field name="device_ids"/>
+            </page>
+            <page string="Notification">
+                   <field name="notification_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sdm_device_form">
+      <field name="name">sdm_device_form</field>
+      <field name="model">sdm.device</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Device">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+                   <field name="code"/>
+                   <field name="device_type_id"/>
+                   <field name="location_id"/>
+            </group>
+            <group>
+                   <field name="status"/>
+                   <field name="last_checked"/>
+                   <field name="iot_id"/>
+                   <field name="temperature"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sdm_notification_type_form">
+      <field name="name">sdm_notification_type_form</field>
+      <field name="model">sdm.notification_type</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Notification Type">
+      <sheet>
+            <group>
+                   <field name="name"/>
+                   <field name="code"/>
+            </group>
+            <notebook>
+            <page string="Notification">
+                   <field name="notification_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sdm_notification_form">
+      <field name="name">sdm_notification_form</field>
+      <field name="model">sdm.notification</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Notification">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name"/>
+                   <field name="device_type_id"/>
+                   <field name="notification_type_id"/>
+                   <field name="time_in_day"/>
+            </group>
+            <group>
+                   <field name="interval_hours"/>
+                   <field name="max_notice"/>
+                   <field name="notification_template_id" domain="[('model_id','=',model_id)]" context="{'default_model_id':model_id}"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Users">
+                   <field name="partner_ids"/>
+            </page>
+            </notebook>
+                   <field name="model_id" invisible="1"/>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sdm_notification_log_form">
+      <field name="name">sdm_notification_log_form</field>
+      <field name="model">sdm.notification_log</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Notification Log">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="notification_id"/>
+                   <field name="device_id"/>
+            </group>
+            <group>
+                   <field name="notification_type_id"/>
+                   <field name="time"/>
+            </group>
+            </group>
+            <group>
+                   <field name="subject"/>
+                   <field name="body"/>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+<!-- Trees -->
+
+    <record model="ir.ui.view" id="sdm_location_tree">
+      <field name="name">sdm_location_tree</field>
+      <field name="model">sdm.location</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Location" >
+            <field name="name" optional="show"/>
+            <field name="parent_location_id" optional="show"/>
+            <field name="children_location_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sdm_device_type_tree">
+      <field name="name">sdm_device_type_tree</field>
+      <field name="model">sdm.device_type</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Device Type" >
+            <field name="name" optional="show"/>
+            <field name="device_ids" optional="show"/>
+            <field name="notification_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sdm_device_tree">
+      <field name="name">sdm_device_tree</field>
+      <field name="model">sdm.device</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Device" >
+            <field name="name" optional="show"/>
+            <field name="code" optional="show"/>
+            <field name="device_type_id" optional="show"/>
+            <field name="location_id" optional="show"/>
+            <field name="status" optional="show"/>
+            <field name="last_checked" optional="show"/>
+            <field name="iot_id" optional="show"/>
+            <field name="temperature" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sdm_notification_type_tree">
+      <field name="name">sdm_notification_type_tree</field>
+      <field name="model">sdm.notification_type</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Notification Type" >
+            <field name="name" optional="show"/>
+            <field name="code" optional="show"/>
+            <field name="notification_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sdm_notification_tree">
+      <field name="name">sdm_notification_tree</field>
+      <field name="model">sdm.notification</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Notification" >
+            <field name="name" optional="show"/>
+            <field name="device_type_id" optional="show"/>
+            <field name="notification_type_id" optional="show"/>
+            <field name="time_in_day" optional="show"/>
+            <field name="interval_hours" optional="show"/>
+            <field name="max_notice" optional="show"/>
+            <field name="notification_template_id" context="{'default_model_id':model_id}" domain="[('model_id','=',model_id)]" optional="show"/>
+            <field name="partner_ids" optional="show"/>
+            <field name="model_id" invisible="1"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sdm_notification_log_tree">
+      <field name="name">sdm_notification_log_tree</field>
+      <field name="model">sdm.notification_log</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Notification Log" >
+            <field name="notification_id" optional="show"/>
+            <field name="device_id" optional="show"/>
+            <field name="notification_type_id" optional="show"/>
+            <field name="time" optional="show"/>
+            <field name="subject" optional="show"/>
+            <field name="body" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+<!-- calendars -->
+
+<!-- kanbans -->
+
+<!-- pivots -->
+
+    <record model="ir.ui.view" id="sdm_device_pivot">
+      <field name="name">sdm_device_pivot</field>
+      <field name="model">sdm.device</field>
+      <field name="arch" type="xml">
+        <pivot string="Device">
+            <field name="name" type="row"/>
+        </pivot>
+      </field>
+    </record>
+
+<!-- graphs -->
+
+    <record model="ir.ui.view" id="sdm_device_graph">
+      <field name="name">sdm_device_graph</field>
+      <field name="model">sdm.device</field>
+      <field name="arch" type="xml">
+        <graph string="Device" type="bar" stacked="False">
+            <field name="name" type="row"/>
+        </graph>
+      </field>
+    </record>
+
+<!-- Gantt -->
+
+<!-- Search -->
+
+<!-- Modified Views -->
+
+<!-- Modified Views Properties -->
+
+<!-- Modified Elements Properties -->
+
+<!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="sdm_location_action">
+      <field name="name">Location</field>
+      <field name="res_model">sdm.location</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="sdm_device_type_action">
+      <field name="name">Device Type</field>
+      <field name="res_model">sdm.device_type</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="sdm_device_action">
+      <field name="name">Device</field>
+      <field name="res_model">sdm.device</field>
+      <field name="view_mode">tree,form,graph,pivot</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="sdm_notification_type_action">
+      <field name="name">Notification Type</field>
+      <field name="res_model">sdm.notification_type</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="sdm_notification_action">
+      <field name="name">Notification</field>
+      <field name="res_model">sdm.notification</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="sdm_notification_log_action">
+      <field name="name">Notification Log</field>
+      <field name="res_model">sdm.notification_log</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+<!-- Menu -->
+
+<!-- Top menu item -->
+
+    <menuitem name="Device Management" 
+       id="menu_device_management_1"
+       sequence ="1"
+       web_icon="sdm,static/description/icon.png"
+    />
+    <menuitem name="Device" 
+       id="menu_device_2"
+       sequence ="2"
+    />
+    <menuitem name="History" 
+       id="menu_history_3"
+       sequence ="3"
+    />
+    <menuitem name="Config" 
+       id="menu_config_4"
+       sequence ="4"
+    />
+    <record id="menu_device_2" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_device_management_1"/>
+    </record>
+
+    <record id="menu_history_3" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_device_management_1"/>
+    </record>
+
+    <record id="menu_config_4" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_device_management_1"/>
+    </record>
+
+<!-- Menu item action -->
+
+    <menuitem name="Location" 
+       id="sdm_location_menuitem"
+       action ="sdm_location_action"
+       parent ="menu_config_4"
+       sequence ="28"
+    />
+    <menuitem name="Device Type" 
+       id="sdm_device_type_menuitem"
+       action ="sdm_device_type_action"
+       parent ="menu_config_4"
+       sequence ="29"
+    />
+    <menuitem name="Device" 
+       id="sdm_device_menuitem"
+       action ="sdm_device_action"
+       parent ="menu_device_2"
+       sequence ="30"
+    />
+    <menuitem name="Notification Type" 
+       id="sdm_notification_type_menuitem"
+       action ="sdm_notification_type_action"
+       parent ="menu_config_4"
+       sequence ="31"
+    />
+    <menuitem name="Notification" 
+       id="sdm_notification_menuitem"
+       action ="sdm_notification_action"
+       parent ="menu_config_4"
+       sequence ="32"
+    />
+    <menuitem name="Notification Log" 
+       id="sdm_notification_log_menuitem"
+       action ="sdm_notification_log_action"
+       parent ="menu_history_3"
+       sequence ="33"
+    />
+
+</odoo>

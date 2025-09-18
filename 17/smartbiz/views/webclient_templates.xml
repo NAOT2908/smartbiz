@@ -7,7 +7,7 @@
         <xpath expr="//link[@rel='shortcut icon']" position="replace">
             <link type="image/x-icon" rel="shortcut icon" t-att-href="x_icon or '/smartbiz/static/img/favicon.ico'"/>
         </xpath>      
-    </template>
+    </template>     
 
     <template inherit_id="web.brand_promotion" id="brand_promotion" >
         <xpath expr="//div[@class='o_brand_promotion']" position="replace">

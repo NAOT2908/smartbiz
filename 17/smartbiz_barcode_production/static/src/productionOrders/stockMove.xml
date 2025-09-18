@@ -128,7 +128,7 @@
                             <i class="fa fa-2x fa-pencil"></i>
                         </button>
                         <span>
-                            <button class="s_line-icon" t-on-click="() => props.print(item)">
+                            <button class="s_line-icon" t-on-click="() => props.print(line)">
                                 <i class="fa fa-print" aria-hidden="true"></i>
                             </button>
                         </span>

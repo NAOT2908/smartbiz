@@ -35,8 +35,8 @@
                     </div>
                 </div>
                 <div class="s_buttons_confirm">
-                    <button class="s_button_cancel" t-on-click="()=> this.keyClick('cancel')">Huỷ</button>
-                    <button class="s_button_confirm" t-on-click="()=> this.keyClick('confirm')">Xác nhận</button>
+                    <button class="s_button_cancel" t-on-click="()=> this.keyClick('cancel')" >Cancel</button>
+                    <button class="s_button_confirm" t-on-click="()=> this.keyClick('confirm')">Confirm</button>
                 </div>
             </div>
         </div>

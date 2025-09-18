@@ -81,7 +81,7 @@ class HrEmployee(models.Model):
 
         overtime_data = self.env['smartbiz_hr.request_line'].search_read(
             domain_overtime,
-            fields=['id', 'employee_id', 'start_date', 'end_date', 'duration', 'state', 'request_id'],
+            fields=['id', 'request_id', 'employee_id', 'start_date', 'end_date', 'duration', 'state', 'request_id'],
             order='start_date desc'
         )
 
@@ -122,22 +122,57 @@ class HrEmployee(models.Model):
     def create_leave(self, employee_ids, leave_data):
         """
         Tạo yêu cầu nghỉ phép cho nhiều nhân viên.
-        :param employee_ids: Danh sách ID của nhân viên
-        :param leave_data: Dữ liệu nghỉ phép chung
-        :return: Danh sách kết quả getData
         """
         results = []
         for employee_id in employee_ids:
-            self.env['hr.leave'].create({
+            leave_vals = {
                 'employee_id': employee_id,
                 'holiday_status_id': leave_data.get('holiday_status_id'),
-                'date_from': leave_data.get('date_from'),
-                'date_to': leave_data.get('date_to'),
-                'number_of_days': leave_data.get('number_of_days'),
-                'name': leave_data.get('name', ''),
-            })
+                'name': leave_data.get('note', ''),  # lý do
+            }
+
+            # Nếu nghỉ nửa ngày
+            if leave_data.get('request_unit_half') == "half_day":
+                leave_vals['request_unit_half'] = True
+                leave_vals['request_date_from'] = leave_data.get('date_from')[:10]
+                leave_vals['request_date_to'] = leave_data.get('date_from')[:10]
+
+            # Nếu nghỉ theo giờ
+            elif leave_data.get('request_unit_hours'):
+                leave_vals['request_unit_hours'] = True
+
+                # Ngày gốc
+                base_date = leave_data.get('date_from')[:10]
+
+                # Lấy giờ float
+                hour_from = float(leave_data.get('request_hour_from'))
+                hour_to = float(leave_data.get('request_hour_to'))
+
+                # Tách giờ và phút
+                start_hour = int(hour_from)
+                start_minute = int((hour_from - start_hour) * 60)
+
+                end_hour = int(hour_to)
+                end_minute = int((hour_to - end_hour) * 60)
+
+                # Ghép datetime
+                date_from = datetime.strptime(base_date, "%Y-%m-%d") + timedelta(hours=start_hour, minutes=start_minute)
+                date_to = datetime.strptime(base_date, "%Y-%m-%d") + timedelta(hours=end_hour, minutes=end_minute)
+
+                leave_vals['date_from'] = date_from.strftime("%Y-%m-%d %H:%M:%S")
+                leave_vals['date_to'] = date_to.strftime("%Y-%m-%d %H:%M:%S")
+
+            # Nếu nghỉ nguyên ngày
+            else:
+                leave_vals['request_date_from'] = leave_data.get('date_from')[:10]
+                leave_vals['request_date_to'] = (
+                    leave_data.get('date_to')[:10] if leave_data.get('date_to') else leave_data.get('date_from')[:10]
+                )
+
+            leave = self.env['hr.leave'].create(leave_vals)
             results.append(self.getData(employee_id))
         return results
+
 
     def create_overtime(self, employee_ids, overtime_data, employee_id):
         """
@@ -156,8 +191,6 @@ class HrEmployee(models.Model):
             
         results = self.getData(employee_id)
         return results
-
-
 
     def create_attendance(self, employee_ids, attendance_data):
         """

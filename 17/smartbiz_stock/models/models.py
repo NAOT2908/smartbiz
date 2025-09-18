@@ -13,6 +13,7 @@ _logger = logging.getLogger(__name__)
 from io import BytesIO
 import xlsxwriter
 from openpyxl import load_workbook
+from collections import defaultdict
 
 class Product_Product(models.Model):
     _inherit = ['product.product']
@@ -39,8 +40,7 @@ class Product_Product(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___product_readonly_4','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Product_Template(models.Model):
     _inherit = ['product.template']
     allow_negative_stock = fields.Boolean(string='Allow Negative Stock')
@@ -67,8 +67,7 @@ class Product_Template(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___product_readonly_4','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Stock_Quant(models.Model):
     _inherit = ['stock.quant']
     warehouse_id = fields.Many2one('stock.warehouse', store='True')
@@ -150,12 +149,306 @@ class Stock_Quant(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___move_readonly_6','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Stock_Lot(models.Model):
     _inherit = ['stock.lot']
     product_qty = fields.Float(store='True')
 
+
+    @api.model
+    def update_serial(self, *args, **kwargs):
+        """
+        Payload chấp nhận:
+        {
+          "records": [{"code","name","serial","act","exp"}, ...],
+          "warehouse_code": "Z",              # hoặc
+          "location_barcode": "KZ-STOCK",     # ưu tiên nếu có
+          "company_id": 1,
+          "apply_inventory": true,
+          "limits": { "IN_CHUNK": 8000, "CREATE_CHUNK": 2000, "APPLY_CHUNK": 3000 },
+          "commit_every": 0                   # 0 = không commit giữa chừng; >0 = commit mỗi N lots/quant mới
+        }
+        Kết quả: { ok, received, product{existing,created}, lot{existing,created}, quant{existing,created,applied}, warehouse/location... }
+        """
+
+        # ------- Helpers -------
+        def last_dict_arg(_args, _kwargs):
+            if _args and isinstance(_args[-1], dict):
+                return _args[-1]
+            if "data" in _kwargs and isinstance(_kwargs["data"], dict):
+                return _kwargs["data"]
+            return _kwargs
+
+        def chunk_list(lst, n):
+            for i in range(0, len(lst), n):
+                yield lst[i:i+n]
+
+        def ctx_reduce(recset):
+            # tắt tracking/mail để giảm overhead khi create-multi lớn
+            return recset.with_context(
+                tracking_disable=True,
+                mail_create_nolog=True,
+                prefetch_fields=False,
+            )
+
+        # ------- Lấy & chuẩn hoá payload -------
+        data = last_dict_arg(args, kwargs) or {}
+        records = data.get("records") or []
+        warehouse_code  = data.get("warehouse_code") or "Z"
+        location_barcode = data.get("location_barcode")
+        apply_inventory = bool(data.get("apply_inventory", True))
+
+        limits = data.get("limits") or {}
+        IN_CHUNK     = int(limits.get("IN_CHUNK", 8000))
+        CREATE_CHUNK = int(limits.get("CREATE_CHUNK", 2000))
+        APPLY_CHUNK  = int(limits.get("APPLY_CHUNK", 3000))
+        commit_every = int(data.get("commit_every") or 0)
+
+        company_id = data.get("company_id") or self.env.company.id
+        Company = self.env["res.company"].browse(company_id)
+        if not Company.exists():
+            return {"ok": False, "error": "Invalid company_id"}
+
+        self = self.with_context(
+            allowed_company_ids=[company_id],
+            force_company=company_id,
+        ).with_company(Company).sudo()
+
+        Product = self.env["product.product"]
+        Lot     = self.env["stock.lot"]
+        Quant   = self.env["stock.quant"]
+        Wh      = self.env["stock.warehouse"]
+        Loc     = self.env["stock.location"]
+
+        # ------- Tiền xử lý input (dedup + map nhanh) -------
+        cleaned = []
+        code_set = set()
+        pair_seen = set()  # (code, serial) để khử trùng trong batch
+        for rec in records:
+            code   = (rec.get("code") or rec.get("name") or "").strip()
+            name   = (rec.get("name") or rec.get("code") or "").strip()
+            serial = (rec.get("serial") or "").strip()
+            if not code or not serial:
+                continue
+            key = (code, serial)
+            if key in pair_seen:
+                continue
+            pair_seen.add(key)
+            cleaned.append({
+                "code": code, "name": name, "serial": serial,
+                "act": rec.get("act") or False,
+                "exp": rec.get("exp") or False,
+            })
+            code_set.add(code)
+
+        received = len(cleaned)
+        if not received:
+            return {
+                "ok": True, "received": 0,
+                "product": {"existing": 0, "created": 0},
+                "lot": {"existing": 0, "created": 0},
+                "quant": {"existing": 0, "created": 0, "applied": 0},
+                "note": "No valid records"
+            }
+
+        # ------- Xác định location đích -------
+        location = None
+        if location_barcode:
+            location = Loc.search([("barcode", "=", location_barcode),
+                                   ("company_id", "in", [False, company_id])], limit=1)
+            if not location:
+                return {"ok": False, "error": "Không tìm thấy location theo barcode %s" % location_barcode}
+        else:
+            wh = Wh.search([("code", "=", warehouse_code),
+                            ("company_id", "=", company_id)], limit=1)
+            if not wh:
+                wh = Wh.create({"name": warehouse_code, "code": warehouse_code, "company_id": company_id})
+            location = wh.lot_stock_id
+            if not location:
+                location = Loc.search([("usage", "=", "internal"),
+                                       ("company_id", "in", [False, company_id])], limit=1)
+                if not location:
+                    return {"ok": False, "error": "Không tìm được Internal Location để đặt quant."}
+
+        # =========================
+        # 1) PRODUCTS
+        # =========================
+        code_list = list(code_set)
+        code2prod = {}
+        product_existing = 0
+        product_created  = 0
+
+        for part in chunk_list(code_list, IN_CHUNK):
+            prods = Product.search([("default_code", "in", part)])
+            for p in prods:
+                code2prod[p.default_code] = p
+            product_existing += len(prods)
+
+        missing_vals = []
+        # map nhanh code -> name (từ cleaned) để tạo product
+        code2name = {}
+        for c in cleaned:
+            if c["code"] not in code2name:
+                code2name[c["code"]] = c["name"] or c["code"]
+
+        for code in code_list:
+            if code not in code2prod:
+                missing_vals.append({
+                    "name": code2name.get(code) or code,
+                    "default_code": code,
+                    "barcode": code,
+                    "detailed_type": "product",
+                    "tracking": "serial",
+                    "use_expiration_date": False,
+                    "company_id": company_id,
+                })
+        if missing_vals:
+            for pack in chunk_list(missing_vals, CREATE_CHUNK):
+                new_prods = ctx_reduce(Product).create(pack)
+                for p in new_prods:
+                    code2prod[p.default_code] = p
+                product_created += len(new_prods)
+                if commit_every and product_created % commit_every == 0:
+                    self.env.cr.commit()
+
+        # Chuẩn bị map pid → {serial → info} (1 lần, dùng cho Lots & Quants)
+        pid2serial_info = defaultdict(dict)
+        for c in cleaned:
+            pid = code2prod[c["code"]].id
+            pid2serial_info[pid][c["serial"]] = c
+
+        # =========================
+        # 2) LOTS (serial) – per pid, nhưng không quét cleaned lặp lại
+        # =========================
+        prodser2lot = {}  # (pid, serial) -> lot rec
+        lot_existing = 0
+        lot_created  = 0
+
+        for pid, serial_map in pid2serial_info.items():
+            serials = list(serial_map.keys())
+
+            # Đọc lot đã có cho pid này
+            for part in chunk_list(serials, IN_CHUNK):
+                lots = Lot.search([
+                    ("product_id", "=", pid),
+                    ("name", "in", part),
+                    ("company_id", "in", [False, company_id]),
+                ])
+                for l in lots:
+                    prodser2lot[(pid, l.name)] = l
+                lot_existing += len(lots)
+
+            # Tạo thiếu
+            need = [s for s in serials if (pid, s) not in prodser2lot]
+            if need:
+                vals_buf = []
+                for s in need:
+                    info = serial_map.get(s)
+                    vals_buf.append({
+                        "name": s,
+                        "product_id": pid,
+                        "ref": (info and info["code"]) or False,
+                        "warranty_activation_date": (info and info["act"]) or False,
+                        "warranty_expiration_date": (info and info["exp"]) or False,
+                        "company_id": company_id,
+                    })
+                # create theo lô + savepoint để tự hồi phục khi đụng unique
+                for pack in chunk_list(vals_buf, CREATE_CHUNK):
+                    with self.env.cr.savepoint():
+                        try:
+                            new_lots = ctx_reduce(Lot).create(pack)
+                        except Exception:
+                            self.env.cr.rollback()
+                            # đọc lại chỉ các serial pack
+                            names = [v["name"] for v in pack]
+                            lots2 = Lot.search([
+                                ("product_id", "=", pid),
+                                ("name", "in", names),
+                                ("company_id", "in", [False, company_id]),
+                            ])
+                            new_lots = lots2
+                        for l in new_lots:
+                            prodser2lot[(pid, l.name)] = l
+                        lot_created += len(new_lots)
+                        if commit_every and lot_created % commit_every == 0:
+                            self.env.cr.commit()
+
+        # =========================
+        # 3) QUANTS tại location đích (tạo thiếu, apply cho mới)
+        # =========================
+        lot_ids = list({l.id for l in prodser2lot.values()})
+        quant_existing = 0
+        quant_created  = 0
+        quant_applied  = 0
+
+        if lot_ids:
+            have_map = {}
+            for part in chunk_list(lot_ids, IN_CHUNK):
+                quants = Quant.search([
+                    ("location_id", "=", location.id),
+                    ("lot_id", "in", part),
+                ])
+                for q in quants:
+                    have_map[q.lot_id.id] = q
+                quant_existing += len(quants)
+
+            # Tạo quant còn thiếu
+            to_create = []
+            for (pid, serial), lot in prodser2lot.items():
+                if lot.id not in have_map:
+                    to_create.append({
+                        "product_id": lot.product_id.id,
+                        "lot_id": lot.id,
+                        "location_id": location.id,
+                        "company_id": company_id,
+                    })
+
+            if to_create:
+                # create theo lô + savepoint
+                created_quants = self.env["stock.quant"].browse()
+                for pack in chunk_list(to_create, CREATE_CHUNK):
+                    with self.env.cr.savepoint():
+                        try:
+                            qs = ctx_reduce(Quant).create(pack)
+                        except Exception:
+                            self.env.cr.rollback()
+                            # đọc lại những cái vừa định tạo để idempotent
+                            lot_ids_pack = [v["lot_id"] for v in pack]
+                            qs = Quant.search([
+                                ("location_id", "=", location.id),
+                                ("lot_id", "in", lot_ids_pack),
+                            ])
+                        created_quants |= qs
+                        quant_created += len(qs)
+                        if commit_every and quant_created % commit_every == 0:
+                            self.env.cr.commit()
+
+                # apply inventory (chỉ cho quant mới)
+                if apply_inventory and created_quants:
+                    for pack in chunk_list(created_quants.ids, APPLY_CHUNK):
+                        recs = Quant.browse(pack).with_context(inventory_mode=True)
+                        recs.write({
+                            "inventory_quantity": 1,
+                            "inventory_date": fields.Datetime.now(),
+                        })
+                        recs.action_apply_inventory()
+                        quant_applied += len(recs)
+                        if commit_every and quant_applied % commit_every == 0:
+                            self.env.cr.commit()
+
+        return {
+            "ok": True,
+            "received": received,
+            "product": {"existing": product_existing, "created": product_created},
+            "lot":     {"existing": lot_existing,  "created": lot_created},
+            "quant":   {"existing": quant_existing,"created": quant_created, "applied": quant_applied},
+            "warehouse": {
+                "code": warehouse_code,
+                "location_id": location.id,
+                "location_name": location.display_name,
+                "location_barcode": location.barcode,
+            }
+        }
 
     @api.model
     def check_access_rights(self, operation, raise_exception=True):
@@ -164,8 +457,7 @@ class Stock_Lot(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___move_readonly_6','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Stock_Move(models.Model):
     _inherit = ['stock.move']
     lots = fields.Many2many('stock.lot', string='Lots')
@@ -191,8 +483,7 @@ class Stock_Move(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___move_readonly_6','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Stock_Warehouse(models.Model):
     _inherit = ['stock.warehouse']
     customize_reception = fields.Boolean(string='Customize Reception', default = 'True')
@@ -244,10 +535,18 @@ class Stock_Warehouse(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Stock_PickingType(models.Model):
     _inherit = ['stock.picking.type']
+    name = fields.Char(store='True')
+    scan_product = fields.Boolean(string='Scan Product')
+    scan_source_location = fields.Boolean(string='Scan Source Location')
+    scan_destination_location = fields.Boolean(string='Scan Destination Location')
+    scan_lot = fields.Boolean(string='Scan Lot')
+    scan_package = fields.Boolean(string='Scan Package')
+    get_full_package = fields.Boolean(string='Get Full Package')
+    all_move_done = fields.Boolean(string='All Move Done')
+    all_move_line_picked = fields.Boolean(string='All Move Line Picked')
 
 
     @api.model
@@ -257,8 +556,7 @@ class Stock_PickingType(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Product_Category(models.Model):
     _inherit = ['product.category']
     allow_negative_stock = fields.Boolean(string='Allow Negative Stock')
@@ -271,8 +569,7 @@ class Product_Category(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Uom_Uom(models.Model):
     _inherit = ['uom.uom']
 
@@ -284,8 +581,7 @@ class Uom_Uom(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Uom_Category(models.Model):
     _inherit = ['uom.category']
 
@@ -297,8 +593,7 @@ class Uom_Category(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Stock_MoveLine(models.Model):
     _inherit = ['stock.move.line']
     picking_type_id = fields.Many2one('stock.picking.type', store='True')
@@ -311,8 +606,7 @@ class Stock_MoveLine(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___move_readonly_6','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Stock_Location(models.Model):
     _inherit = ['stock.location']
     capacity = fields.Float(string='Capacity')
@@ -327,8 +621,7 @@ class Stock_Location(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Stock_Route(models.Model):
     _inherit = ['stock.route']
 
@@ -340,8 +633,7 @@ class Stock_Route(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Stock_Rule(models.Model):
     _inherit = ['stock.rule']
 
@@ -353,8 +645,7 @@ class Stock_Rule(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___configuaration_readonly_5','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class Stock_quantpackage(models.Model):
     _inherit = ['stock.quant.package']
     _sql_constraints = [
@@ -397,8 +688,7 @@ class Stock_Picking(models.Model):
         permissions = [{'group':'smartbiz_stock.group_roles_inventory___move_readonly_6','read':True,'write':False,'create':False,'unlink':False },]
         if any(self.env.user.has_group(perm['group']) for perm in permissions):
             return any(self.env.user.has_group(perm['group']) and perm[operation] for perm in permissions)
-        return super().check_access_rights(operation, raise_exception=raise_exception)
-
+        return super().check_access_rights(operation, raise_exception=raise_exception)
 class SmartbizStock_StockReport(models.Model):
     _name = "smartbiz_stock.stock_report"
     _inherit = ['smartbiz.workflow_base', 'mail.thread', 'mail.activity.mixin']
@@ -761,119 +1051,119 @@ class SmartbizStock_DynamicReportBase(models.AbstractModel):
     dummy = fields.Boolean(string='Dummy')
 
 
-    # alias mặc định – thay nếu SQL core dùng tên khác
     DEFAULT_OUTER = "report_outer"
     DEFAULT_BASE  = "base"
 
-    # ---------------- helper replace ----------------
+    # ---- Helper thay token trong compute_expression ----
     def _replace_tokens(self, expr: str, kw: dict) -> str:
-        """
-        Thay thế các token {field} trong compute_expression.
-
-        • Token thuộc kw (hằng số)  → GIỮ NGUYÊN để .format(**kw).
-        • Token đã có alias (vd. outer.total) → NULLIF(COALESCE(alias,0),0)
-        • Token không alias                   → NULLIF(COALESCE(outer.field,0),0)
-
-        Nhờ NULLIF(...,0) mọi phép chia / nhân vẫn an toàn (0 → NULL).
-        """
+        """Giữ nguyên {df_utc}/{dt_utc} cho _safe_format_sql xử lý; còn lại
+        biến thành NULLIF(COALESCE(alias,0),0) để an toàn phép chia."""
         pattern = r"\{([a-zA-Z_][a-zA-Z0-9_\.]*)\}"
 
         def _sub(match):
             tok = match.group(1)
-            # 1) Hằng số truyền qua kwargs (df_utc, weeks, ...)
-            if tok in kw:
-                return "{" + tok + "}"          # giữ nguyên, để .format(**kw)
-
-            # 2) Token đã có alias chỉ định (outer.xxx, anyalias.xxx)
+            if tok in (kw or {}):
+                return "{" + tok + "}"
             if "." in tok:
                 return f"NULLIF(COALESCE({tok},0),0)"
-
-            # 3) Token chưa có alias → gắn outer
             return f"NULLIF(COALESCE({self.DEFAULT_OUTER}.{tok},0),0)"
 
-        # Thay từng token một cách an toàn
-        expr_sql = re.sub(pattern, _sub, expr)
+        return re.sub(pattern, _sub, expr)
 
-        # Cuối cùng format(**kw) để cắm hằng số
-        return expr_sql.format(**kw)
-
-    # ------- abstract -------
+    # ---- abstract ----
     def _core_sql(self):
         raise NotImplementedError
-    
-    # ------- build dynamic parts: chỉ xử lý computed (layer 3) ------
-    def _build_dynamic_parts(self, **fmt):
-        """
-        Tạo SELECT cho các trường tính toán động (is_computed=True).
-        Nếu biểu thức tham chiếu cột chưa tồn tại, bỏ qua để tránh lỗi SQL.
-        """
-        specs  = []          # metadata cho field động
-        w_select = []        # danh sách "expr AS alias" đưa vào layer‑3
-        
-        ALN = self.env['smartbiz_stock.dynamic_report_alias_line'].sudo()
-        model_fields = set(self._fields)      # cột chắc chắn có trong base.*
 
+    # ---- Chỉ format các key có cung cấp (có default) ----
+    def _safe_format_sql(self, sql: str, kw: dict) -> str:
+        """
+        Chỉ thay các khóa ta cung cấp (df_utc/dt_utc), tránh .format nuốt {...} khác.
+        Có giá trị mặc định để rebuild tổng không bị thiếu tham số.
+        """
+        defaults = {
+            'df_utc': '1970-01-01 00:00:00',
+            'dt_utc': '2099-12-31 23:59:59',
+        }
+        data = {**defaults, **(kw or {})}
+        for k, v in data.items():
+            sql = sql.replace(f'{{{k}}}', str(v))
+        # nếu còn placeholder bắt buộc thì báo
+        if '{df_utc}' in sql or '{dt_utc}' in sql:
+            raise UserError(_("Thiếu tham số df_utc/dt_utc cho SQL."))
+        return sql
+
+    # ---- Layer-3: computed alias (dựa vào available_fields) ----
+    def _build_dynamic_parts(self, available_fields=None, **fmt):
+        specs, w_select = [], []
+        ALN = self.env['smartbiz_stock.dynamic_report_alias_line'].sudo()
+        known = set(self._fields) | set(available_fields or [])
         token_re = re.compile(r"\{([a-zA-Z_][a-zA-Z0-9_\.]*)\}")
 
         for ln in ALN.search([('is_computed', '=', True)]):
             raw_expr = ln.compute_expression or ""
-
-            # -----------------------------------------------------------------
-            # 1. Kiểm tra các token trong biểu thức
-            # -----------------------------------------------------------------
             missing = []
             for tok in token_re.findall(raw_expr):
-                if '.' in tok:          # dạng có alias: outer.total → bỏ qua kiểm tra
+                if '.' in tok or tok in fmt:
                     continue
-                if tok in fmt:          # hằng số truyền vào kw
-                    continue
-                if tok not in model_fields:
+                if tok not in known:
                     missing.append(tok)
-
-            # Nếu còn token “lơ lửng” → bỏ qua dòng này
             if missing:
-                _logger.warning(
-                    "[DynamicReport] Skip computed field '%s' vì thiếu cột: %s, các fmt là: %s",
-                    ln.field_name, ", ".join(missing), ", ".join(fmt)
-                )
+                _logger.warning("[DynamicReport] Skip '%s' thiếu cột: %s", ln.field_name, ", ".join(missing))
                 continue
 
-            # -----------------------------------------------------------------
-            # 2. Thay token bằng COALESCE(...)
-            # -----------------------------------------------------------------
             expr = self._replace_tokens(raw_expr, fmt)
-
-            # -----------------------------------------------------------------
-            # 3. Build SELECT & field‑spec
-            # -----------------------------------------------------------------
             w_select.append(f"({expr}) AS {ln.field_name}")
 
             langs = self.env['res.lang'].search([('active', '=', True)]).mapped('code')
             specs.append({
-                'name'      : ln.field_name,
+                'name': ln.field_name,
                 'field_type': ln.field_type,
-                'desc_json' : {
-                    c: ln.with_context(lang=c).field_label or ln.field_name for c in langs
-                },
+                'desc_json': {c: ln.with_context(lang=c).field_label or ln.field_name for c in langs},
             })
 
-        return dict(
-            cte_select    ="",
-            outer_select  ="",
-            wrapper_select=",\n        ".join(w_select),
-            group_by      ="",
-            specs         =specs,
-        )
+        return {
+            'cte_select': "",
+            'outer_select': "",
+            'wrapper_select': ",\n        ".join(w_select),
+            'group_by': "",
+            'specs': specs,
+        }
 
-    # ------- template line (non-computed) -----
+    # ---- Template (non-computed lines) ----
     def _template_parts(self):
-        """Đọc tất cả alias **đang active** gắn với Template của report."""
+        """
+        Đọc alias đang active của Template phù hợp với model, NHƯNG
+        chỉ giữ các alias mà biểu thức 'alias' của chúng tham chiếu các
+        alias bảng thực sự tồn tại trong _core_sql() của model này.
+        """
+        import re
         TPL = self.env['smartbiz_stock.dynamic_report_template'].sudo()
         AL  = self.env['smartbiz_stock.dynamic_report_alias'].sudo()
 
-        # 1. tìm template phù hợp với model
+        # Phân tích alias bảng hiện có trong core SQL của model này
+        core_sql = self._core_sql()
+
+        # Bắt alias sau FROM/JOIN:  ... FROM table t  | JOIN schema.table AS tt | JOIN (subquery) wh ...
+        # Hỗ trợ AS tùy chọn.
+        alias_pat = re.compile(
+            r'\b(?:FROM|JOIN)\s+(?:\([^\)]*\)|[a-zA-Z0-9_\."]+)\s+(?:AS\s+)?([a-zA-Z_][a-zA-Z0-9_]*)\b',
+            re.IGNORECASE
+        )
+        table_aliases = set(alias_pat.findall(core_sql))
+
+        def _aliases_in_expr(expr: str) -> set:
+            """
+            Trích các 'prefix' dạng   <alias>.<field>   trong biểu thức alias.
+            Ví dụ: 'pt.name' -> {'pt'},  'split_part(pp.default_code, ...)' -> {'pp'}.
+            """
+            # Cho phép dạng "alias.field" hoặc "alias.\"FieldName\"" trong biểu thức
+            hits = re.findall(r'\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\.', expr or '')
+            return set(hits)
+
+        # 1) tìm template phù hợp
         tpl = TPL.search([
-            ('alias_ids.report_model','in',[self._name,False,'']),
+            ('alias_ids.report_model','in',[self._name, False, '']),
+            ('state', '=', 'active'),
         ], limit=1)
         if not tpl:
             return "", "", []
@@ -882,50 +1172,59 @@ class SmartbizStock_DynamicReportBase(models.AbstractModel):
         langs = self.env['res.lang'].search([('active','=',True)]).mapped('code')
         CAST  = {'integer':'::int','float':'::numeric','date':'::date'}
 
-        def _alias_text(expr:str)->str:
-            lang=(self.env.context.get('lang') or self.env.user.lang or "en_US").replace("'","''")
+        def _alias_text(expr: str) -> str:
+            # Lấy label theo ngôn ngữ đang duyệt
+            lang = (self.env.context.get('lang') or self.env.user.lang or "en_US").replace("'", "''")
+            # Xử lý jsonb -> text nếu cần, còn lại ép về text
             return (f"CASE WHEN pg_typeof({expr})='jsonb'::regtype "
                     f"THEN COALESCE(({expr})::jsonb ->> '{lang}', ({expr})::jsonb ->> 'en_US') "
                     f"ELSE ({expr})::text END")
 
-        # 2. lặp qua alias active
-        for a in tpl.alias_ids.filtered(lambda a:a.state=='active'):
-            src_txt=_alias_text(a.alias.strip())
-            sep    =(a.separator or '_').replace("'","''")
-            regex  =(a.regex_pattern or '').replace("'","''")
+        # 2) lặp qua alias active
+        for a in tpl.alias_ids.filtered(lambda a: a.state == 'active'):
+            raw = (a.alias or '').strip()
+            if not raw:
+                continue
 
-            # 3. dòng tĩnh (không is_computed)
-            for ln in a.lines_ids.filtered(lambda l:not l.is_computed).sorted('sequence'):
+            # --- LỌC: nếu biểu thức alias tham chiếu alias bảng không có trong core SQL → bỏ ---
+            needed = _aliases_in_expr(raw)
+            # Cho phép không có alias (chỉ là tên cột/biểu thức thuần), ví dụ "lot", "regexp_replace(...)".
+            if needed and not needed.issubset(table_aliases):
+                _logger.info("[DynamicReport] Bỏ alias '%s' (expr=%s) vì thiếu table alias: %s; core có: %s",
+                             a.name, raw, ", ".join(sorted(needed - table_aliases)), ", ".join(sorted(table_aliases)))
+                continue
+
+            src_txt = _alias_text(raw)
+            sep     = (a.separator or '_').replace("'", "''")
+            regex   = (a.regex_pattern or '').replace("'", "''")
+
+            # 3) dòng tĩnh (không is_computed)
+            for ln in a.lines_ids.filtered(lambda l: not l.is_computed).sorted('sequence'):
                 base = src_txt
                 if ln.segment_index:
                     base = f"split_part({src_txt},'{sep}',{ln.segment_index})"
                 elif ln.regex_group:
                     if not regex:
-                        raise UserError(_("Alias '%s' thiếu regex_pattern.")%a.name)
+                        raise UserError(_("Alias '%s' thiếu regex_pattern.") % a.name)
                     base = f"(regexp_match({src_txt},'{regex}'))[{ln.regex_group}]"
 
-                cast=CAST.get(ln.field_type,"")
+                cast = CAST.get(ln.field_type, "")
                 sel.append(f"NULLIF({base},''){cast} AS {ln.field_name}")
                 grp.append(base)
                 specs.append({
                     'name'      : ln.field_name,
                     'field_type': ln.field_type,
-                    'desc_json' : {c: ln.with_context(lang=c).field_label or ln.field_name
-                                   for c in langs},
+                    'desc_json' : {c: ln.with_context(lang=c).field_label or ln.field_name for c in langs},
                 })
 
         return ",\n                    ".join(sel), ", ".join(grp), specs
 
-    # -----------------------------------------------------------------
-    #  2.2  Helpers: Field translation & view extension
-    # -----------------------------------------------------------------
+    # ---- UI helpers ----
     @api.model
     def _set_field_translations(self, field_rec, translations):
         base_lang = 'en_US' if 'en_US' in translations else next(iter(translations))
         if field_rec.with_context(lang=base_lang).field_description != translations[base_lang]:
-            field_rec.with_context(lang=base_lang).write(
-                {'field_description': translations[base_lang]}
-            )
+            field_rec.with_context(lang=base_lang).write({'field_description': translations[base_lang]})
         for lang_code, text in translations.items():
             if lang_code == base_lang:
                 continue
@@ -933,24 +1232,26 @@ class SmartbizStock_DynamicReportBase(models.AbstractModel):
                 field_rec.with_context(lang=lang_code).write({'field_description': text})
 
     def sync_dynamic_fields(self, model_name, field_specs, reset=False):
-        IrModel = self.env["ir.model"].sudo()
-        mdl = IrModel.search([("model", "=", model_name)], limit=1)
+        IrModel = self.env['ir.model'].sudo()
+        mdl = IrModel.search([('model', '=', model_name)], limit=1)
         if not mdl:
             return
         cr = self.env.cr
         if reset:
-            cr.execute("""DELETE FROM ir_model_fields
-                          WHERE model=%s AND substr(name,1,2)='x_'""", (model_name,))
+            cr.execute("""
+                DELETE FROM ir_model_fields
+                 WHERE model=%s AND substr(name,1,2)='x_'
+            """, (model_name,))
         else:
             keep = [fs['name'] for fs in field_specs]
-            cr.execute("""DELETE FROM ir_model_fields
-                          WHERE model=%s AND substr(name,1,2)='x_' AND NOT (name = ANY(%s))""",
-                       (model_name, keep))
+            cr.execute("""
+                DELETE FROM ir_model_fields
+                 WHERE model=%s AND substr(name,1,2)='x_' AND NOT (name = ANY(%s))
+            """, (model_name, keep))
         cr.commit()
 
         TTYPE_MAP = {"char":"char", "integer":"integer", "float":"float", "date":"date"}
         IrField = self.env['ir.model.fields'].sudo()
-
         for fs in field_specs:
             fname, ttype = fs['name'], TTYPE_MAP.get(fs['field_type'], 'char')
             translations = fs.get('desc_json') or {'en_US': fname}
@@ -969,12 +1270,11 @@ class SmartbizStock_DynamicReportBase(models.AbstractModel):
 
     def _ensure_view_ext(self, field_names):
         View = self.env['ir.ui.view'].sudo()
-        xml = ''.join(f"<field name='{f}'/>" for f in field_names)
+        xml = ''.join(f"<field name='{f}'  optional='show'/>" for f in field_names)
         for vt in ('tree', 'pivot', 'graph'):
-            base = View.search(
-                [('model', '=', self._name), ('type', '=', vt), ('inherit_id', '=', False)],
-                limit=1
-            )
+            base = View.search([
+                ('model', '=', self._name), ('type', '=', vt), ('inherit_id', '=', False)
+            ], limit=1)
             if not base:
                 continue
             name = f"{self._name}_{vt}_dyn"
@@ -987,137 +1287,95 @@ class SmartbizStock_DynamicReportBase(models.AbstractModel):
                 'mode': 'extension',
                 'arch': f"<data><xpath expr='/*' position='inside'>{xml}</xpath></data>",
             })
-    # -----------------------------------------------------------------
-    #  2.4  (NEW) – Auto-return action cho model
-    # -----------------------------------------------------------------
-    def _default_action_for_model(self):
-        """Tìm action gắn với model; nếu chưa có thì dựng tạm."""
-        Act  = self.env['ir.actions.act_window'].sudo()
-        View = self.env['ir.ui.view'].sudo()
 
+    def _default_action_for_model(self):
+        Act = self.env['ir.actions.act_window'].sudo()
+        View = self.env['ir.ui.view'].sudo()
         act = Act.search([('res_model', '=', self._name)], limit=1)
         if act:
-            
             return act.read()[0]
-
-        # -- chưa có: dựng action "tạm" với các view gốc (tree/pivot/…) --
         modes = []
         for vt in ('tree', 'pivot', 'graph', 'form'):
-            if View.search(
-                [('model', '=', self._name), ('type', '=', vt),
-                 ('inherit_id', '=', False)], limit=1):
+            if View.search([('model', '=', self._name), ('type', '=', vt), ('inherit_id', '=', False)], limit=1):
                 modes.append(vt)
-        view_mode = ",".join(modes) or "tree"
-
+        view_mode = ','.join(modes) or 'tree'
         return {
-            'type'      : 'ir.actions.act_window',
-            'name'      : self._description or self._name,
-            'res_model' : self._name,
-            'view_mode' : view_mode,
-            'context'   : {'create': False, 'edit': False, 'delete': False},
+            'type': 'ir.actions.act_window',
+            'name': self._description or self._name,
+            'res_model': self._name,
+            'view_mode': view_mode,
+            'context': {'create': False, 'edit': False, 'delete': False},
         }
 
-    # ------------------------------------------------------------------
-    #  REBUILD VIEW – 3 Layer (đã ghép Template Parts)
-    # ------------------------------------------------------------------
+    # ---- REBUILD VIEW (đã vá 2-phase) ----
     def _rebuild_view(self, reset_fields=True, return_action=False, **kw):
-        """
-        Sinh lại VIEW cho model động.
-        - Dùng self.DEFAULT_OUTER làm alias cho layer‑2, tránh đụng từ khóa SQL.
-        - Tự xoá & tạo lại các field x_*, view tree/pivot/graph mở rộng.
-        """
-        alias_outer = self.DEFAULT_OUTER           # ← alias duy nhất cho layer‑2
-        
-        # ---------------- layer‑2 + 3 do model con sinh ----------------
-        dyn = self._build_dynamic_parts(**kw)
+        alias_outer = self.DEFAULT_OUTER
         sel_tpl, grp_tpl, specs_tpl = self._template_parts()
 
-        cte_select = ",\n    ".join(filter(None, [sel_tpl, dyn['cte_select']]))
-        group_by   = ", ".join  (filter(None, [grp_tpl, dyn['group_by']]))
-        specs      = specs_tpl + dyn['specs']
+        # Phase 1: lấy outer_select (nếu subclass cung cấp)
+        dyn_1 = self._build_dynamic_parts(**kw)
+        outer_select_1 = (dyn_1.get('outer_select') or '')
 
-        # ------------------- 1. lấy SQL gốc ---------------------------
+        def _extract_aliases(sql_chunk: str):
+            return set(re.findall(r"\sAS\s+([a-zA-Z_][a-zA-Z0-9_]*)", sql_chunk or '', flags=re.IGNORECASE))
+        future_aliases = _extract_aliases(sel_tpl) | _extract_aliases(outer_select_1)
+
+        # Phase 2: build computed cho phép tham chiếu alias layer-2
+        dyn = self._build_dynamic_parts(available_fields=future_aliases, **kw)
+
+        cte_select = ",\n    ".join(x for x in [sel_tpl, dyn.get('cte_select') or ''] if x)
+        group_by   = ", ".join  (x for x in [grp_tpl, dyn.get('group_by')   or ''] if x)
+        specs      = (specs_tpl or []) + (dyn.get('specs') or [])
+
         sql_core = self._core_sql()
 
-        # ------------------- 2. Bọc LAYER‑2 mặc định ------------------
-        # Nếu _core_sql chưa khai báo alias “outer”, ta tự bọc:
-        sql_outer = f"""
-            SELECT  base.*{',' if dyn['outer_select'] else ''}
-                   {dyn['outer_select']}
-            FROM   base
-        """
-        if "--[[EXTRA_OUTER]]" in sql_core:
-            # Trường hợp nhà phát triển tự xử lý layer‑2
-            sql_outer = dyn['outer_select']
+        def _smart_insert_list(sql: str, token: str, items_sql: str) -> str:
+            if token not in sql:
+                return sql
+            if not (items_sql and items_sql.strip()):
+                return sql.replace(token, '')
+            left, right = sql.split(token, 1)
+            m = re.search(r"([^\s])\s*$", left)
+            prev = m.group(1) if m else ''
+            sep_left = ' ' if prev == ',' else ', '
+            need_trailing = True
+            rstrip = right.lstrip()
+            if not rstrip or re.match(r"^(FROM|WHERE|GROUP|ORDER|LIMIT|\))\b", rstrip, re.IGNORECASE) or rstrip.startswith(','):
+                need_trailing = False
+            sep_right = ', ' if need_trailing else ''
+            return left + sep_left + items_sql.strip() + sep_right + right
 
-        # ------------------- 3. Bọc LAYER‑3 mặc định ------------------
-        wrap = dyn['wrapper_select']
-        if wrap:
-            sql_outer = f"""
-                SELECT {alias_outer}.*,
-                       {wrap}
-                FROM   ({sql_outer}) {alias_outer}
-            """
+        inner_sql = sql_core
+        inner_sql = _smart_insert_list(inner_sql, '--[[EXTRA_SELECT]]', cte_select or '')
+        inner_sql = _smart_insert_list(inner_sql, '--[[EXTRA_GROUP]]',  group_by   or '')
 
-        # ------------------------------------------------------------------
-        # 4.  Tạo thân SELECT của tầng‑1 (đã xử lý EXTRA_SELECT/GROUP)
-        # ------------------------------------------------------------------
-        inner_sql = sql_core.replace("--[[EXTRA_SELECT]]",
-                                     cte_select + "," if cte_select else "") \
-                            .replace("--[[EXTRA_GROUP]]",
-                                     ", " + group_by if group_by else "")
+        outer_select  = (dyn.get('outer_select')   or '').strip()
+        wrapper_select= (dyn.get('wrapper_select') or '').strip()
 
-        # ------------------------------------------------------------------
-        # 5.  Đóng gói thành WITH base AS ( ... )
-        # ------------------------------------------------------------------
-        final_sql = inner_sql           # mặc định nếu KHÔNG có outer/wrap
-
-        if dyn['outer_select'] or dyn['wrapper_select']:
-            # ---- 1. CTE base -------------------------------------------------
-            final_sql = f"WITH base AS (\n{inner_sql}\n)"
-
-            # ---- 2. CTE layer‑2 (alias_outer) --------------------------------
-            outer_cols = dyn['outer_select'].strip()
+        final_sql = inner_sql
+        if outer_select or wrapper_select:
+            final_sql  = "WITH base AS (\n" + inner_sql + "\n)\n"
             final_sql += f",\n{alias_outer} AS (\n"
-            if outer_cols:
-                final_sql += (
-                    f"    SELECT base.*, {outer_cols}\n"
-                    f"    FROM base\n)\n"
-                )
+            if outer_select:
+                final_sql += f"    SELECT base.*, {outer_select}\n    FROM base\n)\n"
             else:
-                final_sql += (
-                    "    SELECT base.*\n"
-                    "    FROM base\n)\n"
-                )
-
-            # ---- 3. SELECT cuối (wrap KPI) -----------------------------------
-            wrap_cols = dyn['wrapper_select'] or ""
+                final_sql += "    SELECT base.*\n    FROM base\n)\n"
             final_sql += f"SELECT {alias_outer}.*"
-            if wrap_cols:
-                final_sql += ",\n       " + wrap_cols
+            if wrapper_select:
+                final_sql += ",\n       " + wrapper_select
             final_sql += f"\nFROM {alias_outer}"
 
-        # ------------------------------------------------------------------
-        # 6.  Thay biến thời gian / hằng số -------------------------------
-        try:
-            final_sql = final_sql.format(**kw)
-        except KeyError as miss:
-            return
+        final_sql = self._safe_format_sql(final_sql, kw)
+        final_sql = re.sub(r",\s*,\s*", ", ", final_sql)
+        for kwd in ("FROM","GROUP","ORDER","LIMIT"):
+            final_sql = re.sub(rf",\s*(?=\b{kwd}\b)", "", final_sql, flags=re.IGNORECASE)
 
-        # ------------------------------------------------------------------
-        # 7.  Kiểm tra placeholder sót & tạo VIEW --------------------------
-        if re.search(r"\{[^\{\}]+\}", final_sql):
-            raise UserError(_("SQL còn placeholder chưa thay."))
-        #raise UserError(final_sql)
         tools.drop_view_if_exists(self._cr, self._table)
         self._cr.execute(f"CREATE OR REPLACE VIEW {self._table} AS (\n{final_sql}\n)")
 
-        # ------------------------------------------------------------------
-        # 8.  Đồng bộ field & view UI --------------------------------------
         self.sync_dynamic_fields(self._name, specs, reset=reset_fields)
         self._ensure_view_ext([s['name'] for s in specs])
         self.env.invalidate_all()
-
         return self._default_action_for_model() if return_action else True
 
 class SmartbizStock_OnhandReport(models.Model):
@@ -1338,6 +1596,7 @@ class SmartbizStock_MoveLineReport(models.Model):
     _inherit = ['smartbiz_stock.dynamic_report_base']
     _auto=False
     _description = "Move Line Report"
+    create_date = fields.Datetime(string='Create Date')
     product_id = fields.Many2one('product.product', string='Product')
     product_uom_id = fields.Many2one('uom.uom', string='Product UoM')
     quantity = fields.Float(string='Quantity')
@@ -1350,8 +1609,8 @@ class SmartbizStock_MoveLineReport(models.Model):
     picking_type_id = fields.Many2one('stock.picking.type', string='Picking Type')
     picking_id = fields.Many2one('stock.picking', string='Picking')
     move_id = fields.Many2one('stock.move', string='Move')
-    reference = fields.Char(string='Reference')
-    state = fields.Selection([('draft','Draft'),('waiting','Waiting'),('confirmed','Confirmed'),('partially_available','Partially Available'),('asigned','Asigned'),('done','Done'),('cancel','Cancel'),], string='State')
+    partner_id = fields.Many2one('res.partner', string='Partner')
+    state = fields.Selection([('draft','Draft'),('waiting','Waiting'),('confirmed','Confirmed'),('partially_available','Partially Available'),('assigned','Assigned'),('done','Done'),('cancel','Cancel'),], string='State')
 
 
     def _core_sql(self):
@@ -1362,27 +1621,24 @@ class SmartbizStock_MoveLineReport(models.Model):
                 --[[EXTRA_SELECT]]
                 sml.product_uom_id,
                 sml.quantity            AS quantity,
+                sml.create_date,
                 sml.date,
                 sml.lot_id,
-                sl.name                 AS lot_name,           
                 sml.package_id,
-                sp.name                 AS package_name,      
                 sml.result_package_id,
-                rsp.name                AS result_package_name, 
                 sml.location_id,
                 sml.location_dest_id,
                 sm.picking_type_id,
                 sm.picking_id,
                 sm.id                   AS move_id,
-                COALESCE(sm.origin, sm.reference) AS reference,
+                sp.partner_id           AS partner_id,
                 sm.state
             FROM   stock_move_line sml
-            JOIN   stock_move      sm  ON sm.id = sml.move_id
+            LEFT JOIN   stock_move      sm  ON sm.id = sml.move_id
             JOIN   product_product pp  ON pp.id = sml.product_id
             LEFT JOIN product_template pt ON pp.product_tmpl_id = pt.id
-            LEFT JOIN stock_lot sl ON sl.id = sml.lot_id                
-            LEFT JOIN stock_quant_package sp ON sp.id = sml.package_id  
-            LEFT JOIN stock_quant_package rsp ON rsp.id = sml.result_package_id 
+            LEFT JOIN stock_lot sl ON sl.id = sml.lot_id    
+            LEFT JOIN stock_picking sp ON sp.id = sm.picking_id
             GROUP BY
                 sml.id,
                 sml.product_id,
@@ -1390,18 +1646,14 @@ class SmartbizStock_MoveLineReport(models.Model):
                 sml.quantity,
                 sml.date,
                 sml.lot_id,
-                sl.name,                
                 sml.package_id,
-                sp.name,                
                 sml.result_package_id,
-                rsp.name,               
                 sml.location_id,
                 sml.location_dest_id,
                 sm.picking_type_id,
                 sm.picking_id,
                 sm.id,
-                sm.origin,
-                sm.reference,
+                sp.partner_id,
                 sm.state
                 --[[EXTRA_GROUP]]
         """
@@ -1753,251 +2005,271 @@ class SmartbizStock_DynamicInventoryReport(models.Model):
     end_quantity = fields.Float(string='End Quantity')
 
 
-    # -----------------------------------------------------------
-    # 2‑A.  SQL lõi – thêm standard_price để tính value
-    # -----------------------------------------------------------
+    # CORE: để layer-2 bơm chỉ tiêu; join loc_src/loc_dest để nhận biết điều chỉnh
     def _core_sql(self):
         return """
             SELECT
-                row_number() OVER()       AS id,
+                row_number() OVER() AS id,
                 sml.product_id,
                 wh.warehouse_id,
-                sml.lot_id,
-                pt.standard_price         AS standard_price,  -- <‑‑ mới
+                sml.lot_id
                 --[[EXTRA_SELECT]]
-
-                /* ===== tồn đầu kỳ chung ===== */
-                SUM(
-                    CASE WHEN sml.date < '{df_utc}'
-                         AND sm.state = 'done'
-                         AND sm.location_dest_id = wh.location_id
-                    THEN sml.quantity ELSE 0 END)
-              - SUM(
-                    CASE WHEN sml.date < '{df_utc}'
-                         AND sm.state = 'done'
-                         AND sm.location_id = wh.location_id
-                    THEN sml.quantity ELSE 0 END)
-                AS begin_quantity
-
             FROM  stock_move_line sml
             JOIN  stock_move      sm  ON sm.id = sml.move_id
             JOIN  product_product pp  ON pp.id = sml.product_id
-            JOIN  product_template pt ON pt.id = pp.product_tmpl_id
-            JOIN  stock_lot       sl  ON sl.id = sml.lot_id
-            JOIN ( SELECT id AS location_id, warehouse_id
-                   FROM stock_location WHERE usage = 'internal') wh
-                 ON wh.location_id IN (sm.location_id, sm.location_dest_id)
-
+            LEFT JOIN product_template pt ON pp.product_tmpl_id = pt.id
+            LEFT JOIN stock_lot sl  ON sl.id = sml.lot_id
+            JOIN stock_location loc_src  ON sm.location_id      = loc_src.id
+            JOIN stock_location loc_dest ON sm.location_dest_id = loc_dest.id
+            JOIN (
+                SELECT id AS location_id, warehouse_id
+                FROM stock_location
+                WHERE usage='internal'
+            ) wh ON wh.location_id IN (sm.location_id, sm.location_dest_id)
             WHERE sm.state = 'done'
             GROUP BY
-                sml.product_id,
-                wh.warehouse_id,
-                sml.lot_id,
-                pt.standard_price                          -- <‑‑ mới
+                sml.product_id, wh.warehouse_id, sml.lot_id
                 --[[EXTRA_GROUP]]
         """
 
-    # -----------------------------------------------------------
-    # 2‑B.  Layer‑2: tính theo template + tùy chọn Package/Value
-    # -----------------------------------------------------------
+    # Layer-2: Template + Adjustment (cộng dồn & SINH FIELD ĐỘNG)
     def _build_group_parts(self, template_rec, df_utc, dt_utc):
+        """
+        Trả về:
+          - cte_select   : SUM/COUNT theo nhóm template + adjustment
+          - outer_select : begin/total_in/total_out/end (+ cột adjustment động)
+          - group_by     : không thêm
+          - specs        : field động (để sync_dynamic_fields tạo x_*)
+        """
         calc_pkg = bool(template_rec and template_rec.calculate_package)
         calc_val = bool(template_rec and template_rec.calculate_value)
+
         langs = self.env['res.lang'].search([('active', '=', True)]).mapped('code')
+        def _desc(vi, en):
+            return {'vi_VN': vi, 'en_US': en, **{c: en for c in langs if c not in ('vi_VN', 'en_US')}}
+        def _sum(cols):
+            return " + ".join([f"COALESCE(base.{c},0)" for c in cols]) or "0"
 
-        def _sum(lst):
-            return " + ".join([f"COALESCE(base.{x},0)" for x in lst]) or "0"
-            
-        def _desc(label_vi: str, label_en: str, langs):
-            return {
-                'vi_VN': label_vi,
-                'en_US': label_en,
-                **{c: label_en for c in langs if c not in ('vi_VN', 'en_US')}
-            }
-
-        # ─── A. Không có template
-        if not template_rec or not template_rec.picking_group_ids:
-            outer_parts = [
-                "0::numeric AS total_in",
-                "0::numeric AS total_out",
-                "base.begin_quantity AS end_quantity",
-            ]
-            specs = []
-
-            if calc_pkg:
-                outer_parts += [
-                    "0::integer AS x_begin_pkg",
-                    "0::integer AS x_total_pkg_in",
-                    "0::integer AS x_total_pkg_out",
-                    "0::integer AS x_end_pkg",
-                ]
-                specs += [
-                    {'name': 'x_begin_pkg',     'field_type': 'integer',
-                     'desc_json': _desc('Tồn gói đầu kỳ', 'Opening Packages', langs)},
-                    {'name': 'x_total_pkg_in',  'field_type': 'integer',
-                     'desc_json': _desc('Tổng gói nhập', 'Packages In', langs)},
-                    {'name': 'x_total_pkg_out', 'field_type': 'integer',
-                     'desc_json': _desc('Tổng gói xuất', 'Packages Out', langs)},
-                    {'name': 'x_end_pkg',       'field_type': 'integer',
-                     'desc_json': _desc('Tồn gói cuối kỳ', 'Ending Packages', langs)},
-                ]
-
-            if calc_val:
-                outer_parts += [
-                    "0::numeric AS x_begin_value",
-                    "0::numeric AS x_total_in_value",
-                    "0::numeric AS x_total_out_value",
-                    "0::numeric AS x_end_value",
-                ]
-                specs += [
-                    {'name': 'x_begin_value',     'field_type': 'float',
-                     'desc_json': _desc('Giá trị đầu kỳ', 'Opening Value', langs)},
-                    {'name': 'x_total_in_value',  'field_type': 'float',
-                     'desc_json': _desc('Giá trị nhập', 'Value In', langs)},
-                    {'name': 'x_total_out_value', 'field_type': 'float',
-                     'desc_json': _desc('Giá trị xuất', 'Value Out', langs)},
-                    {'name': 'x_end_value',       'field_type': 'float',
-                     'desc_json': _desc('Giá trị cuối kỳ', 'Closing Value', langs)},
-                ]
-
-            return "", ",\n        ".join(outer_parts), "", specs
-
-        # ─── B. Có template
         cte_sel, specs = [], []
-        qty_bgn, qty_in, qty_out = [], [], []
-        pkg_bgn, pkg_in, pkg_out = [], [], []
+        qty_bgn_in, qty_bgn_out = [], []
+        qty_in, qty_out = [], []
+        pkg_bgn_in, pkg_bgn_out = [], []
+        pkg_in, pkg_out = [], []
+
+        # ===== ADJUSTMENT (luôn tính & có cột riêng, đồng thời cộng dồn vào tổng) =====
+        # inventory -> internal (nhập điều chỉnh)
+        cte_sel.append(f"""
+            SUM(CASE WHEN sml.date BETWEEN '{df_utc}' AND '{dt_utc}'
+                     AND sm.state='done'
+                     AND loc_src.usage = 'inventory'
+                     AND loc_dest.usage = 'internal'
+                     AND loc_dest.id = wh.location_id
+                 THEN sml.quantity ELSE 0 END) AS adj_in_qty
+        """)
+        # internal -> inventory (xuất điều chỉnh)
+        cte_sel.append(f"""
+            SUM(CASE WHEN sml.date BETWEEN '{df_utc}' AND '{dt_utc}'
+                     AND sm.state='done'
+                     AND loc_src.usage = 'internal'
+                     AND loc_dest.usage = 'inventory'
+                     AND sm.location_id = wh.location_id
+                 THEN sml.quantity ELSE 0 END) AS adj_out_qty
+        """)
 
         pkg_expr = "COALESCE(sml.result_package_id, sml.package_id)"
-
-        for g in template_rec.picking_group_ids:
-            code = g.field_name.strip().lower() if g.field_name else ''
-            if not code:
-                continue
-
-            ids_sql   = ", ".join(map(str, g.picking_type_ids.ids or [0]))
-            loc_field = 'sm.location_dest_id' if g.move_type == 'in' else 'sm.location_id'
-
-            # --- Quantity ---
-            qb = f"{code}_bgn"
-            qc = f"{code}"
+        if calc_pkg:
             cte_sel.append(f"""
-                SUM(CASE WHEN sml.date < '{df_utc}'
-                         AND sm.state = 'done'
-                         AND sm.picking_type_id IN ({ids_sql})
-                         AND {loc_field} = wh.location_id
-                      THEN sml.quantity ELSE 0 END) AS {qb},
-                SUM(CASE WHEN sml.date BETWEEN '{df_utc}' AND '{dt_utc}'
-                         AND sm.state = 'done'
-                         AND sm.picking_type_id IN ({ids_sql})
-                         AND {loc_field} = wh.location_id
-                      THEN sml.quantity ELSE 0 END) AS {qc}
+                COUNT(DISTINCT CASE WHEN sml.date BETWEEN '{df_utc}' AND '{dt_utc}'
+                         AND sm.state='done'
+                         AND loc_src.usage = 'inventory'
+                         AND loc_dest.usage = 'internal'
+                         AND loc_dest.id = wh.location_id
+                    THEN {pkg_expr} END) AS adj_in_pkg
             """)
-            qty_bgn.append(qb)
-            (qty_in if g.move_type == 'in' else qty_out).append(qc)
+            cte_sel.append(f"""
+                COUNT(DISTINCT CASE WHEN sml.date BETWEEN '{df_utc}' AND '{dt_utc}'
+                         AND sm.state='done'
+                         AND loc_src.usage = 'internal'
+                         AND loc_dest.usage = 'inventory'
+                         AND sm.location_id = wh.location_id
+                    THEN {pkg_expr} END) AS adj_out_pkg
+            """)
 
-            specs.append({
-                'name': qc,
-                'field_type': 'float',
-                'desc_json': {c: g.with_context(lang=c).name for c in langs},
-            })
+        # ===== TEMPLATE GROUPS (LOẠI HẲN inventory để tránh đếm trùng) =====
+        # common filter để chặn mọi dịch chuyển liên quan 'inventory'
+        not_inventory = "AND loc_src.usage <> 'inventory' AND loc_dest.usage <> 'inventory'"
 
-            # --- Package ---
-            if calc_pkg:
-                pb = f"{code}_pkg_bgn"
-                pc = f"{code}_pkg"
+        if template_rec and template_rec.picking_group_ids:
+            for g in template_rec.picking_group_ids:
+                code = (g.field_name or '').strip().lower()
+                if not code:
+                    continue
+                ids_sql   = ", ".join(map(str, g.picking_type_ids.ids or [0]))
+                is_in     = (g.move_type == 'in')
+                loc_field = 'sm.location_dest_id' if is_in else 'sm.location_id'
+
+                qb = f"{code}_bgn"      # trước kỳ
+                qd = f"{code}"          # trong kỳ
+
+                # Quantity
                 cte_sel.append(f"""
-                    COUNT(DISTINCT CASE WHEN sml.date < '{df_utc}'
-                          AND sm.state = 'done'
-                          AND sm.picking_type_id IN ({ids_sql})
-                          AND {loc_field} = wh.location_id
-                          THEN {pkg_expr} END) AS {pb},
-                    COUNT(DISTINCT CASE WHEN sml.date BETWEEN '{df_utc}' AND '{dt_utc}'
-                          AND sm.state = 'done'
-                          AND sm.picking_type_id IN ({ids_sql})
-                          AND {loc_field} = wh.location_id
-                          THEN {pkg_expr} END) AS {pc}
+                    SUM(CASE WHEN sml.date < '{df_utc}'
+                              AND sm.state='done'
+                              AND sm.picking_type_id IN ({ids_sql})
+                              AND {loc_field} = wh.location_id
+                              {not_inventory}
+                         THEN sml.quantity ELSE 0 END) AS {qb},
+                    SUM(CASE WHEN sml.date BETWEEN '{df_utc}' AND '{dt_utc}'
+                              AND sm.state='done'
+                              AND sm.picking_type_id IN ({ids_sql})
+                              AND {loc_field} = wh.location_id
+                              {not_inventory}
+                         THEN sml.quantity ELSE 0 END) AS {qd}
                 """)
-                pkg_bgn.append(pb)
-                (pkg_in if g.move_type == 'in' else pkg_out).append(pc)
+
+                (qty_bgn_in if is_in else qty_bgn_out).append(qb)
+                (qty_in if is_in else qty_out).append(qd)
 
                 specs.append({
-                    'name': pc,
-                    'field_type': 'integer',
-                    'desc_json': {c: g.with_context(lang=c).name + ' (Pkg)' for c in langs},
+                    'name': qd, 'field_type': 'float',
+                    'desc_json': {c: g.with_context(lang=c).name for c in langs},
                 })
 
-        expr_in_q  = _sum(qty_in)
-        expr_out_q = _sum(qty_out)
+                # Packages cho Template (nếu bật) — cũng loại inventory
+                if calc_pkg:
+                    pb = f"{code}_pkg_bgn"
+                    pd = f"{code}_pkg"
+                    cte_sel.append(f"""
+                        COUNT(DISTINCT CASE WHEN sml.date < '{df_utc}'
+                              AND sm.state='done'
+                              AND sm.picking_type_id IN ({ids_sql})
+                              AND {loc_field} = wh.location_id
+                              {not_inventory}
+                        THEN {pkg_expr} END) AS {pb},
+                        COUNT(DISTINCT CASE WHEN sml.date BETWEEN '{df_utc}' AND '{dt_utc}'
+                              AND sm.state='done'
+                              AND sm.picking_type_id IN ({ids_sql})
+                              AND {loc_field} = wh.location_id
+                              {not_inventory}
+                        THEN {pkg_expr} END) AS {pd}
+                    """)
+                    (pkg_bgn_in if is_in else pkg_bgn_out).append(pb)
+                    (pkg_in if is_in else pkg_out).append(pd)
+
+                    specs.append({
+                        'name': pd, 'field_type': 'integer',
+                        'desc_json': {c: g.with_context(lang=c).name + ' (Pkg)' for c in langs},
+                    })
+
+        # ===== GHÉP TỔNG (đã cộng dồn adjustment) =====
+        expr_bgn_q  = f"(({_sum(qty_bgn_in)}) - ({_sum(qty_bgn_out)}))"
+        expr_in_q   = f"(({_sum(qty_in)})  + COALESCE(base.adj_in_qty,0))"
+        expr_out_q  = f"(({_sum(qty_out)}) + COALESCE(base.adj_out_qty,0))"
+        expr_end_q  = f"(({expr_bgn_q}) + ({expr_in_q}) - ({expr_out_q}))"
 
         outer_parts = [
+            f"{expr_bgn_q} AS begin_quantity",
             f"{expr_in_q}  AS total_in",
             f"{expr_out_q} AS total_out",
-            f"(base.begin_quantity + ({expr_in_q}) - ({expr_out_q})) AS end_quantity",
+            f"{expr_end_q} AS end_quantity",
+            # cột điều chỉnh (động) để bạn vẫn xem riêng
+            "COALESCE(base.adj_in_qty,0)  AS x_adjustment_in",
+            "COALESCE(base.adj_out_qty,0) AS x_adjustment_out",
+        ]
+        specs += [
+            {'name':'x_adjustment_in','field_type':'float','desc_json':_desc('Điều chỉnh nhập','Adjustment In')},
+            {'name':'x_adjustment_out','field_type':'float','desc_json':_desc('Điều chỉnh xuất','Adjustment Out')},
         ]
 
-        # --- Tổng Package ---
+        # ===== PACKAGES (nếu bật): cộng dồn adj + có cột adj riêng =====
         if calc_pkg:
-            expr_bgn_p = _sum(pkg_bgn)
-            expr_in_p  = _sum(pkg_in)
-            expr_out_p = _sum(pkg_out)
+            expr_bgn_p = f"(({_sum(pkg_bgn_in)}) - ({_sum(pkg_bgn_out)}))"
+            expr_in_p  = f"(({_sum(pkg_in)})  + COALESCE(base.adj_in_pkg,0))"
+            expr_out_p = f"(({_sum(pkg_out)}) + COALESCE(base.adj_out_pkg,0))"
+            expr_end_p = f"(({expr_bgn_p}) + ({expr_in_p}) - ({expr_out_p}))"
+
             outer_parts += [
                 f"{expr_bgn_p} AS x_begin_pkg",
                 f"{expr_in_p}  AS x_total_pkg_in",
                 f"{expr_out_p} AS x_total_pkg_out",
-                f"(({expr_bgn_p}) + ({expr_in_p}) - ({expr_out_p})) AS x_end_pkg",
+                f"{expr_end_p} AS x_end_pkg",
+                "COALESCE(base.adj_in_pkg,0)  AS x_adjustment_pkg_in",
+                "COALESCE(base.adj_out_pkg,0) AS x_adjustment_pkg_out",
             ]
             specs += [
-                {'name': 'x_begin_pkg',     'field_type': 'integer',
-                 'desc_json': _desc('Tồn gói đầu kỳ', 'Opening Packages', langs)},
-                {'name': 'x_total_pkg_in',  'field_type': 'integer',
-                 'desc_json': _desc('Tổng gói nhập', 'Packages In', langs)},
-                {'name': 'x_total_pkg_out', 'field_type': 'integer',
-                 'desc_json': _desc('Tổng gói xuất', 'Packages Out', langs)},
-                {'name': 'x_end_pkg',       'field_type': 'integer',
-                 'desc_json': _desc('Tồn gói cuối kỳ', 'Ending Packages', langs)},
+                {'name':'x_begin_pkg','field_type':'integer','desc_json':_desc('Tồn gói đầu kỳ','Opening Packages')},
+                {'name':'x_total_pkg_in','field_type':'integer','desc_json':_desc('Tổng gói nhập','Packages In')},
+                {'name':'x_total_pkg_out','field_type':'integer','desc_json':_desc('Tổng gói xuất','Packages Out')},
+                {'name':'x_end_pkg','field_type':'integer','desc_json':_desc('Tồn gói cuối kỳ','Closing Packages')},
+                {'name':'x_adjustment_pkg_in','field_type':'integer','desc_json':_desc('Gói điều chỉnh nhập','Adj Packages In')},
+                {'name':'x_adjustment_pkg_out','field_type':'integer','desc_json':_desc('Gói điều chỉnh xuất','Adj Packages Out')},
             ]
 
-        # --- Tổng Value ---
+        # ===== VALUE (nếu bật): dùng cost theo kho; total_* đã gồm adj =====
         if calc_val:
+            begin_cost_expr = f"""COALESCE((
+                SELECT SUM(svl.value)/NULLIF(SUM(svl.quantity),0)
+                  FROM stock_valuation_layer svl
+                  JOIN stock_move sm2 ON sm2.id = svl.stock_move_id
+                  JOIN stock_location eff ON eff.id = CASE
+                        WHEN svl.quantity >= 0 THEN sm2.location_dest_id
+                        ELSE sm2.location_id
+                      END
+                 WHERE svl.product_id = base.product_id
+                   AND eff.usage = 'internal'
+                   AND eff.warehouse_id = base.warehouse_id
+                   AND svl.create_date <= '{df_utc}'
+            ),0)"""
+            end_cost_expr = f"""COALESCE((
+                SELECT SUM(svl.value)/NULLIF(SUM(svl.quantity),0)
+                  FROM stock_valuation_layer svl
+                  JOIN stock_move sm2 ON sm2.id = svl.stock_move_id
+                  JOIN stock_location eff ON eff.id = CASE
+                        WHEN svl.quantity >= 0 THEN sm2.location_dest_id
+                        ELSE sm2.location_id
+                      END
+                 WHERE svl.product_id = base.product_id
+                   AND eff.usage = 'internal'
+                   AND eff.warehouse_id = base.warehouse_id
+                   AND svl.create_date <= '{dt_utc}'
+            ),0)"""
+
             outer_parts += [
-                "base.begin_quantity * base.standard_price            AS x_begin_value",
-                f"({expr_in_q})  * base.standard_price                AS x_total_in_value",
-                f"({expr_out_q}) * base.standard_price                AS x_total_out_value",
-                f"(base.begin_quantity + ({expr_in_q}) - ({expr_out_q}))"
-                " * base.standard_price                              AS x_end_value",
+                f"({expr_bgn_q}) * ({begin_cost_expr}) AS x_begin_value",
+                f"({expr_in_q})  * ({end_cost_expr})   AS x_total_in_value",
+                f"({expr_out_q}) * ({end_cost_expr})   AS x_total_out_value",
+                f"({expr_end_q}) * ({end_cost_expr})   AS x_end_value",
+                # value riêng cho adjustment
+                f"(COALESCE(base.adj_in_qty,0))  * ({end_cost_expr}) AS x_adjustment_in_value",
+                f"(COALESCE(base.adj_out_qty,0)) * ({end_cost_expr}) AS x_adjustment_out_value",
             ]
             specs += [
-                {'name': 'x_begin_value',     'field_type': 'float',
-                 'desc_json': _desc('Giá trị đầu kỳ', 'Opening Value', langs)},
-                {'name': 'x_total_in_value',  'field_type': 'float',
-                 'desc_json': _desc('Giá trị nhập', 'Value In', langs)},
-                {'name': 'x_total_out_value', 'field_type': 'float',
-                 'desc_json': _desc('Giá trị xuất', 'Value Out', langs)},
-                {'name': 'x_end_value',       'field_type': 'float',
-                 'desc_json': _desc('Giá trị cuối kỳ', 'Closing Value', langs)},
+                {'name':'x_begin_value','field_type':'float','desc_json':_desc('Giá trị đầu kỳ','Opening Value')},
+                {'name':'x_total_in_value','field_type':'float','desc_json':_desc('Giá trị nhập','Value In')},
+                {'name':'x_total_out_value','field_type':'float','desc_json':_desc('Giá trị xuất','Value Out')},
+                {'name':'x_end_value','field_type':'float','desc_json':_desc('Giá trị cuối kỳ','Closing Value')},
+                {'name':'x_adjustment_in_value','field_type':'float','desc_json':_desc('Giá trị điều chỉnh nhập','Adj In Value')},
+                {'name':'x_adjustment_out_value','field_type':'float','desc_json':_desc('Giá trị điều chỉnh xuất','Adj Out Value')},
             ]
 
         return (
-            ",\n                    ".join(cte_sel),
-            ",\n        ".join(outer_parts),
-            "",
+            ",\n                    ".join(cte_sel),          # cte_select
+            ",\n        ".join(outer_parts),                 # outer_select
+            "",                                              # group_by
             specs
         )
 
+    # Gộp layer-3 (base) + layer-2 (template + adjustment)
     def _build_dynamic_parts(self, **kw):
-        base = super()._build_dynamic_parts(**kw)
         template_rec = kw.get('template_rec')
-        df_utc       = kw.get('df_utc')
-        dt_utc       = kw.get('dt_utc')
-        c1,o1,g1,s1,w1=base['cte_select'],base['outer_select'],base['group_by'],base['specs'],base['wrapper_select']
-        # layer2
-        c2,o2,g2,s2=self._build_group_parts(template_rec,df_utc,dt_utc)
-
-        return dict(
-            cte_select=",\n    ".join(filter(None,[c1,c2])),
-            outer_select=",\n        ".join(filter(None,[o1,o2])),
-            wrapper_select=w1,
-            group_by=", ".join(filter(None,[g1,g2])),
-            specs=s1+s2
-        )
+        df_utc = kw.get('df_utc'); dt_utc = kw.get('dt_utc')
+        base = super()._build_dynamic_parts(**kw)
+        c2, o2, g2, s2 = self._build_group_parts(template_rec, df_utc, dt_utc)
+        return {
+            'cte_select': ",\n    ".join(filter(None, [base['cte_select'], c2])),
+            'outer_select': ",\n        ".join(filter(None, [base['outer_select'], o2])),
+            'wrapper_select': base['wrapper_select'],
+            'group_by': ", ".join(filter(None, [base['group_by'], g2])),
+            'specs': base['specs'] + s2,
+        }
 

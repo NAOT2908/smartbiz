@@ -10,9 +10,10 @@ def remove_accents_and_upper(text):
 
 from odoo.osv import expression
 from odoo import models, fields, api, exceptions,_, tools
-import os
-import base64,pytz,logging,unidecode
-from datetime import datetime, timedelta
+import os,json,re
+import base64,pytz,logging,unidecode,textwrap
+from datetime import datetime, timedelta, time
+from zoneinfo import ZoneInfo
 import random
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import config, float_compare
@@ -20,7 +21,6 @@ _logger = logging.getLogger(__name__)
 from io import BytesIO
 import xlsxwriter
 from openpyxl import load_workbook
-import re
 
 class RES_Users(models.Model):
     _inherit = ['res.users']
@@ -44,6 +44,8 @@ class mrp_Production(models.Model):
     production_activities = fields.Integer(string='Production Activities', compute='_compute_production_activities', store=True)
     production_packages_ids = fields.One2many('smartbiz_mes.package', 'production_id')
     production_packages = fields.Integer(string='Production Packages', compute='_compute_production_packages', store=True)
+    production_measurements_ids = fields.One2many('smartbiz_mes.production_measurement', 'production_id')
+    production_measurements = fields.Integer(string='Production Measurements', compute='_compute_production_measurements', store=True)
 
 
     @api.depends('workorder_ids', 'workorder_ids.production_activity_ids')
@@ -65,6 +67,12 @@ class mrp_Production(models.Model):
         for record in self:
             count = record.production_packages_ids.search_count([('production_id', '=', record.id)])
             record.production_packages = count
+
+    @api.depends('production_measurements_ids')
+    def _compute_production_measurements(self):
+        for record in self:
+            count = record.production_measurements_ids.search_count([('production_id', '=', record.id)])
+            record.production_measurements = count
 
     def action_create_activities(self):
         """
@@ -108,7 +116,10 @@ class mrp_Production(models.Model):
 
         
         
+    def action_create_measurements(self):
+        return True
 
+        
         
     def create_production_return(self, production_id, quants, print_lable=False):
         transfer_groups = {}
@@ -300,6 +311,15 @@ class mrp_Production(models.Model):
 
     def action_production_packages(self):
         action = self.env["ir.actions.actions"]._for_xml_id("smartbiz_mes.act_mrp_production_2_smartbiz_mes_package")
+        context = eval(action['context'])
+        context.update(dict(self._context,default_production_id=self.id))
+        action['context'] = context
+        action['domain'] = [('production_id', '=', self.id)]
+
+        return action
+
+    def action_production_measurements(self):
+        action = self.env["ir.actions.actions"]._for_xml_id("smartbiz_mes.act_mrp_production_2_smartbiz_mes_production_measurement")
         context = eval(action['context'])
         context.update(dict(self._context,default_production_id=self.id))
         action['context'] = context
@@ -1365,20 +1385,9 @@ class mrp_Workorder(models.Model):
                 label.print_label_auto(printer, act)
 
 class mrp_BoM(models.Model):
-    _inherit = 'mrp.bom'
-
-    # Liên kết smartbiz_mes.bom_components
+    _inherit = ['mrp.bom']
     components_ids = fields.One2many('smartbiz_mes.bom_components', 'bom_id')
 
-# -*- coding: utf-8 -*-
-import re
-from odoo import models, fields
-
-
-class mrp_BoM(models.Model):
-    _inherit = 'mrp.bom'
-
-    components_ids = fields.One2many('smartbiz_mes.bom_components', 'bom_id')
 
     # ---------------- helper ----------------
     def _get_next_code(self, base_code):
@@ -1480,7 +1489,6 @@ class mrp_BoM(models.Model):
                 new_op.components_ids = [(6, 0, comps)]
 
         return new_bom
-
 
 class mrp_bomline(models.Model):
     _inherit = ['mrp.bom.line']
@@ -2172,6 +2180,14 @@ class smartbiz_mes_PauseReason(models.Model):
     name = fields.Char(string='Name')
     type = fields.Selection([('pause','Pause'),('ng','NG'),('cancel','Cancel'),], string='Type')
     active = fields.Boolean(string='Active', default = 'True')
+
+
+class smartbiz_mes_ProductionMeasurement(models.Model):
+    _name = "smartbiz_mes.production_measurement"
+    _description = "Production Measurement"
+    name = fields.Char(string='Name')
+    production_id = fields.Many2one('mrp.production', string='Production')
+    work_order_id = fields.Many2one('mrp.workorder', string='Work Order')
 
 
 class purchase_order(models.Model):

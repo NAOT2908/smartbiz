@@ -18,6 +18,7 @@ export default class CustomMainMenu extends MainMenu {
   static template = "CustomMainMenu";
   
   setup() {
+    this._t = _t;
     this.actionService = useService("action");
     this.dialogService = useService("dialog");
     this.home = useService("home_menu");

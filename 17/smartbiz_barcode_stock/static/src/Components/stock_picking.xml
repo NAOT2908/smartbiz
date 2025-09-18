@@ -1,325 +1,432 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
-    <t t-name="smartbiz_barcode.StockPicking">
-        <div class="s_wrapper">
-            <nav class="s_nav">
-            <nav class="s_nav_left">
-                    <button t-on-click="exit" class="s_nav-link">
-                        <i class="oi oi-chevron-left " />
-                    </button>
-                    <!-- <span class="o_title navbar-text" t-esc="env.model.name"/> -->
-                    <span class="s_nav_title" t-out="state.detailTitle"></span>
-                </nav>
-                <nav class="s_nav_right">
-                        <button class="s_nav-link" t-on-click="searchClick">
-                            <i class="fa fa-search" />
-                        </button>              
-                        <button class="s_nav-link" t-on-click="openManualScanner">
-                            <i class="fa fa-2x fa-barcode" />
-                        </button> 
-                        <div class="s_nav-link" t-on-click="toggleMenu">
-                            <i class="fa fa-bars"></i>
-                        </div>  
-                </nav>
-            </nav>
-            <div t-if="state.menuVisible" class="menu-overlay" t-on-click="toggleMenu"></div>
-            <div t-if="state.menuVisible" class="menu">
-                <div class="menu-header">
-                    <span class="close-icon" t-on-click="toggleMenu">
-                        <i class="fa fa-times"></i>
-                    </span>
-                </div>
-                <div class="menu-items">
-                    <button t-on-click="() => this.openSelector(1)" t-if="state.detailMoveLine.picking_type_code == 'internal'">Chia Package</button>
-                    <button t-on-click="() => this.openSelector(8)" t-if="state.detailMoveLine.picking_type_code == 'incoming'">Đóng Package loạt</button>
-                    <button t-on-click="() => this.openSelector(9)" t-if="state.detailMoveLine.product_tracking == 'serial'">Nhận theo số Sê-ri</button>
-                    <button t-on-click="() => this.openCamera()">Mở Camera AI</button>
-                    <button t-on-click="unReserve" t-if="state.order_state != 'done' &amp;&amp; state.order_state != 'cancel'">Huỷ dự trữ</button>
-                    <button t-on-click="cancelOrder" t-if="state.order_state != 'done' &amp;&amp; state.order_state != 'cancel'">Hủy đơn</button>
-                    
-                </div>
-            </div>
-            <div class="s_search-box" t-if="state.search">
-                    <input class="s_search-input" t-on-input="handleInput" t-att-value="state.searchInput" placeholder="Tìm kiếm" />
-            </div>
-            <div class="s_app_contents">
-                <div t-if="state.view === 'Move'">
-                    <div class="s_tabs">
-                        <div t-attf-class="s_menutab #{state.activeTab === 'OrderOverview' ? 'active' : ''}" t-on-click="() => this.changeTab('OrderOverview')">
-                            Chi tiết lệnh
-                        </div>
-                        <div t-attf-class="s_menutab #{state.activeTab === 'OrderDetail' ? 'active' : ''}" t-on-click="() => this.changeTab('OrderDetail')">
-                            Sản phẩm
-                        </div>
-                        <div t-attf-class="s_menutab #{state.activeTab === 'Packages' ? 'active' : ''}" t-on-click="() => this.changeTab('Packages')">
-                            Đóng gói
-                        </div>
-                    </div>
-                </div>
-                <t t-if="state.view === 'Move_line'">
-                    <div class="s_detailEdit">
-                        <div name="product" class="s_moveline_counter">
-                            <i class="fa fa-fw fa-list-ul"></i>
-                            <span><strong t-esc="state.scanned_lines"/>/<strong t-esc="state.total_lines"/></span>
-                        </div>
-                        <div name="product"><i class="fa fa-fw fa-tags"></i><span class="product-label"><t t-out="state.detailMoveLine.product_name"/></span></div>
-                        <div class="s_element">
-                            <div name="quantity" class="s_left">
-                                <i class="fa fa-fw fa-cube"></i>
-                                <span >
-                                    <t t-out="state.detailMoveLine.quantity"/>/ <t t-out="state.detailMoveLine.quantity_done"/>/ <t t-out="state.detailMoveLine.product_uom_qty"/>
-                                </span>
-                                <span ><t t-out="state.detailMoveLine.product_uom"/></span>
-                            </div>
-                            <div class="s_right">
-                                <button class="s_detail-button" t-if="state.detailMoveLine.quantity_need" t-on-click="updateQuantity"><t t-esc="state.detailMoveLine.quantity_need"/></button>
-                                <button class="s_detail-icon" t-on-click="editQuantity"><i class="fa fa-2x fa-pencil" aria-hidden="true"></i></button>
-                                <button class="s_detail-icon" t-on-click="() => this.focusClick(1)"><span t-attf-class="{{focusClass(1)}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span></button>                           
-                            </div>
-                        </div>
-                        <t t-if="state.detailMoveLine.product_tracking !== ''">
-                            <div class="s_element">
-                                <div name="lot" class="s_left">
-                                    <i class="fa fa-fw fa-barcode"></i>
-                                    <span class="o_line_lot_name" t-out="state.detailMoveLine.lot_name">
-                                    </span>
-                                </div>
-                                <div class="s_right">
-                                    <button class="s_detail-icon" t-on-click="() => this.openSelector(2)"><i class="fa fa-2x fa-pencil" aria-hidden="true"></i></button>
-                                    <button class="s_detail-icon" t-on-click="() => this.focusClick(2)"><span t-attf-class="{{focusClass(2)}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span></button>
-                                </div>
-                            </div>
-                        </t>
-                        <t t-if="state.detailMoveLine.picking_type_code !== 'incoming'">
-                            <div class="s_element">
-                                <div name="source_location" class="s_left">
-                                    <i class="fa fa-fw fa-sign-out"></i>
-                                    <span class="o_line_lot_name" t-out="state.detailMoveLine.location_name"></span>
-                                </div>
-                                
-                                <div class="s_right">
-                                    <button class="s_detail-icon" t-on-click="() => this.openSelector(3)"><i class="fa fa-2x fa-pencil" aria-hidden="true"></i></button>
-                                    <button class="s_detail-icon" t-on-click="() => this.focusClick(3)"><span t-attf-class="{{focusClass(3)}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span></button>
-                                </div>
-                            </div>                      
-                        </t>
-                        <t t-if="state.detailMoveLine.picking_type_code !== 'outgoing'">
-                            <div class="s_element">
-                                <div name="destination_location" class="s_left">
-                                    <i class="fa fa-fw fa-sign-in"></i>
-                                    <span class="o_line_lot_name" t-out="state.detailMoveLine.location_dest_name"></span>
-                                </div>
-                                <div class="s_right">
-                                    <button class="s_detail-icon" t-on-click="() => this.openSelector(4)"><i class="fa fa-2x fa-pencil" aria-hidden="true"></i></button>
-                                    <button class="s_detail-icon" t-on-click="() => this.focusClick(4)"><span t-attf-class="{{focusClass(4)}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span></button>
-                                </div>
-                            </div>                       
-                        </t>
-                        <t t-if="state.detailMoveLine.package and state.detailMoveLine.picking_type_code !== 'incoming'">
-                            <div class="s_element">
-                                <div name="package" class="s_left">
-                                    <i class="fa fa-archive"></i><i class="fa fa-arrow-right"></i>
-                                    <span class="o_line_lot_name" t-out="state.detailMoveLine.package_name"></span>
-                                </div>
-                                <div class="s_right">
-                                    <button class="s_detail-icon" t-on-click="clearPackage" t-if="state.detailMoveLine.package_id"><i class="fa fa-minus-circle" aria-hidden="true"></i></button>
-                                    <button class="s_detail-icon" t-on-click="() => this.openSelector(5)"><i class="fa fa-2x fa-pencil" aria-hidden="true"></i></button>
-                                    <button class="s_detail-icon" t-on-click="() => this.focusClick(5)"><span t-attf-class="{{focusClass(5)}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span></button>
-                                </div>
-                            </div>                       
-                        </t>
-                        <t t-if="state.detailMoveLine.package and state.detailMoveLine.picking_type_code !== 'outgoing'">
-                            <div class="s_element">
-                                <div name="result_package" class="s_left">
-                                    <i class="fa fa-archive"></i><i class="fa fa-arrow-left"></i>
-                                    <span class="o_line_lot_name" t-out="state.detailMoveLine.result_package_name"></span>
-                                </div>
-                                <div class="s_right">
-                                    <button class="s_detail-icon" t-on-click="clearResultPackage" t-if="state.detailMoveLine.result_package_id"><i class="fa fa-minus-circle" aria-hidden="true"></i></button>
-                                    <button class="s_detail-icon" t-on-click="() => this.createPack()"  t-if="state.showSave &amp;&amp; !state.detailMoveLine.result_package_id"><i class="fa fa-plus-circle" aria-hidden="true"></i></button>
-                                    <button class="s_detail-icon" t-on-click="() => this.openSelector(6)"><i class="fa fa-2x fa-pencil" aria-hidden="true"></i></button>
-                                    <button class="s_detail-icon" t-on-click="() => this.focusClick(6)"><span t-attf-class="{{focusClass(6)}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span></button>
-                                </div>
-                            </div>                      
-                        </t>
-                    </div>
-                </t>
-                <div class="s_content-area">
-                    <t t-if="state.view === 'Move'">
-                        <div t-if="state.activeTab === 'OrderDetail'">
-                            <t t-foreach="state.moves" t-as="move" t-key="move.id">
-                                <div  t-on-click="() => this.select(move.id)" t-att-data-id="move.id" t-attf-class="{{moveClass(move)}}">
-                                    <div >
-                                        <div class="o_barcode_line_title" t-if="batch_id">
-                                            <i class="fa fa-fw fa-tags"></i><span class="o_barcode_product_ref h5 fw-bold"><t t-out="move.picking_name"/></span>
-                                        </div>
-                                        <div class="o_barcode_line_title">
-                                            <i class="fa fa-fw fa-tags"></i><span class="o_barcode_product_ref h5 fw-bold"><t t-out="move.product_name"/></span>
-                                        </div>
-                                        <div name="quantity"><i class="fa fa-fw fa-cube"></i><span
-                                                class="o_barcode_scanner_qty font-monospace badge"><span
-                                                    class="qty-done d-inline-block text-start"><t t-out="move.quantity"/></span><span>/ <t t-out="move.product_uom_qty"/></span></span>
-                                                    <span 
-                                                    class="o_line_uom"><t t-out="move.product_uom"/></span>
-                                        </div>
-                                    
-                                    </div>
-                                    <div class="s_right">
-                                        
-                                        <button class="s_line-icon" t-on-click="() => this.editMove(move.id)">
-                                            <i class="fa fa-2x fa-pencil"></i>
-                                        </button>
-                                        <button class="s_line-icon" t-on-click="() => this.deleteMove(move.id)">
-                                            <i class="fa fa-trash" aria-hidden="true"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </t> 
-                        </div>
-                        <div t-if="state.activeTab === 'OrderOverview'">
-                            <div class="s_order_overview">
-                                <div class="s_order_info">
-                                    <div class="s_order_info_item">
-                                        <span class="s_info_label">Lệnh:</span>
-                                        <span class="s_info_value" t-out="state.data.name || '-'"/>
-                                    </div>
-                                    <div class="s_order_info_item">
-                                        <span class="s_info_label">Trạng thái:</span>
-                                        <span class="s_info_value" t-out="state.data.state_name || '-'"/>
-                                    </div>
-                                    <div class="s_order_info_item">
-                                        <span class="s_info_label">Đối tác:</span>
-                                        <span class="s_info_value" t-out="state.data.partner_name || '-'"/>
-                                    </div>
-                                    
-                                    <div class="s_order_info_item">
-                                        <span class="s_info_label">Người phụ trách:</span>
-                                        <span class="s_info_value" t-out="state.data.user_name || '-'"/>
-                                    </div>
-                                    <div class="s_order_info_item">
-                                        <span class="s_info_label">Vị trí nguồn:</span>
-                                        <span class="s_info_value" t-out="state.data.location_name || '-'"/>
-                                    </div>
-                                    <div class="s_order_info_item">
-                                        <span class="s_info_label">Vị trí đích:</span>
-                                        <span class="s_info_value" t-out="state.data.location_dest_name || '-'"/>
-                                    </div>
-                                </div>
-                            </div>  
-                        </div>
-                        <div t-if="state.activeTab === 'Packages'">
-                            <div>
-                                <Packages t-props="{
-                                data:state.data,
-                                updateData:(data) => this.updateData(data),
-                                showModal:(modal,data) => this.showModal(modal,data)
-                                }" />
-                               
-                                <t t-if="state.modal == 'editPackage'">
-                                    <EditPackage t-props="{
-                                        packageInfo:state.packageInfo,
-                                        unpacked_move_lines:state.unpacked_move_lines,
-                                        closeModal: (modal,data) => this.closeModal(modal,data),
-                                    }" />
-                                </t>
 
-                               
-                                <t t-if="state.modal == 'createPackages'">
-                                    <CreatePackages t-props="{
-                                        orderInfo:state.data.order,
-                                        unpacked_products:state.data.unpacked_moves,
-                                        closeModal: (modal,data) => this.closeModal(modal,data),
-                                    }" />
-                                </t>
-                            </div>
-                        </div>                      
-                    </t>
-                    <t t-if="state.view === 'Move_line'">                      
-                        <t t-foreach="state.lines" t-as="line" t-key="line.id">
-                            <div  t-on-click="() => this.select(line.id)" t-att-data-id="line.id" t-attf-class="{{lineClass(line)}}">
-                                <div class="s_move_line_left">                    
-                                    <!-- <div>
-                                        <i class="fa fa-fw fa-tags"></i>
-                                        <span class="product-label"><t t-out="line.product_name"/></span>
-                                    </div> -->
-                                    <div name="quantity">
-                                        <i class="fa fa-fw fa-cube"></i>
-                                        <span style="padding: 0px 10px;color:red;"><t t-out="line.quantity"/></span>
-                                        <span class=""><t t-out="line.product_uom"/></span>
-                                    </div>
-                                    <div name="lot" t-if="line.lot_name">
-                                        <i class="fa fa-fw fa-barcode"></i>
-                                        <span class="" t-out="line.lot_name"></span>
-                                        <t t-if="line.expiration_date">(<span class="" t-out="line.expiration_date"/>)</t>
-                                    </div>
-                                    <div name="source_location" t-if="line.location_id">
-                                        <i class="fa fa-fw fa-sign-out"></i>
-                                        <span class="fst-italic text-muted"><t t-out="line.location_name"/></span>
-                                    </div>
-                                    <div name="destination_location" t-if="line.location_dest_id">
-                                        <i class="fa fa-fw fa-sign-in"></i>
-                                        <span class="fst-italic text-muted"><t t-out="line.location_dest_name"/></span>
-                                    </div>
-                                    <div name="package" t-if="line.package_id">
-                                        <i class="fa fa-fw fa-archive"></i>
-                                        <i class="fa fa-long-arrow-right mx-1"></i>
-                                        <span class="package"><t t-out="line.package_name"/></span>
-                                    </div>
-                                    <div name="result_package" t-if="line.result_package_id">
-                                        <i class="fa fa-fw fa-archive"></i>
-                                        <i class="fa fa-long-arrow-left mx-1"></i>
-                                        <span class="package"><t t-out="line.result_package_name"/></span>
-                                    </div>
-                                </div>
-                                <div class="s_right">
-                    
-                                    <button class="s_line-icon" t-on-click="() => this.editLine(line.id)">
-                                        <i class="fa fa-2x fa-pencil"></i>
-                                    </button>
-                                    <span>
-                                        <button class="s_line-icon" t-on-click="() => this.linePrint(line.id)">
-                                            <i class="fa fa-print" aria-hidden="true"></i>
-                                        </button>
-                                    </span>
-                                    <span>
-                                        <button class="s_line-icon" t-on-click="() => this.deleteMoveLine(line.id)">
-                                            <i class="fa fa-trash" aria-hidden="true"></i>
-                                        </button>
-                                    </span>
-                                </div>
-                            </div>
-                        </t>                       
-                    </t>
-                </div>
-            </div>
+<t t-name="smartbiz_barcode.StockPicking">
+  <div class="s_wrapper">
 
-            <footer t-attf-class="{{footerClass()}}">
-                <div t-if="state.finished" class="s_finished_message"><t t-esc="state.finished_message"/></div>
-                <button class="s_primary-button" t-on-click="newProduct" t-if="state.showNewProduct">Thêm sản phẩm</button>
-                <button class="s_primary-button" t-on-click="save" t-if="state.showSave">Lưu</button>
-                <button class="s_primary-button" t-on-click="cancel" t-if="state.showSave">Hủy</button>
-                <button class="s_primary-button" t-on-click="actionDone" t-if="state.showValidate">Xác nhận</button>
-                <button class="s_primary-button" t-on-click="() => this.showModal('createPackages',false)" t-if="state.showPackMulti">Đóng gói loạt</button>
-            </footer>
+    <!-- ===================================================== -->
+    <!-- NAVBAR -->
+    <!-- ===================================================== -->
+    <nav class="s_nav">
+      <nav class="s_nav_left">
+        <button class="s_nav-link" t-on-click="exit">
+          <i class="oi oi-chevron-left"/>
+        </button>
+        <span class="s_nav_title" t-out="state.detailTitle"/>
+      </nav>
+
+      <nav class="s_nav_right">
+        <button class="s_nav-link" t-on-click="searchClick">
+          <i class="fa fa-search"/>
+        </button>
+        <button class="s_nav-link" t-on-click="openManualScanner">
+          <i class="fa fa-2x fa-barcode"/>
+        </button>
+        <div class="s_nav-link" t-on-click="toggleMenu">
+          <i class="fa fa-bars"/>
         </div>
-        <KeyPad t-if="state.showKeypad" 
+      </nav>
+    </nav>
+
+    <!-- ===================================================== -->
+    <!-- SIDE-MENU -->
+    <!-- ===================================================== -->
+    <div t-if="state.menuVisible" class="menu-overlay" t-on-click="toggleMenu"/>
+    <div t-if="state.menuVisible" class="menu">
+      <div class="menu-header">
+        <span class="close-icon" t-on-click="toggleMenu">
+          <i class="fa fa-times"/>
+        </span>
+      </div>
+
+      <div class="menu-items">
+        <button t-if="state.detailMoveLine.picking_type_code == 'internal'" 
+                t-on-click="() => this.openSelector(1)">Split Package</button>
+
+        <button t-if="state.detailMoveLine.picking_type_code == 'incoming'" 
+                t-on-click="() => this.openSelector(8)">Bulk Pack</button>
+
+        <button t-if="state.detailMoveLine.product_tracking == 'serial'"   
+                t-on-click="() => this.openSelector(9)">Receive by Serial</button>
+
+        <button t-on-click="() => this.openCamera()" >Open AI Camera</button>
+
+        <button t-if="state.order_state != 'done' &amp;&amp; state.order_state != 'cancel'"
+                t-on-click="unReserve" >Unreserve</button>
+
+        <button t-if="state.order_state != 'done' &amp;&amp; state.order_state != 'cancel'" 
+                t-on-click="cancelOrder">Cancel Transfer</button>
+      </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- SEARCH BOX -->
+    <!-- ===================================================== -->
+    <div t-if="state.search" class="s_search-box">
+      <input class="s_search-input"
+             t-on-input="handleInput"
+             t-att-value="state.searchInput"
+             placeholder="Search…"/>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- MAIN CONTENT -->
+    <!-- ===================================================== -->
+    <div class="s_app_contents">
+
+      <!-- TABS (Move view) -->
+      <div t-if="state.view === 'Move'">
+        <div class="s_tabs">
+
+          <div t-attf-class="s_menutab #{ state.activeTab === 'OrderOverview' ? 'active' : '' }"
+               t-on-click="() => this.changeTab('OrderOverview')">Order Overview</div>
+
+          <div t-attf-class="s_menutab #{ state.activeTab === 'OrderDetail' ? 'active' : '' }"
+               t-on-click="() => this.changeTab('OrderDetail')" >Products</div>
+
+          <div t-attf-class="s_menutab #{ state.activeTab === 'Packages' ? 'active' : '' }"
+               t-on-click="() => this.changeTab('Packages')">Packages</div>
+
+        </div>
+      </div>
+
+      <!-- DETAIL HEADER (Move_line view) -->
+      <t t-if="state.view === 'Move_line'">
+        <div class="s_detailEdit">
+			<!-- <div name="product" class="s_moveline_counter">
+				<i class="fa fa-fw fa-list-ul"></i>
+				
+			</div> -->
+			<div name="product"><i class="fa fa-fw fa-tags"></i><span class="product-label"><t t-out="state.detailMoveLine.product_name"/></span></div>
+			<div class="s_element">
+				<div name="quantity" class="s_left">
+					<i class="fa fa-fw fa-cube"></i>
+					<span >
+						<t t-out="state.detailMoveLine.quantity"/>/ <t t-out="state.detailMoveLine.quantity_done"/>/ <t t-out="state.detailMoveLine.product_uom_qty"/>
+					</span>
+					<span style="margin:0px 5px "> <t t-out="state.detailMoveLine.product_uom"/></span> 
+					<span style="margin:0px 5px "> (<span><strong t-esc="state.scanned_lines"/>/<strong t-esc="state.total_lines"/></span> Lines)</span> 
+				</div>
+				<div class="s_right">
+					<button class="s_detail-button" t-if="state.detailMoveLine.quantity_need" t-on-click="updateQuantity"><t t-esc="state.detailMoveLine.quantity_need"/></button>
+					<button class="s_detail-icon" t-on-click="editQuantity"><i class="fa fa-2x fa-pencil" aria-hidden="true"></i></button>
+					<button class="s_detail-icon" t-on-click="() => this.focusClick(1)"><span t-attf-class="{{focusClass(1)}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span></button>                           
+				</div>
+			</div>
+			<t t-if="state.detailMoveLine.product_tracking !== ''">
+				<div class="s_element">
+					<div name="lot" class="s_left">
+						<i class="fa fa-fw fa-barcode"></i>
+						<span class="o_line_lot_name" t-out="state.detailMoveLine.lot_name">
+						</span>
+					</div>
+					<div class="s_right">
+						<button class="s_detail-icon" t-on-click="() => this.openSelector(2)"><i class="fa fa-2x fa-pencil" aria-hidden="true"></i></button>
+						<button class="s_detail-icon" t-on-click="() => this.focusClick(2)"><span t-attf-class="{{focusClass(2)}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span></button>
+					</div>
+				</div>
+			</t>
+			<t t-if="state.detailMoveLine.picking_type_code !== 'incoming'">
+				<div class="s_element">
+					<div name="source_location" class="s_left">
+						<i class="fa fa-fw fa-sign-out"></i>
+						<span class="o_line_lot_name" t-out="state.detailMoveLine.location_name"></span>
+					</div>
+					
+					<div class="s_right">
+						<button class="s_detail-icon" t-on-click="() => this.openSelector(3)"><i class="fa fa-2x fa-pencil" aria-hidden="true"></i></button>
+						<button class="s_detail-icon" t-on-click="() => this.focusClick(3)"><span t-attf-class="{{focusClass(3)}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span></button>
+					</div>
+				</div>                      
+			</t>
+			<t t-if="state.detailMoveLine.picking_type_code !== 'outgoing'">
+				<div class="s_element">
+					<div name="destination_location" class="s_left">
+						<i class="fa fa-fw fa-sign-in"></i>
+						<span class="o_line_lot_name" t-out="state.detailMoveLine.location_dest_name"></span>
+					</div>
+					<div class="s_right">
+						<button class="s_detail-icon" t-on-click="() => this.openSelector(4)"><i class="fa fa-2x fa-pencil" aria-hidden="true"></i></button>
+						<button class="s_detail-icon" t-on-click="() => this.focusClick(4)"><span t-attf-class="{{focusClass(4)}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span></button>
+					</div>
+				</div>                       
+			</t>
+			<t t-if="state.detailMoveLine.package and state.detailMoveLine.picking_type_code !== 'incoming'">
+				<div class="s_element">
+					<div name="package" class="s_left">
+						<i class="fa fa-archive"></i><i class="fa fa-arrow-right"></i>
+						<span class="o_line_lot_name" t-out="state.detailMoveLine.package_name"></span>
+					</div>
+					<div class="s_right">
+						<button class="s_detail-icon" t-on-click="clearPackage" t-if="state.detailMoveLine.package_id"><i class="fa fa-minus-circle" aria-hidden="true"></i></button>
+						<button class="s_detail-icon" t-on-click="() => this.openSelector(5)"><i class="fa fa-2x fa-pencil" aria-hidden="true"></i></button>
+						<button class="s_detail-icon" t-on-click="() => this.focusClick(5)"><span t-attf-class="{{focusClass(5)}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span></button>
+					</div>
+				</div>                       
+			</t>
+			<t t-if="state.detailMoveLine.package and state.detailMoveLine.picking_type_code !== 'outgoing'">
+				<div class="s_element">
+					<div name="result_package" class="s_left">
+						<i class="fa fa-archive"></i><i class="fa fa-arrow-left"></i>
+						<span class="o_line_lot_name" t-out="state.detailMoveLine.result_package_name"></span>
+					</div>
+					<div class="s_right">
+						<button class="s_detail-icon" t-on-click="clearResultPackage" t-if="state.detailMoveLine.result_package_id"><i class="fa fa-minus-circle" aria-hidden="true"></i></button>
+						<button class="s_detail-icon" t-on-click="() => this.createPack()"  t-if="state.showSave &amp;&amp; !state.detailMoveLine.result_package_id"><i class="fa fa-plus-circle" aria-hidden="true"></i></button>
+						<button class="s_detail-icon" t-on-click="() => this.openSelector(6)"><i class="fa fa-2x fa-pencil" aria-hidden="true"></i></button>
+						<button class="s_detail-icon" t-on-click="() => this.focusClick(6)"><span t-attf-class="{{focusClass(6)}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span></button>
+					</div>
+				</div>                      
+			</t>
+		</div>
+      </t>
+
+      <!--LIST / INFO PANELS -->
+      <div class="s_content-area">
+
+        <!-- ====== MOVES LIST ====== -->
+        <t t-if="state.view === 'Move'">
+
+          <!-- Tab “Products” -->
+          <div t-if="state.activeTab === 'OrderDetail'">
+            <t t-foreach="state.moves" t-as="move" t-key="move.id">
+				<div  t-on-click="() => this.select(move.id)" t-att-data-id="move.id" t-attf-class="{{moveClass(move)}}">
+					<div >
+						<div class="o_barcode_line_title" t-if="batch_id">
+							<i class="fa fa-fw fa-tags"></i><span class="o_barcode_product_ref h5 fw-bold"><t t-out="move.picking_name"/></span>
+						</div>
+						<div class="o_barcode_line_title">
+							<i class="fa fa-fw fa-tags"></i><span class="o_barcode_product_ref h5 fw-bold"><t t-out="move.product_name"/></span>
+						</div>
+						<div name="quantity"><i class="fa fa-fw fa-cube"></i><span
+								class="o_barcode_scanner_qty font-monospace badge"><span
+									class="qty-done d-inline-block text-start"><t t-out="move.quantity"/></span><span>/ <t t-out="move.product_uom_qty"/></span></span>
+									<span 
+									class="o_line_uom"><t t-out="move.product_uom"/></span>
+						</div>
+					
+					</div>
+					<div class="s_right">
+						
+						<button class="s_line-icon" t-on-click="() => this.editMove(move.id)">
+							<i class="fa fa-2x fa-pencil"></i>
+						</button>
+						<button class="s_line-icon" t-on-click="() => this.deleteMove(move.id)">
+							<i class="fa fa-trash" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+            </t>
+          </div>
+
+          <!-- Tab “Order Overview” -->
+          <div t-if="state.activeTab === 'OrderOverview'">
+            <div class="s_order_overview">
+              <div class="s_order_info">
+
+                <div class="s_order_info_item">
+                  <span class="s_info_label">Picking:</span>
+                  <span class="s_info_value" t-out="state.data.name or '-'"/>
+                </div>
+				<div class="s_order_info_item">
+					<span class="s_info_label">Origin:</span>
+					<span class="s_info_value" t-out="state.data.origin or '-'"/>
+					</div>
+
+				<div class="s_order_info_item">
+					<span class="s_info_label">Planned Date:</span>
+					<!-- Nếu đã có hàm format trong component, dùng: this.formatLocalDatetime(...).
+						Nếu chưa, tạm hiển thị raw hoặc bạn thêm helper như gợi ý bên dưới. -->
+					<span class="s_info_value" t-out="(state.data.scheduled_date_str or state.data.scheduled_date) or '-'"/>
+				</div>
+
+                <div class="s_order_info_item">
+                  <span class="s_info_label" >Status:</span>
+                  <span class="s_info_value" t-out="state.data.state_name or '-'"/>
+                </div>
+
+                <div class="s_order_info_item">
+                  <span class="s_info_label" >Partner:</span>
+                  <span class="s_info_value" t-out="state.data.partner_name or '-'"/>
+                </div>
+
+                <div class="s_order_info_item">
+                  <span class="s_info_label" >Responsible:</span>
+                  <span class="s_info_value" t-out="state.data.user_name or '-'"/>
+                </div>
+
+                <div class="s_order_info_item">
+                  <span class="s_info_label" >Source Location:</span>
+                  <span class="s_info_value" t-out="state.data.location_name or '-'"/>
+                </div>
+
+                <div class="s_order_info_item">
+                  <span class="s_info_label">Destination Location:</span>
+                  <span class="s_info_value" t-out="state.data.location_dest_name or '-'"/>
+                </div>
+
+              </div>
+			  <div style="text-align: center; margin-top: 20px;">
+					<button class="s_primary-button" t-on-click="() => this.showDialogModal('Chỉnh sửa đơn', 'edit_picking_overview')">Edit Order</button>
+				</div>
+
+            </div>
+          </div>
+
+          <!-- Tab “Packages”-->
+			<div t-if="state.activeTab === 'Packages'">
+				<div>
+					<Packages t-props="{
+					data:state.data,
+					updateData:(data) => this.updateData(data),
+					showModal:(modal,data) => this.showModal(modal,data)
+					}" />
+				   
+					<t t-if="state.modal == 'editPackage'">
+						<EditPackage t-props="{
+							packageInfo:state.packageInfo,
+							unpacked_move_lines:state.unpacked_move_lines,
+							closeModal: (modal,data) => this.closeModal(modal,data),
+						}" />
+					</t>
+
+				   
+					<t t-if="state.modal == 'createPackages'">
+						<CreatePackages t-props="{
+							orderInfo:state.data.order,
+							unpacked_products:state.data.unpacked_moves,
+							closeModal: (modal,data) => this.closeModal(modal,data),
+						}" />
+					</t>
+				</div>
+			</div> 
+
+        </t>
+
+        <!-- ====== MOVE-LINES LIST ====== -->
+        <t t-if="state.view === 'Move_line'">                      
+			<t t-foreach="state.lines" t-as="line" t-key="line.id">
+				<div  t-on-click="() => this.select(line.id)" t-att-data-id="line.id" t-attf-class="{{lineClass(line)}}">
+					<div class="s_move_line_left">                    
+						<!-- <div>
+							<i class="fa fa-fw fa-tags"></i>
+							<span class="product-label"><t t-out="line.product_name"/></span>
+						</div> -->
+						<div name="quantity">
+							<i class="fa fa-fw fa-cube"></i>
+							<span style="padding: 0px 10px;color:red;"><t t-out="line.quantity"/></span>
+							<span class=""><t t-out="line.product_uom"/></span>
+						</div>
+						<div name="lot" t-if="line.lot_name">
+							<i class="fa fa-fw fa-barcode"></i>
+							<span class="" t-out="line.lot_name"></span>
+							<t t-if="line.expiration_date">(<span class="" t-out="line.expiration_date"/>)</t>
+						</div>
+						<div name="source_location" t-if="line.location_id">
+							<i class="fa fa-fw fa-sign-out"></i>
+							<span class="fst-italic text-muted"><t t-out="line.location_name"/></span>
+						</div>
+						<div name="destination_location" t-if="line.location_dest_id">
+							<i class="fa fa-fw fa-sign-in"></i>
+							<span class="fst-italic text-muted"><t t-out="line.location_dest_name"/></span>
+						</div>
+						<div name="package" t-if="line.package_id">
+							<i class="fa fa-fw fa-archive"></i>
+							<i class="fa fa-long-arrow-right mx-1"></i>
+							<span class="package"><t t-out="line.package_name"/></span>
+						</div>
+						<div name="result_package" t-if="line.result_package_id">
+							<i class="fa fa-fw fa-archive"></i>
+							<i class="fa fa-long-arrow-left mx-1"></i>
+							<span class="package"><t t-out="line.result_package_name"/></span>
+						</div>
+					</div>
+					<div class="s_right">
+		
+						<button class="s_line-icon" t-on-click="() => this.editLine(line.id)">
+							<i class="fa fa-2x fa-pencil"></i>
+						</button>
+						<span>
+							<button class="s_line-icon" t-on-click="() => this.linePrint(line.id)">
+								<i class="fa fa-print" aria-hidden="true"></i>
+							</button>
+						</span>
+						<span>
+							<button class="s_line-icon" t-on-click="() => this.deleteMoveLine(line.id)">
+								<i class="fa fa-trash" aria-hidden="true"></i>
+							</button>
+						</span>
+					</div>
+				</div>
+			</t>                       
+		</t>
+
+      </div> <!-- /s_content-area -->
+    </div>   <!-- /s_app_contents -->
+
+    <!-- ===================================================== -->
+    <!-- FOOTER ACTIONS -->
+    <!-- ===================================================== -->
+    <footer t-attf-class="{{ footerClass() }}">
+      <div t-if="state.finished" class="s_finished_message">
+        <t t-esc="state.finished_message"/>
+      </div>
+
+      <button t-if="state.showNewProduct"
+              class="s_primary-button"
+              t-on-click="newProduct" >Add Product</button>
+
+      <button t-if="state.showSave" 
+              class="s_primary-button"
+              t-on-click="save">Save</button>
+
+      <button t-if="state.showSave" 
+              class="s_primary-button"
+              t-on-click="cancel">Cancel</button>
+
+      <button t-if="state.showValidate" 
+              class="s_primary-button"
+              t-on-click="actionDone">Validate</button>
+
+      <button t-if="state.showPackMulti" 
+              class="s_primary-button"
+              t-on-click="() => this.showModal('createPackages', false)">Bulk Pack</button>
+    </footer>
+
+  </div> <!-- /s_wrapper -->
+
+  <!-- ========================================================= -->
+  <!-- POPUPS & SUB-COMPONENTS -->
+  <!-- ========================================================= -->
+  <KeyPad   t-if="state.showKeypad"
+            t-props="{ detailMoveLine: state.detailMoveLine, keyClick: keyClick }"/>
+
+  <CameraAI t-if="state.cameraActive"
+            t-props="{ prompt: state.prompt, onResult: () => this.closeCamera(), expectedItems: this.buildExpectedList()}"/>
+
+  <Selector t-if="state.showSelector"
             t-props="{
-                detailMoveLine:state.detailMoveLine,
-                keyClick:keyClick
-        }"/>
-        <CameraAI t-if="state.cameraActive" 
-            t-props="{
-                prompt:state.prompt,
-                onResult:() => this.closeCamera()
-        }"/>
-        <Selector t-if="state.showSelector" 
-            t-props="{
-                records:records,
-                multiSelect:multiSelect,
-                closeSelector:(data) => this.closeSelector(data),
-                title:selectorTitle,move:move,
-                isSelector:state.isSelector,
-                lots:state.data.lots
-        }"/>
-    </t>
+              records: records,
+              multiSelect: multiSelect,
+              closeSelector: (data) => this.closeSelector(data),
+              title: selectorTitle,
+			  function: selectorFunction,
+              move: move,
+              isSelector: state.isSelector,
+              lots: state.data.lots
+            }"/>
+   
+	<DialogModal t-if="state.showDialogModal"
+		 t-props="{
+			title:state.dialogTitle,
+			action:state.dialogAction,
+			records:state.dialogRecords,
+			fields:state.dialogFields,
+			defaultValues:state.dialogDefault,
+			closeModal:this.closeDialogModal.bind(this),
+		}"/>
+
+       
+</t>
+
 </templates>

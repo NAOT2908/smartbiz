@@ -218,28 +218,39 @@ export class DialogModal extends Component {
     if (field.type === "select") {
       return val === null || val === undefined ? "" : String(val);
     }
+    if (field.type === "boolean") {
+      return Boolean(val);
+    }
     return val ?? "";
   }
   _onInput(name, ev) {
     let val = ev.target.value;
-    if (
-      (ev.target.type === "datetime-local" || ev.target.type === "date") &&
-      val
-    ) {
-      const fmt =
-        ev.target.type === "date" ? "yyyy-LL-dd" : "yyyy-LL-dd'T'HH:mm";
 
-      val = DateTime.fromFormat(val, fmt, { zone: this.tz })
+    if (ev.target.type === "datetime-local" && val) {
+      // xử lý datetime-local -> UTC
+      val = DateTime.fromFormat(val, "yyyy-LL-dd'T'HH:mm", { zone: this.tz })
         .toUTC()
         .toFormat("yyyy-LL-dd HH:mm:ss");
+
+    } else if (ev.target.type === "date" && val) {
+      // giữ nguyên dạng ngày (không trừ giờ)
+      val = DateTime.fromFormat(val, "yyyy-LL-dd", { zone: this.tz })
+        .toFormat("yyyy-LL-dd 00:00:00");
+
     } else if (ev.target.type === "number" && val !== "") {
       val = Number(val);
+
     } else if (ev.target.tagName === "SELECT" && /^\d+$/.test(val)) {
       val = Number(val);
+
+    } else if (ev.target.type === "checkbox") {
+      val = ev.target.checked;
     }
+
     this.state.form[name] = val;
     this._onAfterInput(name);
   }
+
     /* ========================= ẨN / HIỆN ========================== */
     isFieldVisible(f) {
         // Không cấu hình -> luôn hiển thị
@@ -265,56 +276,50 @@ export class DialogModal extends Component {
         return (this.props.fields || []).filter((f) => this.isFieldVisible(f));
     }
 
-      _onAfterInput(changedField) {
-    const form = this.state.form;
+  _onAfterInput(changedField) {
+  const form = this.state.form;
 
-    // Tính duration (chỉ khi đang ở màn overtime)
-    if (
-      "start_date" in form &&
-      "end_date" in form &&
-      form.start_date &&
-      form.end_date
-    ) {
-      const start = DateTime.fromFormat(
-        form.start_date,
-        "yyyy-LL-dd HH:mm:ss",
-        { zone: "utc" }
-      );
-      const end = DateTime.fromFormat(form.end_date, "yyyy-LL-dd HH:mm:ss", {
-        zone: "utc",
-      });
-      const duration = end.diff(start, "hours").hours;
+  // Tính duration
+  if (form.start_date && form.end_date) {
+    const start = DateTime.fromFormat(
+      form.start_date,
+      "yyyy-LL-dd HH:mm:ss",
+      { zone: "Asia/Ho_Chi_Minh" }   // đổi UTC -> local
+    );
+    const end = DateTime.fromFormat(
+      form.end_date,
+      "yyyy-LL-dd HH:mm:ss",
+      { zone: "Asia/Ho_Chi_Minh" }   // đổi UTC -> local
+    );
+    const duration = end.diff(start, "hours").hours;
 
-      // chỉ update nếu hợp lệ
-      if (!isNaN(duration) && duration >= 0) {
-        form.duration = Math.round(duration * 100) / 100;
-      } else {
-        form.duration = 0;
-      }
-    }
-
-    // Tính number_of_days (chỉ khi ở leave_data)
-    if (
-      "date_from" in form &&
-      "date_to" in form &&
-      form.date_from &&
-      form.date_to
-    ) {
-      const from = DateTime.fromFormat(form.date_from, "yyyy-LL-dd HH:mm:ss", {
-        zone: "utc",
-      });
-      const to = DateTime.fromFormat(form.date_to, "yyyy-LL-dd HH:mm:ss", {
-        zone: "utc",
-      });
-
-      const days = to.diff(from, "days").days;
-      if (!isNaN(days) && days >= 0) {
-        form.number_of_days = Math.round((days + 1) * 100) / 100; // +1 nếu tính cả 2 ngày
-      } else {
-        form.number_of_days = 0;
-      }
-    }
+    form.duration = (!isNaN(duration) && duration >= 0)
+      ? Math.round(duration * 100) / 100
+      : 0;
   }
+
+  // Tính number_of_days
+  if (form.date_from && form.date_to) {
+    const from = DateTime.fromFormat(
+      form.date_from,
+      "yyyy-LL-dd HH:mm:ss",
+      { zone: "Asia/Ho_Chi_Minh" }   // đổi UTC -> local
+    ).startOf("day");
+
+    const to = DateTime.fromFormat(
+      form.date_to,
+      "yyyy-LL-dd HH:mm:ss",
+      { zone: "Asia/Ho_Chi_Minh" }   // đổi UTC -> local
+    ).startOf("day");
+
+    const diffDays = to.diff(from, "days").days;
+    form.number_of_days = (isFinite(diffDays) && diffDays >= 0)
+      ? diffDays + 1
+      : 0;
+  }
+}
+
+
   /* ====================================================================== */
   /*  Confirm / Cancel  */
   /* ====================================================================== */

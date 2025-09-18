@@ -320,7 +320,7 @@ export class Packages extends Component {
       [, this.production_id,data.id],
       {}
     );
-    this.updateData(values)
+    // this.updateData(values)
   }
 
   async deletePackage(data) {

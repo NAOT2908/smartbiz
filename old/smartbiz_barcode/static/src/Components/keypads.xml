@@ -1,5 +1,5 @@
 <templates xml:space="preserve">
-    <t t-name="smartbiz_barcode.keypadss">
+    <t t-name="smartbiz_barcode.keypads">
         <div class="s_modal s_show_modal">
             <div class="s_modal_content">
                 <div>

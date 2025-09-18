@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+## type: ignore
 
-from odoo.osv import expression
+
+from odoo.osv import expression 
 from odoo import models, fields, api, exceptions,_, tools
 import os
 import base64,pytz,logging

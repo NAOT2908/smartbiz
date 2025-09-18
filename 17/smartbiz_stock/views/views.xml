@@ -47,6 +47,34 @@
       </field>
     </record>
 
+    <record model="ir.ui.view" id="stock_picking_type_form">
+      <field name="name">stock_picking_type_form</field>
+      <field name="model">stock.picking.type</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_picking_type_form" />
+      <field name="arch" type="xml">
+
+     <xpath expr="//notebook" position="inside">
+            <page string="Barcode App Policy">
+            <group string="Mandatory Scan">
+                   <field name="scan_product"/>
+                   <field name="scan_source_location"/>
+                   <field name="scan_destination_location"/>
+                   <field name="scan_lot"/>
+                   <field name="scan_package"/>
+            </group>
+            <group string="Package Policy">
+                   <field name="get_full_package"/>
+            </group>
+            <group string="Validate Policy">
+                   <field name="all_move_done"/>
+                   <field name="all_move_line_picked"/>
+            </group>
+            </page>
+           </xpath>
+      </field>
+    </record>
+
     <record model="ir.ui.view" id="product_category_form">
       <field name="name">product_category_form</field>
       <field name="model">product.category</field>
@@ -437,6 +465,7 @@
         <form string="Form Move Line Report">
       <sheet>
           <group col="1">
+                   <field name="create_date"/>
                    <field name="product_id"/>
                    <field name="product_uom_id"/>
                    <field name="quantity"/>
@@ -449,7 +478,7 @@
                    <field name="picking_type_id"/>
                    <field name="picking_id"/>
                    <field name="move_id"/>
-                   <field name="reference"/>
+                   <field name="partner_id"/>
                    <field name="state" widget="badge"/>
           </group>
       </sheet>
@@ -550,8 +579,9 @@
       <field name="priority" eval="6"/>
       <field name="arch" type="xml">
         <form string="Form Inventory Line">
-            <xpath expr="//header" position ="inside">
-            </xpath>
+            <header>
+                <field name="state" widget="statusbar" />
+            </header>
       <sheet>
             <group>
             <group>
@@ -722,6 +752,18 @@
     </record>
 
 <!-- Trees -->
+
+    <record model="ir.ui.view" id="stock_picking_type_tree">
+      <field name="name">stock_picking_type_tree</field>
+      <field name="model">stock.picking.type</field>
+      <field name="inherit_id" ref="stock.view_picking_type_tree" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='warehouse_id']" position="after">
+           </xpath>
+      </field>
+    </record>
 
     <record model="ir.ui.view" id="smartbiz_stock_stock_report_tree">
       <field name="name">smartbiz_stock_stock_report_tree</field>
@@ -918,6 +960,7 @@
       <field name="priority" eval="7"/>
       <field name="arch" type="xml">
         <tree string="Tree Move Line Report" >
+            <field name="create_date" optional="show"/>
             <field name="product_id" optional="show"/>
             <field name="product_uom_id" optional="show"/>
             <field name="quantity" optional="show"/>
@@ -930,7 +973,7 @@
             <field name="picking_type_id" optional="show"/>
             <field name="picking_id" optional="show"/>
             <field name="move_id" optional="show"/>
-            <field name="reference" optional="show"/>
+            <field name="partner_id" optional="show"/>
             <field name="state" widget="badge" optional="show"/>
         </tree>
       </field>
@@ -980,6 +1023,7 @@
       <field name="priority" eval="7"/>
       <field name="arch" type="xml">
         <tree string="Tree Inventory Line" >
+            <field name="state" />
             <field name="inventory_id" optional="hire"/>
             <field name="product_id" optional="show"/>
             <field name="lot_id" optional="show"/>
@@ -1176,6 +1220,18 @@
 <!-- Gantt -->
 
 <!-- Search -->
+
+    <record model="ir.ui.view" id="stock_picking_type_search">
+      <field name="name">stock_picking_type_search</field>
+      <field name="model">stock.picking.type</field>
+      <field name="priority">2</field>
+      <field name="inherit_id" ref="stock.view_pickingtype_filter" />
+      <field name="arch" type="xml">
+
+     <xpath expr="//field[@name='warehouse_id']" position="after">
+        </xpath>
+      </field>
+    </record>
 
     <record model="ir.ui.view" id="smartbiz_stock_onhand_report_search">
       <field name="name">smartbiz_stock_onhand_report_search</field>

@@ -2,6 +2,105 @@
 
 <!-- Forms -->
 
+    <record model="ir.ui.view" id="product_template_form">
+      <field name="name">product_template_form</field>
+      <field name="model">product.template</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_template_property_form" />
+      <field name="arch" type="xml">
+
+            <field name="categ_id" position="after">
+                <field
+                    name="allow_negative_stock"
+                    invisible = "type == 'product'"
+                   
+                />
+            </field>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_move_form">
+      <field name="name">stock_picking_form</field>
+      <field name="model">stock.picking</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_picking_form" />
+      <field name="arch" type="xml">
+                      
+            <xpath expr="//page[@name='operations']/field[@name='move_ids_without_package']/tree/field[@name='product_packaging_id']" position="after">           
+                <field  name="lots" domain="[('product_id','=', product_id),('product_qty','>', 0)]" context="{'default_product_id': product_id}" widget="many2many_tags" />
+            </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_warehouse_form">
+      <field name="name">stock_warehouse_form</field>
+      <field name="model">stock.warehouse</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_warehouse" />
+      <field name="arch" type="xml">
+           
+                <xpath expr="//page[@name='warehouse_config']" position="inside">
+                    <group>
+                        <field name="customize_reception"/>
+                    </group>
+                </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_category_form">
+      <field name="name">product_category_form</field>
+      <field name="model">product.category</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.product_category_form_view_inherit" />
+      <field name="arch" type="xml">
+
+            <field name="removal_strategy_id" position="after">
+                <field name="allow_negative_stock" />
+            </field>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_location_form">
+      <field name="name">stock_location_form</field>
+      <field name="model">stock.location</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_location_form" />
+      <field name="arch" type="xml">
+           
+                <xpath expr="//field[@name='comment']" position="before">
+                    <group string="Năng lực lưu trữ">
+                        <field name="capacity"/>
+                        <field name="capacity_type"/>
+                     
+                    </group>
+                </xpath>
+
+            <field name="usage" position="after">
+                <field
+                    name="allow_negative_stock"
+                    invisible = "usage not in ['internal', 'transit']"
+                    
+                />
+            </field>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="stock_picking_form">
+      <field name="name">stock_picking_form</field>
+      <field name="model">stock.picking</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="stock.view_picking_form" />
+      <field name="arch" type="xml">
+
+       <xpath expr="//field[@name='origin']" position="after">
+            <field name="warehouse_id" invisible="1"/>
+            <field name='picking_order_ids' widget="many2many_tags" domain="[('warehouse_id', '=',warehouse_id),('picking_type_id.code', '=','internal'),('state', '=','assigned')]"/>
+       <field name='transfer_request_id' />
+       <field name='lot' />
+ </xpath>
+      </field>
+    </record>
+
     <record model="ir.ui.view" id="smartbiz_stock_stock_report_form">
       <field name="name">smartbiz_stock_stock_report_form</field>
       <field name="model">smartbiz_stock.stock_report</field>
@@ -10,6 +109,7 @@
         <form string="Form Stock Report">
             <header>
                 <button name="action_not_viewed_view_report" string="View Report" type = "object" class="oe_highlight" invisible="bool(state) == False"/>
+                <button name="action_not_viewed_view_dynamic_report" string="View Dynamic Report" type = "object"  invisible="bool(state) == False"/>
                 <field name="state" widget="statusbar" />
             </header>
       <sheet>
@@ -17,6 +117,8 @@
                    <field name="from_date"/>
                    <field name="to_date"/>
                    <field name="name" invisible="1"/>
+                   <field name="dynamic_template_id"/>
+                   <field name="picking_group_template_id"/>
           </group>
       </sheet>
       <div class="oe_chatter">
@@ -90,7 +192,7 @@
                    <field name="name"/>
             </group>
             <notebook>
-            <page string="Detail">
+            <page string="Detail Rules">
                    <field name="transfer_request_type_detail_ids"/>
             </page>
             </notebook>
@@ -106,10 +208,133 @@
       <field name="arch" type="xml">
         <form string="Form Transfer Request Type Detail">
       <sheet>
-          <group col="1">
+            <group>
+            <group>
                    <field name="sequence" widget="t_handle"/>
+                   <field name="transfer_request_type_id"/>
                    <field name="picking_type_id"/>
-          </group>
+            </group>
+            <group>
+                   <field name="split_when_not_enough"/>
+                   <field name="fallback_picking_type_id"/>
+            </group>
+            </group>
+            <group>
+            <group>
+                   <field name="product_id"/>
+                   <field name="product_category_id"/>
+                   <field name="name_contains"/>
+            </group>
+            <group>
+                   <field name="min_onhand"/>
+                   <field name="max_onhand"/>
+                   <field name="python_condition"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_dynamic_report_template_form">
+      <field name="name">smartbiz_stock_dynamic_report_template_form</field>
+      <field name="model">smartbiz_stock.dynamic_report_template</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Dynamic Report Template">
+            <header>
+                <button name="action_active_rebuild_reports" string="Rebuild Reports" type = "object" class="oe_highlight" invisible="state != 'active'"/>
+                <button name="action_active_deactive" string="Deactive" type = "object"  invisible="state != 'active'"/>
+                <button name="action_inactive_active" string="Active" type = "object"  invisible="state != 'inactive'"/>
+                <field name="state" widget="statusbar" />
+            </header>
+      <sheet>
+            <group>
+                   <field name="name"/>
+            </group>
+            <notebook>
+            <page string="Lines">
+                   <field name="alias_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_dynamic_report_alias_form">
+      <field name="name">smartbiz_stock_dynamic_report_alias_form</field>
+      <field name="model">smartbiz_stock.dynamic_report_alias</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Dynamic Report Alias">
+            <header>
+                <button name="action_active_deactive" string="Deactive" type = "object"  invisible="state != 'active'"/>
+                <button name="action_inactive_active" string="Active" type = "object"  invisible="state != 'inactive'"/>
+                <field name="state" widget="statusbar" />
+            </header>
+      <sheet>
+            <group>
+            <group>
+                   <field name="name"/>
+                   <field name="report_model"/>
+                   <field name="alias"/>
+            </group>
+            <group>
+                   <field name="separator"/>
+                   <field name="regex_pattern"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Lines">
+                   <field name="lines_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_dynamic_report_alias_line_form">
+      <field name="name">smartbiz_stock_dynamic_report_alias_line_form</field>
+      <field name="model">smartbiz_stock.dynamic_report_alias_line</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Dynamic Report Alias Line">
+      <sheet>
+            <group>
+            <group>
+                   <field name="alias_id"/>
+                   <field name="sequence"/>
+            </group>
+            <group>
+                   <field name="field_name"/>
+                   <field name="field_label"/>
+                   <field name="field_type"/>
+            </group>
+            </group>
+            <group>
+            <group>
+                   <field name="segment_index" invisible="bool(is_computed) == True"/>
+            </group>
+            <group>
+                   <field name="regex_group" invisible="bool(is_computed) == True"/>
+            </group>
+            </group>
+            <group>
+                   <field name="is_computed"/>
+                   <field name="compute_expression" invisible="bool(is_computed) == False"/>
+            </group>
       </sheet>
         </form>
       </field>
@@ -204,6 +429,298 @@
       </field>
     </record>
 
+    <record model="ir.ui.view" id="smartbiz_stock_move_line_report_form">
+      <field name="name">smartbiz_stock_move_line_report_form</field>
+      <field name="model">smartbiz_stock.move_line_report</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Move Line Report">
+      <sheet>
+          <group col="1">
+                   <field name="product_id"/>
+                   <field name="product_uom_id"/>
+                   <field name="quantity"/>
+                   <field name="date"/>
+                   <field name="lot_id"/>
+                   <field name="package_id"/>
+                   <field name="result_package_id"/>
+                   <field name="location_id"/>
+                   <field name="location_dest_id"/>
+                   <field name="picking_type_id"/>
+                   <field name="picking_id"/>
+                   <field name="move_id"/>
+                   <field name="reference"/>
+                   <field name="state" widget="badge"/>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_inventory_period_form">
+      <field name="name">smartbiz_stock_inventory_period_form</field>
+      <field name="model">smartbiz_stock.inventory_period</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Inventory Period">
+      <sheet>
+            <group>
+            <group>
+                   <field name="name"/>
+                   <field name="date_start"/>
+                   <field name="date_end"/>
+            </group>
+            <group>
+                   <field name="company_id"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Lines">
+                   <field name="inventory_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_inventory_form">
+      <field name="name">smartbiz_stock_inventory_form</field>
+      <field name="model">smartbiz_stock.inventory</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Inventory">
+            <header>
+                <button name="action_draft_start_inventory" string="Start Inventory" type = "object"  invisible="state != 'draft'"/>
+                <button name="action_draft_generate_inventory" string="Generate Inventory" type = "object"  invisible="state != 'draft'"/>
+                <button name="action_draft_select_quant" string="Select Quant" type = "object"  invisible="state != 'draft'"/>
+                <button name="action_in_progress_validate" string="Validate" type = "object" class="oe_highlight" invisible="state != 'in_progress'"/>
+                <button name="action_in_progress_cancel" string="Cancel" type = "object"  invisible="state != 'in_progress'"/>
+                <button name="action_in_progress_back_to_draft" string="Back to Draft" type = "object"  invisible="state != 'in_progress'"/>
+                <field name="state" widget="statusbar" />
+            </header>
+      <sheet>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_count_detail" type="object"  class="oe_stat_button" icon="fa-info"> 
+                        <field string="Count Detail" name="line" widget="statinfo"/>
+                     </button>
+
+                 </div>
+            <group>
+            <group>
+                   <field name="name"/>
+                   <field name="date"/>
+                   <field name="period_id"/>
+                   <field name="set_count" widget ="radio"/>
+            </group>
+            <group>
+                   <field name="user_id" widget="many2one_avatar_user"/>
+                   <field name="company_id"/>
+                   <field name="warehouse_ids" widget="many2many_tags" />
+            </group>
+            </group>
+            <group>
+            <group>
+                   <field name="location_ids" widget="many2many_tags" />
+                   <field name="category_ids" widget="many2many_tags" />
+            </group>
+            <group>
+                   <field name="product_ids" widget="many2many_tags" />
+                   <field name="lot_ids" widget="many2many_tags" />
+            </group>
+            </group>
+            <notebook>
+            <page string="Lines">
+                   <field name="line_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_inventory_line_form">
+      <field name="name">smartbiz_stock_inventory_line_form</field>
+      <field name="model">smartbiz_stock.inventory_line</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Inventory Line">
+            <xpath expr="//header" position ="inside">
+            </xpath>
+      <sheet>
+            <group>
+            <group>
+                   <field name="inventory_id"/>
+                   <field name="product_id"/>
+                   <field name="lot_id"/>
+                   <field name="package_id"/>
+                   <field name="location_id"/>
+            </group>
+            <group>
+                   <field name="company_id"/>
+                   <field name="quantity"/>
+                   <field name="quantity_counted"/>
+                   <field name="difference"/>
+            </group>
+            </group>
+            <group>
+                   <field name="note"/>
+            </group>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_inventory_history_form">
+      <field name="name">smartbiz_stock_inventory_history_form</field>
+      <field name="model">smartbiz_stock.inventory_history</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Inventory History">
+      <sheet>
+            <group>
+            <group>
+                   <field name="inventory_id"/>
+                   <field name="date"/>
+                   <field name="company_id"/>
+            </group>
+            <group>
+                   <field name="product_id"/>
+                   <field name="location_id"/>
+                   <field name="lot_id"/>
+                   <field name="package_id"/>
+            </group>
+            </group>
+            <group>
+            <group>
+                   <field name="note"/>
+            </group>
+            <group>
+                   <field name="quantity"/>
+                   <field name="quantity_after"/>
+                   <field name="difference"/>
+            </group>
+            </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_inventory_validate_wizard_form">
+      <field name="name">smartbiz_stock_inventory_validate_wizard_form</field>
+      <field name="model">smartbiz_stock.inventory_validate_wizard</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Inventory Validate Wizard">
+      <sheet>
+          <group col="1">
+                   <field name="apply_inventory"/>
+                   <field name="has_pending_line" invisible="1"/>
+ <footer>
+                <button name="action_confirm" string="Xác nhận" type="object" class="btn-primary" invisible = "not has_pending_line"/>
+                <button string="Hủy" class="btn-secondary" special="cancel"/>
+            </footer>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_inventory_cancel_wizard_form">
+      <field name="name">smartbiz_stock_inventory_cancel_wizard_form</field>
+      <field name="model">smartbiz_stock.inventory_cancel_wizard</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Inventory Cancel Wizard">
+      <sheet>
+          <group col="1">
+ <footer>
+                <button name="action_confirm" string="Xác nhận" type="object" class="btn-primary"/>
+                <button string="Hủy" class="btn-secondary" special="cancel"/>
+            </footer>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_picking_group_template_form">
+      <field name="name">smartbiz_stock_picking_group_template_form</field>
+      <field name="model">smartbiz_stock.picking_group_template</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Picking Group Template">
+      <sheet>
+            <group>
+                   <field name="name"/>
+            </group>
+            <group>
+            <group>
+                   <field name="calculate_package"/>
+            </group>
+            <group>
+                   <field name="calculate_value"/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Groups">
+                   <field name="picking_group_ids"/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_picking_group_form">
+      <field name="name">smartbiz_stock_picking_group_form</field>
+      <field name="model">smartbiz_stock.picking_group</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Picking Group">
+      <sheet>
+          <group col="1">
+                   <field name="name"/>
+                   <field name="field_name"/>
+                   <field name="move_type"/>
+                   <field name="picking_type_ids"/>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_dynamic_inventory_report_form">
+      <field name="name">smartbiz_stock_dynamic_inventory_report_form</field>
+      <field name="model">smartbiz_stock.dynamic_inventory_report</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Dynamic Inventory Report">
+      <sheet>
+          <group col="1">
+                   <field name="product_id"/>
+                   <field name="warehouse_id"/>
+                   <field name="lot_id"/>
+                   <field name="begin_quantity"/>
+                   <field name="total_in"/>
+                   <field name="total_out"/>
+                   <field name="end_quantity"/>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
 <!-- Trees -->
 
     <record model="ir.ui.view" id="smartbiz_stock_stock_report_tree">
@@ -216,6 +733,8 @@
             <field name="from_date" />
             <field name="to_date" />
             <field name="name" invisible="1"/>
+            <field name="dynamic_template_id" />
+            <field name="picking_group_template_id" />
         </tree>
       </field>
     </record>
@@ -265,8 +784,66 @@
       <field name="priority" eval="7"/>
       <field name="arch" type="xml">
         <tree string="Tree Transfer Request Type Detail" >
-            <field name="sequence" widget="t_handle" />
-            <field name="picking_type_id" />
+            <field name="sequence" widget="t_handle" optional="show"/>
+            <field name="transfer_request_type_id" optional="show"/>
+            <field name="picking_type_id" optional="show"/>
+            <field name="split_when_not_enough" optional="show"/>
+            <field name="fallback_picking_type_id" optional="show"/>
+            <field name="product_id" optional="show"/>
+            <field name="product_category_id" optional="show"/>
+            <field name="name_contains" optional="show"/>
+            <field name="min_onhand" optional="show"/>
+            <field name="max_onhand" optional="show"/>
+            <field name="python_condition" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_dynamic_report_template_tree">
+      <field name="name">smartbiz_stock_dynamic_report_template_tree</field>
+      <field name="model">smartbiz_stock.dynamic_report_template</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Dynamic Report Template" >
+            <field name="state" />
+            <field name="name" optional="show"/>
+            <field name="alias_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_dynamic_report_alias_tree">
+      <field name="name">smartbiz_stock_dynamic_report_alias_tree</field>
+      <field name="model">smartbiz_stock.dynamic_report_alias</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Dynamic Report Alias" >
+            <field name="state" />
+            <field name="name" optional="show"/>
+            <field name="report_model" optional="show"/>
+            <field name="alias" optional="show"/>
+            <field name="separator" optional="show"/>
+            <field name="regex_pattern" optional="show"/>
+            <field name="lines_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_dynamic_report_alias_line_tree">
+      <field name="name">smartbiz_stock_dynamic_report_alias_line_tree</field>
+      <field name="model">smartbiz_stock.dynamic_report_alias_line</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Dynamic Report Alias Line" >
+            <field name="alias_id" invisible="1"/>
+            <field name="sequence" optional="show"/>
+            <field name="field_name" optional="show"/>
+            <field name="field_label" optional="show"/>
+            <field name="field_type" optional="show"/>
+            <field name="segment_index" invisible="bool(is_computed) == True" optional="show"/>
+            <field name="regex_group" invisible="bool(is_computed) == True" optional="show"/>
+            <field name="is_computed" optional="show"/>
+            <field name="compute_expression" invisible="bool(is_computed) == False" optional="show"/>
         </tree>
       </field>
     </record>
@@ -335,9 +912,220 @@
       </field>
     </record>
 
+    <record model="ir.ui.view" id="smartbiz_stock_move_line_report_tree">
+      <field name="name">smartbiz_stock_move_line_report_tree</field>
+      <field name="model">smartbiz_stock.move_line_report</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Move Line Report" >
+            <field name="product_id" optional="show"/>
+            <field name="product_uom_id" optional="show"/>
+            <field name="quantity" optional="show"/>
+            <field name="date" optional="show"/>
+            <field name="lot_id" optional="show"/>
+            <field name="package_id" optional="show"/>
+            <field name="result_package_id" optional="show"/>
+            <field name="location_id" optional="show"/>
+            <field name="location_dest_id" optional="show"/>
+            <field name="picking_type_id" optional="show"/>
+            <field name="picking_id" optional="show"/>
+            <field name="move_id" optional="show"/>
+            <field name="reference" optional="show"/>
+            <field name="state" widget="badge" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_inventory_period_tree">
+      <field name="name">smartbiz_stock_inventory_period_tree</field>
+      <field name="model">smartbiz_stock.inventory_period</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Inventory Period" >
+            <field name="name" optional="show"/>
+            <field name="date_start" optional="show"/>
+            <field name="date_end" optional="show"/>
+            <field name="company_id" optional="show"/>
+            <field name="inventory_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_inventory_tree">
+      <field name="name">smartbiz_stock_inventory_tree</field>
+      <field name="model">smartbiz_stock.inventory</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Inventory" >
+            <field name="state" />
+            <field name="name" optional="show"/>
+            <field name="date" optional="show"/>
+            <field name="period_id" optional="show"/>
+            <field name="set_count" optional="show"/>
+            <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+            <field name="company_id" optional="show"/>
+            <field name="warehouse_ids" widget="many2many_tags"  optional="show"/>
+            <field name="location_ids" widget="many2many_tags"  optional="show"/>
+            <field name="category_ids" widget="many2many_tags"  optional="show"/>
+            <field name="product_ids" widget="many2many_tags"  optional="show"/>
+            <field name="lot_ids" widget="many2many_tags"  optional="show"/>
+            <field name="line_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_inventory_line_tree">
+      <field name="name">smartbiz_stock_inventory_line_tree</field>
+      <field name="model">smartbiz_stock.inventory_line</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Inventory Line" >
+            <field name="inventory_id" optional="hire"/>
+            <field name="product_id" optional="show"/>
+            <field name="lot_id" optional="show"/>
+            <field name="package_id" optional="show"/>
+            <field name="location_id" optional="show"/>
+            <field name="company_id" optional="show"/>
+            <field name="quantity" optional="show"/>
+            <field name="quantity_counted" optional="show"/>
+            <field name="difference" optional="show"/>
+            <field name="note" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_inventory_history_tree">
+      <field name="name">smartbiz_stock_inventory_history_tree</field>
+      <field name="model">smartbiz_stock.inventory_history</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Inventory History" >
+            <field name="inventory_id" optional="show"/>
+            <field name="date" optional="show"/>
+            <field name="company_id" optional="show"/>
+            <field name="product_id" optional="show"/>
+            <field name="location_id" optional="show"/>
+            <field name="lot_id" optional="show"/>
+            <field name="package_id" optional="show"/>
+            <field name="note" optional="show"/>
+            <field name="quantity" optional="show"/>
+            <field name="quantity_after" optional="show"/>
+            <field name="difference" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_inventory_validate_wizard_tree">
+      <field name="name">smartbiz_stock_inventory_validate_wizard_tree</field>
+      <field name="model">smartbiz_stock.inventory_validate_wizard</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Inventory Validate Wizard" >
+            <field name="inventory_id" invisible="1"/>
+            <field name="apply_inventory" invisible="1"/>
+            <field name="has_pending_line" invisible="1"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_picking_group_template_tree">
+      <field name="name">smartbiz_stock_picking_group_template_tree</field>
+      <field name="model">smartbiz_stock.picking_group_template</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Picking Group Template" >
+            <field name="name" optional="show"/>
+            <field name="calculate_package" optional="show"/>
+            <field name="calculate_value" optional="show"/>
+            <field name="picking_group_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_picking_group_tree">
+      <field name="name">smartbiz_stock_picking_group_tree</field>
+      <field name="model">smartbiz_stock.picking_group</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Picking Group" >
+            <field name="name" optional="show"/>
+            <field name="field_name" optional="show"/>
+            <field name="move_type" optional="show"/>
+            <field name="picking_type_ids" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_stock_dynamic_inventory_report_tree">
+      <field name="name">smartbiz_stock_dynamic_inventory_report_tree</field>
+      <field name="model">smartbiz_stock.dynamic_inventory_report</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Dynamic Inventory Report" >
+            <field name="product_id" optional="show"/>
+            <field name="warehouse_id" optional="show"/>
+            <field name="lot_id" optional="show"/>
+            <field name="begin_quantity" optional="show"/>
+            <field name="total_in" optional="show"/>
+            <field name="total_out" optional="show"/>
+            <field name="end_quantity" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
 <!-- calendars -->
 
 <!-- kanbans -->
+
+    <record model="ir.ui.view" id="stock_picking_kanban">
+      <field name="name">stock_picking_kanban</field>
+      <field name="model">stock.picking</field>
+      <field name="arch" type="xml">
+        <kanban string="Picking"   js_class="stock_picking_kanban_barcode" class="o_kanban_mobile" sample="1" default_order="priority desc, scheduled_date desc, id">
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="location_dest_id"/>
+                    <field name="state"/>
+                    <field name="scheduled_date"/>
+                    <field name="activity_state"/>
+                    <field name="picking_type_id"/>
+                    <progressbar field="activity_state" colors='{"planned": "success", "today": "warning", "overdue": "danger"}'/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                                <div class="o_kanban_record_top mb8">
+                                    <field name="priority" widget="priority"/>
+                                    <div class="o_kanban_record_headings ms-1">
+                                        <strong class="o_kanban_record_title"><span><t t-esc="record.name.value"/></span></strong>
+                                    </div>
+                                    <strong>
+                                            <field name="state" widget="label_selection" options="{'classes': {'draft': 'default', 'cancel': 'danger', 'waiting': 'warning', 'confirmed': 'warning', 'done': 'success'}}"/>
+                                    </strong>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <field name="picking_properties" widget="properties"/>
+                                    <strong>
+                                        <field name="origin"/>
+                                        <field name="transfer_request_id"/>
+                                    </strong>
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <t t-esc="record.partner_id.value"/>
+                                        <field name="activity_ids" widget="kanban_activity"/>
+                                        <field name="json_popover" nolabel="1" widget="stock_rescheduling_popover" invisible="not json_popover"/>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <t t-esc="record.scheduled_date.value and record.scheduled_date.value.split(' ')[0] or False"/>
+                                        <field name="user_id" widget="many2one_avatar_user" invisible="not user_id" readonly="state in ['cancel', 'done']"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+        </kanban >
+      </field>
+    </record>
 
 <!-- pivots -->
 
@@ -545,7 +1333,7 @@
     <record model="ir.actions.act_window" id="stock_picking_action">
       <field name="name">Picking</field>
       <field name="res_model">stock.picking</field>
-      <field name="view_mode">tree,form</field>
+      <field name="view_mode">kanban,tree,form</field>
       <field name="domain">[]</field>
       <field name="context">{}</field>
     </record>
@@ -590,6 +1378,38 @@
       <field name="context">{}</field>
     </record>
 
+    <record model="ir.actions.act_window" id="smartbiz_stock_dynamic_report_template_action">
+      <field name="name">Dynamic Report Template</field>
+      <field name="res_model">smartbiz_stock.dynamic_report_template</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_stock_dynamic_report_alias_action">
+      <field name="name">Dynamic Report Alias</field>
+      <field name="res_model">smartbiz_stock.dynamic_report_alias</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_stock_dynamic_report_alias_line_action">
+      <field name="name">Dynamic Report Alias Line</field>
+      <field name="res_model">smartbiz_stock.dynamic_report_alias_line</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_stock_dynamic_report_base_action">
+      <field name="name">Dynamic Report Base</field>
+      <field name="res_model">smartbiz_stock.dynamic_report_base</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
     <record model="ir.actions.act_window" id="smartbiz_stock_onhand_report_action">
       <field name="name">Onhand Report</field>
       <field name="res_model">smartbiz_stock.onhand_report</field>
@@ -606,9 +1426,96 @@
       <field name="context">{'edit':False,'delete':False,'create':False,}</field>
     </record>
 
+    <record model="ir.actions.act_window" id="smartbiz_stock_move_line_report_action">
+      <field name="name">Move Line Report</field>
+      <field name="res_model">smartbiz_stock.move_line_report</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{'edit':False,'delete':False,'create':False,}</field>
+    </record>
+
     <record model="ir.actions.act_window" id="stock_package_level_action">
       <field name="name">package level</field>
       <field name="res_model">stock.package_level</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_stock_inventory_period_action">
+      <field name="name">Inventory Period</field>
+      <field name="res_model">smartbiz_stock.inventory_period</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+        <record id="act_smartbiz_stock_inventory_2_smartbiz_stock_inventory_line" model="ir.actions.act_window">
+            <field name="name">Inventory Line</field>
+            <field name="res_model">smartbiz_stock.inventory_line</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+        </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_stock_inventory_action">
+      <field name="name">Inventory</field>
+      <field name="res_model">smartbiz_stock.inventory</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_stock_inventory_line_action">
+      <field name="name">Inventory Line</field>
+      <field name="res_model">smartbiz_stock.inventory_line</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_stock_inventory_history_action">
+      <field name="name">Inventory History</field>
+      <field name="res_model">smartbiz_stock.inventory_history</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_stock_inventory_validate_wizard_action">
+      <field name="name">Inventory Validate Wizard</field>
+      <field name="res_model">smartbiz_stock.inventory_validate_wizard</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_stock_inventory_cancel_wizard_action">
+      <field name="name">Inventory Cancel Wizard</field>
+      <field name="res_model">smartbiz_stock.inventory_cancel_wizard</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_stock_picking_group_template_action">
+      <field name="name">Picking Group Template</field>
+      <field name="res_model">smartbiz_stock.picking_group_template</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_stock_picking_group_action">
+      <field name="name">Picking Group</field>
+      <field name="res_model">smartbiz_stock.picking_group</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_stock_dynamic_inventory_report_action">
+      <field name="name">Dynamic Inventory Report</field>
+      <field name="res_model">smartbiz_stock.dynamic_inventory_report</field>
       <field name="view_mode">tree,form</field>
       <field name="domain">[]</field>
       <field name="context">{}</field>
@@ -618,12 +1525,44 @@
 
 <!-- Top menu item -->
 
+    <menuitem name="Inventory" 
+       id="menu_inventory_7"
+       sequence ="7"
+    />
+    <menuitem name="Dynamic Report" 
+       id="menu_dynamic_report_8"
+       sequence ="8"
+    />
+    <menuitem name="Inventory Management" 
+       id="menu_inventory_management_9"
+       sequence ="9"
+    />
+    <menuitem name="Transfer Request" 
+       id="menu_transfer_request_10"
+       sequence ="10"
+    />
     <record id="stock.stock_move_menu" model="ir.ui.menu">
          <field name="groups_id" eval="[(6, 0, [ref('smartbiz_stock.group_roles_inventory___basic_report_1'),])]"/>
     </record>
 
     <record id="stock_account.menu_valuation" model="ir.ui.menu">
          <field name="groups_id" eval="[(6, 0, [ref('smartbiz_stock.group_roles_inventory___basic_report_1'),])]"/>
+    </record>
+
+    <record id="menu_inventory_7" model="ir.ui.menu">
+       <field name="parent_id" ref="stock.menu_stock_root"/>
+    </record>
+
+    <record id="menu_dynamic_report_8" model="ir.ui.menu">
+       <field name="parent_id" ref="stock.menu_stock_config_settings"/>
+    </record>
+
+    <record id="menu_inventory_management_9" model="ir.ui.menu">
+       <field name="parent_id" ref="stock.menu_stock_config_settings"/>
+    </record>
+
+    <record id="menu_transfer_request_10" model="ir.ui.menu">
+       <field name="parent_id" ref="stock.menu_stock_config_settings"/>
     </record>
 
 <!-- Menu item action -->
@@ -643,14 +1582,56 @@
     <menuitem name="Transfer Request Type" 
        id="smartbiz_stock_transfer_request_type_menuitem"
        action ="smartbiz_stock_transfer_request_type_action"
-       parent ="stock.menu_stock_config_settings"
+       parent ="menu_transfer_request_10"
        sequence ="24"
+    />
+    <menuitem name="Dynamic Report Template" 
+       id="smartbiz_stock_dynamic_report_template_menuitem"
+       action ="smartbiz_stock_dynamic_report_template_action"
+       parent ="menu_dynamic_report_8"
+       sequence ="27"
+    />
+    <menuitem name="Dynamic Report Alias" 
+       id="smartbiz_stock_dynamic_report_alias_menuitem"
+       action ="smartbiz_stock_dynamic_report_alias_action"
+       parent ="menu_dynamic_report_8"
+       sequence ="28"
     />
     <menuitem name="Onhand Report" 
        id="smartbiz_stock_onhand_report_menuitem"
        action ="smartbiz_stock_onhand_report_action"
        parent ="stock.menu_warehouse_report"
        sequence ="33"
+    />
+    <menuitem name="Move Line Report" 
+       id="smartbiz_stock_move_line_report_menuitem"
+       action ="smartbiz_stock_move_line_report_action"
+       parent ="stock.menu_warehouse_report"
+       sequence ="35"
+    />
+    <menuitem name="Inventory Period" 
+       id="smartbiz_stock_inventory_period_menuitem"
+       action ="smartbiz_stock_inventory_period_action"
+       parent ="menu_inventory_management_9"
+       sequence ="44"
+    />
+    <menuitem name="Inventory" 
+       id="smartbiz_stock_inventory_menuitem"
+       action ="smartbiz_stock_inventory_action"
+       parent ="menu_inventory_7"
+       sequence ="45"
+    />
+    <menuitem name="Inventory History" 
+       id="smartbiz_stock_inventory_history_menuitem"
+       action ="smartbiz_stock_inventory_history_action"
+       parent ="menu_inventory_7"
+       sequence ="47"
+    />
+    <menuitem name="Picking Group Template" 
+       id="smartbiz_stock_picking_group_template_menuitem"
+       action ="smartbiz_stock_picking_group_template_action"
+       parent ="menu_dynamic_report_8"
+       sequence ="52"
     />
 
 </odoo>

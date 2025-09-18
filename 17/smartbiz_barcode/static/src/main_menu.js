@@ -7,9 +7,11 @@ import { useBus, useService } from "@web/core/utils/hooks";
 import { session } from "@web/session";
 import { serializeDate, today } from "@web/core/l10n/dates";
 import { Component, onWillStart, useState, useEnv } from "@odoo/owl";
+import { _t } from "@web/core/l10n/translation";
 
 export class MainMenu extends Component {
     setup() {
+        this._t = _t;
         const displayDemoMessage = this.props.action.params.message_demo_barcodes;
         const user = useService('user');
         this.actionService = useService('action');

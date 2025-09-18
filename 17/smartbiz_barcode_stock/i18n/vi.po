@@ -1,2 +1,780 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* smartbiz_barcode_stock
+#
 msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0-20250318\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-05 15:33+0000\n"
+"PO-Revision-Date: 2025-08-05 15:33+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "${barcode}: Not available in stock !"
+msgstr "${barcode}: không sẵn có trong kho!"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Add Product"
+msgstr "Thêm sản phẩm"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Are you sure you want to cancel this picking?"
+msgstr "Bạn có chắc chắn muốn hủy phiếu điều chuyển này không?"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid ""
+"Are you sure you want to delete all unpicked move lines? This action cannot "
+"be undone."
+msgstr ""
+"Bạn có chắc chắn muốn xóa tất cả các dòng di chuyển chưa được lấy không? "
+"Hành động này không thể hoàn tác."
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid ""
+"Are you sure you want to delete this move-line? This action cannot be "
+"undone."
+msgstr ""
+"Bạn có chắc chắn muốn xóa dòng di chuyển này không? Hành động này không thể "
+"hoàn tác."
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid ""
+"Are you sure you want to delete this move? This action cannot be undone."
+msgstr ""
+"Bạn có chắc chắn muốn xóa lệnh di chuyển này không? Hành động này không thể "
+"hoàn tác."
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Are you sure you want to unreserve this picking?"
+msgstr "Bạn có chắc chắn muốn hủy đặt trước phiếu điều chuyển này không?"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Are you sure you want to validate this picking?"
+msgstr "Bạn có chắc chắn muốn xác nhận phiếu điều chuyển này không?"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Back"
+msgstr "Quay lại"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Barcode: \"${barcode}\" not found in the system!"
+msgstr "Mã vạch: \"${barcode}\" không tìm thấy trong hệ thống!"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid ""
+"Barcode: ${barcode} is ${barcodeData.barcodeType} so it cannot be used!"
+msgstr ""
+"Mã vạch: ${barcode} là ${barcodeData.barcodeType} nên không thể sử dụng!"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.js:0
+#, python-format
+msgid "Barcode: ${barcode} is not a Package!"
+msgstr "Mã vạch: ${barcode} không phải là một bao bì!"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Barcode: ${barcode} is not a number!"
+msgstr "Mã vạch: ${barcode} không phải là một số!"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/CustomMainmenu/CustomMainMenu.xml:0
+#: model:ir.model,name:smartbiz_barcode_stock.model_stock_picking_batch
+#: model:ir.model.fields,field_description:smartbiz_barcode_stock.field_stock_picking_batch__name
+#, python-format
+msgid "Batch Transfer"
+msgstr "Lệnh chuyển hàng hàng loạt"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Bulk Pack"
+msgstr "Đóng gói hàng loạt"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/keypad.xml:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Cancel"
+msgstr "Hủy"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Cancel Transfer"
+msgstr "Hủy điều chuyển"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Cancelled"
+msgstr "Đã hủy"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Completed"
+msgstr "Hoàn thành"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/keypad.xml:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Confirm"
+msgstr "Xác nhận"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Confirm Transfer"
+msgstr "Xác nhận điều chuyển"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Create"
+msgstr "Tạo"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Create new package?"
+msgstr "Tạo gói mới?"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Current quantity:"
+msgstr "Số lượng hiện tại:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/keypad.xml:0
+#, python-format
+msgid "DEL"
+msgstr "XÓA"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Delete Confirmation"
+msgstr "Xác nhận xóa"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Destination Location:"
+msgstr "Vị trí đích:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Destination packages:"
+msgstr "Bao bì đích:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Enter product quantity"
+msgstr "Nhập số lượng sản phẩm"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Extract information to JSON"
+msgstr "Trích xuất thông tin sang JSON"
+
+#. module: smartbiz_barcode_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_barcode_stock.stock_picking_type_kanban
+msgid "In #{kanban_getcolorname(record.color.raw_value)}"
+msgstr "Trong #{kanban_getcolorname(record.color.raw_value)}"
+
+#. module: smartbiz_barcode_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_barcode_stock.stock_picking_batch_kanban
+msgid "Lines"
+msgstr "Dòng"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Lot number:"
+msgstr "Số lô:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid ""
+"Lot number: ${prod.lot_name} has an expiration date greater than the "
+"expiration date of lot: ${lot.name}!"
+msgstr ""
+"Số lô: ${prod.lot_name} có ngày hết hạn lớn hơn ngày hết hạn của lô: "
+"${lot.name}!"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Lot/serial number ${barcode} is already in the system!"
+msgstr "Lô/seri ${barcode} đã có trong hệ thống!"
+
+#. module: smartbiz_barcode_stock
+#: model:ir.model.fields,field_description:smartbiz_barcode_stock.field_stock_picking__name
+msgid "Name"
+msgstr "Tên"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "New package qty:"
+msgstr "Số lượng gói mới:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-python
+#: code:addons/smartbiz_barcode_stock/models/models.py:0
+#, python-format
+msgid "No %(picking_type)s ready for this %(barcode_type)s"
+msgstr "Không có %(picking_type)s sẵn sàng cho %(barcode_type)s này"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "No barcode information found: ${barcode}!"
+msgstr "Không tìm thấy thông tin mã vạch: ${barcode}!"
+
+#. module: smartbiz_barcode_stock
+#. odoo-python
+#: code:addons/smartbiz_barcode_stock/models/models.py:0
+#, python-format
+msgid "No product, lot or package found for barcode %s"
+msgstr "Không tìm thấy sản phẩm, lô hoặc bao bì cho mã vạch %s"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Number of packs:"
+msgstr "Số gói:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Open AI Camera"
+msgstr "Mở camera AI"
+
+#. module: smartbiz_barcode_stock
+#: model:ir.model.fields,field_description:smartbiz_barcode_stock.field_stock_picking_type__name
+msgid "Operation Type"
+msgstr "Loại hoạt động"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/CustomMainmenu/CustomMainMenu.xml:0
+#, python-format
+msgid "Operations"
+msgstr "Hoạt động kho"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Order Overview"
+msgstr "Tổng quan"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Order completed, cannot add products to order !"
+msgstr "Đơn hàng đã hoàn thành, không thể thêm sản phẩm vào đơn hàng!"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Package: \"${barcode}\" is no longer available in sufficient quantity"
+msgstr "Bao bì \"${barcode}\" không còn có đủ số lượng"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid ""
+"Package: \"${barcode}\" is not located at: "
+"\"${this.state.detailMoveLine.location_name}\". It is located at: "
+"\"${barcodeData.record.location_name}\""
+msgstr ""
+"Bao bì \"${barcode}\" không nằm tại: "
+"\"${this.state.detailMoveLine.location_name}\". Nó nằm tại: "
+"\"${barcodeData.record.location_name}\""
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Packages"
+msgstr "Đóng gói"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Partner:"
+msgstr "Đối tác:"
+
+#. module: smartbiz_barcode_stock
+#: model:ir.actions.act_window,name:smartbiz_barcode_stock.stock_picking_action
+#: model_terms:ir.ui.view,arch_db:smartbiz_barcode_stock.stock_picking_kanban
+msgid "Picking"
+msgstr "Lấy hàng"
+
+#. module: smartbiz_barcode_stock
+#: model:ir.actions.act_window,name:smartbiz_barcode_stock.stock_picking_batch_action
+#: model_terms:ir.ui.view,arch_db:smartbiz_barcode_stock.stock_picking_batch_kanban
+msgid "Picking Batch"
+msgstr "Lấy hàng hàng loạt"
+
+#. module: smartbiz_barcode_stock
+#: model:ir.actions.act_window,name:smartbiz_barcode_stock.stock_picking_type_action
+#: model:ir.model,name:smartbiz_barcode_stock.model_stock_picking_type
+#: model_terms:ir.ui.view,arch_db:smartbiz_barcode_stock.stock_picking_type_kanban
+msgid "Picking Type"
+msgstr "Kiểu điều chuyển"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Picking:"
+msgstr "Điều chuyển:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Please enter a prompt first!"
+msgstr "Vui lòng nhập nội dung trước!"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.js:0
+#, python-format
+msgid ""
+"Please enter a valid quantity for quantity per pack and number of packs."
+msgstr "Vui lòng nhập số lượng hợp lệ cho số lượng mỗi gói và số gói."
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.js:0
+#, python-format
+msgid "Please enter batch number."
+msgstr "Vui lòng nhập số lô."
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Please update command parameters before closing the pack!"
+msgstr "Vui lòng cập nhật tham số lệnh trước khi đóng gói!"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Please, Scan again!"
+msgstr "Vui lòng quét lại!"
+
+#. module: smartbiz_barcode_stock
+#: model:ir.model.fields,field_description:smartbiz_barcode_stock.field_stock_move_line__product_id
+msgid "Product"
+msgstr "Sản phẩm"
+
+#. module: smartbiz_barcode_stock
+#: model:ir.model,name:smartbiz_barcode_stock.model_stock_move_line
+msgid "Product Moves (Stock Move Line)"
+msgstr "Dòng di chuyển sản phẩm (Dòng chuyển kho)"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Product name:"
+msgstr "Tên sản phẩm:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Products"
+msgstr "Sản phẩm"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Qty per pack:"
+msgstr "Số lượng trên mỗi gói:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Qty per package:"
+msgstr "Số lượng trên mỗi gói:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Receive by Serial"
+msgstr "Nhận theo số sê-ri"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Remaining demand:"
+msgstr "Còn lại:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Remove"
+msgstr "Xóa"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Responsible:"
+msgstr "Người phụ trách:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Save"
+msgstr "Lưu"
+
+#. module: smartbiz_barcode_stock
+#. odoo-python
+#: code:addons/smartbiz_barcode_stock/models/models.py:0
+#, python-format
+msgid ""
+"Scan a product, a lot/serial number or a package to filter the transfers."
+msgstr "Quét sản phẩm, số lô/seri hoặc bao bì để lọc các lệnh chuyển."
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Search…"
+msgstr "Tìm kiếm..."
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Select Destination Location"
+msgstr "Chọn vị trí đích"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Select Destination Package"
+msgstr "Chọn gói đích"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Select Lot/Serial"
+msgstr "Chọn số Lô/seri"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Select Picking Type"
+msgstr "Chọn kiểu điều chuyển"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Select Product"
+msgstr "Chọn sản phẩm"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Select Source Location"
+msgstr "Chọn vị trí nguồn"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Select Source Package"
+msgstr "Chọn gói nguồn"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Select Transfer"
+msgstr "Chọn lệnh điều chuyển"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Serial list:("
+msgstr "Danh sách Seri:("
+
+#. module: smartbiz_barcode_stock
+#: model:ir.actions.client,name:smartbiz_barcode_stock.smartbiz_barcode_main_menu_action
+msgid "SmartBiz Barcode"
+msgstr "Mã vạch SmartBiz"
+
+#. module: smartbiz_barcode_stock
+#: model:ir.module.category,name:smartbiz_barcode_stock.security_category
+msgid "SmartBiz SMARTBIZ_BARCODE"
+msgstr "Mã vạch SmartBiz"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Source Location:"
+msgstr "Vị trí nguồn:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.xml:0
+#, python-format
+msgid "Source Package:"
+msgstr "Gói nguồn:"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Split Package"
+msgstr "Tách gói"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Split Packages"
+msgstr "Tách gói"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Status:"
+msgstr "Trạng thái"
+
+#. module: smartbiz_barcode_stock
+#: model:ir.model,name:smartbiz_barcode_stock.model_stock_quant
+msgid "Stock Quant"
+msgstr "Hàng tồn kho"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.js:0
+#, python-format
+msgid "The ${barcode} has been scanned!"
+msgstr "${barcode} đã được quét"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/selector.js:0
+#, python-format
+msgid "The ${barcode} is already in stock!"
+msgstr "${barcode} đã ở trong kho"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "This destination package: ${barcode} is not in the list!"
+msgstr "Gói nguồn: ${barcode} không có trong danh sách!"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "This destination packet: ${barcode} is invalid!"
+msgstr "Gói đích: ${barcode} không đúng"
+
+#. module: smartbiz_barcode_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_barcode_stock.stock_picking_type_kanban
+msgid "To Process"
+msgstr "Đang xử lý"
+
+#. module: smartbiz_barcode_stock
+#: model:ir.model,name:smartbiz_barcode_stock.model_stock_picking
+msgid "Transfer"
+msgstr "Lệnh điều chuyển"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Unreserve"
+msgstr "Bỏ giữ hàng"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Unreserve Confirmation"
+msgstr "Xác nhận bỏ giữ hàng"
+
+#. module: smartbiz_barcode_stock
+#: model:ir.module.category,description:smartbiz_barcode_stock.security_category
+msgid "User Access level for SMARTBIZ_BARCODE"
+msgstr "Cấp độ truy cập người dùng cho SMARTBIZ_BARCODE"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.xml:0
+#, python-format
+msgid "Validate"
+msgstr "Xác nhận"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Yes, Cancel"
+msgstr "Hủy bỏ"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Yes, Confirm"
+msgstr "Xác nhận"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Yes, Delete"
+msgstr "Xóa"
+
+#. module: smartbiz_barcode_stock
+#. odoo-javascript
+#: code:addons/smartbiz_barcode_stock/static/src/Components/stock_picking.js:0
+#, python-format
+msgid "Yes, Unreserve"
+msgstr "Bỏ giữ hàng"
+
+#. module: smartbiz_barcode_stock
+#: model:ir.actions.client,name:smartbiz_barcode_stock.stock_picking_client_action
+msgid "Điều chuyển"
+msgstr ""
+
+#. module: smartbiz_barcode_stock
+#: model:ir.actions.client,name:smartbiz_barcode_stock.stock_picking_batch_client_action
+msgid "Điều chuyển loạt"
 msgstr ""

@@ -50,31 +50,53 @@
       </field>
     </record>
 
-    <record model="ir.ui.view" id="sdm_device_form">
-      <field name="name">sdm_device_form</field>
+
+
+    <record id="view_sdm_device_form" model="ir.ui.view">
+      <field name="name">sdm.device.form</field>
       <field name="model">sdm.device</field>
-      <field name="priority" eval="6"/>
       <field name="arch" type="xml">
-        <form string="Form Device">
-      <sheet>
-            <group col="2">
+        <form string="Thiết bị">
+          <sheet>
             <group>
-                   <field name="name"/>
-                   <field name="code"/>
-                   <field name="device_type_id"/>
-                   <field name="location_id"/>
+              <group string="Thông tin chung">
+                <field name="name" required="1"/>
+                <field name="code"/>
+                <field name="device_type_id"/>
+                <field name="location_id"/>
+                <field name="status"/>
+              </group>
+              <group string="Tín hiệu hiện tại">
+                <field name="temperature"/>
+                <field name="io_alarm"/>
+                <field name="last_checked" readonly="1"/>
+                <field name="last_signal_at" readonly="1"/>
+                <field name="iot_id"/>
+              </group>
             </group>
-            <group>
-                   <field name="status"/>
-                   <field name="last_checked"/>
-                   <field name="iot_id"/>
-                   <field name="temperature"/>
-            </group>
-            </group>
-      </sheet>
+
+            <notebook>
+              <page string="IoT">
+                <group>
+                  <group string="Ánh xạ cảm biến">
+                    <field name="iot_therm_unitid"/>
+                    <field name="iot_io_unitid"/>
+                    <field name="iot_io_channel"/>
+                    <field name="iot_temp_scale" invisible = "(iot_therm_unitid==False)"/>
+                  </group>
+                  <group string="Ngưỡng &amp; Timeout">
+                    <field name="temp_threshold" help="Ngưỡng nhiệt (°C) để coi là bất thường."/>
+                    <field name="offline_timeout_sec" help="Nếu quá số giây này không có tín hiệu mới thì coi là mất kết nối."/>
+                  </group>
+                </group>
+              </page>
+            </notebook>
+          </sheet>
         </form>
       </field>
     </record>
+
+
 
     <record model="ir.ui.view" id="sdm_notification_type_form">
       <field name="name">sdm_notification_type_form</field>
@@ -182,20 +204,24 @@
       </field>
     </record>
 
-    <record model="ir.ui.view" id="sdm_device_tree">
-      <field name="name">sdm_device_tree</field>
+    <record id="view_sdm_device_tree" model="ir.ui.view">
+      <field name="name">sdm.device.tree</field>
       <field name="model">sdm.device</field>
-      <field name="priority" eval="7"/>
       <field name="arch" type="xml">
-        <tree string="Tree Device" >
-            <field name="name" optional="show"/>
-            <field name="code" optional="show"/>
-            <field name="device_type_id" optional="show"/>
-            <field name="location_id" optional="show"/>
-            <field name="status" optional="show"/>
-            <field name="last_checked" optional="show"/>
-            <field name="iot_id" optional="show"/>
-            <field name="temperature" optional="show"/>
+        <tree string="Thiết bị"
+              decoration-danger="status == 'abnormal'"
+              decoration-muted="status == 'not_available'"
+              create="true" edit="true">
+          <field name="name"/>
+          <field name="code"/>
+          <field name="device_type_id"/>
+          <field name="location_id"/>
+          <field name="status"/>
+          <field name="last_checked"/>
+          <field name="last_signal_at"/>
+          <field name="iot_id"/>
+          <field name="temperature"/>
+          <field name="io_alarm"/>
         </tree>
       </field>
     </record>
@@ -279,6 +305,28 @@
 <!-- Gantt -->
 
 <!-- Search -->
+    <record id="view_sdm_device_search" model="ir.ui.view">
+      <field name="name">sdm.device.search</field>
+      <field name="model">sdm.device</field>
+      <field name="arch" type="xml">
+        <search string="Tìm thiết bị">
+          <field name="name" string="Tên"/>
+          <field name="code" string="Mã"/>
+          <field name="device_type_id" string="Loại thiết bị"/>
+          <field name="location_id" string="Vị trí"/>
+          <filter name="flt_normal" string="Bình thường" domain="[('status','=','normal')]"/>
+          <filter name="flt_abnormal" string="Bất thường" domain="[('status','=','abnormal')]"/>
+          <filter name="flt_offline" string="Mất kết nối" domain="[('status','=','not_available')]"/>
+          <separator/>
+          <filter name="flt_low_temp" string="Nhiệt độ &lt; 620°C" domain="[('temperature','&lt;',620)]"/>
+          <group expand="0" string="Nhóm theo">
+            <filter name="grp_type" string="Loại thiết bị" context="{'group_by':'device_type_id'}"/>
+            <filter name="grp_loc" string="Vị trí" context="{'group_by':'location_id'}"/>
+            <filter name="grp_status" string="Trạng thái" context="{'group_by':'status'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
 
 <!-- Modified Views -->
 

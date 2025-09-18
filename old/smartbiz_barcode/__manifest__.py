@@ -31,6 +31,8 @@
 
     'assets': {
         'web.assets_backend': [
+            'smartbiz_barcode/static/lib/**/*.js',
+              'smartbiz_barcode/static/lib/**/*.css',
               'smartbiz_barcode/static/src/**/*.js',
               'smartbiz_barcode/static/src/**/*.scss',
               'smartbiz_barcode/static/src/**/*.xml',

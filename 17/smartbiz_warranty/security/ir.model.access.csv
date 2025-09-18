@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+repair_admin_smartbiz_warranty_warranty_report,"Repair Admin-smartbiz_warranty.Warranty Report",model_smartbiz_warranty_warranty_report,smartbiz_warranty.group_roles_repair_admin_1,1,1,1,1
+repair_user_smartbiz_warranty_warranty_report,"Repair User-smartbiz_warranty.Warranty Report",model_smartbiz_warranty_warranty_report,smartbiz_warranty.group_roles_repair_user_2,1,1,1,0
+repair_admin_smartbiz_warranty_repair_action,"Repair Admin-smartbiz_warranty.Repair Action",model_smartbiz_warranty_repair_action,smartbiz_warranty.group_roles_repair_admin_1,1,1,1,1
+repair_user_smartbiz_warranty_repair_action,"Repair User-smartbiz_warranty.Repair Action",model_smartbiz_warranty_repair_action,smartbiz_warranty.group_roles_repair_user_2,1,1,1,0

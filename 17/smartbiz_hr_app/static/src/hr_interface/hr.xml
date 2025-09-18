@@ -81,11 +81,11 @@
                                 </a>
                                 <a href="#" t-on-click="() => this.changeTab('attendance')" class="sidebar__link">
                                     <i class="fa fa-calendar-check-o"></i>
-                                    <span>Attendence</span>
+                                    <span>Attendance</span>
                                 </a>
-                                <a href="#" t-on-click="() => this.changeTab('timeoff')" class="sidebar__link">
+                                <a href="#" t-on-click="() => this.changeTab('leave')" class="sidebar__link">
                                     <i class="fa fa-calendar"></i>
-                                    <span>Time Off</span>
+                                    <span>Leave</span>
                                 </a>
                                 <a href="#" t-on-click="() => this.changeTab('overtime')" class="sidebar__link">
                                     <i class="fa fa-odnoklassniki"></i>
@@ -137,7 +137,7 @@
             <!--===============
             MAIN ===============-->
             <main t-attf-class="main-hr #{state.sidebarVisible}" class="main" t-ref="main">
-                <div class="s_toolbar" t-if="state.view != 'home'">
+                <div class="s_toolbar" >
                     <div class="s_toolbar__controls">
                         <!-- Previous button -->
                         <button class="s_toolbar__btn s_toolbar__btn--nav" t-on-click="this.prev">
@@ -161,16 +161,15 @@
                                 </svg>
                             </button>
                             <div class="s_toolbar__dropdown-menu" t-att-class="{open: state.isDropdownOpen}">
-                                <a t-on-click="() => this.setFilter('day','Ngày')">Ngày</a>
-                                <a t-on-click="() => this.setFilter('week','Tuần')">Tuần</a>
-                                <a t-on-click="() => this.setFilter('month','Tháng')">Tháng</a>
-                                <a t-on-click="() => this.setFilter('year','Năm')">Năm</a>
+                                <a t-on-click="() => this.setFilter('day','day')">Day</a>
+                                <a t-on-click="() => this.setFilter('week','week')">Week</a>
+                                <a t-on-click="() => this.setFilter('month','month')">Month</a>
+                                <a t-on-click="() => this.setFilter('year','year')">Year</a>
                             </div>
                         </div>
 
                         <!-- Today button -->
-                        <button class="s_toolbar__btn s_toolbar__btn--today" t-on-click="() => this.today()">Hôm
-                            nay</button>
+                        <button class="s_toolbar__btn s_toolbar__btn--today" t-on-click="() => this.today()">Today</button>
 
                         <!-- Next button -->
                         <button class="s_toolbar__btn s_toolbar__btn--nav" t-on-click="this.next">
@@ -186,80 +185,183 @@
                         </div>
                     </div>
 
-                    <div class="s_toolbar__search">
+                    <!-- <div class="s_toolbar__search">
                         <input type="text" placeholder="Tìm kiếm ..." t-on-input="onSearchInput" />
-                    </div>
+                    </div> -->
                 </div>
                 <div class="hr-dashboard-container">
                     <div t-if="state.view === 'home'" class="s_home_view">
-
                          <div class="s_home_container">
-
-                                    <div class="s_home_dashboard-grid">
-                                        <div class="s_home_stat-card">
-                                            <p class="s_home_stat-title">Tổng giờ làm</p>
-                                            <p class="s_home_stat-value">160h</p>
-                                        </div>
-                                        <div class="s_home_stat-card">
-                                            <p class="s_home_stat-title">Giờ OT</p>
-                                            <p class="s_home_stat-value">12h</p>
-                                        </div>
-                                        <div class="s_home_stat-card">
-                                            <p class="s_home_stat-title">Nghỉ phép còn lại</p>
-                                            <p class="s_home_stat-value">2 ngày</p>
-                                        </div>
+                            <!-- Header -->
+                            <header class="s_home_header">
+                                <div class="s_home_header-logo">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="s_home_header-logo-icon" width="128" height="128" viewBox="0 0 24 24"
+                                            fill="none" stroke="blue" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="9"/>
+                                            <path d="M12 7v5l4 2"/>
+                                        </svg>
+                                    <h1 class="s_home_header-title">Timesheet Station</h1>
+                                </div>
+                                <div class="s_home_header-profile">
+                                    <div class="s_home_profile-info">
+                                        <p class="s_home_profile-name"><t t-esc="state.employee_name"/></p>
+                                        <p class="s_home_profile-id"><t t-esc="state.employee" /></p>
                                     </div>
-
+                                </div>
+                            </header>
                             <!-- Main Functionality Cards -->
                             <div class="s_home_cards-grid">
-                                <!-- Check-in Card -->
                                 <div class="s_home_card s_home_card-blue-light">
                                     <div class="s_home_card-header">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="s_home_card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                        <h2 class="s_home_card-title">Check-in</h2>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="s_home_card-icon" width="128" height="128" viewBox="0 0 24 24"
+                                            fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="9"/>
+                                            <path d="M12 7v5l4 2"/>
+                                        </svg>
+                                        <h2 class="s_home_card-title">Attendance</h2>
                                     </div>
                                     <div class="s_home_card-info">
-                                        <p>Đã Check-in lúc 08:00</p>
+                                        <div>
+                                            <strong>Attendance: </strong>
+                                            <div>Missing Attendance: 1</div>
+                                        </div>
+                                        <div>
+                                            <table class="s_home_card-info-table">
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Approved:</td>
+                                                        <td><t t-esc="state.attendance_data.filter(o => o.state == 'approved').length"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Pending:</td>
+                                                        <td><t t-esc="state.attendance_data.filter(o => o.state == 'confirmed').length"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Refused:</td>
+                                                        <td><t t-esc="state.attendance_data.filter(o => o.state == 'refused').length"/></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                                 
                                 <!-- OT Request Card -->
-                                <div class="s_home_card s_home_card-blue-dark">
+                                <div class="s_home_card s_home_card-blue-darkest">
                                     <div class="s_home_card-header">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="s_home_card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-2.58 2.58a1 1 0 0 0-.27 1.05A3.77 3.77 0 0 1 10.5 16a3.77 3.77 0 0 1-5.66 0A3.77 3.77 0 0 1 7.42 12a3.77 3.77 0 0 1 .11-.96a1 1 0 0 0 0-1.27z"></path></svg>
-                                        <h2 class="s_home_card-title">Yêu cầu OT</h2>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="s_home_card-icon" width="128" height="128" viewBox="0 0 24 24"
+                                            fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                         
+                                            <circle cx="12" cy="12" r="9"/>
+                                            <path d="M12 12V7"/>
+                                            <path d="M12 12l4 2"/>
+                                            <g transform="translate(16,16) scale(0.6)">
+                                            <circle cx="4" cy="4" r="4" fill="white" stroke="black"/> <!-- nền badge -->
+                                            <line x1="4" y1="2" x2="4" y2="6"/>
+                                            <line x1="2" y1="4" x2="6" y2="4"/>
+                                            </g>
+                                        </svg>
+                                        <h2 class="s_home_card-title">OverTime</h2>
                                     </div>
                                     <div class="s_home_card-info">
-                                        <p>OT tháng này: 12h</p>
+                                        <div>
+                                            <div>
+                                                <strong>Total Overtime: 10h</strong>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <table class="s_home_card-info-table">
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Approved:</td>
+                                                        <td><t t-esc="state.overtime_data.filter(o => o.state == 'approved').length"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Pending:</td>
+                                                        <td><t t-esc="state.overtime_data.filter(o => o.state == 'confirmed').length"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Refused:</td>
+                                                        <td><t t-esc="state.overtime_data.filter(o => o.state == 'refused').length"/></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Leave Request Card -->
-                                <div class="s_home_card s_home_card-blue-light">
+                                <div class="s_home_card s_home_card-blue-lightest">
                                     <div class="s_home_card-header">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="s_home_card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22h5a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-5"></path><path d="M18 15v3a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-3"></path><path d="M12 18h-2a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"></path><path d="M8 6h-2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h2"></path></svg>
-                                        <h2 class="s_home_card-title">Yêu cầu nghỉ phép</h2>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="s_home_card-icon" width="128" height="128" viewBox="0 0 24 24"
+                                                fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <!-- Khung lịch -->
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                            <line x1="16" y1="2" x2="16" y2="6"/>
+                                            <line x1="8" y1="2" x2="8" y2="6"/>
+                                            <line x1="3" y1="10" x2="21" y2="10"/>
+                                            <!-- Dấu trừ nhỏ ở góc dưới phải -->
+                                            <g transform="translate(16,16) scale(0.6)">
+                                                <circle cx="4" cy="4" r="4" fill="white" stroke="black"/>
+                                                <line x1="2" y1="4" x2="6" y2="4"/>
+                                            </g>
+                                        </svg>
+
+                                        <h2 class="s_home_card-title">Leave</h2>
                                     </div>
                                     <div class="s_home_card-info">
-                                        <p>Số ngày phép còn lại: 2</p>
+                                        <div>
+                                            <strong>Total leave : 2 days</strong>
+                                        </div>
+                                        <div>
+                                            <table class="s_home_card-info-table">
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Approved:</td>
+                                                        <td><t t-esc="state.leave_data.filter(o => o.state == 'validate').length"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Pending:</td>
+                                                        <td><t t-esc="state.leave_data.filter(o => o.state == 'confirm').length"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Refused:</td>
+                                                        <td><t t-esc="state.leave_data.filter(o => o.state == 'refuse').length"/></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Payslip Card -->
                                 <div class="s_home_card s_home_card-blue-dark">
                                     <div class="s_home_card-header">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="s_home_card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><circle cx="12" cy="12" r="3"></circle><path d="M17 12V9"></path><path d="M12 12V9"></path></svg>
-                                        <h2 class="s_home_card-title">Phiếu lương</h2>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="s_home_card-icon" width="128" height="128" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <!-- Tờ giấy -->
+                                            <rect x="3" y="2" width="18" height="20" rx="2" ry="2" stroke="white" fill="none"/>
+                                            <!-- Dòng chữ -->
+                                            <line x1="7" y1="7" x2="17" y2="7"/>
+                                            <line x1="7" y1="11" x2="17" y2="11"/>
+                                            <line x1="7" y1="15" x2="17" y2="15"/>
+                                            <!-- Ký hiệu $ -->
+                                            <text x="12" y="20" font-size="4" text-anchor="middle" fill="white" font-family="Arial, sans-serif">$</text>
+                                        </svg>
+
+
+                                        <h2 class="s_home_card-title">Payslip</h2>
                                     </div>
                                     <div class="s_home_card-info">
-                                        <p>Lương tháng trước: $1,200</p>
+                                        <div>
+                                            <div>Salary: 1000$</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Recent History Section -->
                             <div class="s_home_history-section">
-                                <h2 class="s_home_history-title">Lịch sử gần đây</h2>
+                                <h2 class="s_home_history-title">Recent history</h2>
                                 <ul class="s_home_history-list">
                                     <li class="s_home_history-item">
                                         <div class="s_home_history-item-details">
@@ -268,7 +370,7 @@
                                             </span>
                                             <span>Check-in</span>
                                         </div>
-                                        <span class="s_home_history-time">08:00</span>
+                                        <span class="s_home_history-time">08:00 28/08/2025</span>
                                     </li>
                                     <li class="s_home_history-item">
                                         <div class="s_home_history-item-details">
@@ -277,16 +379,16 @@
                                             </span>
                                             <span>OT</span>
                                         </div>
-                                        <span class="s_home_history-time">17:30</span>
+                                        <span class="s_home_history-time">17:30 28/08/2025</span>
                                     </li>
                                     <li class="s_home_history-item">
                                         <div class="s_home_history-item-details">
                                             <span class="s_home_history-icon-wrapper">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="s_home_history-icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22h5a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-5"></path><path d="M18 15v3a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-3"></path><path d="M12 18h-2a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"></path><path d="M8 6h-2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h2"></path></svg>
                                             </span>
-                                            <span>Nghỉ phép được duyệt</span>
+                                            <span>Leave</span>
                                         </div>
-                                        <span class="s_home_history-time">09:30</span>
+                                        <span class="s_home_history-time">08:00 29/08/2025</span>
                                     </li>
                                 </ul>
                             </div>
@@ -295,7 +397,7 @@
                         <div class="s_home_notification-card">
                             <div class="s_home_notification-header">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="s_home_notification-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                <h2 class="s_home_notification-title">Thông báo</h2>
+                                <h2 class="s_home_notification-title">Notification</h2>
                             </div>
                             <ul class="s_home_notification-list">
                                 <li class="s_home_notification-item">
@@ -303,7 +405,7 @@
                                     <span class="s_home_notification-time">2 giờ trước</span>
                                 </li>
                                 <li class="s_home_notification-item">
-                                    <span class="s_home_notification-item-text">Bạn đã đạt đủ số giờ OT để nhận thưởng tháng này!</span>
+                                    <span class="s_home_notification-item-text">Yêu cầu OT của bạn đã được duyệt!</span>
                                     <span class="s_home_notification-time">1 ngày trước</span>
                                 </li>
                             </ul>
@@ -316,31 +418,11 @@
                                 <div class="card">
                                     <div class="list-item">
                                         <div class="list-item-content">
+                                            <span class="icon">⏳</span>
+                                            <span class="text">Attendance</span>
+                                        </div>
+                                        <div class="arrow-icon">
                                             <span class="number">5</span>
-                                            <span class="text">Ca làm việc</span>
-                                        </div>
-                                        <div class="arrow-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div style="height: 16px;"></div> <!-- Tạo khoảng cách -->
-                                    <div class="list-item">
-                                        <div class="list-item-content">
-                                            <span class="number">6</span>
-                                            <span class="text">Nhân viên đã được xếp lịch</span>
-                                        </div>
-                                        <div class="arrow-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
                                         </div>
                                     </div>
                                 </div>
@@ -349,80 +431,123 @@
                                 <div class="card">
                                     <div class="list-item">
                                         <div class="list-item-content">
-                                            <span class="number">0</span>
-                                            <span class="text">Chấm công trùng thiết bị</span>
+                                            
+                                            <span class="icon">⏳</span>
+                                            <span class="text">Overtime</span>
                                         </div>
                                         <div class="arrow-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
+                                            <span class="number">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Phần danh sách ở trên cùng -->
+                                <div class="card">
+                                    <div class="list-item">
+                                        <div class="list-item-content">
+                                            <span class="icon">🚶</span>
+                                            <span class="text">Leave</span>
+                                        </div>
+                                        <div class="arrow-icon">
+                                            <span class="number">5</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Phần mục "Chấm công trùng thiết bị" -->
+                                <div class="card">
+                                    <div class="list-item">
+                                        <div class="list-item-content">
+                                            
+                                            <span class="icon">⛱️</span>
+                                            <span class="text">Holiday</span>
+                                        </div>
+                                        <div class="arrow-icon">
+                                            <span class="number">1</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="list-item">
+                                        <div class="list-item-content">
+                                            
+                                            <span class="icon">⛱️</span>
+                                            <span class="text">Unpaid</span>
+                                        </div>
+                                        <div class="arrow-icon">
+                                            <span class="number">1</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="list-item">
+                                        <div class="list-item-content">
+                                            
+                                            <span class="icon">⛱️</span>
+                                            <span class="text">Paid Time Off</span>
+                                        </div>
+                                        <div class="arrow-icon">
+                                            <span class="number">1</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Phần lưới các thẻ thông tin -->
-                                <div class="grid-container">
-                                    <!-- Thẻ "Đi muộn" -->
+                                <!-- <div class="grid-container">
                                     <div class="card grid-card">
                                         <span class="number">0</span>
                                         <span class="text">Chuyên cần</span>
                                         <span class="icon">⏳</span>
                                     </div>
-                                    <!-- Thẻ "Về sớm" -->
                                     <div class="card grid-card">
                                         <span class="number">0</span>
                                         <span class="text">Về sớm</span>
                                         <span class="icon">🚶</span>
                                     </div>
-                                    <!-- Thẻ "Quên chấm công" -->
                                     <div class="card grid-card">
                                         <span class="number">0</span>
                                         <span class="text">OT</span>
                                         <span class="icon">📱</span>
                                     </div>
-                                    <!-- Thẻ "Quên checkout" -->
-                                    <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">Quên checkout</span>
-                                        <span class="icon">📱</span>
-                                    </div>
-                                    <!-- Thẻ "Nghỉ phép" -->
                                     <div class="card grid-card">
                                         <span class="number">0</span>
                                         <span class="text">Nghỉ phép</span>
                                         <span class="icon">⛱️</span>
                                     </div>
-                                    <!-- Thẻ "Nghỉ không phép" -->
-                                    <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">Nghỉ không phép</span>
-                                        <span class="icon">🚫</span>
-                                    </div>
-                                </div>
+                                </div> -->
 
                             </div>
                         </div>
                         <div class="workentry-content-view">
-
-
                             <!-- View Toggle Buttons -->
-                            <div class="flex justify-end mb-6 space-x-2">
-                                <button t-on-click="() => this.setMode('list')"
-                                    t-att-class="displayMode.mode === 'list' ? ' bg-blue-600 text-white rounded-lg' : ' '"
-                                    class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700 ">
-                                    <i class="oi-fw oi oi-view-list w-5 h-5"></i>
-                                    <!-- <span>Table View</span> -->
-                                </button>
-                                <button t-on-click="() => this.setMode('card')"
-                                    t-att-class="displayMode.mode === 'card' ? ' bg-blue-600 text-white rounded-lg' : ' '"
-                                    class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700">
-                                    <i class="oi-fw oi oi-view-kanban w-5 h-5"></i>
-                                    <!-- <span>Card View</span> -->
-                                </button>
-                            </div>
+                             <div class="flex justify-between items-center mt-2 mb-4">
+                                <div class="flex justify-start mb-6 space-x-4">
+                                    <div class="s_toolbar__search">
+                                    <input type="text" placeholder="Nhân viên" t-on-input="onSearchInput" />
+                                    </div>
+                                    <div class="s_toolbar__search">
+                                        <input type="text" placeholder="Loại" t-on-input="onSearchInput" />
+                                    </div>
+                                    <div class="s_toolbar__search">
+                                        <input type="text" placeholder="Thời gian" t-on-input="onSearchInput" />
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end mb-6 space-x-2">
+                                    <button t-on-click="() => this.setMode('list')"
+                                        t-att-class="displayMode.mode === 'list' ? ' bg-blue-600 text-white rounded-lg' : ' '"
+                                        class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700 ">
+                                        <i class="oi-fw oi oi-view-list w-5 h-5"></i>
+                                        <!-- <span>Table View</span> -->
+                                    </button>
+                                    <button t-on-click="() => this.setMode('card')"
+                                        t-att-class="displayMode.mode === 'card' ? ' bg-blue-600 text-white rounded-lg' : ' '"
+                                        class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700">
+                                        <i class="oi-fw oi oi-view-kanban w-5 h-5"></i>
+                                        <!-- <span>Card View</span> -->
+                                    </button>
+                                </div>
+                             </div>
+                             
 
 
                             <t t-if="state.workentry_data.length > 0">
@@ -484,8 +609,8 @@
                                     <!-- Conditional Rendering based on displayMode (List View) -->
                                     <div
                                         class="list-view overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-200">
-                                        <table class="min-w-full divide-y divide-gray-200">
-                                            <thead class="bg-gray-50">
+                                        <table class="table-styled min-w-full divide-y divide-gray-200">
+                                            <thead class="">
                                                 <tr>
                                                     <th scope="col"
                                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">
@@ -567,57 +692,43 @@
                         </div>
                     </div>
                     <div t-if="state.view === 'attendance'" class="over-view">
-
-
                         <div class="workentry-overview">
                             <div class="container">
                                 <!-- Phần danh sách ở trên cùng -->
                                 <div class="card">
                                     <div class="list-item">
                                         <div class="list-item-content">
-                                            <span class="number">5</span>
-                                            <span class="text">Ca làm việc</span>
+                                            <span class="text">Request</span>
                                         </div>
                                         <div class="arrow-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
+                                            <span class="number"><t t-esc="state.attendance_data.length"/></span>
                                         </div>
                                     </div>
                                     <div style="height: 16px;"></div> <!-- Tạo khoảng cách -->
                                     <div class="list-item">
                                         <div class="list-item-content">
-                                            <span class="number">6</span>
-                                            <span class="text">Nhân viên đã được xếp lịch</span>
+                                            <span class="text">Approved</span>
                                         </div>
                                         <div class="arrow-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
+                                            <span class="number"><t t-esc="state.attendance_data.filter(o => o.state == 'approved').length"/></span>
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Phần mục "Chấm công trùng thiết bị" -->
-                                <div class="card">
+                                    <div style="height: 16px;"></div> <!-- Tạo khoảng cách -->
                                     <div class="list-item">
                                         <div class="list-item-content">
-                                            <span class="number">0</span>
-                                            <span class="text">Chấm công trùng thiết bị</span>
+                                            <span class="text">Pending</span>
                                         </div>
                                         <div class="arrow-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
+                                            <span class="number"><t t-esc="state.attendance_data.filter(o => o.state == 'confirmed').length"/></span>
+                                        </div>
+                                    </div>
+                                    <div style="height: 16px;"></div> <!-- Tạo khoảng cách -->
+                                    <div class="list-item">
+                                        <div class="list-item-content">
+                                            <span class="text">Refused</span>
+                                        </div>
+                                        <div class="arrow-icon">
+                                            <span class="number"><t t-esc="state.attendance_data.filter(o => o.state == 'refused').length"/></span>
                                         </div>
                                     </div>
                                 </div>
@@ -626,40 +737,29 @@
                                 <div class="grid-container">
                                     <!-- Thẻ "Đi muộn" -->
                                     <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">Chuyên cần</span>
                                         <span class="icon">⏳</span>
-                                    </div>
-                                    <!-- Thẻ "Về sớm" -->
-                                    <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">Về sớm</span>
-                                        <span class="icon">🚶</span>
-                                    </div>
-                                    <!-- Thẻ "Quên chấm công" -->
-                                    <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">OT</span>
-                                        <span class="icon">📱</span>
-                                    </div>
-                                    <!-- Thẻ "Quên checkout" -->
-                                    <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">Quên checkout</span>
-                                        <span class="icon">📱</span>
-                                    </div>
-                                    <!-- Thẻ "Nghỉ phép" -->
-                                    <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">Nghỉ phép</span>
-                                        <span class="icon">⛱️</span>
+                                        <span class="text">Work100</span>
+                                        <span class="number">10</span>
                                     </div>
                                     <!-- Thẻ "Nghỉ không phép" -->
                                     <div class="card grid-card">
+                                        <span class="icon">🚴‍♂️</span>
+                                        <span class="text">Early Leave</span>
                                         <span class="number">0</span>
-                                        <span class="text">Nghỉ không phép</span>
-                                        <span class="icon">🚫</span>
                                     </div>
+                                    <!-- Thẻ "Quên chấm công" -->
+                                    <div class="card grid-card">
+                                        <span class="icon">🏃‍♀️‍➡️</span>
+                                        <span class="text">Go Late</span>
+                                        <span class="number">5</span>
+                                    </div>
+                                    <!-- Thẻ "Quên checkout" -->
+                                    <div class="card grid-card">
+                                        <span class="icon">🕓</span>
+                                        <span class="text">Non-Checkout</span>
+                                        <span class="number">5</span>
+                                    </div>
+                                    
                                 </div>
 
                             </div>
@@ -672,20 +772,34 @@
                     })">
                                 New</button>
                             <!-- View Toggle Buttons -->
-                            <div class="flex justify-end mb-6 space-x-2">
-                                <button t-on-click="() => this.setMode('list')"
-                                    t-att-class="displayMode.mode === 'list' ? ' bg-blue-600 text-white rounded-lg' : ' '"
-                                    class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700 ">
-                                    <i class="oi-fw oi oi-view-list w-5 h-5"></i>
-                                    <!-- <span>Table View</span> -->
-                                </button>
-                                <button t-on-click="() => this.setMode('card')"
-                                    t-att-class="displayMode.mode === 'card' ? ' bg-blue-600 text-white rounded-lg' : ' '"
-                                    class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700">
-                                    <i class="oi-fw oi oi-view-kanban w-5 h-5"></i>
-                                    <!-- <span>Card View</span> -->
-                                </button>
-                            </div>
+                            <div class="flex justify-between items-center mt-2 mb-4">
+                                <div class="flex justify-start mb-6 space-x-4">
+                                    <div class="s_toolbar__search">
+                                    <input type="text" placeholder="Nhân viên" t-on-input="onSearchInput" />
+                                    </div>
+                                    <div class="s_toolbar__search">
+                                        <input type="text" placeholder="Loại" t-on-input="onSearchInput" />
+                                    </div>
+                                    <div class="s_toolbar__search">
+                                        <input type="text" placeholder="Thời gian" t-on-input="onSearchInput" />
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end mb-6 space-x-2">
+                                    <button t-on-click="() => this.setMode('list')"
+                                        t-att-class="displayMode.mode === 'list' ? ' bg-blue-600 text-white rounded-lg' : ' '"
+                                        class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700 ">
+                                        <i class="oi-fw oi oi-view-list w-5 h-5"></i>
+                                        <!-- <span>Table View</span> -->
+                                    </button>
+                                    <button t-on-click="() => this.setMode('card')"
+                                        t-att-class="displayMode.mode === 'card' ? ' bg-blue-600 text-white rounded-lg' : ' '"
+                                        class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700">
+                                        <i class="oi-fw oi oi-view-kanban w-5 h-5"></i>
+                                        <!-- <span>Card View</span> -->
+                                    </button>
+                                </div>
+                             </div>
 
                             <t t-if="state.attendance_data.length > 0">
                                 <!-- Conditional Rendering based on displayMode (Card View) -->
@@ -753,7 +867,7 @@
                                     <!-- Conditional Rendering based on displayMode (List View) -->
                                     <div
                                         class="list-view overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-200">
-                                        <table class="min-w-full divide-y divide-gray-200">
+                                        <table class="table-styled min-w-full divide-y divide-gray-200">
                                             <thead class="bg-gray-50">
                                                 <tr>
                                                     <th scope="col"
@@ -847,124 +961,120 @@
                             </t>
                         </div>
                     </div>
-                    <div t-if="state.view === 'timeoff'" class="over-view">
-                        
-                        
+                    <div t-if="state.view === 'leave'" class="over-view">
                         <div class="workentry-overview">
                             <div class="container">
-                                <!-- Phần danh sách ở trên cùng -->
                                 <div class="card">
                                     <div class="list-item">
                                         <div class="list-item-content">
-                                            <span class="number">5</span>
-                                            <span class="text">Ca làm việc</span>
+                                            <span class="text">Request</span>
                                         </div>
                                         <div class="arrow-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
+                                            <span class="number"><t t-esc="state.leave_data.length"/></span>
                                         </div>
                                     </div>
                                     <div style="height: 16px;"></div> <!-- Tạo khoảng cách -->
                                     <div class="list-item">
                                         <div class="list-item-content">
-                                            <span class="number">6</span>
-                                            <span class="text">Nhân viên đã được xếp lịch</span>
+                                            <span class="text">Approved</span>
                                         </div>
                                         <div class="arrow-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
+                                            <span class="number"><t t-esc="state.leave_data.filter(o => o.state == 'validate').length"/></span>
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Phần mục "Chấm công trùng thiết bị" -->
-                                <div class="card">
+                                    <div style="height: 16px;"></div> <!-- Tạo khoảng cách -->
                                     <div class="list-item">
                                         <div class="list-item-content">
-                                            <span class="number">0</span>
-                                            <span class="text">Chấm công trùng thiết bị</span>
+                                            <span class="text">Pending</span>
                                         </div>
                                         <div class="arrow-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
+                                            <span class="number"><t t-esc="state.leave_data.filter(o => o.state == 'confirm').length"/></span>
+                                        </div>
+                                    </div>
+                                    <div style="height: 16px;"></div> <!-- Tạo khoảng cách -->
+                                    <div class="list-item">
+                                        <div class="list-item-content">
+                                            <span class="text">Refused</span>
+                                        </div>
+                                        <div class="arrow-icon">
+                                            <span class="number"><t t-esc="state.leave_data.filter(o => o.state == 'refuse').length"/></span>
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Phần lưới các thẻ thông tin -->
+                                
                                 <div class="grid-container">
                                     <!-- Thẻ "Đi muộn" -->
                                     <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">Chuyên cần</span>
-                                        <span class="icon">⏳</span>
-                                    </div>
-                                    <!-- Thẻ "Về sớm" -->
-                                    <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">Về sớm</span>
-                                        <span class="icon">🚶</span>
-                                    </div>
-                                    <!-- Thẻ "Quên chấm công" -->
-                                    <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">OT</span>
-                                        <span class="icon">📱</span>
-                                    </div>
-                                    <!-- Thẻ "Quên checkout" -->
-                                    <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">Quên checkout</span>
-                                        <span class="icon">📱</span>
+                                        <span class="icon">⛱️</span>
+                                        <span class="text">Holiday</span>
+                                        <span class="number">1</span>
                                     </div>
                                     <!-- Thẻ "Nghỉ phép" -->
                                     <div class="card grid-card">
+                                        <span class="icon">🏠</span>
+                                        <span class="text">Leave</span>
                                         <span class="number">0</span>
-                                        <span class="text">Nghỉ phép</span>
-                                        <span class="icon">⛱️</span>
                                     </div>
                                     <!-- Thẻ "Nghỉ không phép" -->
                                     <div class="card grid-card">
+                                        <span class="icon">⛱️</span>
+                                        <span class="text">Paid leave</span>
                                         <span class="number">0</span>
-                                        <span class="text">Nghỉ không phép</span>
+                                    </div>
+                                    <div class="card grid-card">
                                         <span class="icon">🚫</span>
+                                        <span class="text">Unpaid</span>
+                                        <span class="number">0</span>
+                                    </div>
+                                    <div class="card grid-card">
+                                        <span class="icon">🏝️</span>
+                                        <span class="text">Special leave</span>
+                                        <span class="number">0</span>
+                                    </div>
+                                    <div class="card grid-card">
+                                        <span class="icon">🏩</span>
+                                        <span class="text">Social insurance</span>
+                                        <span class="number">0</span>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                         <!-- Conditional Rendering based on displayMode (Card View) -->
                         <!-- View Toggle Buttons -->
                         <div class="workentry-content-view">
-                            <button class="btn btn-primary" t-on-click="() => this.showModal('Time Off', 'leave_data', {
+                            <button class="btn btn-primary" t-on-click="() => this.showModal('Leave', 'leave_data', {
                                         employee_id: state.employee_id,
                                         employee_name: state.employee_name,
                                     })">
                                 New</button>
-                            <div class="flex justify-end mb-6 space-x-2">
-                                <button t-on-click="() => this.setMode('list')"
-                                    t-att-class="displayMode.mode === 'list' ? ' bg-blue-600 text-white rounded-lg' : ''"
-                                    class="px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center space-x-2 text-gray-700">
-                                    <i class="oi oi-view-list w-5 h-5"></i>
-                                </button>
-                                <button t-on-click="() => this.setMode('card')"
-                                    t-att-class="displayMode.mode === 'card' ? ' bg-blue-600 text-white rounded-lg' : ''"
-                                    class="px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center space-x-2 text-gray-700">
-                                    <i class="oi oi-view-kanban w-5 h-5"></i>
-                                </button>
-                            </div>
+                            <div class="flex justify-between items-center mt-2 mb-4">
+                                <div class="flex justify-start mb-6 space-x-4">
+                                    <div class="s_toolbar__search">
+                                    <input type="text" placeholder="Nhân viên" t-on-input="onSearchInput" />
+                                    </div>
+                                    <div class="s_toolbar__search">
+                                        <input type="text" placeholder="Loại" t-on-input="onSearchInput" />
+                                    </div>
+                                    <div class="s_toolbar__search">
+                                        <input type="text" placeholder="Thời gian" t-on-input="onSearchInput" />
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end mb-6 space-x-2">
+                                    <button t-on-click="() => this.setMode('list')"
+                                        t-att-class="displayMode.mode === 'list' ? ' bg-blue-600 text-white rounded-lg' : ' '"
+                                        class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700 ">
+                                        <i class="oi-fw oi oi-view-list w-5 h-5"></i>
+                                        <!-- <span>Table View</span> -->
+                                    </button>
+                                    <button t-on-click="() => this.setMode('card')"
+                                        t-att-class="displayMode.mode === 'card' ? ' bg-blue-600 text-white rounded-lg' : ' '"
+                                        class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700">
+                                        <i class="oi-fw oi oi-view-kanban w-5 h-5"></i>
+                                        <!-- <span>Card View</span> -->
+                                    </button>
+                                </div>
+                             </div>
                         
                             
                             <t t-if="state.leave_data.length > 0">
@@ -1011,7 +1121,7 @@
                                     <!-- Table view tương tự attendance -->
                                     <div
                                         class="list-view overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-200">
-                                        <table class="min-w-full divide-y divide-gray-200">
+                                        <table class="table-styled min-w-full divide-y divide-gray-200">
                                             <thead class="bg-gray-50">
                                                 <tr>
                                                     <th scope="col"
@@ -1086,90 +1196,70 @@
                         </div>
                     </div>
                     <div t-if="state.view === 'overtime'" class="over-view">
-                        
-                        <!-- <button class="btn btn-primary" t-on-click="">Approve</button> -->
-
                         <div class="workentry-overview">
                             <div class="container">
                                 <!-- Phần danh sách ở trên cùng -->
                                 <div class="card">
                                     <div class="list-item">
                                         <div class="list-item-content">
-                                            <span class="number">5</span>
-                                            <span class="text">Ca làm việc</span>
+                                            <span class="text">Request</span>
                                         </div>
                                         <div class="arrow-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                            </svg>
+                                            <span class="number"><t t-esc="state.overtime_data.length"/></span>
                                         </div>
                                     </div>
                                     <div style="height: 16px;"></div> <!-- Tạo khoảng cách -->
                                     <div class="list-item">
                                         <div class="list-item-content">
-                                            <span class="number">6</span>
-                                            <span class="text">Nhân viên đã được xếp lịch</span>
+                                            <span class="text">Approved</span>
                                         </div>
                                         <div class="arrow-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                            </svg>
+                                            <span class="number"><t t-esc="state.overtime_data.filter(o => o.state == 'approved').length"/></span>
+                                        </div>
+                                    </div>
+                                    <div style="height: 16px;"></div> <!-- Tạo khoảng cách -->
+                                    <div class="list-item">
+                                        <div class="list-item-content">
+                                            <span class="text">Pending</span>
+                                        </div>
+                                        <div class="arrow-icon">
+                                            <span class="number"><t t-esc="state.overtime_data.filter(o => o.state == 'to_submit').length"/></span>
+                                        </div>
+                                    </div>
+                                    <div style="height: 16px;"></div> <!-- Tạo khoảng cách -->
+                                    <div class="list-item">
+                                        <div class="list-item-content">
+                                            <span class="text">Refused</span>
+                                        </div>
+                                        <div class="arrow-icon">
+                                            <span class="number"><t t-esc="state.overtime_data.filter(o => o.state == 'refused').length"/></span>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Phần mục "Chấm công trùng thiết bị" -->
-                                <div class="card">
-                                    <div class="list-item">
-                                        <div class="list-item-content">
-                                            <span class="number">0</span>
-                                            <span class="text">Chấm công trùng thiết bị</span>
-                                        </div>
-                                        <div class="arrow-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Phần lưới các thẻ thông tin -->
                                 <div class="grid-container">
                                     <!-- Thẻ "Đi muộn" -->
                                     <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">Chuyên cần</span>
                                         <span class="icon">⏳</span>
-                                    </div>
-                                    <!-- Thẻ "Về sớm" -->
-                                    <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">Về sớm</span>
-                                        <span class="icon">🚶</span>
-                                    </div>
-                                    <!-- Thẻ "Quên chấm công" -->
-                                    <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">OT</span>
-                                        <span class="icon">📱</span>
-                                    </div>
-                                    <!-- Thẻ "Quên checkout" -->
-                                    <div class="card grid-card">
-                                        <span class="number">0</span>
-                                        <span class="text">Quên checkout</span>
-                                        <span class="icon">📱</span>
+                                        <span class="text">OT 150%</span>
+                                        <span class="number">1</span>
                                     </div>
                                     <!-- Thẻ "Nghỉ phép" -->
                                     <div class="card grid-card">
+                                        <span class="icon">⏳</span>
+                                        <span class="text">OT 200%</span>
                                         <span class="number">0</span>
-                                        <span class="text">Nghỉ phép</span>
-                                        <span class="icon">⛱️</span>
                                     </div>
                                     <!-- Thẻ "Nghỉ không phép" -->
                                     <div class="card grid-card">
+                                        <span class="icon">⏳</span>
+                                        <span class="text">OT 300%</span>
                                         <span class="number">0</span>
-                                        <span class="text">Nghỉ không phép</span>
-                                        <span class="icon">🚫</span>
+                                    </div>
+                                    <div class="card grid-card">
+                                        <span class="icon">⏳</span>
+                                        <span class="text">OT 400%</span>
+                                        <span class="number">0</span>
                                     </div>
                                 </div>
 
@@ -1182,18 +1272,34 @@
                                 })">
                                 New</button>
                             <!-- View Toggle Buttons -->
-                            <div class="flex justify-end mb-6 space-x-2">
-                                <button t-on-click="() => this.setMode('list')"
-                                    t-att-class="displayMode.mode === 'list' ? ' bg-blue-600 text-white rounded-lg' : ''"
-                                    class="px-4 py-2 rounded-lg shadow-md flex items-center space-x-2 text-gray-700">
-                                    <i class="oi oi-view-list w-5 h-5"></i>
-                                </button>
-                                <button t-on-click="() => this.setMode('card')"
-                                    t-att-class="displayMode.mode === 'card' ? ' bg-blue-600 text-white rounded-lg' : ''"
-                                    class="px-4 py-2 rounded-lg shadow-md flex items-center space-x-2 text-gray-700">
-                                    <i class="oi oi-view-kanban w-5 h-5"></i>
-                                </button>
-                            </div>
+                            <div class="flex justify-between items-center mt-2 mb-4">
+                                <div class="flex justify-start mb-6 space-x-4">
+                                    <div class="s_toolbar__search">
+                                    <input type="text" placeholder="Nhân viên" t-on-input="onSearchInput" />
+                                    </div>
+                                    <div class="s_toolbar__search">
+                                        <input type="text" placeholder="Loại" t-on-input="onSearchInput" />
+                                    </div>
+                                    <div class="s_toolbar__search">
+                                        <input type="text" placeholder="Thời gian" t-on-input="onSearchInput" />
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end mb-6 space-x-2">
+                                    <button t-on-click="() => this.setMode('list')"
+                                        t-att-class="displayMode.mode === 'list' ? ' bg-blue-600 text-white rounded-lg' : ' '"
+                                        class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700 ">
+                                        <i class="oi-fw oi oi-view-list w-5 h-5"></i>
+                                        <!-- <span>Table View</span> -->
+                                    </button>
+                                    <button t-on-click="() => this.setMode('card')"
+                                        t-att-class="displayMode.mode === 'card' ? ' bg-blue-600 text-white rounded-lg' : ' '"
+                                        class="px-4 py-2 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center space-x-2 text-gray-700">
+                                        <i class="oi-fw oi oi-view-kanban w-5 h-5"></i>
+                                        <!-- <span>Card View</span> -->
+                                    </button>
+                                </div>
+                             </div>
 
                             <t t-if="state.overtime_data.length > 0">
                                 <t t-if="displayMode.mode === 'card'">
@@ -1212,7 +1318,7 @@
                                                 <div class="space-y-2 text-gray-700">
                                                     <p>
                                                         <span class="font-medium">Request Name:</span>
-                                                        <span t-esc="record.name" />
+                                                        <span t-esc="record.request_id[1]" />
                                                     </p>
                                                     <p>
                                                         <span class="font-medium">Start:</span>
@@ -1238,7 +1344,7 @@
                                 <t t-if="displayMode.mode === 'list'">
                                     <div
                                         class="list-view overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-200">
-                                        <table class="min-w-full divide-y divide-gray-200">
+                                        <table class="table-styled min-w-full divide-y divide-gray-200">
                                             <thead class="bg-gray-50">
                                                 <tr>
                                                     <th scope="col"
@@ -1281,7 +1387,7 @@
                                                             <t t-esc="record.employee_id[1]" />
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                            <t t-esc="record.name" />
+                                                            <t t-esc="record.request_id[1]" />
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                             <t t-esc="this.formatDateTime(record.start_date)" />
@@ -1317,40 +1423,6 @@
                         employee_name: state.employee_name,
                     })">New</button> -->
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                            <div
-                                class="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl shadow-lg p-6 flex items-center space-x-4">
-                                <div class="p-3 bg-purple-700 rounded-full shadow-inner">
-                                    <i class="fas fa-calendar-alt w-8"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm opacity-90">Total Paid Salary</p>
-                                    <p class="text-3xl font-extrabold"
-                                        t-esc="this.formatCurrency(state.salarySummary.totalPaidSalary)" />
-                                </div>
-                            </div>
-                            <div
-                                class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl shadow-lg p-6 flex items-center space-x-4">
-                                <div class="p-3 bg-yellow-700 rounded-full shadow-inner">
-                                    <i class="fas fa-hourglass-half w-8"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm opacity-90">Average Salary</p>
-                                    <p class="text-3xl font-extrabold"
-                                        t-esc="this.formatCurrency(state.salarySummary.averageSalary)" />
-                                </div>
-                            </div>
-                            <div
-                                class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl shadow-lg p-6 flex items-center space-x-4">
-                                <div class="p-3 bg-blue-700 rounded-full shadow-inner">
-                                    <i class="fas fa-check-circle w-8"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm opacity-90">Number of Payslips</p>
-                                    <p class="text-3xl font-extrabold" t-esc="state.salarySummary.totalPayslips" />
-                                </div>
-                            </div>
-                        </div>
                         <t t-if="state.payslip_data.length > 0">
                             <div class="data-list-grid">
                                 <t t-foreach="state.payslip_data" t-as="record" t-key="record.id">

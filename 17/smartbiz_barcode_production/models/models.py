@@ -789,6 +789,63 @@ class mrp_Production(models.Model):
   
         return self.get_data(production_id)
     
+    def save_raw_order(self, production_id, data):
+        """Lưu move_line cho nguyên liệu (move_raw_ids) và trả về dữ liệu cập nhật của MO."""
+        MoveLine = self.env['stock.move.line']
+        quantity = float(data.get('quantity', 0))
+        mo = self.browse(production_id)
+        if not mo:
+            raise UserError("Production Order không tồn tại!")
+
+        # Location chuẩn cho move_raw
+        location_id = data.get('location_id') or mo.location_src_id.id       # kho nguyên liệu
+        location_dest_id = data.get('location_dest_id') or mo.location_dest_id.id  # vị trí sản xuất
+
+        if data.get('id'):
+            # Update move_line cũ
+            MoveLine.browse(data['id']).write({
+                'quantity': quantity,
+                'location_id': location_id,
+                'location_dest_id': location_dest_id,
+                'lot_id': data.get('lot_id'),
+                'package_id': data.get('package_id'),
+                'result_package_id': data.get('result_package_id'),
+                'state': 'assigned',
+                'picked': True,
+            })
+        else:
+            # Nếu move_id chưa có → tạo move_raw mới
+            move_id = data.get('move_id')
+            if not move_id:
+                move = self.env['stock.move'].create({
+                    'name': data.get('product_name', ''),
+                    'product_id': data['product_id'],
+                    'product_uom': data['product_uom_id'],
+                    'product_uom_qty': quantity,
+                    'raw_material_production_id': production_id,  # liên kết MO
+                    'location_id': location_id,
+                    'location_dest_id': location_dest_id,
+                })
+                move_id = move.id
+
+            # Tạo move_line mới
+            MoveLine.create({
+                'move_id': move_id,
+                'product_id': data['product_id'],
+                'product_uom_id': data['product_uom_id'],
+                'quantity': quantity,
+                'location_id': location_id,
+                'location_dest_id': location_dest_id,
+                'lot_id': data.get('lot_id'),
+                'package_id': data.get('package_id'),
+                'result_package_id': data.get('result_package_id'),
+                'state': 'assigned',
+                'picked': True,
+            })
+
+        # Trả về dữ liệu MO mới nhất
+        return self.get_data(production_id)
+
     def cancel_order(self,production_id):
         #raise UserError("OK")
         self.env['mrp.production'].browse(production_id).action_cancel()
@@ -805,26 +862,61 @@ class mrp_Production(models.Model):
         data['lot_name'] = lot_id.name
         return data
         
-    def pack_move_line(self,production_id,data):     
+    def pack_move_line(self, production_id, data):     
         quantity = float(data['quantity'])
+        MoveLine = self.env['stock.move.line']
+        Package = self.env['stock.quant.package']
+        
+        if quantity <= 0:
+            return self.get_data(production_id)
+
         if data['id']:
-            ml =  self.env['stock.move.line'].browse(data['id'])
+            ml = MoveLine.browse(data['id'])
+            vals = {
+                'quantity': quantity,
+                'location_id': data['location_id'],
+                'location_dest_id': data['location_dest_id'],
+                'picked': True,
+            }
+            if data.get('lot_id'):
+                vals['lot_id'] = data['lot_id']
             if ml.result_package_id:
-                ml.write({'quantity':quantity,'location_id':data['location_id'],'location_dest_id':data['location_dest_id'],'lot_id':data['lot_id'],'picked':True})
+                ml.write(vals)
             else:
-                package = self.env['stock.quant.package'].create({})
-                ml.write({'quantity':quantity,'location_id':data['location_id'],'location_dest_id':data['location_dest_id'],'lot_id':data['lot_id'],'result_package_id':package.id,'picked':True})
+                package = Package.create({})
+                vals['result_package_id'] = package.id
+                ml.write(vals)
+
         else:
-            package = self.env['stock.quant.package'].create({})
-            self.env['stock.move.line'].create({'move_id':data['move_id'],'product_id':data['product_id'],'product_uom_id':data['product_uom_id'],'quantity':quantity,'location_id':data['location_id'],'location_dest_id':data['location_dest_id'],'lot_id':data['lot_id'],'result_package_id':package.id,'picked':True})
-        mo =   self.search([['id','=',production_id]],limit=1)
+            package = Package.create({})
+            move = self.env['stock.move'].browse(data['move_id'])
+            product = move.product_id
+
+            vals = {
+                'move_id': data['move_id'],
+                'product_id': data['product_id'],
+                'product_uom_id': data['product_uom_id'],
+                'quantity': quantity,
+                'location_id': data['location_id'],
+                'location_dest_id': data['location_dest_id'],
+                'result_package_id': package.id,
+                'picked': True,
+            }
+            # chỉ set lot_id nếu product có tracking
+            if product.tracking != 'none' and data.get('lot_id'):
+                vals['lot_id'] = data['lot_id']
+
+            MoveLine.create(vals)
+
+        mo = self.search([('id', '=', production_id)], limit=1)
         if mo:
             finisheds = mo.move_finished_ids
-            move_lines = finisheds[0].move_line_ids
+            move_lines = finisheds[0].move_line_ids if finisheds else self.env['stock.move.line']
             qty_producing = sum(move_lines.mapped('quantity')) if move_lines else 0
-            mo.write({'qty_producing':qty_producing})
+            mo.write({'qty_producing': qty_producing})
             
         return self.get_data(production_id)
+
         
     def print_move_line(self,production_id,data,printer_name):
         quantity = float(data['quantity'])

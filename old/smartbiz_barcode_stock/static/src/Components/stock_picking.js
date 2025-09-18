@@ -163,6 +163,7 @@ class StockPicking extends Component {
         {
             await this.createBatch(this.state.data.batch_picking_type_id)
         }
+		this.env.model.data = this.state.data;
     }
     async createBatch(picking_type_id){
         if(picking_type_id)

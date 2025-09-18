@@ -30,16 +30,16 @@
 
     'assets': {
         'web.assets_backend': [
-              'smartbiz_barcode_stock/static/src/**/*.js',
-              'smartbiz_barcode_stock/static/src/**/*.scss',
-              'smartbiz_barcode_stock/static/src/**/*.xml',
-         ],
-        'web.assets_qweb': [
-         ],
-     },
+            'smartbiz_barcode_stock/static/src/**/*.js',
+            'smartbiz_barcode_stock/static/src/**/*.scss',
+            'smartbiz_barcode_stock/static/src/**/*.xml',
+            # không cần liệt kê XML ở đây
+        ],
 
-    'qweb': [
-    ],
+    },
+
+
+
 
     # only loaded in demonstration mode
     'demo': [

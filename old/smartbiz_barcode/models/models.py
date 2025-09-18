@@ -13,6 +13,7 @@ from io import BytesIO
 import xlsxwriter
 from openpyxl import load_workbook
 
+
 # class Stock_PickingType(models.Model):
 #     _inherit = ['stock.picking.type']
 #     name = fields.Char(store='True')

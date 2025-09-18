@@ -30,6 +30,7 @@
                 <button name="action_create_activities" string="Create Activities" type = "object" class="oe_highlight" invisible="(state not in [ 'draft', 'confirmed'] or bool(activities_created) == True)"/>
                 <button name="action_print_activities" string="Print Activities" type = "object" class="oe_highlight" invisible="(state not in [ 'draft', 'confirmed'] or bool(activities_created) == False or bool(activities_printed) == True)"/>
                 <button name="action_reprint_activities" string="RePrint Activities" type = "object"  invisible="(state not in [ 'draft', 'confirmed'] or bool(activities_created) == False or bool(activities_printed) == False)"/>
+                <button name="action_create_measurements" string="Create Measurements" type = "object" class="oe_highlight" invisible="(state not in [ 'progress', 'to_close'] or production_measurements > 0)"/>
             </xpath>
 
        <xpath expr="//sheet/group/group" position="inside">
@@ -44,7 +45,8 @@
         <field name="plan_start" />
         <field name="plan_finish" />
         <field name="activities_printed" invisible="1"/>
-        <field name="activities_created" invisible="1"/>     
+        <field name="activities_created" invisible="1"/> 
+       <field name="production_measurements" invisible="1"/>         
        </xpath>
 
       </field>
@@ -63,6 +65,10 @@
 
                     <button name="action_production_packages" type="object"  class="oe_stat_button" icon="fa-truck"> 
                         <field string="Production Packages" name="production_packages" widget="statinfo"/>
+                     </button>
+
+                    <button name="action_production_measurements" type="object"  class="oe_stat_button" icon="fa-wrench"> 
+                        <field string="Production Measurements" name="production_measurements" widget="statinfo"/>
                      </button>
 
                 </div>
@@ -506,6 +512,23 @@
       </field>
     </record>
 
+    <record model="ir.ui.view" id="smartbiz_mes_production_measurement_form">
+      <field name="name">smartbiz_mes_production_measurement_form</field>
+      <field name="model">smartbiz_mes.production_measurement</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Production Measurement">
+      <sheet>
+          <group col="1">
+                   <field name="name"/>
+                   <field name="production_id"/>
+                   <field name="work_order_id"/>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
     <record model="ir.ui.view" id="purchase_order_form">
       <field name="name">purchase_order_form</field>
       <field name="model">purchase.order</field>
@@ -832,6 +855,19 @@
       </field>
     </record>
 
+    <record model="ir.ui.view" id="smartbiz_mes_production_measurement_tree">
+      <field name="name">smartbiz_mes_production_measurement_tree</field>
+      <field name="model">smartbiz_mes.production_measurement</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Production Measurement" >
+            <field name="name" optional="show"/>
+            <field name="production_id" optional="show"/>
+            <field name="work_order_id" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
     <record model="ir.ui.view" id="purchase_order_tree">
       <field name="name">purchase_order_tree</field>
       <field name="model">purchase.order</field>
@@ -1018,6 +1054,13 @@
         <record id="act_mrp_production_2_smartbiz_mes_package" model="ir.actions.act_window">
             <field name="name">Package</field>
             <field name="res_model">smartbiz_mes.package</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record id="act_mrp_production_2_smartbiz_mes_production_measurement" model="ir.actions.act_window">
+            <field name="name">Production Measurement</field>
+            <field name="res_model">smartbiz_mes.production_measurement</field>
             <field name="view_mode">tree,form</field>
             <field name="context">{}</field>
         </record>
@@ -1217,6 +1260,14 @@
       <field name="context">{}</field>
     </record>
 
+    <record model="ir.actions.act_window" id="smartbiz_mes_production_measurement_action">
+      <field name="name">Production Measurement</field>
+      <field name="res_model">smartbiz_mes.production_measurement</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
     <record model="ir.actions.act_window" id="purchase_order_action">
       <field name="name">order</field>
       <field name="res_model">purchase.order</field>
@@ -1342,6 +1393,12 @@
        action ="smartbiz_mes_pause_reason_action"
        parent ="mrp.menu_mrp_configuration"
        sequence ="34"
+    />
+    <menuitem name="Production Measurement" 
+       id="smartbiz_mes_production_measurement_menuitem"
+       action ="smartbiz_mes_production_measurement_action"
+       parent ="mrp.menu_mrp_manufacturing"
+       sequence ="35"
     />
 
 </odoo>

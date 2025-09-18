@@ -66,6 +66,34 @@ button {
     all: unset;
 }
 
+.table-styled {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+}
+
+.table-styled th {
+    background-color: #4faefc !important; 
+    color: white;
+    text-align: left;
+    padding: 8px;
+}
+
+.table-styled td {
+    background-color: #f9f9f9; /* màu nền nhạt cho td */
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+.table-styled tr:nth-child(even) td {
+    background-color: #f1f1f1; /* xen kẽ màu cho dễ đọc */
+}
+
+.table-styled tr:hover td {
+    background-color: #e0f7fa; /* khi hover hàng */
+}
+
+
 /*=============== VARIABLES DARK THEME ===============*/
 body.dark-theme {
     --first-color: hsl(228, 70%, 63%);
@@ -572,6 +600,7 @@ body.dark-theme {
             box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
             padding: 0.25rem 0;
             display: none;
+            z-index: 10;
 
             &.open {
                 display: block;
@@ -614,6 +643,67 @@ body.dark-theme {
         }
     }
 }
+/* Header */
+        .s_home_header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .s_home_header {
+                flex-direction: row;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .s_home_header-logo {
+                margin-bottom: 0;
+                display: flex;
+            }
+        }
+
+        .s_home_header-logo-icon {
+            height: 2rem;
+            width: 2rem;
+            color: #2563eb;
+            margin-right: 0.5rem;
+        }
+        
+        .s_home_header-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .s_home_header-profile {
+            display: flex;
+            align-items: center;
+            text-align: right;
+        }
+        
+        .s_home_profile-info {
+            margin-right: 1rem;
+        }
+        
+        .s_home_profile-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .s_home_profile-id {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .s_home_profile-shift {
+            font-size: 0.75rem;
+            color: #3b82f6;
+        }
+        
 
 .s_icon {
     width: 1.25rem;
@@ -739,6 +829,7 @@ body.dark-theme {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
     margin-bottom: 2rem;
+    color: #fff;
 }
 
 @media (max-width: 768px) {
@@ -763,14 +854,28 @@ body.dark-theme {
     transform: translateY(-0.125rem);
 }
 
-.s_home_card-blue-light {
-    background-color: #2563eb;
-    color: #fff;
+/* Lớp màu xanh đậm nhất */
+.s_home_card-blue-darkest {
+  background-color: #1e40af;
+  color: #fff;
 }
 
+/* Lớp màu xanh đậm, được cung cấp bởi bạn */
 .s_home_card-blue-dark {
-    background-color: #1e3a8a;
-    color: #fff;
+  background-color: #1055ea;
+  color: #fff;
+}
+
+/* Lớp màu xanh nhạt, được cung cấp bởi bạn */
+.s_home_card-blue-light {
+  background-color: #4b76f2;
+  color: #fff;
+}
+
+/* Lớp màu xanh nhạt nhất */
+.s_home_card-blue-lightest {
+  background-color: #75b2f8;
+  color: #000; /* Thay đổi màu chữ thành đen để dễ đọc */
 }
 
 .s_home_card-header {
@@ -788,10 +893,12 @@ body.dark-theme {
 .s_home_card-title {
     font-size: 1.25rem;
     font-weight: 600;
+    color: #fff;
 }
 
 .s_home_card-info {
-    text-align: right;
+    display: flex;
+    justify-content: space-between;
     color: #e5e7eb;
 }
 

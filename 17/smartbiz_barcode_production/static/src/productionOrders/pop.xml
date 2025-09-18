@@ -242,7 +242,6 @@
                         }"/>
                 </div>
             </div>
-
         </div>
         <footer t-attf-class="{{footerClass()}}">
             <div t-if="state.showInfo" class="s_finished_message"><t t-esc="state.finished_message"/></div>
@@ -263,7 +262,7 @@
             action:state.dialogAction,
             fields:state.dialogFields,
             records:state.dialogRecords,
-            closeModal:closeDialog.bind(this),
+            closeModal:onPackSpecDialogClose,
             defaultValues: state.dialogDefault, 
         }"/>
 		<ProductionEntryDialog

@@ -1,0 +1,1242 @@
+msgid ""
+msgstr ""
+
+#. module: smartbiz
+#: model:res.groups,name:smartbiz.group_roles_user_1
+#: model:ir.model.fields.selection,name:smartbiz.selection__res_partner__partner_type__user
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__user
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_device_register__user_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__user_id
+#: model:res.groups,name:smartbiz.group_roles_user_1
+msgid "User"
+msgstr "Người dùng"
+
+#. module: smartbiz
+#: model:res.groups,name:smartbiz.group_roles_administrator_2
+msgid "Administrator"
+msgstr "Quản trị viên"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_res_users
+#: model:ir.ui.menu,name:smartbiz.res_users_menuitem
+#: model:ir.actions.act_window,name:smartbiz.res_users_action
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__users_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.res_partner_form
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_position__users_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_position_form
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_log__users_ids
+msgid "Users"
+msgstr "Người dùng"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_res_partner
+#: model:ir.ui.menu,name:smartbiz.res_partner_menuitem
+#: model:ir.actions.act_window,name:smartbiz.res_partner_action
+msgid "Partner"
+msgstr "Cộng sự"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__partner_type
+msgid "Partner type"
+msgstr "Loại đối tác"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__res_partner__partner_type__account
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__account_id
+msgid "Account"
+msgstr "Tài khoản"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__res_partner__partner_type__site
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__site_id
+msgid "Site"
+msgstr "Địa điểm"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__res_partner__partner_type__requester
+msgid "Requester"
+msgstr "Người yêu cầu"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__sites_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.res_partner_form
+msgid "Sites"
+msgstr "Địa điểm"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__requesters_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.res_partner_form
+msgid "Requesters"
+msgstr "Người yêu cầu"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_res_partner__invoice_name
+msgid "Invoice Name"
+msgstr "Tên hóa đơn"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_hr_employee
+#: model:ir.ui.menu,name:smartbiz.hr_employee_menuitem
+#: model:ir.actions.act_window,name:smartbiz.hr_employee_action
+msgid "Employee"
+msgstr "Người lao động"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_ir_attachment
+#: model:ir.ui.menu,name:smartbiz.ir_attachment_menuitem
+#: model:ir.actions.act_window,name:smartbiz.ir_attachment_action
+msgid "Attachment"
+msgstr "Tệp đính kèm"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_ir_model
+#: model:ir.ui.menu,name:smartbiz.ir_model_menuitem
+#: model:ir.actions.act_window,name:smartbiz.ir_model_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_condition__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__model
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__model_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__model_id
+msgid "Model"
+msgstr "Model"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_mail_template
+#: model:ir.ui.menu,name:smartbiz.mail_template_menuitem
+#: model:ir.actions.act_window,name:smartbiz.mail_template_action
+#: model:ir.model,name:smartbiz.model_product_template
+#: model:ir.ui.menu,name:smartbiz.product_template_menuitem
+#: model:ir.actions.act_window,name:smartbiz.product_template_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__template_id
+msgid "Template"
+msgstr "Mẫu"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_res_groups
+#: model:ir.ui.menu,name:smartbiz.res_groups_menuitem
+#: model:ir.actions.act_window,name:smartbiz.res_groups_action
+msgid "Groups"
+msgstr "Nhóm"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_res_groups__type
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__type
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__type
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__type
+msgid "Type"
+msgstr "Kiểu"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__res_groups__type__product
+#: model:ir.model,name:smartbiz.model_product_product
+#: model:ir.ui.menu,name:smartbiz.product_product_menuitem
+#: model:ir.actions.act_window,name:smartbiz.product_product_action
+msgid "Product"
+msgstr "Sản phẩm"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__res_groups__type__level
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_role__level_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_position__level_id
+#: model:ir.model,name:smartbiz.model_smartbiz_level
+#: model:ir.ui.menu,name:smartbiz.smartbiz_level_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_level_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__level_id
+msgid "Level"
+msgstr "Mức độ"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__res_groups__type__roles
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_position__roles_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_position_form
+msgid "Roles"
+msgstr "Vai trò"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__res_groups__type__ou
+msgid "OU"
+msgstr "OU"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__res_groups__type__function
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__function_ids
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__function_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_task_definition_form
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rule__function_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__function_id
+#: model:ir.model,name:smartbiz.model_smartbiz_function
+#: model:ir.ui.menu,name:smartbiz.smartbiz_function_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_function_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__function_id
+msgid "Function"
+msgstr "Chức năng"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__res_groups__type__position
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_organization_unit__position_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_organization_unit_form
+#: model:ir.model,name:smartbiz.model_smartbiz_position
+#: model:ir.ui.menu,name:smartbiz.smartbiz_position_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_position_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__position_id
+msgid "Position"
+msgstr "Chức vụ"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_ir_model_fields
+#: model:ir.ui.menu,name:smartbiz.ir_model_fields_menuitem
+#: model:ir.actions.act_window,name:smartbiz.ir_model_fields_action
+msgid "Model.Fields"
+msgstr "Model.Fields"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_uom_uom
+#: model:ir.ui.menu,name:smartbiz.uom_uom_menuitem
+#: model:ir.actions.act_window,name:smartbiz.uom_uom_action
+msgid "UOM"
+msgstr "Đơn vị"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_resource_resource
+#: model:ir.ui.menu,name:smartbiz.resource_resource_menuitem
+#: model:ir.actions.act_window,name:smartbiz.resource_resource_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rule__resource_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_rule_form
+#: model:ir.model,name:smartbiz.model_smartbiz_resource
+#: model:ir.ui.menu,name:smartbiz.smartbiz_resource_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_resource_action
+msgid "Resource"
+msgstr "Nguồn lực"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_resource_calendar
+#: model:ir.ui.menu,name:smartbiz.resource_calendar_menuitem
+#: model:ir.actions.act_window,name:smartbiz.resource_calendar_action
+msgid "Calendar"
+msgstr "Lịch"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_ir_actions_server
+#: model:ir.ui.menu,name:smartbiz.ir_actions_server_menuitem
+#: model:ir.actions.act_window,name:smartbiz.ir_actions_server_action
+msgid "Actions.Server"
+msgstr "Hành động.Server"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_ir_cron
+#: model:ir.ui.menu,name:smartbiz.ir_cron_menuitem
+#: model:ir.actions.act_window,name:smartbiz.ir_cron_action
+msgid "Cron"
+msgstr "cron"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_workflow_definition
+#: model:ir.ui.menu,name:smartbiz.smartbiz_workflow_definition_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_workflow_definition_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_state__workflow_definition_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__workflow_definition_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__workflow_definition_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__workflow_definition_id
+msgid "Workflow Definition"
+msgstr "Định nghĩa quy trình"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_device_register__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__name
+msgid "Name"
+msgstr "Tên"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_workflow_definition_form
+#: model:ir.ui.menu,name:smartbiz.menu_workflow_3
+msgid "Workflow"
+msgstr "Quy trình làm việc"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__version
+msgid "Version"
+msgstr "Phiên bản"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__task_definition_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_workflow_definition_form
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__task_definition_ids
+#: model:ir.model,name:smartbiz.model_smartbiz_task_definition
+#: model:ir.ui.menu,name:smartbiz.smartbiz_task_definition_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_task_definition_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__task_definition_id
+msgid "Task Definition"
+msgstr "Định nghĩa nhiệm vụ"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__state_ids
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__state
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__state
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_state__name
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__state_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__state_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__state
+msgid "State"
+msgstr "Trạng thái"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_workflow_definition_form
+#: model:ir.model,name:smartbiz.model_smartbiz_workflow_state
+#: model:ir.ui.menu,name:smartbiz.smartbiz_workflow_state_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_workflow_state_action
+msgid "Workflow State"
+msgstr "Trạng thái quy trình"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_workflow_definition_form
+msgid "Workflow Function"
+msgstr "Chức năng quy trình làm việc"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_definition__auto_job_ids
+msgid "Auto Job"
+msgstr "Công việc tự động"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_workflow_definition_form
+msgid "Workflow Auto Jobs"
+msgstr "Công việc tự động"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_rabbitmq_sever
+#: model:ir.ui.menu,name:smartbiz.smartbiz_rabbitmq_sever_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_rabbitmq_sever_action
+msgid "Rabbitmq Sever"
+msgstr "Máy chủ Rabbitmq"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__host
+msgid "Host"
+msgstr "Máy chủ"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__password
+msgid "Password"
+msgstr "Mật khẩu"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__port
+msgid "Port"
+msgstr "Cổng"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__channel_number
+msgid "Channel Number"
+msgstr "Số kênh"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_rabbitmq_sever__type__produce
+msgid "Produce"
+msgstr "Khởi tạo"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_rabbitmq_sever__type__consumer
+msgid "Consumer"
+msgstr "Tiêu thụ"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__routing_key
+msgid "Routing key"
+msgstr "Khóa định tuyến"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__exchange
+msgid "Exchange"
+msgstr "Trao đổi"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__queue_name
+msgid "Queue name"
+msgstr "Tên hàng đợi"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__exchange_type
+msgid "Exchange Type"
+msgstr "Loại trao đổi"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_rabbitmq_sever__exchange_type__direct
+msgid "Direct"
+msgstr "Trực tiếp"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_rabbitmq_sever__exchange_type__fanout
+msgid "Fanout"
+msgstr "Fanout"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_rabbitmq_sever__exchange_type__topic
+msgid "Topic"
+msgstr "Đề tài"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_rabbitmq_sever__exchange_type__headers
+msgid "Headers"
+msgstr "Tiêu đề"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__passive
+msgid "Passive"
+msgstr "Thụ động"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__durable
+msgid "Durable"
+msgstr "Bền bỉ"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__auto_delete
+msgid "Auto Delete"
+msgstr "Tự động xóa"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__internal
+msgid "Internal"
+msgstr "Nội bộ"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rabbitmq_sever__code
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__code
+msgid "Code"
+msgstr "Mã số"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_rabbitmq_sever_form
+msgid "Python Code"
+msgstr "Mã Python"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_device_register
+#: model:ir.ui.menu,name:smartbiz.smartbiz_device_register_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_device_register_action
+msgid "Device Register"
+msgstr "Đăng ký thiết bị"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_device_register__token
+msgid "Token"
+msgstr "Mã thông báo"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_device_register__active_date
+msgid "Active Date"
+msgstr "Ngày hoạt động"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_workflow_base
+#: model:ir.ui.menu,name:smartbiz.smartbiz_workflow_base_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_workflow_base_action
+msgid "Workflow Base"
+msgstr "Quy trình cơ sở"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_state__sequence
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rule__sequence
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_rule__task_finish__sequence
+msgid "Sequence"
+msgstr "Số thứ tự"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_workflow_state__value
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_condition__value
+msgid "Value"
+msgstr "Giá trị"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_delegation
+#: model:ir.ui.menu,name:smartbiz.smartbiz_delegation_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_delegation_action
+msgid "Delegation"
+msgstr "Ủy quyền"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_delegation__delegator_id
+msgid "Delegator"
+msgstr "Người ủy quyền"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_delegation__delegatee_id
+msgid "Delegatee"
+msgstr "Người nhận ủy quyền"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_delegation__start_date
+msgid "Start Date"
+msgstr "Ngày bắt đầu"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_delegation__end_date
+msgid "End Date"
+msgstr "Ngày kết thúc"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_delegation__task_type_id
+#: model:ir.model,name:smartbiz.model_smartbiz_task_type
+#: model:ir.ui.menu,name:smartbiz.smartbiz_task_type_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_task_type_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__task_type_id
+msgid "Task Type"
+msgstr "Loại nhiệm vụ"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_delegation__active
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_workflow_definition__state__active
+msgid "Active"
+msgstr "Kích hoạt"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_organization_unit
+#: model:ir.ui.menu,name:smartbiz.smartbiz_organization_unit_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_organization_unit_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_position__organization_unit_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__organization_unit_id
+msgid "Organization Unit"
+msgstr "Đơn vị tổ chức"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_organization_unit__name
+msgid "Unit Name"
+msgstr "Tên đơn vị"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_organization_unit__parent_unit_id
+msgid "Parent Unit"
+msgstr "Đơn vị cha"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_organization_unit__child_units_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_organization_unit_form
+msgid "Child Units"
+msgstr "Đơn vị con"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_organization_unit__established_date
+msgid "Established Date"
+msgstr "Ngày thành lập"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_organization_unit_form
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_organization_unit__history
+msgid "History"
+msgstr "Lịch sử"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_role
+#: model:ir.ui.menu,name:smartbiz.smartbiz_role_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_role_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__role_id
+msgid "Role"
+msgstr "Vai trò"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_role__name
+msgid "Role Name"
+msgstr "Tên vai trò"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_position__name
+msgid "Position Name"
+msgstr "Tên vị trí"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_position__reports_to_ids
+msgid "Reports To"
+msgstr "Báo cáo tới"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_position_form
+msgid "Report To"
+msgstr "Báo cáo tới"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_level__name
+msgid "Level Name"
+msgstr "Tên cấp bậc"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_level__hierarchy_order
+msgid "Hierarchy Order"
+msgstr "Thứ tự phân cấp"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__description
+msgid "Description"
+msgstr "Miêu tả"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__can_delegate
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__can_delegate
+msgid "Can Delegate"
+msgstr "Có thể ủy quyền"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__duration_type
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__duration_type
+msgid "Duration Type"
+msgstr "Loại thời lượng"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_task_type__duration_type__hours
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_task_definition__duration_type__hours
+msgid "Hours"
+msgstr "Giờ"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_task_type__duration_type__days
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_task_definition__duration_type__days
+msgid "Days"
+msgstr "Ngày"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_task_type__duration_type__weeks
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_task_definition__duration_type__weeks
+msgid "Weeks"
+msgstr "Tuần"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_task_type__duration_type__months
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_task_definition__duration_type__months
+msgid "Months"
+msgstr "Tháng"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__default_duration
+msgid "Default Duration"
+msgstr "Thời lượng mặc định"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__allowed_positions_ids
+msgid "Allowed Positions"
+msgstr "Vị trí được phép"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__allowed_roles_ids
+msgid "Allowed Roles"
+msgstr "Vai trò được phép"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__allowed_levels_ids
+msgid "Allowed Levels"
+msgstr "Cấp bậc được phép"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_type__allowed_organization_units_ids
+msgid "Allowed Organization Units"
+msgstr "Đơn vị tổ chức được phép"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_task_type_form
+msgid "Tash Definition"
+msgstr "Định nghĩa nhiệm vụ"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__name
+msgid "Task Name"
+msgstr "Tên nhiệm vụ"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__duration
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__duration
+msgid "Duration"
+msgstr "Khoảng thời gian"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__delegate_template_id
+msgid "Delegate Template"
+msgstr "Mẫu email ủy quyền"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__notification_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_task_definition_form
+msgid "Notification"
+msgstr "Thông báo"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task_definition__transfer_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_task_definition_form
+msgid "Transfer"
+msgstr "Chuyển nhiệm vụ"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_rule
+#: model:ir.ui.menu,name:smartbiz.smartbiz_rule_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_rule_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_condition__rule_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__rule_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__rule_ids
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__rule_id
+msgid "Rule"
+msgstr "Quy tắc"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rule__name
+msgid "Rule Name"
+msgstr "Tên quy tắc"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rule__task_finish
+msgid "Task Finish"
+msgstr "Kết thúc nhiệm vụ"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_rule__task_finish__any
+msgid "Any"
+msgstr "Bất kì"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_rule__task_finish__parallel
+msgid "Parallel"
+msgstr "Song song"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_rule__condition_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_rule_form
+#: model:ir.model,name:smartbiz.model_smartbiz_condition
+#: model:ir.ui.menu,name:smartbiz.smartbiz_condition_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_condition_action
+msgid "Condition"
+msgstr "Điều kiện"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_condition__name
+msgid "Condition Name"
+msgstr "Tên điều kiện"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_condition__field_id
+msgid "Field"
+msgstr "Trường"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_condition__operator
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__operator
+msgid "Operator"
+msgstr "Toán tử"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_condition__operator__=
+msgid "Equal to"
+msgstr "Bằng"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_condition__operator__!=
+msgid "Not equal to"
+msgstr "Khác"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_condition__operator__>
+msgid "Greater than"
+msgstr "Lớn hơn"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_condition__operator__<
+msgid "Less than"
+msgstr "Nhỏ hơn"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_condition__operator__>=
+msgid "Greater than or equal to"
+msgstr "Lớn hơn hoặc bằng"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_condition__operator__<=
+msgid "Less than or equal to"
+msgstr "Nhỏ hơn hoặc bằng"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_condition__operator__in
+msgid "In (in set)"
+msgstr "Trong"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_condition__operator__not in
+msgid "Not in (not in set)"
+msgstr "Không trong"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_condition__operator__like
+msgid "LIKE (case-sensitive)"
+msgstr "Giống (phân biệt chữ hoa/chữ thường)"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_condition__operator__ilike
+msgid "ILIKE (case-insensitive)"
+msgstr "Giống (không phân biệt chữ hoa/chữ thường)"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__name
+msgid "Resource Name"
+msgstr "Tên nguồn lực"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__method
+msgid "Method"
+msgstr "Phương thức"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_resource__method__by_position
+msgid "By Position"
+msgstr "Theo vị trí"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_resource__method__by_role
+msgid "By Role"
+msgstr "Theo vai trò"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_resource__method__by_level
+msgid "By Level"
+msgstr "Theo cấp độ"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_resource__method__by_ou
+msgid "By OU"
+msgstr "Theo đơn vị tổ chức"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_resource__method__by_user_field
+msgid "By User Field"
+msgstr "Theo trường người dùng"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_resource__method__by_ou_field
+msgid "By OU Field"
+msgstr "Theo trường đơn vị tổ chức"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_resource__operator__and
+msgid "AND"
+msgstr "Và"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_resource__operator__or
+msgid "OR"
+msgstr "Hoặc"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__user_field_id
+msgid "User Field"
+msgstr "Trường người dùng"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__ou_field_id
+msgid "OU Field"
+msgstr "Trường OU"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_resource__organization_scope
+msgid "Organization Scope"
+msgstr "Phạm vi tổ chức"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_resource__organization_scope__self
+msgid "Self"
+msgstr "Bản thân"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_resource__organization_scope__parent
+msgid "Parent"
+msgstr "Cấp cha"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_resource__organization_scope__children
+msgid "Children"
+msgstr "Cấp con"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_resource__organization_scope__self-parent
+msgid "Self-Parent"
+msgstr "Bản thân-Cấp cha"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_resource__organization_scope__self-children
+msgid "Self-Children"
+msgstr "Bản thân-Cấp con"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_action
+#: model:ir.ui.menu,name:smartbiz.smartbiz_action_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_action_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__action_ids
+msgid "Action"
+msgstr "Hoạt động"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__name
+msgid "Action Name"
+msgstr "Tên hành động"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_action__type__send_notification
+msgid "Send Notification"
+msgstr "Gửi thông báo"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_action__type__move_to_state
+msgid "Move to State"
+msgstr "Chuyển sang trạng thái"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_action__type__run_server_action
+msgid "Run Server Action"
+msgstr "Chạy hành động máy chủ"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__trigger_type
+msgid "Trigger Type"
+msgstr "Loại kích hoạt"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_action__trigger_type__on_user_assignment
+msgid "On User Assignment"
+msgstr "Khi người dùng được gán"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_action__trigger_type__on_user_action
+msgid "On User Action"
+msgstr "Khi người dùng hành động"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_action__trigger_type__on_task_complete
+msgid "On Task Complete"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_action__server_action_id
+msgid "Server Action"
+msgstr "Hành động của máy chủ"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__function_name
+msgid "Function Name"
+msgstr "Tên chức năng"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_function__type__button
+msgid "Button"
+msgstr "Nút bấm"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_function__type__system
+msgid "System"
+msgstr "Hệ thống"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_function__run_code
+msgid "Run Code"
+msgstr "Chạy mã"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_function__run_code__after
+msgid "After"
+msgstr "Sau"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_function__run_code__before
+msgid "Before"
+msgstr "Trước"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_function_form
+msgid "Rules"
+msgstr "Quy tắc"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_function_form
+msgid "Actions"
+msgstr "Hành động"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_task
+#: model:ir.ui.menu,name:smartbiz.smartbiz_task_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_task_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__task_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_log__task_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_log__task_id
+msgid "Task"
+msgstr "Nhiệm vụ"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__res_id
+msgid "Res ID"
+msgstr "ID tài liệu"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__document_name
+msgid "Document Name"
+msgstr "Tên tài liệu"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__deadline
+msgid "Deadline"
+msgstr "Thời hạn"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__assignees_ids
+msgid "Assignees"
+msgstr "Người được phân công"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__actual_users_ids
+msgid "Actual Users"
+msgstr "Người dùng thực tế"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__start
+msgid "Start"
+msgstr "Bắt đầu"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__finish
+msgid "Finish"
+msgstr "Hoàn thành"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_task__state__assigned
+msgid "Assigned"
+msgstr "Được giao"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_task__state__processing
+msgid "Processing"
+msgstr "Đang xử lý"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_task__state__overdue
+msgid "Overdue"
+msgstr "Quá hạn"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_task__state__done
+msgid "Done"
+msgstr "Hoàn thành"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_task__state__cancel
+msgid "Cancel"
+msgstr "Hủy bỏ"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__work_log_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_task_form
+#: model:ir.model,name:smartbiz.model_smartbiz_work_log
+#: model:ir.ui.menu,name:smartbiz.smartbiz_work_log_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_work_log_action
+msgid "Work Log"
+msgstr "Nhật ký công việc"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__notification_log_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_task_form
+#: model:ir.model,name:smartbiz.model_smartbiz_notification_log
+#: model:ir.ui.menu,name:smartbiz.smartbiz_notification_log_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_notification_log_action
+msgid "Notification Log"
+msgstr "Nhật ký thông báo"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__transfer_log_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_task_form
+#: model:ir.model,name:smartbiz.model_smartbiz_transfer_log
+#: model:ir.ui.menu,name:smartbiz.smartbiz_transfer_log_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_transfer_log_action
+msgid "Transfer Log"
+msgstr "Nhật ký chuyển nhượng"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__state_iteration
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__state_iteration
+msgid "State Iteration"
+msgstr "Lặp lại trạng thái"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_task_form
+msgid "Mics"
+msgstr ""
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__document_state
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__document_state
+msgid "Document State"
+msgstr "Trạng thái tài liệu"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__pending_users_ids
+msgid "Pending Users"
+msgstr "Người dùng đang chờ"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_task__completed_users_ids
+msgid "Completed Users"
+msgstr "Người dùng đã hoàn thành"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log__date
+msgid "Date"
+msgstr "Ngày"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_work_log___
+msgid " "
+msgstr " "
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_notification_condition
+#: model:ir.ui.menu,name:smartbiz.smartbiz_notification_condition_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_notification_condition_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_log__notification_condition_id
+msgid "Notification Condition"
+msgstr "Điều kiện thông báo"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__days_before_overdue
+msgid "Days before Overdue"
+msgstr "Số ngày trước khi quá hạn"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__time_in_day
+msgid "Time in day"
+msgstr "Thời gian trong ngày"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__interval_hours
+msgid "Interval Hours"
+msgstr "Số giờ ngắt quãng"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__max_notice
+msgid "Max Notice"
+msgstr "Số thông báo tối đa"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_condition__notification_template_id
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__notification_template_id
+msgid "Notification Template"
+msgstr "Mẫu thông báo"
+
+#. module: smartbiz
+#: model:ir.model,name:smartbiz.model_smartbiz_transfer_condition
+#: model:ir.ui.menu,name:smartbiz.smartbiz_transfer_condition_menuitem
+#: model:ir.actions.act_window,name:smartbiz.smartbiz_transfer_condition_action
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_log__transfer_condition_id
+msgid "Transfer Condition"
+msgstr "Điều kiện chuyển nhượng"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__overdue_transfer
+msgid "Overdue Transfer"
+msgstr "Chuyển khi quá hạn"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__max_transfer
+msgid "Max Transfer"
+msgstr "Số chuyển tối đa"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__to_manager
+msgid "To Manager"
+msgstr "cho người quản lý"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__to_users_ids
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_log__to_users_ids
+msgid "To Users"
+msgstr "Cho người dùng"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_condition__create_new_task
+msgid "Create New Task"
+msgstr "Tạo nhiệm vụ mới"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_log__time
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_log__time
+msgid "Time"
+msgstr "Thời gian"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_notification_log__reason
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_log__reason
+msgid "Reason"
+msgstr "Lý do"
+
+#. module: smartbiz
+#: model:ir.model.fields,field_description:smartbiz.field_smartbiz_transfer_log__from_user_id
+msgid "From User"
+msgstr "Từ người dùng"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_rabbitmq_sever__state__stopped
+msgid "Stopped"
+msgstr "Đã dừng"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_rabbitmq_sever_form
+msgid "Run"
+msgstr "Chạy"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_rabbitmq_sever__state__running
+msgid "Running"
+msgstr "Đang chạy"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_workflow_definition_form
+msgid "Create State"
+msgstr "Tạo trạng thái"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_workflow_definition_form
+msgid "Create Function"
+msgstr "Tạo chức năng"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_workflow_definition_form
+msgid "Deactivate"
+msgstr "Vô hiệu hóa"
+
+#. module: smartbiz
+#: model:ir.model.fields.selection,name:smartbiz.selection__smartbiz_workflow_definition__state__inactive
+msgid "Inactive"
+msgstr "Không hoạt động"
+
+#. module: smartbiz
+#: model_terms:ir.ui.view,arch_db:smartbiz.smartbiz_workflow_definition_form
+msgid "Reactivate"
+msgstr "Kích hoạt lại"
+
+#. module: smartbiz
+#: model:ir.ui.menu,name:smartbiz.menu_smartbiz_2
+msgid "SmartBiz"
+msgstr "SmartBiz"
+
+#. module: smartbiz
+#: model:ir.ui.menu,name:smartbiz.menu_device_4
+msgid "Device"
+msgstr "Thiết bị"
+
+#. module: smartbiz
+#: model:ir.ui.menu,name:smartbiz.menu_log_5
+msgid "Log"
+msgstr "Log"
+
+#. module: smartbiz
+#: model:ir.ui.menu,name:smartbiz.menu_oms_6
+msgid "OMS"
+msgstr "Quản lý tổ chức"

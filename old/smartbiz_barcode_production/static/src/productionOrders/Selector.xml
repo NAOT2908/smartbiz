@@ -119,125 +119,130 @@
             </div>
         </div>
     </t>
+<t t-name="ProductionEntryDialog">
+  <div class="s-app-container">
+    <div class="s-main-content-wrapper">
+      <h1 class="s-app-title">
+        <t t-if="props.mode === 'material'">Ghi nhận Tiêu thụ</t>
+        <t t-elif="props.mode === 'finished'">Ghi nhận Thành phẩm</t>
+      </h1>
 
-    <t t-name="ProductionEntryDialog">
-        <!-- Chi tiết dịch chuyển -->
-        <div class="s-app-container">
-            
-            <div class="s-main-content-wrapper">
-                <h1 class="s-app-title">
-                    Ghi nhận Tiêu thụ/Thành phẩm
-                </h1>
-                <div class="s_selector-header">
-                    <i class="fa fa-barcode" t-on-click="openManualScanner"/>
-                </div>
-                <div id="qr-reader" style="width: 1px; height: 1px; overflow: hidden; position: absolute; top: -9999px; left: -9999px;"></div>
-                
-                <h3 class="s-scanned-codes-title">Danh sách đã quét</h3>
-                <div class="s-scanned-codes-section">
-                    <div class="s-scanned-codes-content">
-                        <div class="package-info-item">
-                            <div class="package-tags">
-                                <t t-foreach="state.processedPackages" t-as="package" t-key="package.id">
-                                    <span class="package-tag"><t t-esc="package.name" />
-                                    <i class="fa fa-times remove-icon"
-                                                    title="Xoá"
-                                                    t-on-click="() => this.removeProcessedPackage(package.id)"/>
-                                    </span>
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <div class="s_selector-header">
+        <i class="fa fa-barcode" t-on-click="openManualScanner"/>
+      </div>
 
-                <div class="s-product-quantities-section">
-                    <h3 class="s-product-quantities-title">Tổng số lượng sản phẩm</h3>
-                        <div class="s-table-responsive-wrapper">
-                            <table class="s-product-table">
-                                <thead class="s-bg-purple-200">
-                                    <tr>
-                                        <th class="s-py-2 s-px-3 s-text-left s-text-purple-800 s-font-semibold s-rounded-tl-md">Sản phẩm</th>
-                                        <th class="s-py-2 s-px-3 s-text-left s-text-purple-800 s-font-semibold">Đã làm / Nhu cầu</th>
-                                        <th class="s-py-2 s-px-3 s-text-left s-text-purple-800 s-font-semibold s-rounded-tr-md">Chi tiết</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="state.combinedProductData" t-as="data" t-key="data_index">
-                                        <tr class="s-border-b s-border-purple-100 s-last-border-b-0 s-hover-bg-purple-50">
-                                            <td class="s-py-2 s-px-3"><t t-esc="data.productName"/></td>
-                                            <td class="s-py-2 s-px-3 s-font-bold">
-                                                <t t-esc="data.quantityDone"/> / <t t-esc="data.quantityNeeded"/>
-                                            </td>
-                                            <td class="s-py-2 s-px-3">
-                                                <button t-on-click="() => this.openDetailsModal(data.productName, data.quantityDone, data.quantityNeeded)"
-                                                        class="s-detail-button">
-                                                    Chi tiết ✨
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
-                        </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="s-action-buttons-wrapper">
-                    <button t-on-click="this.handleRecordProducts"
-                            class="s-record-button">
-                        Ghi nhận sản phẩm
-                    </button>
-                    <button t-on-click="this.closeDialog"
-                            class="s-reset-button">
-                        Huỷ
-                    </button>
-                </div>
-
-                <!-- Combined Product Details Modal -->
-                <t t-if="state.showDetailsModal">
-                    <div class="s-modal-overlay">
-                        <div class="s-modal-content">
-                            <div class="s-modal-header">
-                                <h4 class="s-modal-title">Chi tiết sản phẩm: <t t-esc="state.modalProductData.productName"/></h4>
-                            </div>
-
-                            <div class="s-mb-4">
-                                <h4 class="s-modal-section-title">Danh sách package chứa sản phẩm:</h4>
-                                <table class="s-modal-package-table">
-                                    <thead>
-                                    <tr>
-                                        <th>Package</th>
-                                        <th>Số lượng</th>
-                                        <th>Vị trí</th>
-                                        <th>Lot</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <t t-foreach="state.modalProductData.packages" t-as="pkg" t-key="pkg.packageId">
-                                        <tr>
-                                        <td><t t-esc="pkg.packageName" /></td>
-                                        <td><t t-esc="pkg.quantity" /></td>
-                                        <td><t t-esc="pkg.location" /></td>
-                                        <td><t t-esc="pkg.lot" /></td>
-                                        </tr>
-                                    </t>
-                                    <t t-if="!state.modalProductData.packages || state.modalProductData.packages.length === 0">
-                                        <tr><td colspan="4">Không có dữ liệu.</td></tr>
-                                    </t>
-                                    </tbody>
-                                </table>
-                                </div>
-
-                            <div class="s-modal-footer">
-                                <button t-on-click="this.closeDialogDetails"
-                                        class="s-modal-footer-button">
-                                    Đóng
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </t>
+      <h3 class="s-scanned-codes-title">Danh sách Package đã quét</h3>
+      <div class="s-scanned-codes-section">
+        <div class="s-scanned-codes-content">
+          <div class="package-info-item">
+            <div class="package-tags">
+              <t t-foreach="state.processedPackages" t-as="package" t-key="package.id">
+                <span class="package-tag">
+                  <t t-esc="package.name"/>
+                  <i class="fa fa-times remove-icon"
+                     title="Xoá"
+                     t-on-click="()=>this.removeProcessedPackage(package.id)"/>
+                </span>
+              </t>
             </div>
+          </div>
         </div>
-    </t>
+      </div>
+
+      <div class="s-product-quantities-section">
+        <h3 class="s-product-quantities-title">Tổng hợp theo sản phẩm</h3>
+        <div class="s-table-responsive-wrapper">
+          <table class="s-product-table">
+            <thead class="s-bg-purple-200">
+              <tr>
+                <th class="s-py-2 s-px-3 s-text-left s-text-purple-800 s-font-semibold s-rounded-tl-md">Sản phẩm</th>
+                <th class="s-py-2 s-px-3 s-text-left s-text-purple-800 s-font-semibold">Đã quét / Đang cần</th>
+                <th class="s-py-2 s-px-3 s-text-left s-text-purple-800 s-font-semibold s-rounded-tr-md">Chi tiết</th>
+              </tr>
+            </thead>
+            <tbody>
+              <t t-foreach="state.combinedProductData" t-as="data" t-key="data.productId">
+                <tr class="s-border-b s-border-purple-100 s-last-border-b-0 s-hover-bg-purple-50">
+                  <td class="s-py-2 s-px-3"><t t-esc="data.productName"/></td>
+                  <td class="s-py-2 s-px-3 s-font-bold">
+                    <t t-esc="data.quantityScanned"/> / <t t-esc="data.quantityNeeded"/>
+                  </td>
+                  <td class="s-py-2 s-px-3">
+                    <button t-on-click="() => this.openDetailsModal(data.productId)"
+                            class="s-detail-button">
+                      Chi tiết ✨
+                    </button>
+                  </td>
+                </tr>
+              </t>
+              <t t-if="!state.combinedProductData.length">
+                <tr><td colspan="3">Chưa có dữ liệu.</td></tr>
+              </t>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="s-action-buttons-wrapper">
+        <button t-if="props.mode === 'material'"
+                t-on-click="handleRecordProducts"
+                class="s-record-button">
+          Ghi nhận tiêu thụ
+        </button>
+        <button t-if="props.mode === 'finished'"
+                t-on-click="handleRecordProducts"
+                class="s-record-button">
+          Ghi nhận sản lượng
+        </button>
+        <button t-on-click="closeDialog" class="s-reset-button">Huỷ</button>
+      </div>
+
+      <!-- Modal chi tiết -->
+      <t t-if="state.showDetailsModal">
+        <div class="s-modal-overlay">
+          <div class="s-modal-content">
+            <div class="s-modal-header">
+              <h4 class="s-modal-title">
+                Chi tiết sản phẩm:
+                <t t-esc="state.modalProductData.productName || ''"/>
+              </h4>
+            </div>
+
+            <div class="s-mb-4">
+              <h4 class="s-modal-section-title">Theo Package:</h4>
+              <table class="s-modal-package-table">
+                <thead>
+                  <tr>
+                    <th>Package</th>
+                    <th>Số lượng</th>
+                    <th>Vị trí</th>
+                    <th>Lot</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <t t-foreach="state.modalProductData.packages" t-as="pkg" t-key="pkg.key">
+                    <tr>
+                      <td><t t-esc="pkg.packageName"/></td>
+                      <td><t t-esc="pkg.quantity"/></td>
+                      <td><t t-esc="pkg.location"/></td>
+                      <td><t t-esc="pkg.lot"/></td>
+                    </tr>
+                  </t>
+                  <t t-if="!state.modalProductData.packages || !state.modalProductData.packages.length">
+                    <tr><td colspan="4">Không có dữ liệu.</td></tr>
+                  </t>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="s-modal-footer">
+              <button t-on-click="()=>this.closeDialogDetails()" class="s-modal-footer-button">Đóng</button>
+            </div>
+          </div>
+        </div>
+      </t>
+    </div>
+  </div>
+</t>
+								  
 </templates>

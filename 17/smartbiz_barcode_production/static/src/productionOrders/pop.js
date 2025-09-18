@@ -241,29 +241,121 @@ buildDefaultPackSpec() {
 }
 
 // ★★★ UI action: mở xác nhận và thực thi ★★★
-openUnreserveAndPack() {
-  // đóng menu trước khi mở dialog
+// ★★★ UI action: mở form tham số & thực thi (dùng DialogModal nội bộ) ★★★
+async openUnreserveAndPack(prefill = null) {
   this.state.menuVisible = false;
 
-  const spec = this.buildDefaultPackSpec();
-  const body = _t(
-    `Thao tác sẽ:
-• Hủy dự trữ phần nguyên liệu của lệnh hiện tại
-• Đóng gói ${spec.pack_size}/gói cho ${spec.target === 'finished' ? 'THÀNH PHẨM' : 'NGUYÊN LIỆU'}
-• Gộp theo lô: ${spec.group_by_lot ? 'Có' : 'Không'}
-Bạn có chắc chắn thực hiện?`
-  );
+  // defaults từ spec mặc định + prefill (nếu vừa validate fail)
+  const defaults = { ...(this.buildDefaultPackSpec?.() || {}), ...(prefill || {}) };
+  const order = this.state.order || {};
 
-  this.dialog.add(ConfirmationDialog, {
-    title: _t("Hủy dự trữ & Đóng gói"),
-    body,
-    confirmLabel: _t("Thực hiện"),
-    cancelLabel: _t("Hủy"),
-    confirm: async () => {
-      await this.doUnreserveAndPack(spec);
-    },
-    cancel: () => {},
-  });
+  // options cho select
+  const targetOptions = [
+    { id: "finished", name: _t("Thành phẩm") },
+    { id: "raw",      name: _t("Nguyên liệu") },
+  ];
+  const yesNoOptions = [
+    { id: true,  name: _t("Có") },
+    { id: false, name: _t("Không") },
+  ];
+
+  // nạp Package Type & Location để người dùng chọn
+  let packageTypeOptions = [];
+  try {
+    const pts = await this.orm.searchRead("stock.package.type", [], ["name"]);
+    packageTypeOptions = (pts || []).map((r) => ({ id: r.id, name: r.name }));
+  } catch (e) {
+    packageTypeOptions = [];
+  }
+  const locationOptions = (this.state.locations || []).map((l) => ({
+    id: l.id, name: l.display_name || l.name,
+  }));
+
+  // cấu hình fields cho DialogModal của bạn
+  const fields = [
+    { name: "target", label: _t("Đối tượng"), type: "select", required: true, options: targetOptions },
+    { name: "pack_size", label: _t("Quy cách/Pack size"), type: "number", required: true },
+    { name: "location_dest_id", label: _t("Vị trí đích (ép)"), type: "select", options: locationOptions, dialog: true },
+    { name: "package_name_prefix", label: _t("Tiền tố tên kiện"), type: "text" },
+    { name: "unreserve_raw", label: _t("Hủy dự trữ nguyên liệu"), type: "select", options: yesNoOptions },
+
+    // nâng cao: per_product (JSON)
+    { name: "use_per_product", label: _t("Cấu hình theo từng sản phẩm?"), type: "select",
+      options: [{ id: "no", name: _t("Không") }, { id: "yes", name: _t("Có") }] },
+    { name: "per_product_json", label: _t("per_product (JSON)"),
+      type: "textarea",
+      visible_if: { field: "use_per_product", operator: "=", value: "yes" } },
+  ];
+
+  // default values (đúng schema DialogModal của bạn)
+  const defaultValues = {
+    target: defaults.target || "finished",
+    pack_size: defaults.pack_size ?? 10,
+    location_dest_id: defaults.location_dest_id || "",
+    package_name_prefix: defaults.package_name_prefix || order?.name || "MO",
+    unreserve_raw: !!defaults.unreserve_raw,
+
+    use_per_product:
+      defaults.per_product && Object.keys(defaults.per_product).length ? "yes" : "no",
+    per_product_json: defaults.per_product
+      ? JSON.stringify(defaults.per_product, null, 2)
+      : "{\n  \"<product_id>\": { \"pack_size\": 12, \"package_type_id\": 1, \"location_dest_id\": 5 }\n}",
+  };
+
+  // đẩy state để render DialogModal
+  this.state.dialogTitle   = _t("Thiết lập đóng gói tự động");
+  this.state.dialogAction  = "pack_auto_params";
+  this.state.dialogFields  = fields;
+  this.state.dialogDefault = defaultValues;
+  this.state.dialogRecords = [];         // không dùng ở mode 'fields'
+  this.state.showDialogModal = true;     // 👉 mở DialogModal
+}
+
+
+// ★★★ Nhận dữ liệu từ DialogModal của bạn & gọi pack_auto ★★★
+onPackSpecDialogClose = async (title, form, action) => {
+  // luôn đóng modal
+  this.state.showDialogModal = false;
+
+  // người dùng bấm "Hủy"
+  if (!form) return;
+
+  // ép kiểu boolean nếu form trả về 'true'/'false' dạng string
+  const toBool = (v) => (v === true || v === "true");
+
+  const packSize = Number(form.pack_size || 0);
+  if (!packSize || packSize <= 0) {
+    this.notification.add(_t("Giá trị Pack size phải > 0."), { type: "danger" });
+    // mở lại dialog với dữ liệu người dùng vừa nhập
+    return this.openUnreserveAndPack(form);
+  }
+
+  const spec = {
+    target: form.target || "finished",
+    pack_size: packSize,
+    default_package_type_id: form.default_package_type_id || false,
+    location_dest_id: form.location_dest_id || false,
+    package_name_prefix: form.package_name_prefix || undefined,
+    unreserve_raw: toBool(form.unreserve_raw),
+  };
+
+  // per_product JSON (tùy chọn)
+  if (form.use_per_product === "yes") {
+    const raw = (form.per_product_json || "").trim();
+    if (raw) {
+      try {
+        spec.per_product = JSON.parse(raw);
+      } catch (e) {
+        this.notification.add(_t("JSON 'per_product' không hợp lệ. Vui lòng kiểm tra cú pháp."), { type: "danger" });
+        return this.openUnreserveAndPack(form);
+      }
+    } else {
+      spec.per_product = {};
+    }
+  }
+
+  // gọi backend
+  await this.doUnreserveAndPack(spec);
 }
 
 // ★★★ Gọi server & refresh data ★★★
@@ -298,24 +390,7 @@ async doUnreserveAndPack(packSpec) {
         [, this.production_id],
         {}
       );
-      this.state.data = data;
-      this.state.productionOrders = data.order.find(x => x.id === this.production_id);
-      this.state.detailTitle = data?.order[0].name;
-      this.state.materialMoves = data.materials;
-      this.state.finishedMoves = data.finisheds;
-      this.state.moveLinesTemp = data.moveLines;
-      this.state.moves = data.moves;
-      this.state.products = data.products;
-      this.state.order = data?.order[0];
-      this.state.lots = data.lots;
-      this.state.locations = data.locations;
-      this.state.packages = data.packages;
-      this.state.finish_packages = data.finish_packages;
-      // console.log({
-      //   data: this.state.data,
-      //   order: this.state.productionOrders,
-      // });
-      this.updateButton();
+      this.updateData(data);
     } catch (error) {
       console.error("Error loading data:", error);
       this.notification.add("Failed to load inventory data" + error, {
@@ -636,7 +711,7 @@ async doUnreserveAndPack(packSpec) {
     // console.log(lotdata);
   };
   print = async (id) => {
-    console.log(id)
+    //console.log(id)
     const printdata = await this.orm.call(
       "mrp.production",
       "print_move_line",
@@ -644,7 +719,7 @@ async doUnreserveAndPack(packSpec) {
         ,
         this.production_id,
         id,
-        "SB2"
+        "SB1"
       ],
       {}
     );
@@ -660,7 +735,9 @@ async doUnreserveAndPack(packSpec) {
         (r) => r.move_id == this.state.selectedFinished
       );
     }
+    //console.log('moveLines',this.state.moveLines)
     for (let item of this.state.moveLines){
+      //console.log(item)
       const printdata = await this.orm.call(
         "mrp.production",
         "print_move_line",
@@ -760,66 +837,59 @@ async doUnreserveAndPack(packSpec) {
   };
 
   checkLot = async (data) => {
-    // console.log(data);
-    const lots = this.state.lots.filter(
-      (x) => x.product_id == this.state.detailMoveLine.product_id
-    );
-    const lot_id = this.state.detailMoveLine.lot_id;
-    const tracking = this.state.detailMoveLine.tracking;
-    if (tracking == "lot") {
-      if (lot_id) {
-        const lotdata = await this.orm.call(
-          "mrp.production",
-          data.method,
-          [, data.production_id, data.data],
-          {}
-        );
-        // console.log(data, lotdata);
-        this.state.materialMoves = lotdata.materials;
-        this.state.finishedMoves = lotdata.finisheds;
-        this.state.moveLinesTemp = lotdata.moveLines;
-        this.state.order = lotdata?.order[0]
-        this.state.moves = lotdata.moves;
-        if (this.state.view === "editMaterial") {
-          this.state.moveLines = this.state.moveLinesTemp.filter(
-            (r) => r.move_id == this.state.selectedMaterial
-          );
-        } else if (this.state.view === "editMove") {
-          this.state.moveLines = this.state.moveLinesTemp.filter(
-            (r) => r.move_id == this.state.selectedFinished
-          );
-        }
-        this.updateData(lotdata)
-        // await this.loadData()
-      } else {
-        alert("Vui lòng cập nhập số lô cho sản phẩm!");
-      }
-    } else if (tracking == "serial") {
-      const lot = lots.find((lot) => lot.id == lot_id);
-      if (lot) {
-        alert(
-          "Số serial này đã được sử dụng. Vui lòng cập nhập số serial khác cho sản phẩm!"
-        );
-      } else {
-        // console.log(data);
-        const serdata = await this.orm.call(
-          "mrp.production",
-          data.method,
-          [, data.production_id, data.data],
-          {}
-        );
-        this.updateData(serdata)  
-      }
-    } else {
-      const nodata = await this.orm.call(
+    const { detailMoveLine, lots, view, selectedMaterial, selectedFinished } = this.state;
+    const { product_id, lot_id, tracking } = detailMoveLine;
+    if (this.state.detailMoveLine.quantity <= 0) 
+    {
+      alert("Số lượng phải lớn hơn 0!");
+      return;
+    }
+    const callAndUpdate = async () => {
+      const result = await this.orm.call(
         "mrp.production",
         data.method,
         [, data.production_id, data.data],
         {}
       );
+      this.state.materialMoves = result.materials;
+      this.state.finishedMoves = result.finisheds;
+      this.state.moveLinesTemp = result.moveLines;
+      this.state.order = result?.order[0];
+      this.state.moves = result.moves;
 
+      if (view === "editMaterial") {
+        this.state.moveLines = this.state.moveLinesTemp.filter(r => r.move_id == selectedMaterial);
+      } else if (view === "editMove") {
+        this.state.moveLines = this.state.moveLinesTemp.filter(r => r.move_id == selectedFinished);
+      }
+      this.updateData(result);
+    };
+
+    if (tracking === "lot") {
+      if (!lot_id) {
+        alert("Vui lòng cập nhập số lô cho sản phẩm!");
+        return;
+      }
+      await callAndUpdate();
+    }
+    else if (tracking === "serial") {
+      if (!lot_id) {
+        alert("Vui lòng nhập số serial cho sản phẩm!");
+        return;
+      }
+
+      const existed = this.state.moveLinesTemp?.some(r => r.lot_id === lot_id);
+      if (existed) {
+        alert("Số serial này đã được sử dụng. Vui lòng nhập số serial khác!");
+        return;
+      }
+      await callAndUpdate();
+    }
+    else {
+      await callAndUpdate();
     }
   };
+
   showSerial = () => {
     const tracking = this.state.detailMoveLine.tracking;
     return tracking == "lot" || tracking == "serial";
@@ -1192,7 +1262,7 @@ async doUnreserveAndPack(packSpec) {
       barcode, false, false, false
     );
 
-    console.log(barcodeData, production_id);
+    // console.log(barcodeData, production_id);
     if (this.state.view === "editMaterial") {
         const line = this.state.moves.find(
             (r) => r.id == this.state.selectedMaterial
@@ -1224,9 +1294,7 @@ async doUnreserveAndPack(packSpec) {
                         [, production_id, existingMoveline],
                         {}
                     );
-                    this.state.materialMoves = savedata.materials;
-                    this.state.finishedMoves = savedata.finisheds;
-                    this.state.moveLinesTemp = savedata.moveLines;
+                    this.updateData(savedata);
                 } else {
                     // Nếu chưa tồn tại, tạo mới moveline
                     const movelineitem = {
@@ -1275,9 +1343,7 @@ async doUnreserveAndPack(packSpec) {
                         [, production_id, movelineitem],
                         {}
                     );
-                    this.state.materialMoves = savedata.materials;
-                    this.state.finishedMoves = savedata.finisheds;
-                    this.state.moveLinesTemp = savedata.moveLines;
+                    this.updateData(savedata);
                 }
             }
 
@@ -1288,6 +1354,119 @@ async doUnreserveAndPack(packSpec) {
         } else {
             console.error("Không tìm thấy sản phẩm phù hợp trong barcodeData.");
         }
+    }
+    if (this.state.view === 'orderdetails' && this.state.activeTab === 'material') {
+      console.log("Barcode Data:", barcodeData);
+
+      const products = barcodeData?.record?.products || [];
+      if (!products.length) {
+          console.error("Không tìm thấy sản phẩm phù hợp trong barcodeData.");
+          return;
+      }
+
+      for (const barcodeProduct of products) {
+          if (!barcodeProduct?.product_id) {
+              console.warn("Barcode product không hợp lệ:", barcodeProduct);
+              continue;
+          }
+
+          let line = this.state.moves.find(
+              r => r.product_id == barcodeProduct.product_id
+          );
+
+          if (line) {
+              let existingMoveline = this.state.moveLinesTemp.find(
+                  r =>
+                      r.move_id == line.id &&
+                      r.product_id == line.product_id &&
+                      r.package_id == barcodeData.record.id
+              );
+
+              if (existingMoveline) {
+                  existingMoveline.qty_done = existingMoveline.quantity;
+                  existingMoveline.quantity = existingMoveline.quantity;
+
+                  const savedata = await this.orm.call(
+                      "mrp.production",
+                      "save_order",
+                      [, production_id, existingMoveline],
+                      {}
+                  );
+
+                  this.updateData(savedata);
+
+              } else {
+                  const movelineitem = {
+                      id: false,
+                      move_id: line.id,
+                      product_id: line.product_id,
+                      product_name: line.product_name || "",
+                      location_id: barcodeProduct.location_id || null,
+                      location_name: barcodeProduct.location_name || "",
+                      location_dest_id: line.location_dest_id || null,
+                      location_dest_name: line.location_dest_name || "",
+                      product_uom_id: line.product_uom_id || null,
+                      product_uom: line.product_uom || "",
+                      product_uom_qty: line.product_uom_qty || 0,
+                      qty_done: barcodeProduct.quantity,
+                      tracking: line.product_tracking || "none",
+                      quantity: barcodeProduct.quantity || 0,
+                      lot_id: barcodeProduct.lot_id || null,
+                      lot_name: barcodeProduct.lot_name || "",
+                      package_id: barcodeData.record.id || null,
+                      package_name: barcodeData.record.name || "",
+                      result_package_id: line.result_package_id || null,
+                      result_package_name: line.result_package_name || "",
+                  };
+
+                  const savedata = await this.orm.call(
+                      "mrp.production",
+                      "save_order",
+                      [, production_id, movelineitem],
+                      {}
+                  );
+
+                  this.updateData(savedata);
+              }
+
+          } else {
+              const movelineitem = {
+                  id: false,
+                  move_id: null,
+                  product_id: barcodeProduct.product_id,
+                  product_name: barcodeProduct.product_name || "",
+                  location_id: barcodeProduct.location_id || null,
+                  location_name: barcodeProduct.location_name || "",
+                  location_dest_id: null, 
+                  location_dest_name: "",
+                  product_uom_id: barcodeProduct.product_uom_id,
+                  product_uom: barcodeProduct.product_uom || "",
+                  product_uom_qty: barcodeProduct.quantity || 0,
+                  qty_done: barcodeProduct.quantity,
+                  tracking: barcodeProduct.tracking || "none",
+                  quantity: barcodeProduct.quantity || 0,
+                  lot_id: barcodeProduct.lot_id || null,
+                  lot_name: barcodeProduct.lot_name || "",
+                  package_id: barcodeData.record.id || null,
+                  package_name: barcodeData.record.name || "",
+                  result_package_id: null,
+                  result_package_name: "",
+              };
+
+              const savedata = await this.orm.call(
+                  "mrp.production",
+                  "save_raw_order",
+                  [, production_id, movelineitem],
+                  {}
+              );
+
+              this.updateData(savedata);
+          }
+      }
+
+      this.state.moveLines = this.state.moveLinesTemp.filter(
+          r => r.move_id == this.state.selectedMaterial
+      );
     }
     this.updateButton();
 }

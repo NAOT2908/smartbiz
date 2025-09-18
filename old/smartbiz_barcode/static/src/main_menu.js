@@ -62,7 +62,7 @@ export class MainMenu extends Component {
         }
     }
     async openInventory() {
-        await this.actionService.doAction("smartbiz_inventory.adjustment_inventory_action");
+        await this.actionService.doAction("smartbiz_barcode.stock_quant_inventory_action");
     }
     async openPop() {
         // await this.actionService.doAction("smartbiz_barcode.stock_pop_action");

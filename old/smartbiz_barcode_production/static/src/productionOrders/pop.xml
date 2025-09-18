@@ -38,8 +38,13 @@
                 <button t-if="state.view !== 'orderdetails'" t-on-click="() => this.openSelector(9)" >Chia Package</button>
                 <button t-if="state.view !== 'orderdetails'" t-on-click="() => this.openSelector(8)" >Đóng Package loạt</button>
           
-                <button t-on-click="() => this.openDialog()" >Ghi nhận sản lượng</button>
-                <button t-on-click="() => this.openDialog()" >Ghi nhận tiêu thụ</button>
+                <button t-on-click="() => this.openDialog('finished')">Ghi nhận sản lượng</button>
+				<button t-on-click="() => this.openDialog('material')">Ghi nhận tiêu thụ</button>
+				<!-- ★★★ NÚT MỚI: Hủy dự trữ & Đóng gói theo quy cách ★★★ -->
+				<button class="pop_menu-danger"
+						t-on-click="() => this.openUnreserveAndPack()">
+					Hủy dự trữ và Đóng gói
+				</button>
             </div>
         </div>
         <div class="s_tabs" t-if="state.view ==='orderdetails'">
@@ -261,11 +266,19 @@
             closeModal:closeDialog.bind(this),
             defaultValues: state.dialogDefault, 
         }"/>
-        <ProductionEntryDialog t-if="state.ProductionEntryDialog" t-props="{
-            closeDialog: closeDialog.bind(this),
-            finishedMoves: state.finishedMoves,
-            materialMoves: state.materialMoves,
-        }"/>
+		<ProductionEntryDialog
+			t-if="state.ProductionEntryDialog"
+			t-props="{
+				mode: state.entryMode,
+				productionId: this.production_id,
+				closeDialog: closeDialog.bind(this),
+				finishedMoves: state.finishedMoves,
+				materialMoves: state.materialMoves,
+				moveLines: state.moveLinesTemp,
+				preProductionPackages: state.data.pre_production_packages,
+				onUpdated: this.updateData.bind(this)
+			}"
+		/>
     </t>
    
     

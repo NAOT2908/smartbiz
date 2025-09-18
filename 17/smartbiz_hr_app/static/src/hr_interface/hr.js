@@ -107,7 +107,7 @@ export class HrInterface extends Component {
       filteredEntries: [],
       currentFilterDate: new Date(),
       currentFilterType: "month",
-      filterTypeLabel: "Tháng",
+      filterTypeLabel: "Month",
       searchTerm: "",
       modalOpen: false,
       selectedEntry: null,
@@ -438,17 +438,36 @@ export class HrInterface extends Component {
   // hàm showModal universal
   // =====================
   showModal(title, action = "", defaultValues = null) {
+    const dayOptions = [
+      { id: "half_day",  name: _t("Half day") },
+      { id: "full_day", name: _t("Full day") },
+    ];
+    const hoursOptions = [
+      { id: "yes",  name: _t("Yes") },
+      { id: "no", name: _t("No") },
+    ];
+    const timeOptions = Array.from({ length: 48 }, (_, i) => {
+      const hour = Math.floor(i / 2);
+      const minute = i % 2 === 0 ? "00" : "30";
+      const id = hour + (i % 2) * 0.5; // 0, 0.5, 1, 1.5 ... 23.5
+      return {
+        id: id,                               // 0, 0.5, 1, 1.5 ...
+        name: `${hour.toString().padStart(2, "0")}:${minute}`, // 00:00, 00:30, ..., 23:30
+      };
+    });
+
+
     const formMap = {
       attendance_data: [
         {
           name: "employee_ids",
           type: "multiselect",
-          label: "Nhân viên",
+          label: "Employee",
           required: true,
           columns: [
-            { key: "name", label: "Nhân viên" },
-            { key: "barcode", label: "Mã" },
-            { key: "department_id", label: "Phòng ban" },
+            { key: "name", label: "Employee" },
+            { key: "barcode", label: "Code" },
+            { key: "department_id", label: "Department" },
           ],
           options: this.employees,
         },
@@ -467,12 +486,12 @@ export class HrInterface extends Component {
         {
           name: "employee_ids",
           type: "multiselect",
-          label: "Nhân viên",
+          label: "Employee",
           required: true,
           columns: [
-            { key: "name", label: "Nhân viên" },
-            { key: "barcode", label: "Mã" },
-            { key: "department_id", label: "Phòng ban" },
+            { key: "name", label: "Employee" },
+            { key: "barcode", label: "Code" },
+            { key: "department_id", label: "Department" },
           ],
           options: this.employees,
         },
@@ -486,14 +505,41 @@ export class HrInterface extends Component {
         {
           name: "date_from",
           label: "From Date",
-          type: "datetime-local",
+          type: "date",
           required: true,
         },
         {
           name: "date_to",
           label: "To Date",
-          type: "datetime-local",
+          type: "date",
           required: true,
+          visible_if: { field: "request_unit_half", operator: "=", value: "full_day" }
+        },
+        {
+          name: "request_unit_half",
+          label: "Half Day",
+          type: "select",
+          options: dayOptions,
+        },
+        {
+          name: "request_unit_hours",
+          label: "Custom Hours",
+          type: "select",
+          options: hoursOptions,
+        },
+        {
+          name: "request_hour_from",
+          label: "From",
+          type: "select",
+          visible_if: { field: "request_unit_hours", operator: "=", value: "yes" },
+          options: timeOptions
+        },
+        {
+          name: "request_hour_to",
+          label: "To",
+          type: "select",
+          visible_if: { field: "request_unit_hours", operator: "=", value: "yes" },
+          options: timeOptions
         },
         {
           name: "number_of_days",
@@ -501,19 +547,19 @@ export class HrInterface extends Component {
           type: "number",
           readonly: true,
         },
-        // { name: 'state', label: 'Status', type: 'text', readonly: true },
+        { name: 'bsxe', label: 'license plate number', type: 'text', required: true, visible_if: { field: "holiday_status_id", operator: "=", value: 9 }, },
         { name: "note", label: "Note", type: "textarea" },
       ],
       overtime_data: [
         {
           name: "employee_ids",
           type: "multiselect",
-          label: "Nhân viên",
+          label: "Employee",
           required: true,
           columns: [
-            { key: "name", label: "Nhân viên" },
-            { key: "barcode", label: "Mã" },
-            { key: "department_id", label: "Phòng ban" },
+            { key: "name", label: "Employee" },
+            { key: "barcode", label: "Code" },
+            { key: "department_id", label: "Department" },
           ],
           options: this.employees,
         },
@@ -589,7 +635,7 @@ export class HrInterface extends Component {
         "create_attendance",
         [, data.employee_ids, data]
       );
-      this.updateData(hr_data);
+      await this.getData(this.state.employee_id);
       console.log(hr_data);
     }
     if (action === "leave_data" && data) {
@@ -599,8 +645,8 @@ export class HrInterface extends Component {
         "create_leave",
         [, data.employee_ids, data]
       );
-      this.updateData(hr_data);
-      console.log(data);
+      // console.log(data, hr_data);
+      await this.getData(this.state.employee_id);
     }
     if (action === "overtime_data" && data) {
       this.state.selectedOvertime = data.id;
@@ -609,7 +655,7 @@ export class HrInterface extends Component {
         "create_overtime",
         [, data.employee_ids, data, this.state.employee_id]
       );
-      this.updateData(hr_data);
+     await this.getData(this.state.employee_id);
       console.log(hr_data);
     }
     if (action === "payslip_data" && data) {

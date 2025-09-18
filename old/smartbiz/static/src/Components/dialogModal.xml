@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+  <!-- ╭──────────────────── DialogModal ────────────────────╮ -->
+  <t t-name="DialogModal">
+    <div class="s_dialog-modal">
+      <div class="s_dialog-modal-panel">
+        <!-- ─── Title ─── -->
+        <h3 class="s_dialog-title"><t t-esc="props.title"/></h3>
+
+        <!-- ─── Content ─── -->
+        <div class="s_dialog-content">
+
+          <!-- ① Selector 1 bản ghi  (dùng khi title = 'Chọn trạm sản xuất') -->
+          <t t-if="props.title === 'Chọn trạm sản xuất'">
+            <div class="s_selector-wrapper">
+              <!-- Search -->
+              <input class="s_search" placeholder="Tìm…"
+                     t-on-input="setSelectorQuery"
+                     t-att-value="state.selector.query"/>
+
+              <!-- Danh sách -->
+              <div class="s_selector-list">
+                <t t-foreach="getSelectorDisplay()" t-as="record" t-key="record.id">
+                  <div class="s_selector-item"
+                       t-att-class="{'selected': state.selectedRecord === record.id}"
+                       t-on-click="() => this.selectRecord(record.id)">
+                    <span class="name">
+                      <t t-esc="record.display_name || record.name"/>
+                    </span>
+                    <i class="fa fa-check tick"
+                       t-if="state.selectedRecord === record.id"/>
+                  </div>
+                </t>
+              </div>
+
+              <!-- Phân trang -->
+              <div class="s_pager">
+                <button class="btn-page"
+                        t-att-disabled="state.selector.page===1?true:undefined"
+                        t-on-click="prevSelectorPage">‹</button>
+                <span>
+                  <t t-esc="state.selector.page"/> /
+                  <t t-esc="getSelectorTotalPages()"/>
+                </span>
+                <button class="btn-page"
+                        t-att-disabled="state.selector.page===getSelectorTotalPages()?true:undefined"
+                        t-on-click="nextSelectorPage">›</button>
+              </div>
+            </div>
+          </t>
+
+          <!-- ② Dynamic fields -->
+          <div class="s_fields" t-if="props.fields">
+            <t t-foreach="getVisibleFields()" t-as="f" t-key="f.name">
+
+              <div class="s_field-row">
+                <label>
+                  <t t-esc="f.label"/>
+                  <span t-if="f.required" style="color:red">*</span>
+                </label>
+
+                <!-- a. TEXTAREA -->
+                <textarea t-if="f.type === 'textarea'"
+                          t-att-disabled="f.readonly"
+                          class="s_field" rows="2"
+                          placeholder="Nhập nội dung…"
+                          t-att-value="getInputValue(f)"
+                          t-on-input="(e)=>this._onInput(f.name,e)"/>
+
+                <!-- b. INPUT (text/number/datetime-local) -->
+                <input t-if="['number','text','datetime-local'].includes(f.type)"
+                       t-att-disabled="f.readonly"
+                       class="s_field"
+                       t-att-type="f.type"
+                       t-att-value="getInputValue(f)"
+                       t-on-input="(e)=>this._onInput(f.name,e)"/>
+
+                <!-- c. SELECT chuyển sang dialog khi dài -->
+                <t t-if="isSelectDialog(f)">
+                  <div class="s_select-dialog">
+                    <div class="s_select-value"
+                        t-att-class="{'disabled': f.readonly}"
+                        t-on-click="() => this.openSingleSelect(f)">
+                      <span t-if="getInputValue(f)">
+                        <t t-esc="getOptionName(f, getInputValue(f))"/>
+                      </span>
+                      <span t-if="!getInputValue(f)" class="placeholder">Chọn…</span>
+                      <i class="fa fa-chevron-down chevron"></i>
+                    </div>
+                    <i class="fa fa-times remove-icon"
+                       t-if="getInputValue(f) &amp;&amp; !f.readonly"
+                       t-on-click="() => this.clearSingleValue(f)"/>
+                  </div>
+                </t>
+
+                <!-- d. SELECT HTML thường (danh sách ngắn) -->
+                <select t-if="f.type === 'select'  &amp;&amp; (!isSelectDialog(f))"
+                        t-att-disabled="f.readonly"
+                        class="s_field"
+                        t-on-change="(e)=>this._onInput(f.name,e)">
+                  <option value="">---</option>
+                  <t t-foreach="f.options" t-as="opt" t-key="opt.id">
+                    <option t-att-value="opt.id"
+                            t-att-selected="opt.id == getInputValue(f) ? 'selected' : undefined">
+                      <t t-esc="opt.name"/>
+                    </option>
+                  </t>
+                </select>
+
+                <!-- e. MULTISELECT -->
+                <div t-if="f.type === 'multiselect'" class="s_multi-select">
+                  <div class="s_tags">
+                    <t t-foreach="getInputValue(f)" t-as="id" t-key="id">
+                      <span class="s_tag">
+                        <t t-esc="getOptionName(f,id)"/>
+                        <i class="fa fa-times remove-icon"
+                            t-if="!f.readonly"
+                           t-on-click="() => this.removeMultiValue(f,id)"/>
+                      </span>
+                    </t>
+                    <button class="btn-add"
+                            t-if="!f.readonly"
+                            t-on-click="() => this.openMultiSelect(f)">Chọn</button>
+                  </div>
+                </div>
+              </div>
+            </t>
+          </div>
+        </div><!-- /content -->
+
+        <!-- ─── Buttons ─── -->
+        <div class="s_dialog-actions">
+          <button class="btn btn-primary"  t-on-click="confirmEdit">Xác nhận</button>
+          <button class="btn btn-secondary" t-on-click="cancel">Hủy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ Panel multiselect -->
+    <t t-if="state.multi.field" t-call="MultiSelectPanel"/>
+    <!-- ④ Panel single-select -->
+    <t t-if="state.single.field" t-call="SingleSelectPanel"/>
+  </t>
+  <!-- ╰──────────────────────────────────────────────────────╯ -->
+
+  <!-- ──────────────── Panel MULTISELECT ──────────────── -->
+  <t t-name="MultiSelectPanel">
+    <div class="s_dialog-modal">
+      <div class="s_dialog-modal-panel s_multi-panel">
+        <h3 class="s_dialog-title"><t t-esc="state.multi.field.label"/></h3>
+
+        <div class="s_dialog-content">
+          <!-- search -->
+          <input class="s_search" placeholder="Tìm…"
+                 t-on-input="setMultiQuery"
+                 t-att-value="state.multi.query"/>
+
+          <!-- table -->
+          <table class="s_table">
+            <thead>
+              <tr>
+                <th style="width:40px">
+                  <input type="checkbox" t-on-change="this.toggleAll"/>
+                </th>
+                <t t-foreach="state.multi.columns" t-as="col" t-key="col.key">
+                  <th><t t-esc="col.label"/></th>
+                </t>
+              </tr>
+            </thead>
+            <tbody>
+              <t t-foreach="getMultiDisplay()" t-as="opt" t-key="opt.id">
+                <tr t-att-class="{'selected': state.multi.temp.includes(opt.id)}"
+                    t-on-click="() => this.toggleOne(opt.id)">
+                  <td>
+                    <input type="checkbox"
+                           t-att-checked="state.multi.temp.includes(opt.id) ? true : undefined"
+                           t-on-click="(e)=>e.stopPropagation()"
+                           t-on-change="() => this.toggleOne(opt.id)"/>
+                  </td>
+                  <t t-foreach="state.multi.columns" t-as="col" t-key="col.key">
+                    <td><t t-esc="opt[col.key]"/></td>
+                  </t>
+                </tr>
+              </t>
+            </tbody>
+          </table>
+
+          <!-- pager -->
+          <div class="s_pager">
+            <button class="btn-page"
+                    t-att-disabled="state.multi.page===1?true:undefined"
+                    t-on-click="prevMultiPage">‹</button>
+            <span><t t-esc="state.multi.page"/> /
+                  <t t-esc="getMultiTotalPages()"/></span>
+            <button class="btn-page"
+                    t-att-disabled="state.multi.page===getMultiTotalPages()?true:undefined"
+                    t-on-click="nextMultiPage">›</button>
+          </div>
+        </div>
+
+        <div class="s_dialog-actions">
+          <button class="btn btn-primary"  t-on-click="confirmMulti">Xác nhận</button>
+          <button class="btn btn-secondary" t-on-click="closeMulti">Hủy</button>
+        </div>
+      </div>
+    </div>
+  </t>
+
+  <!-- ──────────────── Panel SINGLE-SELECT ──────────────── -->
+  <t t-name="SingleSelectPanel">
+    <div class="s_dialog-modal">
+      <div class="s_dialog-modal-panel s_single-panel">
+        <h3 class="s_dialog-title"><t t-esc="state.single.field.label"/></h3>
+
+        <div class="s_dialog-content">
+          <!-- search -->
+          <input class="s_search" placeholder="Tìm…"
+                 t-on-input="setSingleQuery"
+                 t-att-value="state.single.query"/>
+
+          <!-- table -->
+          <table class="s_table">
+            <thead>
+              <tr>
+                <t t-foreach="state.single.columns" t-as="col" t-key="col.key">
+                  <th><t t-esc="col.label"/></th>
+                </t>
+              </tr>
+            </thead>
+            <tbody>
+              <t t-foreach="getSingleDisplay()" t-as="opt" t-key="opt.id">
+                <tr t-att-class="{'selected': state.single.selected===opt.id}"
+                    t-on-click="() => this.selectSingleRow(opt.id)">
+                  <t t-foreach="state.single.columns" t-as="col" t-key="col.key">
+                    <td><t t-esc="opt[col.key]"/></td>
+                  </t>
+                </tr>
+              </t>
+            </tbody>
+          </table>
+
+          <!-- pager -->
+          <div class="s_pager">
+            <button class="btn-page"
+                    t-att-disabled="state.single.page===1?true:undefined"
+                    t-on-click="prevSinglePage">‹</button>
+            <span><t t-esc="state.single.page"/> /
+                  <t t-esc="getSingleTotalPages()"/></span>
+            <button class="btn-page"
+                    t-att-disabled="state.single.page===getSingleTotalPages()?true:undefined"
+                    t-on-click="nextSinglePage">›</button>
+          </div>
+        </div>
+
+        <div class="s_dialog-actions">
+          <button class="btn btn-primary"  t-on-click="confirmSingle">Xác nhận</button>
+          <button class="btn btn-secondary" t-on-click="closeSingle">Hủy</button>
+        </div>
+      </div>
+    </div>
+  </t>
+
+</templates>

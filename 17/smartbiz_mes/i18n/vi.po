@@ -2,12 +2,12 @@ msgid ""
 msgstr ""
 
 #. module: smartbiz_mes
-#: model:res_groups,name:mrp.group_mrp_user
+#: model:res.groups,name:mrp.group_mrp_user
 msgid "mrp.group_mrp_user"
 msgstr "mrp.group_mrp_user"
 
 #. module: smartbiz_mes
-#: model:res_groups,name:mrp.group_mrp_manager
+#: model:res.groups,name:mrp.group_mrp_manager
 msgid "mrp.group_mrp_manager"
 msgstr "mrp.group_mrp_manager"
 
@@ -98,6 +98,7 @@ msgstr "Sản phẩm"
 #: model:ir.model.fields.selection,name:smartbiz_mes.selection__smartbiz_mes_request__request_type__production
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__production_ids
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__production
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_measurement__production_id
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_external_list_wizard__production_id
 msgid "Production"
 msgstr "Sản xuất"
@@ -116,6 +117,7 @@ msgstr "Sản xuất"
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_operation__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_request__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_pause_reason__name
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_measurement__name
 #: model:ir.model.fields,field_description:smartbiz_mes.field_stock_move_line__name
 msgid "Name"
 msgstr "Tên"
@@ -167,16 +169,23 @@ msgstr "Hoạt động đã in"
 #. module: smartbiz_mes
 #: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__production_activities_ids
 #: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__production_activities
-#: model_terms:ir.ui.view,arch_db:smartbiz_mes.mrp_production_form
+#: model_terms:ir.ui.view,arch_db:mrp.mrp_production_form_view
 msgid "Production Activities"
 msgstr "Hoạt động sản xuất"
 
 #. module: smartbiz_mes
 #: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__production_packages_ids
 #: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__production_packages
-#: model_terms:ir.ui.view,arch_db:smartbiz_mes.mrp_production_form
+#: model_terms:ir.ui.view,arch_db:mrp.mrp_production_form_view
 msgid "Production Packages"
 msgstr "Gói"
+
+#. module: smartbiz_mes
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__production_measurements_ids
+#: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__production_measurements
+#: model_terms:ir.ui.view,arch_db:mrp.mrp_production_form_view
+msgid "Production Measurements"
+msgstr "Đo lường"
 
 #. module: smartbiz_mes
 #: model:ir.model.fields,field_description:smartbiz_mes.field_mrp_production__state
@@ -442,6 +451,7 @@ msgstr "Trung tâm làm việc"
 
 #. module: smartbiz_mes
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_activity__work_order_id
+#: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_production_measurement__work_order_id
 msgid "Work Order"
 msgstr "Lệnh làm việc"
 
@@ -826,6 +836,13 @@ msgstr "Tạm dừng"
 #: model:ir.model.fields,field_description:smartbiz_mes.field_smartbiz_mes_pause_reason__active
 msgid "Active"
 msgstr "Kích hoạt"
+
+#. module: smartbiz_mes
+#: model:ir.model,name:smartbiz_mes.model_smartbiz_mes_production_measurement
+#: model:ir.ui.menu,name:smartbiz_mes.smartbiz_mes_production_measurement_menuitem
+#: model:ir.actions.act_window,name:smartbiz_mes.smartbiz_mes_production_measurement_action
+msgid "Production Measurement"
+msgstr "Đo lường"
 
 #. module: smartbiz_mes
 #: model:ir.model,name:smartbiz_mes.model_purchase_order

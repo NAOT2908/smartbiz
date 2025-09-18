@@ -164,6 +164,8 @@ body {
 .s_detailEdit{
     padding:5px;
     background-color: #ccc;
+    position: sticky;
+    top: 0;
   }
 .s_detail-icon {
     background-color: transparent; // Nền trong suốt cho nút
@@ -227,6 +229,7 @@ body {
 .fa {
   font-size: 20px;
 }
+
 
 .s_focus {
     color: red; 
@@ -419,17 +422,74 @@ body {
     flex: 1;
     overflow-y: auto;
     background-color: #f8f9fa;
+    padding: 5px;
 }
 .s_content-area {
-    flex: 1;
-    overflow-y: auto;
+    //flex: 1;
+    //overflow-y: auto;
     background-color: #f8f9fa;
   
   }
-
-  .s_container {
-    height: calc(100vh - 190px);
+  .s_container_tab {
+    height: calc(100vh - 180px);
     overflow-y: auto;
-
-  
   }
+  .s_container {
+    height: calc(100vh - 130px);
+    overflow-y: auto;
+  }
+
+
+// -------------------------
+// Các lớp dùng chung cho order và picking
+// -------------------------
+/* Khung tổng */
+.s_order_overview {
+  max-width: 1024px;           /* Giới hạn bề rộng, căn giữa */
+  margin: 0 auto;
+  background: #ffffff;        /* Nền trắng, nổi bật trên mọi theme */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+  padding: 24px;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* Lưới thông tin */
+.s_order_info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 14px 28px;             /* dọc x ngang */
+}
+
+/* Từng mục thông tin */
+.s_order_info_item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;        /* Mảng xám rất nhạt */
+  padding: 10px 16px;
+  border-radius: 8px;
+  min-height: 44px;           /* Giữ chiều cao đồng nhất */
+}
+
+/* Nhãn & giá trị */
+.s_info_label {
+  font-weight: 600;
+  color: #495057;
+}
+
+.s_info_value {
+  color: #212529;
+  text-align: right;
+  //white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;    /* Cắt bớt nếu quá dài */
+}
+
+/* Mobile tối ưu */
+@media (max-width: 480px) {
+  .s_order_overview { padding: 20px; }
+  .s_order_info     { grid-template-columns: 1fr; }
+}

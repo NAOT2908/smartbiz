@@ -50,4 +50,4 @@ export class KeyPads extends Component {
   }
 }
 KeyPads.props = ["data", "closeKeypad"];
-KeyPads.template = "smartbiz_barcode.keypadss";
+KeyPads.template = "smartbiz_barcode.keypads";

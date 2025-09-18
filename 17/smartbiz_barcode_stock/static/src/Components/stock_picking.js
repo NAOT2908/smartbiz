@@ -46,6 +46,7 @@ class StockPicking extends Component {
         DialogModal
     };
     setup() {
+        this._t = _t;
         this.rpc = useService('rpc');
         this.orm = useService('orm');
         this.notification = useService('notification');
@@ -109,12 +110,12 @@ class StockPicking extends Component {
             activeTab:'OrderDetail',
             total_lines:0,
             scanned_lines:0,
-            prompt: "chiết xuất thông tin thành dạng json",
+            prompt: _t("Extract information to JSON"), 
             result: null,
             score: null,
             cameraActive: false,
 
-
+            showDialogModal: false,
             modal: '',
         });
 
@@ -122,56 +123,327 @@ class StockPicking extends Component {
         this.multiSelect = false;
         this.selectorTitle = '';
 
-        //Cấu hình cho phép lấy hàng dự trữ từ đơn khác
+        // ★ NEW: cấu hình đọc từ picking.type + cờ đã quét
+        this.cfg = {
+            scan_product: false,
+            scan_source_location: false,
+            scan_destination_location: false,
+            scan_lot: false,
+            scan_package: false,
+            get_full_package: true,
+            all_move_done: false,
+            all_move_line_picked: false,
+        };
+        // Mỗi lần vào 1 move/line sẽ reset
+        this.scanned = { product: false, source: false, dest: false, lot: false, package: false };
+
+        // map sang biến cũ đang dùng trong code
         this.allowGetFullPackage = true;
-        //Cấu hình yêu cầu tất cả các move phải hoàn thành
         this.requiredAllMoveDone = false;
-         //Cấu hình cho phép xác nhận đơn thiếu
-         this.allowConfirmLackOrder = true;
+        this.requiredAllMoveLinePicked = false; // ★ NEW
+        this.allowConfirmLackOrder = true;      // sẽ tự bật/tắt theo cấu hình
+
+    }
+    // ★ NEW: nạp cấu hình từ picking.type
+    async loadPickingTypeConfig(data) {
+        try {
+            const fromArray = (v) => Array.isArray(v) ? v[0] : v;
+            const ptId =
+                data?.batch_picking_type_id ||
+                fromArray(data?.picking_type_id) ||
+                data?.picking_type_id?.id ||
+                data?.picking_type_id;
+
+            if (!ptId) return;
+
+            const [pt] = await this.orm.read("stock.picking.type", [ptId], [
+                "scan_product",
+                "scan_source_location",
+                "scan_destination_location",
+                "scan_lot",
+                "scan_package",
+                "get_full_package",
+                "all_move_done",
+                "all_move_line_picked",
+            ]);
+
+            if (pt) {
+                this.cfg = {
+                    scan_product: !!pt.scan_product,
+                    scan_source_location: !!pt.scan_source_location,
+                    scan_destination_location: !!pt.scan_destination_location,
+                    scan_lot: !!pt.scan_lot,
+                    scan_package: !!pt.scan_package,
+                    get_full_package: !!pt.get_full_package,
+                    all_move_done: !!pt.all_move_done,
+                    all_move_line_picked: !!pt.all_move_line_picked,
+                };
+                // Đồng bộ các biến logic sẵn có
+                this.allowGetFullPackage = this.cfg.get_full_package;
+                this.requiredAllMoveDone = this.cfg.all_move_done;
+                this.requiredAllMoveLinePicked = this.cfg.all_move_line_picked;
+                // Nếu bắt buộc đủ move thì không cho xác nhận thiếu
+                this.allowConfirmLackOrder = !this.requiredAllMoveDone;
+            }
+        } catch (e) {
+            console.warn("loadPickingTypeConfig failed", e);
+        }
     }
     openCamera() {
         if (!this.state.prompt) {
-          return alert("Vui lòng nhập prompt trước!");
+            alert(_t("Please enter a prompt first!")); // ★ changed
+            return;
         }
+        this.state.menuVisible = false;
         this.state.cameraActive = true;
       }
-    
-      // onResult(answer, score, cancelled)
-      closeCamera(answer, score, cancelled = false) {
-        // Nếu user hủy (click outside hoặc nút ×) thì answer=null & cancelled=true
-        if (!cancelled && answer !== null) {
-          this.state.result = answer;
-          this.state.score = score;
-        }
-        // Tắt modal
-        console.log("Đóng camera, kết quả:", { answer, score, cancelled });
-        this.state.cameraActive = false;
+      buildExpectedList() {
+        // Lấy từ this.state.moves: bạn cần chắc các field sau có sẵn
+        // ƯU TIÊN: default_code (mã) + product_name + (product_uom_qty - quantity)
+        // Nếu không có default_code, tạm dùng product_name làm mã (ít ưu tiên)
+        return (this.state.moves || []).map(m => {
+          const ma = m.product_code || m.product_barcode || String(m.product_id);
+          const ten = m.product_name_ || m.product_name || "";
+          // lượng còn phải nhận = demand - picked (vì bạn đang chỉ dùng quantity)
+          const so_yeu_cau = Math.max(0, Number(m.product_uom_qty || 0) - Number(m.quantity || 0));
+          return { ma_part: ma, ten, so_yeu_cau };
+        }).filter(x => x.so_yeu_cau > 0);
       }
+    
+    // === Helper 1: Tìm move theo mã AI (ma_part) → ưu tiên default_code → barcode → product_id (string)
+_findMoveByMaPart(codeRaw) {
+    const code = String(codeRaw || "").trim();
+    return (this.state.moves || []).find((m) =>
+      (m.product_code && String(m.product_code).trim() === code) ||
+      (m.product_barcode && String(m.product_barcode).trim() === code) ||
+      (String(m.product_id) === code)
+    );
+  }
+  
+  // === Helper 2: Tính số còn cần nhận (chỉ dùng quantity)
+  _needOfMove(mv) {
+    const need = (Number(mv.product_uom_qty || 0) - Number(mv.quantity || 0));
+    return Math.max(0, this.roundToTwo(need));
+  }
+  
+  // === Helper 3: Sinh serial fallback từ prefix
+  _makeSerialNames(prefix, count) {
+    const base = String(prefix || "").trim() || "SN";
+    const now = new Date();
+    const stamp = [
+      now.getFullYear(),
+      String(now.getMonth()+1).padStart(2,'0'),
+      String(now.getDate()).padStart(2,'0'),
+      String(now.getHours()).padStart(2,'0'),
+      String(now.getMinutes()).padStart(2,'0'),
+      String(now.getSeconds()).padStart(2,'0'),
+    ].join('');
+    return Array.from({ length: count }, (_, i) => `${base}-${stamp}-${i+1}`);
+  }
+  
+  // === Hàm xử lý kết quả từ Camera AI ===
+  // onResult(answer, score, cancelled)
+  async closeCamera(answer, score, cancelled = false) {
+    try {
+      // Hủy → tắt modal
+      if (cancelled) {
+        this.state.cameraActive = false;
+        return;
+      }
+  
+      // Validate payload
+      const receivedMap = answer && answer.received_map;
+      const serialsMap  = (answer && answer.serials_map) || {};
+      if (!receivedMap || typeof receivedMap !== "object") {
+        this.notification.add(this._t("Không có dữ liệu hợp lệ từ Camera AI."), { type: "warning" });
+        this.state.cameraActive = false;
+        return;
+      }
+  
+      // Lưu kết quả AI (nếu cần hiển thị)
+      this.state.result = answer;
+      this.state.score  = score;
+  
+      // Prefix lô lấy từ picking (theo yêu cầu)
+      const lotPrefix =
+        this.state.data?.lot_name ||
+        (this.state.data?.order && this.state.data.order[0]?.lot_name) ||
+        "";
+  
+      const applied = [];
+      const skippedNoLotPrefix = [];
+      const skippedUnknownMove = [];
+  
+      // Xử lý từng mã
+      for (const [ma_part, gotRaw] of Object.entries(receivedMap)) {
+        let got = Number(gotRaw) || 0;
+        if (got <= 0) continue;
+  
+        const move = this._findMoveByMaPart(ma_part);
+        if (!move) {
+          skippedUnknownMove.push({ ma_part, qty: got });
+          continue;
+        }
+  
+        const need = this._needOfMove(move);
+        if (!need) continue;
+  
+        const tracking = move.product_tracking || "none";
+  
+        // Hàng không tracking: 1 line quantity = min(need, got)
+        if (tracking === "none") {
+          const qtyToAdd = Math.min(need, got);
+          if (qtyToAdd <= 0) continue;
+  
+          const values = {
+            id: false,
+            product_id: move.product_id,
+            product_uom_id: move.product_uom_id,
+            quantity: this.roundToTwo(qtyToAdd),
+            location_id: move.location_id,
+            location_dest_id: move.location_dest_id,
+            lot_id: false,
+            lot_name: "",
+            package_id: false,
+            result_package_id: false,
+            picked: true,
+            picking_id: this.picking_id,
+          };
+          const res = await this.orm.call("stock.picking", "save_data", [, this.picking_id, values, this.batch_id], {});
+          this.state.data  = res;
+          this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+          applied.push({ ma_part, qty: qtyToAdd });
+          continue;
+        }
+  
+        // Các loại cần lô/serial phải có prefix từ picking
+        if (!lotPrefix) {
+          skippedNoLotPrefix.push({ ma_part, qty: got, reason: "missing picking.lot" });
+          continue;
+        }
+  
+        // Hàng LOT: 1 line với lot_name = lotPrefix
+        if (tracking === "lot") {
+          const qtyToAdd = Math.min(need, got);
+          if (qtyToAdd <= 0) continue;
+  
+          const values = {
+            id: false,
+            product_id: move.product_id,
+            product_uom_id: move.product_uom_id,
+            quantity: this.roundToTwo(qtyToAdd),
+            location_id: move.location_id,
+            location_dest_id: move.location_dest_id,
+            lot_id: false,
+            lot_name: lotPrefix,  // lấy từ picking
+            package_id: false,
+            result_package_id: false,
+            picked: true,
+            picking_id: this.picking_id,
+          };
+          const res = await this.orm.call("stock.picking", "save_data", [, this.picking_id, values, this.batch_id], {});
+          this.state.data  = res;
+          this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+          applied.push({ ma_part, qty: qtyToAdd });
+          continue;
+        }
+  
+        // Hàng SERIAL: nhiều line, mỗi line quantity = 1
+        if (tracking === "serial") {
+          // Ưu tiên dùng serial do AI trả (serials_map)
+          let serials = Array.isArray(serialsMap[ma_part])
+            ? serialsMap[ma_part].map(s => String(s).trim()).filter(Boolean)
+            : [];
+          // Nếu AI không trả serial → dùng fallback tạo từ prefix
+          const maxCount = Math.min(need, Math.floor(got));
+          if (!serials.length) serials = this._makeSerialNames(lotPrefix, maxCount);
+          // Cắt theo nhu cầu
+          serials = serials.slice(0, maxCount);
+  
+          for (const sn of serials) {
+            const values = {
+              id: false,
+              product_id: move.product_id,
+              product_uom_id: move.product_uom_id,
+              quantity: 1,                 // mỗi serial = 1
+              location_id: move.location_id,
+              location_dest_id: move.location_dest_id,
+              lot_id: false,
+              lot_name: sn,                // backend sẽ tự tạo lot nếu chưa có
+              package_id: false,
+              result_package_id: false,
+              picked: true,
+              picking_id: this.picking_id,
+            };
+            const res = await this.orm.call("stock.picking", "save_data", [, this.picking_id, values, this.batch_id], {});
+            this.state.data  = res;
+            this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+          }
+          applied.push({ ma_part, qty: serials.length });
+          continue;
+        }
+      }
+  
+      // Cập nhật UI
+      this.updateButton();
+  
+      // Thông báo
+      if (applied.length) {
+        const total = applied.reduce((a, r) => a + Number(r.qty || 0), 0);
+        this.notification.add(
+          this._t("Đã ghi nhận từ Camera AI cho %s mã, tổng số lượng %s.")
+            .replace("%s", applied.length).replace("%s", total),
+          { type: "success" }
+        );
+      }
+      if (skippedNoLotPrefix.length) {
+        this.notification.add(
+          this._t("Bỏ qua %s mã vì chưa có số lô trên phiếu (picking.lot).")
+            .replace("%s", skippedNoLotPrefix.length),
+          { type: "warning" }
+        );
+      }
+      if (skippedUnknownMove.length) {
+        this.notification.add(
+          this._t("%s mã không khớp với danh sách sản phẩm của phiếu.")
+            .replace("%s", skippedUnknownMove.length),
+          { type: "warning" }
+        );
+        console.warn("AI unknown items:", skippedUnknownMove);
+      }
+    } catch (e) {
+      this.notification.add(this._t("Lỗi xử lý kết quả Camera AI: %s").replace("%s", e?.message || e), { type: "danger" });
+    } finally {
+      this.state.cameraActive = false;
+    }
+  }
+  
     roundToTwo(num) {
         return Math.round(num * 100) / 100;
     }
     toggleMenu = () => {
         this.state.menuVisible = !this.state.menuVisible;
     }
-    async initData()
-    {
-        var data = await this.orm.call('stock.picking', 'get_data', [,this.picking_id,this.batch_id], {});
+    async initData() {
+        const data = await this.orm.call('stock.picking', 'get_data', [, this.picking_id, this.batch_id], {});
         this.state.moves = data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
-        this.state.data = data
-        this.updateButton()
-        if(this.batch_id && data.moves.length == 0)
-        {
-            await this.createBatch(this.state.data.batch_picking_type_id)
+        this.state.data = data;
+        await this.loadPickingTypeConfig(data); // ★ NEW
+        this.updateButton();
+        if (this.batch_id && data.moves.length === 0) {
+            await this.createBatch(this.state.data.batch_picking_type_id);
         }
-		this.env.model.data = this.state.data;
+        this.env.model.data = this.state.data;
     }
+    
     async createBatch(picking_type_id){
         if(picking_type_id)
         {
             this.clearSelector()
             this.records = await this.orm.searchRead("stock.picking", [['picking_type_id','=',picking_type_id],['batch_id','=',false],['state','not in',['done','draft','cancel']]], ["name","origin"]) 
             this.multiSelect = true
-            this.selectorTitle = "Chọn điều chuyển"
+            this.selectorTitle = "Select Transfer";   
+            this.selectorFunction = _t("Select Transfer");
             this.state.showSelector = true
             
         }
@@ -179,7 +451,8 @@ class StockPicking extends Component {
         {
             this.records = await this.orm.searchRead("stock.picking.type", [], ["display_name"]) 
             this.multiSelect = false
-            this.selectorTitle = "Chọn kiểu điều chuyển"
+            this.selectorTitle = "Select Picking Type";
+            this.selectorFunction = _t("Select Picking Type"); 
             this.state.showSelector = true
         }
 
@@ -256,6 +529,27 @@ class StockPicking extends Component {
     }
 
     async save() {
+        // ★ NEW: enforce bắt buộc quét theo cấu hình
+        const mustScan = [];
+        if (this.cfg.scan_source_location && !this.scanned.source) mustScan.push(this._t("vị trí nguồn"));
+        if (this.cfg.scan_destination_location && !this.scanned.dest) mustScan.push(this._t("vị trí đích"));
+        if (this.cfg.scan_lot && this.state.detailMoveLine.product_tracking !== "none" && !this.scanned.lot) {
+            mustScan.push(this._t("lot/serial"));
+        }
+        if (this.cfg.scan_package) {
+            const hasPkg = !!(this.state.detailMoveLine.package_id || this.state.detailMoveLine.result_package_id);
+            if (!hasPkg && !this.scanned.package) {
+                mustScan.push(this._t("gói (package)"));
+            }
+        }
+        if (mustScan.length) {
+            this.notification.add(
+                this._t("Bạn phải QUÉT: %s trước khi lưu.").replace("%s", mustScan.join(", ")),
+                { type: "warning" }
+            );
+            return;
+        }
+
         this.state.data = await this.orm.call('stock.picking', 'save_data', [,this.picking_id, this.state.detailMoveLine,this.batch_id], {});
         this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
         this.lines = this.state.data.move_lines.filter(x => x.move_id === this.state.detailMoveLine.move_id)
@@ -278,8 +572,10 @@ class StockPicking extends Component {
     }
     async actionDone(id) {
         const params = {
-            title: _t("Xác nhận đơn"),
-            body: _t("Bạn có chắc chắn muốn xác nhận đơn này."),
+            title: _t("Confirm Transfer"),                       // ★ changed
+            body: _t("Are you sure you want to validate this picking?"), // ★ changed
+            confirmLabel: _t("Yes, Confirm"),                    // ★ changed
+            cancelLabel: _t("Cancel"),                           // ★ changed
             confirm: async () => {
                 var res = await this.orm.call('stock.picking', 'barcode_action_done', [,this.picking_id,this.batch_id], {context:{skip_backorder: true,display_detailed_backorder: true}});
                 if(res.action)
@@ -295,8 +591,7 @@ class StockPicking extends Component {
                 }
             },
             cancel: () => { },
-            confirmLabel: _t("Có, xác nhận."),
-            cancelLabel: _t("Hủy bỏ"),
+
         };
         this.dialog.add(ConfirmationDialog, params);  
         
@@ -304,8 +599,10 @@ class StockPicking extends Component {
     async cancelOrder() {
         this.state.menuVisible = false;
         const params = {
-            title: _t("Xác nhận hủy đơn"),
-            body: _t("Bạn có chắc chắn muốn hủy đơn này."),
+            title: _t("Cancel Transfer"),
+            body: _t("Are you sure you want to cancel this picking?"),
+            confirmLabel: _t("Yes, Cancel"),
+            cancelLabel: _t("Back"),
             confirm: async () => {
                 var res = await this.orm.call('stock.picking', 'cancel_order', [,this.picking_id,this.batch_id],{});
                 this.state.data = res
@@ -314,8 +611,6 @@ class StockPicking extends Component {
                 
             },
             cancel: () => { },
-            confirmLabel: _t("Có, xác nhận."),
-            cancelLabel: _t("Hủy bỏ"),
         };
         this.dialog.add(ConfirmationDialog, params);  
         
@@ -324,42 +619,44 @@ class StockPicking extends Component {
         this.state.menuVisible = false;
         if(this.state.view == "Move") {
             const params = {
-            title: _t("Xác nhận hủy dự trữ"),
-            body: _t("Bạn có chắc chắn muốn hủy dự trữ đơn này."),
-            confirm: async () => {
-                var res = await this.orm.call('stock.picking', 'unreserve', [,this.picking_id,this.batch_id],{});
-                console.log(res)
-                this.state.data = res
-                this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
-                this.updateButton()
-            },
+                title: _t("Unreserve Confirmation"),
+                body: _t("Are you sure you want to unreserve this picking?"),
+                confirmLabel: _t("Yes, Unreserve"),
+                cancelLabel: _t("Cancel"),
+                confirm: async () => {
+                    var res = await this.orm.call('stock.picking', 'unreserve', [,this.picking_id,this.batch_id],{});
+                    console.log(res)
+                    this.state.data = res
+                    this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                    this.updateButton()
+                },
                 cancel: () => { },
-                confirmLabel: _t("Có, xác nhận."),
-                cancelLabel: _t("Hủy bỏ"),
+          
             };
             this.dialog.add(ConfirmationDialog, params);
         } 
         if(this.state.view == "Move_line") {
             const unpickedLineIds = this.lines.filter(x => !x.picked).map(line => line.id);
             const params = {
-            title: _t("Xác nhận xóa"),
-            body: _t("Bạn có chắc chắn muốn xóa tất cả dòng di chuyển chưa lấy không? Thao tác này không thể hoàn tác."),
-            confirm: async () => {
-                this.state.data = await this.orm.call('stock.picking', 'delete_move_line', [,this.picking_id, unpickedLineIds,this.batch_id], {});
-                this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                title: _t("Delete Confirmation"),
+                body: _t("Are you sure you want to delete all unpicked move lines? This action cannot be undone."),
+                confirmLabel: _t("Yes, Delete"),
+                cancelLabel: _t("Cancel"),
+                confirm: async () => {
+                    this.state.data = await this.orm.call('stock.picking', 'delete_move_line', [,this.picking_id, unpickedLineIds,this.batch_id], {});
+                    this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
 
-                this.lines = this.state.data.move_lines.filter(x => x.move_id === this.state.detailMoveLine.move_id);
-                this.state.lines = this.lines;
-                var lot_id = this.state.detailMoveLine.lot_id;
-                var lot_name = this.state.detailMoveLine.lot_name;
-                this.editMove(this.state.detailMoveLine.move_id);
-                this.state.detailMoveLine.lot_id = lot_id;
-                this.state.detailMoveLine.lot_name = lot_name;
-                this.updateButton()
-            },
+                    this.lines = this.state.data.move_lines.filter(x => x.move_id === this.state.detailMoveLine.move_id);
+                    this.state.lines = this.lines;
+                    var lot_id = this.state.detailMoveLine.lot_id;
+                    var lot_name = this.state.detailMoveLine.lot_name;
+                    this.editMove(this.state.detailMoveLine.move_id);
+                    this.state.detailMoveLine.lot_id = lot_id;
+                    this.state.detailMoveLine.lot_name = lot_name;
+                    this.updateButton()
+                },
                 cancel: () => { },
-                confirmLabel: _t("Có, xóa nó"),
-                cancelLabel: _t("Hủy bỏ"),
+
             };
             this.dialog.add(ConfirmationDialog, params);
         } 
@@ -389,8 +686,10 @@ class StockPicking extends Component {
     }
     async deleteMoveLine(id) {
         const params = {
-            title: _t("Xác nhận xóa"),
-            body: _t("Bạn có chắc chắn muốn xóa dòng di chuyển này không? Thao tác này không thể hoàn tác."),
+            title: _t("Delete Confirmation"),
+            body: _t("Are you sure you want to delete this move-line? This action cannot be undone."),
+            confirmLabel: _t("Yes, Delete"),
+            cancelLabel: _t("Cancel"),
             confirm: async () => {
                 this.state.data = await this.orm.call('stock.picking', 'delete_move_line', [,this.picking_id, id,this.batch_id], {});
                 this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
@@ -405,15 +704,15 @@ class StockPicking extends Component {
                 this.updateButton()
             },
             cancel: () => { },
-            confirmLabel: _t("Có, xóa nó"),
-            cancelLabel: _t("Hủy bỏ"),
         };
         this.dialog.add(ConfirmationDialog, params);
     }
     async deleteMove(id) {
         const params = {
-            title: _t("Xác nhận xóa"),
-            body: _t("Bạn có chắc chắn muốn xóa dòng di chuyển này không? Thao tác này không thể hoàn tác."),
+            title: _t("Delete Confirmation"),
+            body: _t("Are you sure you want to delete this move? This action cannot be undone."),
+            confirmLabel: _t("Yes, Delete"),
+            cancelLabel: _t("Cancel"),
             confirm: async () => {
                 this.state.data = await this.orm.call('stock.picking', 'delete_move', [,this.picking_id, id,this.batch_id], {});
                 this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
@@ -421,8 +720,7 @@ class StockPicking extends Component {
       
             },
             cancel: () => { },
-            confirmLabel: _t("Có, xóa nó"),
-            cancelLabel: _t("Hủy bỏ"),
+
         };
         this.dialog.add(ConfirmationDialog, params);
     }
@@ -478,6 +776,14 @@ class StockPicking extends Component {
             package: true,
             picking_id:this.picking_id,
         }
+        // ★ NEW: reset cờ đã quét theo yêu cầu cấu hình
+        this.scanned = {
+            product: !this.cfg.scan_product,                       // nếu không bắt buộc quét → coi như OK
+            source: !this.cfg.scan_source_location,
+            dest: !this.cfg.scan_destination_location,
+            lot: !this.cfg.scan_lot,
+            package: !this.cfg.scan_package,
+        };
         this.updateButton()
         this.focusCompute()
     }
@@ -529,195 +835,240 @@ class StockPicking extends Component {
         this.state.showKeypad = true
     }
 
-    openSelector(option) {
+    async openSelector(option) {
         if (option == 1) {
             //Open create packages
             this.state.isSelector = false;
             this.state.menuVisible = false;
-            this.selectorTitle = "Chia tách Packages";
+            this.selectorTitle = "Split Packages";
+            this.selectorFunction = _t("Split Packages");
         }
         if (option == 8) {
             //Đóng nhiều packge một lúc
             this.state.isSelector = false;
             this.state.menuVisible = false;
-            this.selectorTitle = "Đóng Packages loạt";
+            this.selectorTitle = "Bulk Pack";
+            this.selectorFunction = _t("Bulk Pack");
         }
         if (option == 9) {
             //Nhận theo số sê-ri
             this.state.isSelector = false;
             this.state.menuVisible = false;
             this.records = this.state.lines;
-            this.selectorTitle = "Nhận theo số sê-ri";
+            this.selectorTitle = "Receive by Serial"; 
+            this.selectorFunction = _t("Receive by Serial");
         }
         if (option == 2)//Chọn số Lot
         {
-            this.records = this.state.data.lots.filter(x => x.product_id[0] == this.move.product_id)
+            
+            this.records = await this.orm.searchRead('stock.lot',[['product_id','=',this.move.product_id]], ['id', 'name']) 
+            
             this.multiSelect = false
-            this.selectorTitle = "Chọn số Lô/Sê-ri"
+            this.selectorTitle = "Select Lot/Serial";
+            this.selectorFunction = _t("Select Lot/Serial");
         }
         if (option == 3)//Chọn vị trí nguồn
         {
             this.records = this.state.data.locations
             this.multiSelect = false
-            this.selectorTitle = "Chọn vị trí nguồn"
+            this.selectorTitle = "Select Source Location";
+            this.selectorFunction = _t("Select Source Location");
         }
         if (option == 4)//Chọn vị trí đích
         {
             this.records = this.state.data.locations
             this.multiSelect = false
-            this.selectorTitle = "Chọn vị trí đích"
+            this.selectorTitle = "Select Destination Location"; 
+            this.selectorFunction = _t("Select Destination Location");
         }
         if (option == 5)//Chọn gói nguồn
         {
             this.records = this.state.data.packages
             this.multiSelect = false
-            this.selectorTitle = "Chọn kiện nguồn"
+            this.selectorTitle = "Select Source Package"; 
+            this.selectorFunction = _t("Select Source Package");
         }
         if (option == 6)//Chọn gói đích
         {
             this.records = this.state.data.packages
             this.multiSelect = false
-            this.selectorTitle = "Chọn kiện đích"
+            this.selectorTitle = "Select Destination Package";
+            this.selectorFunction = _t("Select Destination Package");
         }
         this.state.showSelector = true
 
     }
     async newProduct(){
+        if (this.cfg.scan_product) {
+            this.notification.add(this._t("Cấu hình yêu cầu QUÉT sản phẩm, không được chọn tay."), { type: "warning" });
+            return;
+        }
         this.records = await this.orm.searchRead("product.product", [], ["display_name"]) 
         this.multiSelect = false
-        this.selectorTitle = "Chọn sản phẩm"
+        this.selectorTitle = "Select Product"; 
+        this.selectorFunction = _t("Select Product");
         this.state.showSelector = true
     }
     clearSelector() {
         this.records = []
         this.multiSelect = false
         this.selectorTitle = ""
+        this.selectorFunction = "";
         this.state.showSelector = false;
         this.state.isSelector = true;
         this.updateButton()
     }
-    async closeSelector(data){
-        if (data) {
-            if (this.selectorTitle == "Chia tách Packages") {
-                for (var line of data) {
-                    //console.log(line)
-                    this.state.data = await this.orm.call(
-                        "stock.picking",
-                        "save_data",
-                        [, this.picking_id, line, this.batch_id],
-                        {}
-                    );
-                    this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
-                    this.lines = this.state.data.move_lines.filter((x) => x.move_id === line.move_id);
-                    this.state.lines = this.lines;
-                }
-                this.clearSelector();
-            }
-            if (this.selectorTitle == "Đóng Packages loạt") {
-                for (var line of data) {
-                    //console.log(line)
-                    this.state.data = await this.orm.call(
-                        "stock.picking",
-                        "save_data",
-                        [, this.picking_id, line, this.batch_id],
-                        {}
-                    );
-                    this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
-                    this.lines = this.state.data.move_lines.filter((x) => x.move_id === line.move_id);
-                    this.state.lines = this.lines;
-                }
-                this.clearSelector();
-            }
-            if (this.selectorTitle == "Nhận theo số sê-ri") {
-                for (var line of data) {
-                    //console.log(line)
-                    this.state.data = await this.orm.call(
-                        "stock.picking",
-                        "save_data",
-                        [, this.picking_id, line, this.batch_id],
-                        {}
-                    );
-                    this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
-                    this.lines = this.state.data.move_lines.filter((x) => x.move_id === line.move_id);
-                    this.state.lines = this.lines;
-                }
-                this.clearSelector();
-            }
-            if (this.selectorTitle == "Chọn số Lô/Sê-ri") {
-                if (data.id) {
-                    this.state.detailMoveLine.lot_id = data.id
-                    this.state.detailMoveLine.lot_name = data.name
-                    this.clearSelector()
-                }
-                else {
-                    this.state.detailMoveLine.lot_id = false
-                    this.state.detailMoveLine.lot_name = data
-                    this.clearSelector()
-                }
-
-            }
-            if (this.selectorTitle == "Chọn vị trí nguồn") {
-                this.state.detailMoveLine.location_id = data.id
-                this.state.detailMoveLine.location_name = data.display_name
-                this.clearSelector()
-            }
-            if (this.selectorTitle == "Chọn vị trí đích") {
-                this.state.detailMoveLine.location_dest_id = data.id
-                this.state.detailMoveLine.location_dest_name = data.display_name
-                this.clearSelector()
-            }
-            if (this.selectorTitle == "Chọn kiện nguồn") {
-                this.state.detailMoveLine.package_id = data.id
-                this.state.detailMoveLine.package_name = data.name
-                this.clearSelector()
-            }
-            if (this.selectorTitle == "Chọn kiện đích") {
-                if (data.id){
-                    this.state.detailMoveLine.result_package_id = data.id
-                    this.state.detailMoveLine.result_package_name = data.name
-                    this.clearSelector()
-                }
-                else{
-                    await this.createPack(data)
-                    this.clearSelector()
-                }
-                
-            }
-            if (this.selectorTitle == "Chọn sản phẩm") {
-                var product_id = data.product_id
-                var name = data.display_name
-                var product_uom_qty = data.quantity || 0
-                var location_id = this.state.data.location_id
-                var location_dest_id = this.state.data.location_dest_id
-                var values = { picking_id:this.picking_id, product_id, name, location_id, location_dest_id ,product_uom_qty}
-                var data = await this.orm.call('stock.picking', 'create_move', [, this.picking_id, values,this.batch_id], {});
-                this.state.data = data.data
-                this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
-                this.state.selectedMove = data.move_id
-                this.clearSelector()
+    async closeSelector(data) {
+        if (!data) {
+            this.clearSelector();
+            return;
+        }
+    
+        // ----- 1) SPLIT PACKAGES -----
+        if (this.selectorTitle === "Split Packages") {
+            this.clearSelector();
+            this.state.data = await this.orm.call(
+                "stock.picking",
+                "save_lines_bulk",
+                [, this.picking_id, data, this.batch_id],
+                {}
+            );
+            
+            // Sau đó sort, filter một lần
+            this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+            this.lines = this.state.data.move_lines.filter((x) => x.move_id === (data[0]?.move_id ?? this.state.detailMoveLine.move_id));
+            this.state.lines = this.lines;
+            
+        }
+    
+        // ----- 2) BULK PACK -----
+        if (this.selectorTitle === "Bulk Pack") {
+            this.clearSelector();
+            this.state.data = await this.orm.call(
+                "stock.picking",
+                "save_lines_bulk",
+                [, this.picking_id, data, this.batch_id],
+                {}
+            );
+            
+            // Sau đó sort, filter một lần
+            this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+            this.lines = this.state.data.move_lines.filter((x) => x.move_id === (data[0]?.move_id ?? this.state.detailMoveLine.move_id));
+            this.state.lines = this.lines;
+            
+        }
+    
+        // ----- 3) RECEIVE BY SERIAL -----
+        if (this.selectorTitle === "Receive by Serial") {
+            this.clearSelector();
+            this.state.data = await this.orm.call(
+                "stock.picking",
+                "save_lines_bulk",
+                [, this.picking_id, data, this.batch_id],
+                {}
+            );
+            
+            // Sau đó sort, filter một lần
+            this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+            this.lines = this.state.data.move_lines.filter((x) => x.move_id === (data[0]?.move_id ?? this.state.detailMoveLine.move_id));
+            this.state.lines = this.lines;
+            
+        }
+    
+        // ----- 4) SELECT LOT / SERIAL -----
+        if (this.selectorTitle === "Select Lot/Serial") {
+            this.clearSelector();
+            if (data.id) {
+                this.state.detailMoveLine.lot_id = data.id;
+                this.state.detailMoveLine.lot_name = data.name;
+            } else {
+                this.state.detailMoveLine.lot_id = false;
+                this.state.detailMoveLine.lot_name = data; // free text
             }
             
-            if (this.selectorTitle == "Chọn điều chuyển") {
-                
-                var values = { picking_ids:data,state:'in_progress'}
-                console.log(values)
-                this.state.data = await this.orm.call('stock.picking', 'update_batch_picking', [, this.picking_id, values,this.batch_id], {});
-                this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
-                this.clearSelector()
-                
-            }
-            if (this.selectorTitle == "Chọn kiểu điều chuyển") {
-                console.log({data})
-                await this.createBatch(data.id)
-
+        }
+    
+        // ----- 5) SELECT SOURCE / DEST LOCATIONS -----
+        if (this.selectorTitle === "Select Source Location") {
+            this.state.detailMoveLine.location_id = data.id;
+            this.state.detailMoveLine.location_name = data.display_name;
+            this.clearSelector();
+        }
+        if (this.selectorTitle === "Select Destination Location") {
+            this.state.detailMoveLine.location_dest_id = data.id;
+            this.state.detailMoveLine.location_dest_name = data.display_name;
+            this.clearSelector();
+        }
+    
+        // ----- 6) SELECT SOURCE / DEST PACKAGES -----
+        if (this.selectorTitle === "Select Source Package") {
+            this.state.detailMoveLine.package_id = data.id;
+            this.state.detailMoveLine.package_name = data.name;
+            this.clearSelector();
+        }
+        if (this.selectorTitle === "Select Destination Package") {
+            if (data.id) {
+                this.state.detailMoveLine.result_package_id = data.id;
+                this.state.detailMoveLine.result_package_name = data.name;
+                this.clearSelector();
+            } else {
+                await this.createPack(data);   // free-text package name
+                this.clearSelector();
             }
         }
-        else
-        {
-            this.clearSelector()
+    
+        // ----- 7) SELECT PRODUCT -----
+        if (this.selectorTitle === "Select Product") {
+            const product_id = data.product_id;
+            const name = data.display_name;
+            const product_uom_qty = data.quantity || 0;
+            const location_id = this.state.data.location_id;
+            const location_dest_id = this.state.data.location_dest_id;
+    
+            const values = {
+                picking_id: this.picking_id,
+                product_id,
+                name,
+                location_id,
+                location_dest_id,
+                product_uom_qty,
+            };
+    
+            const res = await this.orm.call(
+                "stock.picking",
+                "create_move",
+                [, this.picking_id, values, this.batch_id],
+                {}
+            );
+            this.state.data = res.data;
+            this.state.moves = this.state.data.moves.sort(
+                (a, b) => b.product_name.localeCompare(a.product_name)
+            );
+            this.state.selectedMove = res.move_id;
+            this.clearSelector();
         }
-
+    
+        // ----- 8) SELECT TRANSFER (add to batch) -----
+        if (this.selectorTitle === "Select Transfer") {
+            const values = { picking_ids: data, state: "in_progress" };
+            this.state.data = await this.orm.call(
+                "stock.picking",
+                "update_batch_picking",
+                [, this.picking_id, values, this.batch_id],
+                {}
+            );
+            this.state.moves = this.state.data.moves.sort(
+                (a, b) => b.product_name.localeCompare(a.product_name)
+            );
+            this.clearSelector();
+        }
+    
+        // ----- 9) SELECT PICKING TYPE (create new batch) -----
+        if (this.selectorTitle === "Select Picking Type") {
+            await this.createBatch(data.id);
+        }
     }
+    
     moveClass(line) {
         var cl = "s_move-line";
         if (line.id === this.state.selectedMove) {
@@ -769,11 +1120,114 @@ class StockPicking extends Component {
         }
         return cl;
     }
-    showModal(modal,data){   
+    async showDialogModal(title, action = '', defaultValues = null) {
+        // Nạp options tối thiểu nếu chưa có
+        // (Bạn có thể bỏ qua phần nạp nếu đã tự có sẵn this.state.partners/locations/users)
+        if (!this.state.partners) {
+          const partners = await this.orm.searchRead("res.partner", [], ["name","display_name"], { limit: 200 });
+          this.state.partners = partners.map(p => ({ id: p.id, name: p.name }));
+        }
+        if (!this.state.locations) {
+          const locs = await this.orm.searchRead("stock.location", [], ["complete_name"], { limit: 200 });
+          this.state.locations = locs.map(l => ({ id: l.id, name: l.complete_name }));
+        }
+        if (!this.state.users) {
+          const users = await this.orm.searchRead("res.users", [], ["name"], { limit: 200 });
+          this.state.users = users.map(u => ({ id: u.id, name: u.name }));
+        }
+      
+        // Lấy picking hiện tại làm mặc định nếu caller không truyền defaultValues
+        const p =  this.state.data || {};
+        const safe = (v) => (Array.isArray(v) ? v[0] : v) || "";
+        // scheduled_date nên là UTC "YYYY-MM-DD HH:mm:ss" (Dialog đã tự quy đổi local/UTC)
+        const scheduled = p.scheduled_date
+          ? String(p.scheduled_date).replace("T", " ").slice(0, 19)
+          : "";
+      
+        const formMap = {
+          edit_picking_overview: [
+            { name: "name",              label: "Tên phiếu",     type: "text",           readonly: true },
+            { name: "partner_id",        label: "Liên hệ",        type: "select", options: this.state.partners || [], required: false, dialog: true },
+            { name: "location_id",       label: "Vị trí nguồn",   type: "select", options: this.state.locations || [], required: true,  dialog: true },
+            { name: "location_dest_id",  label: "Vị trí đích",    type: "select", options: this.state.locations || [], required: true,  dialog: true },
+            { name: "user_id",           label: "Người phụ trách",type: "select", options: this.state.users || [],    required: false, dialog: true },
+            { name: "origin",            label: "Chứng từ gốc",   type: "text" },
+            { name: "scheduled_date",    label: "Ngày kế hoạch",  type: "datetime-local" },
+          ],
+        };
+      
+        // Gán state mở dialog
+        this.state.dialogTitle  = title;
+        this.state.dialogAction = action;
+      
+        if (title === "Chọn trạm sản xuất") {
+          this.state.dialogRecords = this.workCenters;
+          this.state.dialogFields  = [];
+        } else {
+          this.state.dialogFields  = formMap[action] || [];
+          this.state.dialogRecords = []; // form mode
+      
+          // Ghép default cho form
+          this.state.dialogDefault = {
+            id: p.id || null,
+            name: p.name || "",
+            partner_id: safe(p.partner_id),
+            location_id: safe(p.location_id),
+            location_dest_id: safe(p.location_dest_id),
+            user_id: safe(p.user_id),
+            origin: p.origin || "",
+            scheduled_date: scheduled || "",
+          };
+        }
+        this.state.showDialogModal = true;
+      }
+      
+    
+      async closeDialogModal(title, data, action = "") {
+        try {
+          if (action === "edit_picking_overview" && data) {
+            // Chuẩn hóa giá trị ghi
+            const pickingId = this.picking_id;
+            if (!pickingId) throw new Error("Thiếu ID stock.picking để cập nhật.");
+      
+            const vals = {
+              // các many2one ghi bằng id hoặc false
+              partner_id:        data.partner_id        || false,
+              location_id:       data.location_id       || false,
+              location_dest_id:  data.location_dest_id  || false,
+              user_id:           data.user_id           || false,
+              // text / datetime
+              origin:            data.origin            || "",
+              scheduled_date:    data.scheduled_date    || null, // UTC "YYYY-MM-DD HH:mm:ss"
+              // name chỉ xem readonly (không ghi)
+            };
+      
+            await this.orm.write("stock.picking", [pickingId], vals);
+      
+            this.initData(); // reload toàn bộ dữ liệu
+          }
+        } catch (e) {
+          console.error("Cập nhật stock.picking lỗi:", e);
+          if (this.notification) {
+            this.notification.add(`Lỗi: ${e.message || e}`, { type: "danger" });
+          }
+        } finally {
+          // reset dialog
+          this.state.showDialogModal = false;
+          this.state.dialogTitle     = "";
+          this.state.dialogAction    = "";
+          this.state.dialogFields    = [];
+          this.state.dialogRecords   = [];
+        }
+      }
+      
+    async showModal(modal,data){   
         
         if(data && modal =="editPackage"){
             let cl = this.state.data.finish_packages.find(x=>x.id ==data.id).lines;
-            let line = this.state.data.unpacked_move_lines;
+            let line = await this.orm.call(
+                "stock.picking","unpacked_move_lines", [, this.picking_id], {}
+            ) 
             line = [...cl,...line]
             let unpacked_move_lines = []
 
@@ -797,6 +1251,7 @@ class StockPicking extends Component {
         if(modal =="createPackages"){
             
         }
+       
         this.state.modal = modal
        
     }
@@ -850,56 +1305,47 @@ class StockPicking extends Component {
         if(this.state.data.state == 'done')
         {
             this.state.finished = true;
-            this.state.finished_message = 'Đã hoàn tất';
+            this.state.finished_message = _t("Completed");  
         }
         else if(this.state.data.state == 'cancel')
         {
             this.state.finished = true;
-            this.state.finished_message = 'Đã bị hủy';
+            this.state.finished_message = _t("Cancelled");  
         }
         else
         {
             if (this.state.view === "Move") {
-                this.state.detailTitle = this.state.data.name
-                if (!['done','cancel'].includes(this.state.data.state) ) {
-                    if(this.state.activeTab == 'OrderOverview')
-                    {                    
-                        if (this.requiredAllMoveDone){
-                            const allMoveLinesPicked = this.state.data.move_lines.every(line => line.picked);
-                            const allDone = this.state.data.moves.every(move => move.quantity >= move.product_uom_qty);
-                            if(this.state.data.moves.length && allMoveLinesPicked && allDone)
-                            {
-                                this.state.showValidate = true
-                            }
-                        }
-                        else{
-                            const someMoveLinesPicked = this.state.data.move_lines.some(line => line.picked);
-                            const someDone = this.state.data.moves.some(move => move.quantity >= move.product_uom_qty);
-                            if(this.state.data.moves.length && someMoveLinesPicked && someDone)
-                            {
-                                this.state.showValidate = true
-                            }
-                        }
-                        if(this.allowConfirmLackOrder)
-                        {
-                            const allMoveLinesPicked = this.state.data.move_lines.every(line => line.picked);
-                            if(this.state.data.moves.length && allMoveLinesPicked)
-                                {
-                                    this.state.showValidate = true
-                                }
+                this.state.detailTitle = this.state.data.name;
+                if (!["done", "cancel"].includes(this.state.data.state)) {
+                    if (this.state.activeTab === "OrderOverview") {
+                        const hasLines = this.state.data.move_lines.length > 0;
+                        const hasMoves = this.state.data.moves.length > 0;
+            
+                        const lineCond = this.requiredAllMoveLinePicked
+                            ? (hasLines && this.state.data.move_lines.every(l => l.picked))
+                            : this.state.data.move_lines.some(l => l.picked);
+            
+                        const moveCond = this.requiredAllMoveDone
+                            ? (hasMoves && this.state.data.moves.every(m => Number(m.quantity || 0) >= Number(m.product_uom_qty || 0)))
+                            : this.state.data.moves.some(m => Number(m.quantity || 0) >= Number(m.product_uom_qty || 0));
+            
+                        this.state.showValidate = !!(lineCond && moveCond);
+            
+                        // Cho phép xác nhận thiếu chỉ khi KHÔNG bắt buộc all_move_done
+                        if (this.allowConfirmLackOrder && this.state.data.moves.length) {
+                            // không thêm gì – block phía trên đã bao trùm
                         }
                     }
-                    if(this.state.activeTab == 'OrderDetail')
-                    {                   
-                        this.state.showNewProduct = true 
+                    if (this.state.activeTab === "OrderDetail") {
+                        // Ẩn nút "New Product" nếu bắt buộc quét sản phẩm
+                        this.state.showNewProduct = !this.cfg.scan_product;
                     }
-                    if(this.state.activeTab == 'Packages')
-                    {
-                        this.state.showPackMulti = true
+                    if (this.state.activeTab === "Packages") {
+                        this.state.showPackMulti = true;
                     }
                 }
-               
             }
+            
             if (this.state.view === "Move_line") {
                 if (this.state.detailMoveLine.product_tracking != 'none') {
                     if (this.state.detailMoveLine.location_dest_id &&
@@ -918,6 +1364,13 @@ class StockPicking extends Component {
                         this.state.showSave = true
                     }
                 }
+                const requiredScansOk =
+                (!this.cfg.scan_source_location || this.scanned.source) &&
+                (!this.cfg.scan_destination_location || this.scanned.dest) &&
+                (!this.cfg.scan_lot || this.state.detailMoveLine.product_tracking === "none" || this.scanned.lot) &&
+                (!this.cfg.scan_package || this.scanned.package || this.state.detailMoveLine.package_id || this.state.detailMoveLine.result_package_id);
+        
+                this.state.showSave = this.state.showSave && requiredScansOk; // ★ NEW
             }
         }
         
@@ -951,27 +1404,14 @@ class StockPicking extends Component {
             this.updateButton()
         }
     }
-    containsLineBreak(text, {full = false} = {}) {
-        return full
-          ? /\r\n|[\n\r\u2028\u2029]/.test(text)   // kiểm tra toàn diện
-          : /\r?\n/.test(text);                    // đủ dùng cho hầu hết trường hợp
-      }
+
     async onBarcodeScanned(barcode) {
         if (barcode) {
-
-            if(this.containsLineBreak(barcode))
-            {
-                const normalized = barcode.replace(/\r\n|[;,]/g, '\n'); // đổi toàn bộ CRLF thành LF
-                const lines2 = normalized.split('\n'); 
-                for (var line of lines2){
-                    await this.processBarcode(line, this.picking_id)
-                }
+            const normalized = barcode.replace(/[\s,;|]+/gu, '\n').trim();
+            const lines2 = normalized.split('\n').filter(Boolean);
+            for (var line of lines2){
+                await this.processBarcode(line, this.picking_id)
             }
-            else{
-                await this.processBarcode(barcode, this.picking_id)
-            }
-            
-
             if ("vibrate" in window.navigator) {
                 window.navigator.vibrate(100);
             }
@@ -1049,10 +1489,14 @@ class StockPicking extends Component {
             });
         }
     }
+    async checkSerialNumber(serial_id) {
+        const rec = await this.orm.call('stock.picking', 'check_serial_number', [,serial_id], {});
+        return rec;
+    }
     async processBarcode(barcode, picking_id) {
         if (this.state.isSelector) {
             if (this.state.view == "Move") {
-                var barcodeData = await this.env.model.parseBarcode(barcode, false, false, false)
+                var barcodeData = await this.orm.call('stock.picking', 'get_barcode_data', [,barcode,false,false],{});
                 //console.log(barcodeData)
                 if (barcodeData.match) {
                     if (barcodeData.barcodeType == "products") {
@@ -1072,6 +1516,7 @@ class StockPicking extends Component {
                             this.state.selectedMove = data.move_id
                             console.log(data)
                         }
+                        this.scanned.product = true;
                     }
                     if (barcodeData.barcodeType == "packages") {
                         if (barcodeData.fromCache) {
@@ -1119,13 +1564,13 @@ class StockPicking extends Component {
                                         this.editMove(move_incoming.id)
                                     }
                                     else{
-                                        const message = _t(`Gói đích này: ${barcode} không có trong danh sách!`);
+                                        const message = _t(`This destination package: ${barcode} is not in the list!`);
                                         this.notification.add(message, { type: "warning" });
                                     }
                                 }
                             }
                             else{
-                                const message = _t(`Đơn đã hoàn tất, không thể thêm sản phẩm vào đơn !`);
+                                const message = _t(`Order completed, cannot add products to order !`);
                                 this.notification.add(message, { type: "warning" });
                             }
                         }
@@ -1162,30 +1607,53 @@ class StockPicking extends Component {
                                 }
                                
                                 else{
-                                    const message = _t(`${barcode}: Không có sẵn ở trong kho !`);
+                                    const message = _t(`${barcode}: Not available in stock !`);
                                     this.notification.add(message, { type: "warning" });
                                 }
                                 
                             }
-                            else{                           
-                                    const message = _t(`Số lô/sê-ri ${barcode} đã có trong hệ thống!`);
+                            else{ 
+                                var exist_lot = await this.checkSerialNumber(barcodeData.record.id)
+                                if(exist_lot){
+                                    const message = _t(`Lot/serial number ${barcode} is already in the system!`);
                                     this.notification.add(message, { type: "warning" });
+                                } 
+
+                                else{
+                                    var values = {}
+                                    values.product_id = barcodeData.record.product_id
+                                    values.product_uom_id = barcodeData.record.product_uom_id
+                                    values.location_id = barcodeData.record.location_id
+                                    values.location_dest_id = this.state.data.location_dest_id
+                                    values.lot_id = barcodeData.record.id
+                                    values.lot_name = barcode
+                                    values.package_id = false
+                                    values.result_package_id = false
+                                    values.quantity = 1
+                                    values.picked = true
+                                    values.picking_id = this.picking_id
+                                    values.id = false
+                                    values.move_id = false
+                                    var data = await this.orm.call('stock.picking', 'save_data', [, picking_id, values,this.batch_id], {});
+                                    this.state.data = data
+                                    this.state.moves = this.state.data.moves.sort((a, b) => b.product_name.localeCompare(a.product_name));
+                                }
                             }
                         }
                         else{
-                            const message = _t(`Đơn đã hoàn tất, không thể thêm sản phẩm vào đơn !`);
+                            const message = _t(`Order completed, cannot add products to order !`);
                             this.notification.add(message, { type: "warning" });
                         }
 
                     }
                 }
                 else {
-                    const message = _t(`Không có thấy thông tin của barcode: ${barcode}!`);
+                    const message = _t(`No barcode information found: ${barcode}!`);
                     this.notification.add(message, { type: "warning" });
                 }
             }
-            if (this.state.view == "Move_line") {
-                var barcodeData = await this.env.model.parseBarcode(barcode, {'product_id':this.state.detailMoveLine.product_id}, false, false)
+            if (this.state.view == "Move_line") {                
+                var barcodeData = await this.orm.call('stock.picking', 'get_barcode_data', [,barcode,{'product_id':this.state.detailMoveLine.product_id},false],{});
                 if(this.state.focus == 0)
                 {
                     if(barcodeData.match){
@@ -1201,7 +1669,7 @@ class StockPicking extends Component {
                                     this.state.scannedLine = false
                                 }
                                 else{
-                                    const message = _t(`Gói đích này: ${barcode} không đúng!`);
+                                    const message = _t(`This destination packet: ${barcode} is invalid!`);
                                     this.notification.add(message, { type: "warning" });
                                 }
                                 
@@ -1218,10 +1686,10 @@ class StockPicking extends Component {
                                                 {
                                                     if(prod.product_id == this.state.detailMoveLine.product_id)
                                                     {
-                                                        console.log({prod,lots:this.props.lots})
-                                                        var lot = this.state.data.lots.find(x=> x.expiration_date <  prod.expiration_date)
+                                                        //console.log({prod,lots:this.props.lots})
+                                                        var lot =  await this.orm.searchRead('stock.lot',[['product_id','=',prod.product_id],['expiration_date','<',prod.expiration_date]], ['name'])
                                                         if(lot){
-                                                            const message = _t(`Số lô: ${prod.lot_name} có ngày hết hạn lớn hơn ngày hết hạn của lô: ${lot.name}!`);
+                                                            const message = _t(`Lot number: ${prod.lot_name} has an expiration date greater than the expiration date of lot: ${lot.name}!`);
                                                             this.notification.add(message, { type: "warning" });
                                                         }
                                                         if(this.state.detailMoveLine.lot_id)
@@ -1260,14 +1728,14 @@ class StockPicking extends Component {
                                                 }
                                                 else
                                                 {
-                                                    console.log({prod,lots:this.state.data.lots})
-                                                        var lot = this.state.data.lots.find(x=> x.expiration_date <  prod.expiration_date)
+
+                                                        var lot = await this.orm.searchRead('stock.lot',[['product_id','=',prod.product_id],['expiration_date','<',prod.expiration_date]], ['name'])
                                                         if(lot){
-                                                            const message = _t(`Số lô: ${prod.lot_name} có ngày hết hạn lớn hơn ngày hết hạn của lô: ${lot.name}!`);
+                                                            const message = _t(`Lot number: ${prod.lot_name} has an expiration date greater than the expiration date of lot: ${lot.name}!`);
                                                             this.notification.add(message, { type: "warning" });
                                                         }
                                                     var line = this.lines.find(x=>x.package_id == barcodeData.record.id && x.lot_id == prod.lot_id)
-                                                    console.log({line,lines:this.lines,record:barcodeData.record})
+                                                    // console.log({line,lines:this.lines,record:barcodeData.record})
                                                     if (line)
                                                     {
                                                         var quantity = this.state.detailMoveLine.quantity_need + line.quantity
@@ -1394,7 +1862,7 @@ class StockPicking extends Component {
                                                     }
                                                 }
                                                 else{
-                                                    const message = _t(`Package: "${barcode}" không còn đủ số lượng khả dụng`);
+                                                    const message = _t(`Package: "${barcode}" is no longer available in sufficient quantity`);
                                                     this.notification.add(message, { type: "warning" });
                                                 }
                                             }
@@ -1406,7 +1874,7 @@ class StockPicking extends Component {
                                     }
                                     else
                                     {
-                                        const message = _t(`Package: "${barcode}" không nằm ở vị trí: "${this.state.detailMoveLine.location_name}". Nó đang nằm ở vị trí: "${barcodeData.record.location_name}"`);
+                                        const message = _t(`Package: "${barcode}" is not located at: "${this.state.detailMoveLine.location_name}". It is located at: "${barcodeData.record.location_name}"`);
                                         this.notification.add(message, { type: "warning" });
                                     }
                                     
@@ -1421,14 +1889,15 @@ class StockPicking extends Component {
                                         
                                     }
                                     else{
-                                        const message = _t(`Gói đích này: ${barcode} không có trong danh sách!`);
+                                        const message = _t(`This destination package: ${barcode} is not in the list!`);
                                         this.notification.add(message, { type: "warning" });
                                     }
                                 }
                             }
-                            
+                            this.scanned.package = true; // ★ NEW
+
                         }
-                        else if(barcodeData.barcodeType == "lots" && barcodeData.record.product_id[0] == this.state.detailMoveLine.product_id){
+                        else if(barcodeData.barcodeType == "lots" && barcodeData.record.product_id == this.state.detailMoveLine.product_id){
                             if(this.state.detailMoveLine.product_tracking == "lot"){
                                 this.state.detailMoveLine.lot_name = barcodeData.barcode
                                 this.state.detailMoveLine.lot_id = barcodeData.record.id
@@ -1457,18 +1926,21 @@ class StockPicking extends Component {
                                     }
                                 }
                             }
-    
+                            this.scanned.lot = true; // ★ NEW
                         }
                         else if(barcodeData.barcodeType == "locations"){
                             if(this.state.detailMoveLine.picking_type_code == 'incoming')
                             {
                                 this.state.detailMoveLine.location_dest_id = barcodeData.record.id
                                 this.state.detailMoveLine.location_dest_name = barcodeData.record.display_name
+                                this.scanned.dest = true; // ★ NEW
+
                             }
                             else if(this.state.detailMoveLine.picking_type_code == 'outgoing')
                             {
                                 this.state.detailMoveLine.location_id = barcodeData.record.id
                                 this.state.detailMoveLine.location_name = barcodeData.record.display_name
+                                this.scanned.source = true;
                             }
                             else
                             {
@@ -1476,11 +1948,13 @@ class StockPicking extends Component {
                                 {
                                     this.state.detailMoveLine.location_id = barcodeData.record.id
                                     this.state.detailMoveLine.location_name = barcodeData.record.display_name
+                                    this.scanned.source = true;
                                 }
                                 else
                                 {
                                     this.state.detailMoveLine.location_dest_id = barcodeData.record.id
                                     this.state.detailMoveLine.location_dest_name = barcodeData.record.display_name
+                                    this.scanned.dest = true; // ★ NEW
                                 }
                             }
     
@@ -1502,7 +1976,7 @@ class StockPicking extends Component {
                         }
                         
                         else{ 
-                            const message = _t(`Không tìm thấy barcode: "${barcode}" trong hệ thống!`);
+                            const message = _t(`Barcode: "${barcode}" not found in the system!`);
                             this.notification.add(message, { type: "warning" });
                         }
                     }
@@ -1516,7 +1990,7 @@ class StockPicking extends Component {
                     }
                     else
                     {
-                        const message = _t(`Barcode: ${barcode} có giá trị không phải là số!`);
+                        const message = _t(`Barcode: ${barcode} is not a number!`);
                         this.notification.add(message, { type: "warning" });
                     }
                 }
@@ -1528,7 +2002,7 @@ class StockPicking extends Component {
                     }
                     else
                     {
-                        const message = _t(`Barcode: ${barcode} là ${barcodeData.barcodeType} nên không dùng được!`);
+                        const message = _t(`Barcode: ${barcode} is ${barcodeData.barcodeType} so it cannot be used!`);
                         this.notification.add(message, { type: "warning" });
                     }
                 }
@@ -1541,7 +2015,7 @@ class StockPicking extends Component {
                     }
                     else
                     {
-                        const message = _t(`Barcode: ${barcode} là ${barcodeData.barcodeType} nên không dùng được!`);
+                        const message = _t(`Barcode: ${barcode} is ${barcodeData.barcodeType} so it cannot be used!`);
                         this.notification.add(message, { type: "warning" });
                     }
                 }
@@ -1554,7 +2028,7 @@ class StockPicking extends Component {
                     }
                     else
                     {
-                        const message = _t(`Barcode: ${barcode} là ${barcodeData.barcodeType} nên không dùng được!`);
+                        const message = _t(`Barcode: ${barcode} is ${barcodeData.barcodeType} so it cannot be used!`);
                         this.notification.add(message, { type: "warning" });
                     }
                 }
@@ -1586,14 +2060,15 @@ class StockPicking extends Component {
                             }
                         }
                         else{
-                            const message = _t(`Vui lòng cập nhật các thông số lệnh trước khi đóng pack!`);
+                            const message = _t(`Please update command parameters before closing the pack!`);
                             this.notification.add(message, { type: "warning" });
                         }
-                        
+                        this.scanned.package = true; // ★ NEW
+
                     }
                     else
                     {
-                        const message = _t(`Barcode: ${barcode} là ${barcodeData.barcodeType} nên không dùng được!`);
+                        const message = _t(`Barcode: ${barcode} is ${barcodeData.barcodeType} so it cannot be used!`);
                         this.notification.add(message, { type: "warning" });
                     }
                 }

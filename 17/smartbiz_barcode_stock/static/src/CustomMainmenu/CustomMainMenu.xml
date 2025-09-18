@@ -1,12 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
-    <t t-name="CustomMainMenu" t-inherit="smartbiz_barcode.MainMenu" t-inherit-mode="extension">
+
+    <!-- Kế thừa MainMenu gốc -->
+    <t t-name="CustomMainMenu"
+       t-inherit="smartbiz_barcode.MainMenu"
+       t-inherit-mode="extension">
+
+        <!-- Chèn thêm hai nút vào khối main-buttons -->
         <xpath expr="//div[@class='main-buttons']" position="inside">
-            <button class="button-operations" t-on-click="() => this.openPickingType()">
-                Hoạt động
-            </button>
-            <button class="button-operations" t-on-click="() => this.openPickingBatch()">
-                Điều chuyển hàng loạt
-            </button>
+
+            <!-- Nút “Operations” -->
+            <button class="button-operations"
+                    t-on-click="() => this.openPickingType()">Operations</button>
+
+            <!-- Nút “Bulk Transfer” -->
+            <button class="button-operations"
+                    t-on-click="() => this.openPickingBatch()" >Batch Transfer</button>
+
         </xpath>
+
     </t>
+
 </templates>

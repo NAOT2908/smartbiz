@@ -67,6 +67,7 @@ msgstr "Người dùng"
 #: model:ir.model,name:smartbiz_stock.model_res_partner
 #: model:ir.ui.menu,name:smartbiz_stock.res_partner_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.res_partner_action
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__partner_id
 msgid "Partner"
 msgstr "Đối tác"
 
@@ -212,7 +213,67 @@ msgstr "Kiểu điều chuyển"
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_picking_group_template__name
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_picking_group__name
 msgid "Name"
-msgstr "Loại"
+msgstr "Tên"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_picking_type__scan_product
+msgid "Scan Product"
+msgstr "Quét sản phẩm"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.stock_picking_type_form
+msgid "Barcode App Policy"
+msgstr "Chính sách ứng dụng mã vạch"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.stock_picking_type_form
+msgid "Mandatory Scan"
+msgstr "Bắt buộc quét"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_picking_type__scan_source_location
+msgid "Scan Source Location"
+msgstr "Quét vị trí nguồn"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_picking_type__scan_destination_location
+msgid "Scan Destination Location"
+msgstr "Quét vị trí đích"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_picking_type__scan_lot
+msgid "Scan Lot"
+msgstr "Quét lô/sê-ri"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_picking_type__scan_package
+msgid "Scan Package"
+msgstr "Quét gói"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_picking_type__get_full_package
+msgid "Get Full Package"
+msgstr "Lấy toàn bộ gói"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.stock_picking_type_form
+msgid "Package Policy"
+msgstr "Chính sách gói"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_picking_type__all_move_done
+msgid "All Move Done"
+msgstr "Tất cả các yêu cầu phải hoàn thành"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.stock_picking_type_form
+msgid "Validate Policy"
+msgstr "Chính sách xác thực"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_picking_type__all_move_line_picked
+msgid "All Move Line Picked"
+msgstr "Tất cả các dịch chuyển phải đã thực hiện"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_product_category
@@ -223,21 +284,21 @@ msgstr "Loại"
 #: model:ir.actions.act_window,name:smartbiz_stock.uom_category_action
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__category_ids
 msgid "Category"
-msgstr "Đơn vị"
+msgstr "Loại"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_uom_uom
 #: model:ir.ui.menu,name:smartbiz_stock.uom_uom_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.uom_uom_action
 msgid "Uom"
-msgstr "Di chuyển"
+msgstr "Đơn vị"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_stock_move_line
 #: model:ir.ui.menu,name:smartbiz_stock.stock_move_line_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_move_line_action
 msgid "Move.Line"
-msgstr "Kiểu điều chuyển"
+msgstr "Di chuyển"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields,field_description:smartbiz_stock.field_stock_move_line__picking_type_id
@@ -247,7 +308,7 @@ msgstr "Kiểu điều chuyển"
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__picking_type_id
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_picking_group__picking_type_ids
 msgid "Picking Type"
-msgstr "Vị trí"
+msgstr "Kiểu điều chuyển"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_stock_location
@@ -259,17 +320,17 @@ msgstr "Vị trí"
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__location_id
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_history__location_id
 msgid "Location"
-msgstr "Dung tích"
+msgstr "Vị trí"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields,field_description:smartbiz_stock.field_stock_location__capacity
 msgid "Capacity"
-msgstr "Loại công suất"
+msgstr "Dung tích"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields,field_description:smartbiz_stock.field_stock_location__capacity_type
 msgid "Capacity Type"
-msgstr "Số lượng"
+msgstr "Loại công suất"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields.selection,name:smartbiz_stock.selection__stock_location__capacity_type__quantity
@@ -279,38 +340,38 @@ msgstr "Số lượng"
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__quantity
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_history__quantity
 msgid "Quantity"
-msgstr "Trọng lượng"
+msgstr "Số lượng"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields.selection,name:smartbiz_stock.selection__stock_location__capacity_type__weight
 msgid "Weight"
-msgstr "Thể tích"
+msgstr "Trọng lượng"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields.selection,name:smartbiz_stock.selection__stock_location__capacity_type__volume
 msgid "Volume"
-msgstr "Định tuyến"
+msgstr "Thể tích"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_stock_route
 #: model:ir.ui.menu,name:smartbiz_stock.stock_route_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_route_action
 msgid "Route"
-msgstr "Quy tắc"
+msgstr "Định tuyến"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_stock_rule
 #: model:ir.ui.menu,name:smartbiz_stock.stock_rule_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_rule_action
 msgid "Rule"
-msgstr "Kiện hàng"
+msgstr "Quy tắc"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_stock_quant_package
 #: model:ir.ui.menu,name:smartbiz_stock.stock_quant_package_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_quant_package_action
 msgid "quant.package"
-msgstr "Tên"
+msgstr "Kiện hàng"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_stock_picking
@@ -735,6 +796,11 @@ msgid "Move Line Report"
 msgstr "Báo cáo dịch chuyển"
 
 #. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__create_date
+msgid "Create Date"
+msgstr "Ngày tạo"
+
+#. module: smartbiz_stock
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__product_uom_id
 msgid "Product UoM"
 msgstr "Đơn vị"
@@ -748,11 +814,6 @@ msgstr "Gói đích"
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__location_dest_id
 msgid "Location Dest"
 msgstr "Vị trí đich"
-
-#. module: smartbiz_stock
-#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__reference
-msgid "Reference"
-msgstr "Chứng từ gốc"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_move_line_report__state__draft
@@ -777,8 +838,8 @@ msgid "Partially Available"
 msgstr "Có hàng một phần"
 
 #. module: smartbiz_stock
-#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_move_line_report__state__asigned
-msgid "Asigned"
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_move_line_report__state__assigned
+msgid "Assigned"
 msgstr "Có hàng"
 
 #. module: smartbiz_stock

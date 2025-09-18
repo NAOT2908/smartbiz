@@ -829,15 +829,15 @@ async _processBarcode(barcode) {
       }
 
       // Post các dòng đã chuẩn bị
-      const post = await this.orm.call(
-        "mrp.production",
-        "button_post_prepared_lines",
-        [, this.props.productionId],
-        {}
-      );
+      // const post = await this.orm.call(
+      //   "mrp.production",
+      //   "button_post_prepared_lines",
+      //   [, this.props.productionId],
+      //   {}
+      // );
 
       // Refresh parent
-      if (this.props.onUpdated) this.props.onUpdated(post);
+      //if (this.props.onUpdated) this.props.onUpdated(post);
 
       this.notification.add(_t("Ghi nhận thành công."), { type: "success" });
       this.closeDialog();

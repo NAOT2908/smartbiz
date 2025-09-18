@@ -1,0 +1,77 @@
+/* ───────────────────────── Modal / Panel ───────────────────────── */
+.s_dialog-modal      { position:fixed; inset:0; display:flex; align-items:center;
+  justify-content:center; background:rgba(0,0,0,.35); z-index:1100;
+  font-family:var(--font-sans); }
+.s_dialog-modal-panel{ width:420px; max-width:90%; max-height:90vh; background:#fff;
+  border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,.15);
+  display:flex; flex-direction:column; animation:scaleIn .2s ease; }
+@keyframes scaleIn   { from{transform:scale(.8);opacity:0;} to{transform:scale(1);opacity:1;} }
+
+.s_dialog-title      { margin:0; padding:18px 24px; font-size:20px; font-weight:600;
+  color:#1f2937; text-align:center; border-bottom:1px solid #f0f2f5; }
+.s_dialog-content    { padding:16px 24px; overflow-y:auto; flex-grow:1; }
+.s_dialog-actions    { padding:12px 24px; border-top:1px solid #f0f2f5; display:flex;
+  justify-content:flex-end; gap:12px; }
+.s_dialog-actions .btn{ padding:8px 18px; border:none; border-radius:8px; font-weight:600;
+   font-size:14px; cursor:pointer;
+   &.btn-primary{ background:#2563eb; color:#fff; }
+   &.btn-secondary{ background:#e5e7eb; color:#374151; }
+   &:hover{ opacity:.9; } }
+
+/* ───────────────────────── Field chung ───────────────────────── */
+.s_field-row         { display:flex; flex-direction:column; margin-bottom:12px; }
+.s_field-row label   { font-weight:600; margin-bottom:6px; }
+.s_field             { padding:6px 10px; border:1px solid #d1d5db; border-radius:6px;
+  transition:border .2s;
+  &:focus{ border-color:#3b82f6; box-shadow:0 0 0 2px rgba(59,130,246,.2);} }
+textarea.s_field     { resize:vertical; }
+select.s_field       { appearance:none; background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='gray'><polyline points='6,8 10,12 14,8' stroke='%23666' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat:no-repeat; background-position:right 10px center;
+  background-size:18px; padding-right:30px; }
+
+/* ───────────────────────── Selector 1 bản ghi ───────────────────────── */
+.s_selector-wrapper  { display:flex; flex-direction:column; gap:8px; }
+.s_selector-list     { max-height:240px; overflow:auto; }
+.s_selector-item     { padding:10px 14px; border-radius:8px; display:flex;
+  justify-content:space-between; align-items:center; cursor:pointer;
+  transition:background .15s;
+  &:hover{ background:#f3f4f6; }
+  &.selected{ background:#dbeafe; color:#1d4ed8; font-weight:600; }
+  .tick{ color:#1d4ed8; } }
+
+/* ───────────────────────── MULTISELECT Tags ───────────────────────── */
+.s_multi-select .s_tags{ display:flex; flex-wrap:wrap; gap:6px; }
+.s_tag               { background:#e0f2fe; color:#0369a1; border-radius:12px;
+  padding:4px 8px; font-size:13px; display:inline-flex; align-items:center; }
+.s_tag .remove-icon  { margin-left:6px; cursor:pointer; }
+.s_multi-select .btn-add{ border:1px dashed #60a5fa; background:transparent;
+     padding:4px 10px; border-radius:8px; font-size:13px; cursor:pointer; }
+
+/* ───────────────────────── SELECT-DIALOG hiển thị ───────────────────────── */
+.s_select-dialog       { display:flex; align-items:center; gap:6px; }
+.s_select-value        { flex-grow:1; display:flex; align-items:center; justify-content:space-between;
+    padding:6px 10px; border:1px solid #d1d5db; border-radius:6px; cursor:pointer; }
+.s_select-value .placeholder { color:#093f9e; background: none;}
+.s_select-value .chevron     { margin-left:auto; }
+.s_select-dialog .remove-icon{ cursor:pointer; }
+
+
+.s_select-value.disabled { background:#f3f4f6; cursor:not-allowed; color:#9ca3af; }
+.s_multi-select .btn-add[disabled],
+.s_select-value.disabled .chevron { opacity:.4; }
+
+/* ───────────────────────── Bảng (multiselect & single-select) ───────────────────────── */
+.s_multi-panel       { width:600px; }
+.s_single-panel      { width:550px; }
+.s_table             { width:100%; border-collapse:collapse; }
+.s_table th, .s_table td { padding:8px 10px; border-bottom:1px solid #f0f2f5; }
+.s_table tr.selected { background:#dbeafe; }
+
+/* ───────────────────────── Input search + Pager ───────────────────────── */
+.s_search            { padding:6px 10px; border:1px solid #d1d5db; border-radius:6px;
+  font-size:14px; outline:none; width:100%;
+  &:focus{ border-color:#3b82f6; box-shadow:0 0 0 2px rgba(59,130,246,.2);} }
+.s_pager             { display:flex; justify-content:center; align-items:center; gap:8px; margin-top:8px; }
+.btn-page            { border:none; background:#e5e7eb; width:32px; height:32px;
+  border-radius:6px; cursor:pointer; font-weight:bold; }
+.btn-page:disabled   { opacity:.4; cursor:not-allowed; }

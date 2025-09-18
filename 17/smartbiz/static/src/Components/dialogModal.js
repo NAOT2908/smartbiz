@@ -241,16 +241,19 @@ export class DialogModal extends Component {
   /*  Confirm / Cancel  */
   /* ====================================================================== */
   confirmEdit(){
+   
     /* validate required */
     if(this.props.fields){
         const visible = this.getVisibleFields();
         const invalid = visible.find(f => {
           if (!f.required) return false;
           const v = this.state.form[f.name];
+          console.log("DialogModal: confirmEdit - checking field", f, v);
           return f.type === "multiselect" ? v.length === 0 : !v;
         });
       if(invalid){
         this.notification.add(`Trường "${invalid.label}" là bắt buộc`,{type:"danger"});
+        console.log("DialogModal: confirmEdit - missing required field", invalid);
         return;
       }
       this.props.closeModal(this.props.title,this.state.form,this.props.action);
@@ -259,6 +262,10 @@ export class DialogModal extends Component {
       this.props.closeModal(this.props.title,rec||false);
     }
   }
-  cancel(){ this.props.closeModal(this.props.title,false); }
+  cancel(){ 
+    
+    this.props.closeModal(); 
+    console.log("Dialog cancelled");
+  }
 }
 /* ╰──────────────────────────────────────────────────────╯ */

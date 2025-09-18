@@ -2,49 +2,59 @@ msgid ""
 msgstr ""
 
 #. module: smartbiz_stock
-#: model:res_groups,name:smartbiz_stock.group_roles_inventory___basic_report_1
+#: model:res.groups,name:smartbiz_stock.group_roles_inventory___basic_report_1
 msgid "Inventory - Basic Report"
 msgstr "Kho - Báo cáo cơ bản"
 
 #. module: smartbiz_stock
-#: model:res_groups,name:smartbiz_stock.group_roles_inventory___full_report_2
+#: model:res.groups,name:smartbiz_stock.group_roles_inventory___full_report_2
 msgid "Inventory - Full Report"
 msgstr "Kho - Báo cáo đầy đủ"
 
 #. module: smartbiz_stock
-#: model:res_groups,name:smartbiz_stock.group_roles_inventory_adjustment___allow_apply_3
+#: model:res.groups,name:smartbiz_stock.group_roles_inventory_adjustment___allow_apply_3
 msgid "Inventory Adjustment - Allow Apply"
 msgstr "Điều chỉnh tồn kho - Cho phép áp dụng"
 
 #. module: smartbiz_stock
-#: model:res_groups,name:smartbiz_stock.group_roles_inventory___product_readonly_4
+#: model:res.groups,name:smartbiz_stock.group_roles_inventory___product_readonly_4
 msgid "Inventory - Product Readonly"
 msgstr "Kho - Sản phẩm: chỉ đọc"
 
 #. module: smartbiz_stock
-#: model:res_groups,name:smartbiz_stock.group_roles_inventory___configuaration_readonly_5
+#: model:res.groups,name:smartbiz_stock.group_roles_inventory___configuaration_readonly_5
 msgid "Inventory - Configuaration Readonly"
 msgstr "Kho - Cấu hình: chỉ đọc"
 
 #. module: smartbiz_stock
-#: model:res_groups,name:smartbiz_stock.group_roles_inventory___move_readonly_6
+#: model:res.groups,name:smartbiz_stock.group_roles_inventory___move_readonly_6
 msgid "Inventory - Move Readonly"
 msgstr "Kho - Điều chuyển: chỉ đọc"
 
 #. module: smartbiz_stock
-#: model:res_groups,name:smartbiz_stock.group_roles_stock_transfer___admin_7
+#: model:res.groups,name:smartbiz_stock.group_roles_stock_transfer___admin_7
 msgid "Stock Transfer - Admin"
 msgstr "Dịch chuyển kho - Quản trị viên"
 
 #. module: smartbiz_stock
-#: model:res_groups,name:smartbiz_stock.group_roles_stock_transfer___user_8
+#: model:res.groups,name:smartbiz_stock.group_roles_stock_transfer___user_8
 msgid "Stock Transfer - User"
 msgstr "Dịch chuyển kho - Người dùng"
 
 #. module: smartbiz_stock
-#: model:res_groups,name:smartbiz_stock.group_roles_stock_transfer___create_order_9
+#: model:res.groups,name:smartbiz_stock.group_roles_stock_transfer___create_order_9
 msgid "Stock Transfer - Create Order"
 msgstr "Dịch chuyển kho - Tạo đơn hàng"
+
+#. module: smartbiz_stock
+#: model:res.groups,name:smartbiz_stock.group_roles_stock_inventory___admin_10
+msgid "Stock Inventory - Admin"
+msgstr "Kiểm kê - Quản trị"
+
+#. module: smartbiz_stock
+#: model:res.groups,name:smartbiz_stock.group_roles_stock_inventory___user_11
+msgid "Stock Inventory - User"
+msgstr "Kiểm kê - Người dùng"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_res_users
@@ -81,8 +91,14 @@ msgstr "Tiền tệ"
 #: model:ir.actions.act_window,name:smartbiz_stock.product_product_action
 #: model:ir.model.fields,field_description:smartbiz_stock.field_stock_move__product_id
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_line__product_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_type_detail__product_id
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_onhand_report__product_id
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_report__product_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__product_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__product_ids
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__product_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_history__product_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_inventory_report__product_id
 msgid "Product"
 msgstr "Sản phẩm"
 
@@ -96,6 +112,7 @@ msgstr "Mã tham chiếu nội bộ"
 #: model:ir.model,name:smartbiz_stock.model_product_template
 #: model:ir.ui.menu,name:smartbiz_stock.product_template_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.product_template_action
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_picking_group__template_id
 msgid "Template"
 msgstr "Bản mẫu"
 
@@ -110,6 +127,7 @@ msgstr "Cho phép tồn kho âm"
 #: model:ir.model,name:smartbiz_stock.model_stock_quant
 #: model:ir.ui.menu,name:smartbiz_stock.stock_quant_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_quant_action
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__quant_id
 msgid "Quant"
 msgstr "Tồn kho"
 
@@ -120,6 +138,8 @@ msgstr "Tồn kho"
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_warehouse_action
 #: model:ir.model.fields,field_description:smartbiz_stock.field_stock_picking__warehouse_id
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_report__warehouse_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__warehouse_ids
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_inventory_report__warehouse_id
 msgid "Warehouse"
 msgstr "Kho"
 
@@ -130,6 +150,11 @@ msgstr "Kho"
 #: model:ir.model.fields,field_description:smartbiz_stock.field_stock_picking__lot
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_onhand_report__lot_id
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_report__lot_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__lot_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__lot_ids
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__lot_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_history__lot_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_inventory_report__lot_id
 msgid "Lot"
 msgstr "Lô/Serial"
 
@@ -142,6 +167,7 @@ msgstr "Số lượng sản phẩm"
 #: model:ir.model,name:smartbiz_stock.model_stock_move
 #: model:ir.ui.menu,name:smartbiz_stock.stock_move_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_move_action
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__move_id
 msgid "Move"
 msgstr "Di chuyển"
 
@@ -173,98 +199,117 @@ msgid "Picking.Type"
 msgstr "Kiểu điều chuyển"
 
 #. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_picking_type__name
+#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_quant_package__name
+#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_picking__name
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_stock_report__name
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_type__name
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_template__name
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias__name
+#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_package_level__name
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_period__name
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__name
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_picking_group_template__name
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_picking_group__name
+msgid "Name"
+msgstr "Loại"
+
+#. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_product_category
 #: model:ir.ui.menu,name:smartbiz_stock.product_category_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.product_category_action
 #: model:ir.model,name:smartbiz_stock.model_uom_category
 #: model:ir.ui.menu,name:smartbiz_stock.uom_category_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.uom_category_action
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__category_ids
 msgid "Category"
-msgstr "Loại"
+msgstr "Đơn vị"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_uom_uom
 #: model:ir.ui.menu,name:smartbiz_stock.uom_uom_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.uom_uom_action
 msgid "Uom"
-msgstr "Đơn vị"
+msgstr "Di chuyển"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_stock_move_line
 #: model:ir.ui.menu,name:smartbiz_stock.stock_move_line_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_move_line_action
 msgid "Move.Line"
-msgstr "Di chuyển"
+msgstr "Kiểu điều chuyển"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields,field_description:smartbiz_stock.field_stock_move_line__picking_type_id
 #: model:ir.model.fields,field_description:smartbiz_stock.field_stock_picking__picking_type_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_type__picking_type_id
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_type_detail__picking_type_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__picking_type_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_picking_group__picking_type_ids
 msgid "Picking Type"
-msgstr "Kiểu điều chuyển"
+msgstr "Vị trí"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_stock_location
 #: model:ir.ui.menu,name:smartbiz_stock.stock_location_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_location_action
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_onhand_report__location_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__location_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__location_ids
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__location_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_history__location_id
 msgid "Location"
-msgstr "Vị trí"
+msgstr "Dung tích"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields,field_description:smartbiz_stock.field_stock_location__capacity
 msgid "Capacity"
-msgstr "Dung tích"
+msgstr "Loại công suất"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields,field_description:smartbiz_stock.field_stock_location__capacity_type
 msgid "Capacity Type"
-msgstr "Loại công suất"
+msgstr "Số lượng"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields.selection,name:smartbiz_stock.selection__stock_location__capacity_type__quantity
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_line__quantity
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_onhand_report__quantity
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__quantity
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__quantity
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_history__quantity
 msgid "Quantity"
-msgstr "Số lượng"
+msgstr "Trọng lượng"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields.selection,name:smartbiz_stock.selection__stock_location__capacity_type__weight
 msgid "Weight"
-msgstr "Trọng lượng"
+msgstr "Thể tích"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields.selection,name:smartbiz_stock.selection__stock_location__capacity_type__volume
 msgid "Volume"
-msgstr "Thể tích"
+msgstr "Định tuyến"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_stock_route
 #: model:ir.ui.menu,name:smartbiz_stock.stock_route_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_route_action
 msgid "Route"
-msgstr "Định tuyến"
+msgstr "Quy tắc"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_stock_rule
 #: model:ir.ui.menu,name:smartbiz_stock.stock_rule_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_rule_action
 msgid "Rule"
-msgstr "Quy tắc"
+msgstr "Kiện hàng"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_stock_quant_package
 #: model:ir.ui.menu,name:smartbiz_stock.stock_quant_package_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_quant_package_action
 msgid "quant.package"
-msgstr "Kiện hàng"
-
-#. module: smartbiz_stock
-#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_quant_package__name
-#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_stock_report__name
-#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_type__name
-#: model:ir.model.fields,field_description:smartbiz_stock.field_stock_package_level__name
-msgid "Name"
 msgstr "Tên"
 
 #. module: smartbiz_stock
@@ -273,6 +318,7 @@ msgstr "Tên"
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_picking_action
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request__picking_ids
 #: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_transfer_request_form
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__picking_id
 msgid "Picking"
 msgstr "Điều chuyển"
 
@@ -287,6 +333,7 @@ msgstr "Lệnh điều chuyển"
 #: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_transfer_request_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_transfer_request_action
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_line__transfer_request_id
+#: model:ir.ui.menu,name:smartbiz_stock.menu_transfer_request_10
 msgid "Transfer Request"
 msgstr "Yêu cầu điều chuyển"
 
@@ -308,18 +355,40 @@ msgid "To Date"
 msgstr "Đến ngày"
 
 #. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_stock_report__dynamic_template_id
+msgid "Dynamic Template"
+msgstr "Mẫu báo cáo động"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_stock_report__picking_group_template_id
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_picking_group_template
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_picking_group_template_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_picking_group_template_action
+msgid "Picking Group Template"
+msgstr "Mẫu nhóm điều chuyển"
+
+#. module: smartbiz_stock
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_stock_report__state
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request__state
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_template__state
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias__state
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__state
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__state
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__state
 msgid "State"
 msgstr "Tình trạng"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request__name
 msgid "Request"
-msgstr "Lệnh"
+msgstr "Yêu cầu"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request__date
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_dynamic_report_alias_line__field_type__date
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__date
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__date
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_history__date
 msgid "Date"
 msgstr "Ngày"
 
@@ -334,7 +403,6 @@ msgstr "Loại yêu cầu điều chuyển"
 
 #. module: smartbiz_stock
 #: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_transfer_request_form
-#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_transfer_request_type_form
 msgid "Detail"
 msgstr "Chi tiết"
 
@@ -347,37 +415,165 @@ msgid "Transfer Request Type Detail"
 msgstr "Chi tiết loại yêu cầu điều chuyển"
 
 #. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_transfer_request_type_form
+msgid "Detail Rules"
+msgstr "Quy tắc"
+
+#. module: smartbiz_stock
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_type_detail__sequence
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias_line__sequence
 msgid "Sequence"
 msgstr "Số thứ tự"
 
 #. module: smartbiz_stock
-#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_inventory_period
-#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_inventory_period_menuitem
-#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_inventory_period_action
-msgid "Inventory Period"
-msgstr "Kì kiểm kê"
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_type_detail__split_when_not_enough
+msgid "Split When Not Enough"
+msgstr "Chia khi không đủ"
 
 #. module: smartbiz_stock
-#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_inventory
-#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_inventory_menuitem
-#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_inventory_action
-msgid "Inventory"
-msgstr "Kiểm kê"
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_type_detail__fallback_picking_type_id
+msgid "Fallback Picking Type"
+msgstr "Kiểu điều chuyển dự phòng"
 
 #. module: smartbiz_stock
-#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_inventory_line
-#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_inventory_line_menuitem
-#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_inventory_line_action
-msgid "Inventory Line"
-msgstr "Chi tiết kiểm kê"
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_type_detail__product_category_id
+msgid "Product Category"
+msgstr "Danh mục sản phẩm"
 
 #. module: smartbiz_stock
-#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_inventory_history
-#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_inventory_history_menuitem
-#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_inventory_history_action
-msgid "Inventory History"
-msgstr "Lịch sử kiểm kê"
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_type_detail__name_contains
+msgid "Name Contains"
+msgstr "Tên chứa"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_type_detail__min_onhand
+msgid "Min Onhand"
+msgstr "Tối thiểu"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_type_detail__max_onhand
+msgid "Max Onhand"
+msgstr "Tối đa"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_transfer_request_type_detail__python_condition
+msgid "Python Condition"
+msgstr "Điều kiện python"
+
+#. module: smartbiz_stock
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_dynamic_report_template
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_dynamic_report_template_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_dynamic_report_template_action
+msgid "Dynamic Report Template"
+msgstr "Mẫu báo cáo động"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_template__alias_ids
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias__alias
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias_line__alias_id
+msgid "Alias"
+msgstr "Bí danh"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_dynamic_report_template_form
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias__lines_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_dynamic_report_alias_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_inventory_period_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_inventory_form
+msgid "Lines"
+msgstr "Chi tiết"
+
+#. module: smartbiz_stock
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_dynamic_report_alias
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_dynamic_report_alias_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_dynamic_report_alias_action
+msgid "Dynamic Report Alias"
+msgstr "Bí danh báo cáo động"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias__report_model
+msgid "Report Model"
+msgstr "Mô hình báo cáo"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias__separator
+msgid "Separator"
+msgstr "Kí tự phân tách"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias__regex_pattern
+msgid "Regex Pattern"
+msgstr "Mẫu Regex"
+
+#. module: smartbiz_stock
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_dynamic_report_alias_line
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_dynamic_report_alias_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_dynamic_report_alias_line_action
+msgid "Dynamic Report Alias Line"
+msgstr "Dòng mẫu báo cáo động"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias_line__field_name
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_picking_group__field_name
+msgid "Field Name"
+msgstr "Tên trường"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias_line__field_label
+msgid "Field Label"
+msgstr "Nhãn trường"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias_line__field_type
+msgid "Field Type"
+msgstr "Loại trường"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_dynamic_report_alias_line__field_type__char
+msgid "Char"
+msgstr "Char"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_dynamic_report_alias_line__field_type__integer
+msgid "Integer"
+msgstr "Số nguyên"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_dynamic_report_alias_line__field_type__float
+msgid "Float"
+msgstr "Số thực"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias_line__segment_index
+msgid "Segment Index"
+msgstr "Chỉ số phân đoạn"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias_line__regex_group
+msgid "Regex Group"
+msgstr "Nhóm Regex"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias_line__is_computed
+msgid "Is Computed"
+msgstr "Được tính toán"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_alias_line__compute_expression
+msgid "Compute Expression"
+msgstr "Biểu thức tính toán"
+
+#. module: smartbiz_stock
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_dynamic_report_base
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_dynamic_report_base_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_dynamic_report_base_action
+msgid "Dynamic Report Base"
+msgstr "Mixin báo cáo động"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_report_base__dummy
+msgid "Dummy"
+msgstr "Dummy"
 
 #. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_onhand_report
@@ -388,6 +584,9 @@ msgstr "Báo cáo tồn kho"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_onhand_report__package_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__package_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__package_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_history__package_id
 msgid "Package"
 msgstr "Kiện hàng"
 
@@ -529,11 +728,282 @@ msgid "Final Value"
 msgstr "Giá trị cuối kỳ"
 
 #. module: smartbiz_stock
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_move_line_report
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_move_line_report_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_move_line_report_action
+msgid "Move Line Report"
+msgstr "Báo cáo dịch chuyển"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__product_uom_id
+msgid "Product UoM"
+msgstr "Đơn vị"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__result_package_id
+msgid "Result Package"
+msgstr "Gói đích"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__location_dest_id
+msgid "Location Dest"
+msgstr "Vị trí đich"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_move_line_report__reference
+msgid "Reference"
+msgstr "Chứng từ gốc"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_move_line_report__state__draft
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_transfer_request__state__draft
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_inventory__state__draft
+msgid "Draft"
+msgstr "Bản nháp"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_move_line_report__state__waiting
+msgid "Waiting"
+msgstr "Đang đợi"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_move_line_report__state__confirmed
+msgid "Confirmed"
+msgstr "Đang chờ hàng"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_move_line_report__state__partially_available
+msgid "Partially Available"
+msgstr "Có hàng một phần"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_move_line_report__state__asigned
+msgid "Asigned"
+msgstr "Có hàng"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_move_line_report__state__done
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_transfer_request__state__done
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_inventory__state__done
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_inventory_line__state__done
+msgid "Done"
+msgstr "Hoàn thành"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_move_line_report__state__cancel
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_inventory_form
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_inventory__state__cancel
+msgid "Cancel"
+msgstr "Hủy bỏ"
+
+#. module: smartbiz_stock
 #: model:ir.model,name:smartbiz_stock.model_stock_package_level
 #: model:ir.ui.menu,name:smartbiz_stock.stock_package_level_menuitem
 #: model:ir.actions.act_window,name:smartbiz_stock.stock_package_level_action
 msgid "package level"
-msgstr "Cấp độ đóng gói"
+msgstr "Cấp độ gói"
+
+#. module: smartbiz_stock
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_inventory_period
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_inventory_period_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_inventory_period_action
+msgid "Inventory Period"
+msgstr "Kì kiểm kê"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_period__date_start
+msgid "Date Start"
+msgstr "Ngày bắt đầu"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_period__date_end
+msgid "Date End"
+msgstr "Ngày kết thúc"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_period__company_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__company_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__company_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_history__company_id
+#: model:ir.model,name:smartbiz_stock.model_res_company
+#: model:ir.ui.menu,name:smartbiz_stock.res_company_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.res_company_action
+msgid "Company"
+msgstr "Công ty"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_period__inventory_ids
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_inventory
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_inventory_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_inventory_action
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__inventory_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_history__inventory_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_validate_wizard__inventory_id
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_cancel_wizard__inventory_id
+#: model:ir.ui.menu,name:smartbiz_stock.menu_inventory_7
+msgid "Inventory"
+msgstr "Kiểm kê"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__period_id
+msgid "Period"
+msgstr "Kì kiểm kê"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__set_count
+msgid "Set Count"
+msgstr "Đặt số lượng đếm"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_inventory__set_count__empty
+msgid "Empty"
+msgstr "Trống"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_inventory__set_count__current_quantity
+msgid "Current Quantity"
+msgstr "Số lượng hiện tại"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__user_id
+msgid "User"
+msgstr "Người dùng"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__line
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory__line_ids
+msgid "Line"
+msgstr "Chi tiết"
+
+#. module: smartbiz_stock
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_inventory_line
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_inventory_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_inventory_line_action
+msgid "Inventory Line"
+msgstr "Chi tiết kiểm kê"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__quantity_counted
+msgid "Quantity Counted"
+msgstr "Số lượng đã đếm"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__difference
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_history__difference
+msgid "Difference"
+msgstr "Chênh lệch"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_line__note
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_history__note
+msgid "Note"
+msgstr "Ghi chú"
+
+#. module: smartbiz_stock
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_inventory_history
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_inventory_history_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_inventory_history_action
+msgid "Inventory History"
+msgstr "Lịch sử kiểm kê"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_history__quantity_after
+msgid "Quantity After"
+msgstr "Số lượng sau kiểm kê"
+
+#. module: smartbiz_stock
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_inventory_validate_wizard
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_inventory_validate_wizard_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_inventory_validate_wizard_action
+msgid "Inventory Validate Wizard"
+msgstr "Wizard xác thực kiểm kê"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_validate_wizard__apply_inventory
+msgid "Apply Inventory"
+msgstr "Áp dụng kiểm kê"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_inventory_validate_wizard__has_pending_line
+msgid "Has Pending Line"
+msgstr "Có dòng chờ xử lý"
+
+#. module: smartbiz_stock
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_inventory_cancel_wizard
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_inventory_cancel_wizard_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_inventory_cancel_wizard_action
+msgid "Inventory Cancel Wizard"
+msgstr "Wizard hủy kiểm kê"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_picking_group_template__calculate_package
+msgid "Calculate Package"
+msgstr "Tính toán số gói"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_picking_group_template__calculate_value
+msgid "Calculate Value"
+msgstr "Tính toán giá trị"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_picking_group_template__picking_group_ids
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_picking_group
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_picking_group_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_picking_group_action
+msgid "Picking Group"
+msgstr "Nhóm điều chuyển"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_picking_group_template_form
+msgid "Groups"
+msgstr "Nhóm"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_picking_group__move_type
+msgid "Move Type"
+msgstr "Loại dịch chuyển"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_picking_group__move_type__in
+msgid "In"
+msgstr "Nhập"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_picking_group__move_type__out
+msgid "Out"
+msgstr "Xuất"
+
+#. module: smartbiz_stock
+#: model:ir.model,name:smartbiz_stock.model_smartbiz_stock_dynamic_inventory_report
+#: model:ir.ui.menu,name:smartbiz_stock.smartbiz_stock_dynamic_inventory_report_menuitem
+#: model:ir.actions.act_window,name:smartbiz_stock.smartbiz_stock_dynamic_inventory_report_action
+msgid "Dynamic Inventory Report"
+msgstr "Báo cáo hàng tồn kho động"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_inventory_report__begin_quantity
+msgid "Begin Quantity"
+msgstr "Số dư đầu kì"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_inventory_report__total_in
+msgid "Total In"
+msgstr "Tổng nhập"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_inventory_report__total_out
+msgid "Total Out"
+msgstr "Tổng xuất"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields,field_description:smartbiz_stock.field_smartbiz_stock_dynamic_inventory_report__end_quantity
+msgid "End Quantity"
+msgstr "Số dư cuối kì"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_inventory_form
+msgid "Count Detail"
+msgstr "Chi tieetsn đếm"
 
 #. module: smartbiz_stock
 #: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_stock_report__state__not_viewed
@@ -546,14 +1016,14 @@ msgid "View Report"
 msgstr "Xem báo cáo"
 
 #. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_stock_report_form
+msgid "View Dynamic Report"
+msgstr "Xem báo cáo động"
+
+#. module: smartbiz_stock
 #: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_stock_report__state__viewed
 msgid "Viewed"
 msgstr "Đã xem"
-
-#. module: smartbiz_stock
-#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_transfer_request__state__draft
-msgid "Draft"
-msgstr "Bản nháp"
 
 #. module: smartbiz_stock
 #: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_transfer_request_form
@@ -561,6 +1031,81 @@ msgid "Create Order"
 msgstr "Tạo đơn hàng"
 
 #. module: smartbiz_stock
-#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_transfer_request__state__done
-msgid "Done"
-msgstr "Xong"
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_dynamic_report_template__state__active
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_dynamic_report_template_form
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_dynamic_report_alias__state__active
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_dynamic_report_alias_form
+msgid "Active"
+msgstr "Kích hoạt"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_dynamic_report_template_form
+msgid "Rebuild Reports"
+msgstr "Khởi tạo lại báo cáo"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_dynamic_report_template_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_dynamic_report_alias_form
+msgid "Deactive"
+msgstr "Dừng hoạt động"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_dynamic_report_template__state__inactive
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_dynamic_report_alias__state__inactive
+msgid "Inactive"
+msgstr "Không hoạt động"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_inventory_form
+msgid "Start Inventory"
+msgstr "Bắt đầu kiểm kê"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_inventory_form
+msgid "Generate Inventory"
+msgstr "Tạo kiểm kê"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_inventory_form
+msgid "Select Quant"
+msgstr "Chọn sản phẩm"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_inventory__state__in_progress
+msgid "In Progress"
+msgstr "Đang thực hiện"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_inventory_form
+msgid "Validate"
+msgstr "Xác nhận"
+
+#. module: smartbiz_stock
+#: model_terms:ir.ui.view,arch_db:smartbiz_stock.smartbiz_stock_inventory_form
+msgid "Back to Draft"
+msgstr "Quay lại dự thảo"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_inventory_line__state__pending
+msgid "Pending"
+msgstr "Đang chờ"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_inventory_line__state__counting
+msgid "Counting"
+msgstr "Đang đếm"
+
+#. module: smartbiz_stock
+#: model:ir.model.fields.selection,name:smartbiz_stock.selection__smartbiz_stock_inventory_line__state__error
+msgid "Error"
+msgstr "Lỗi"
+
+#. module: smartbiz_stock
+#: model:ir.ui.menu,name:smartbiz_stock.menu_dynamic_report_8
+msgid "Dynamic Report"
+msgstr "Báo cáo động"
+
+#. module: smartbiz_stock
+#: model:ir.ui.menu,name:smartbiz_stock.menu_inventory_management_9
+msgid "Inventory Management"
+msgstr "Quản lý kiểm kê"

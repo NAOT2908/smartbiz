@@ -1,23 +1,262 @@
-.modal-overlay{
-  position:fixed; inset:0; display:flex; justify-content:center; align-items:center;
-  background:rgba(0,0,0,.6); z-index:2000;
-  .modal-content{background:#fff; padding:24px; border-radius:12px;
-    width:90%; max-width:500px; position:relative; display:flex; flex-direction:column; align-items:center;
-    .close-btn{position:absolute; top:12px; right:12px; border:none; background:none; font-size:1.5rem; cursor:pointer;}
-    .video-preview{width:100%; border-radius:8px; background:#000; object-fit:cover;}
-    .capture-btn{margin-top:16px; padding:10px 24px; background:#409eff; color:#fff; border:none; border-radius:6px; cursor:pointer;}
-    .loading{margin-top:12px;}
-    .preview-img{margin-top:16px; width:100%; border-radius:6px;}
-    .result{margin-top:12px; width:100%; max-height:200px; overflow:auto; background:#f7f7f7; padding:8px; border-radius:6px;}
-  }
+/* Overlay */
+.s_cam_ai_modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,.6);
+  z-index: 2000;
 }
-/* Cropper dialog */
-.cropper-overlay{position:fixed; inset:0; background:rgba(0,0,0,.7); display:flex; justify-content:center; align-items:center; z-index:3000;}
-.cropper-content{background:#fff; padding:12px; border-radius:8px; max-width:95vw; max-height:95vh; display:flex; flex-direction:column; align-items:center;
-  img{max-width:80vw; max-height:70vh;}
-  .cropper-btns{margin-top:8px; display:flex; gap:8px;
-    button{padding:6px 16px; border:none; border-radius:4px; cursor:pointer;}
-    .btn-cancel{background:#eee;}
-    .btn-ok{background:#409eff; color:#fff;}
-  }
+
+/* Modal container (max 90% viewport height) */
+.s_cam_ai_modal-content {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  width: 92%;
+  max-width: 820px;
+  max-height: 90vh;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
+
+.s_cam_ai_close-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Camera section */
+.s_cam_ai_cam-area { display: flex; flex-direction: column; gap: 8px; }
+
+.s_cam_ai_video-preview {
+  width: 100%;
+  aspect-ratio: 16/9;
+  max-height: 26vh;
+  border-radius: 8px;
+  background: #000;
+  object-fit: cover;
+}
+
+.s_cam_ai_toolbar { display: flex; gap: 8px; align-items: center; }
+
+.s_cam_ai_capture-btn {
+  padding: 8px 16px;
+  background: #409eff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.s_cam_ai_loading { font-size: .95rem; color: #555; }
+
+/* Expected items panel */
+.s_cam_ai_expected-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fafafa;
+  flex: 1 1 auto;
+  min-height: 140px;
+}
+
+.s_cam_ai_panel-title { font-weight: 600; }
+
+/* Table header */
+.s_cam_ai_expected-header {
+  display: grid;
+  grid-template-columns: 18% 1fr 72px 76px; /* Code | Name (wider) | Required | Received */
+  gap: 8px;
+  padding: 8px 10px;
+  background: #f0f4ff;
+  border: 1px solid #e3ebff;
+  border-radius: 6px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-weight: 600;
+}
+
+/* Scrollable table body */
+.s_cam_ai_expected-scroll {
+  overflow: auto;
+  max-height: 40vh;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.s_cam_ai_expected-row {
+  display: grid;
+  grid-template-columns: 18% 1fr 72px 76px;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f2f2f2;
+  align-items: center;
+  cursor: pointer;
+}
+.s_cam_ai_expected-row:hover { background: #f9fbff; }
+.s_cam_ai_expected-row:last-child { border-bottom: none; }
+
+/* Columns & ellipsis */
+.s_cam_ai_col-code,
+.s_cam_ai_col-name,
+.s_cam_ai_col-qty-need,
+.s_cam_ai_col-qty-got { min-width: 0; }
+.s_cam_ai_col-qty-need,
+.s_cam_ai_col-qty-got { text-align: right; }
+
+.s_cam_ai_ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Raw log */
+.s_cam_ai_result {
+  margin: 0;
+  padding: 8px;
+  width: 100%;
+  max-height: 14vh;
+  overflow: auto;
+  background: #f7f7f7;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+/* Action bar */
+.s_cam_ai_modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+  background: #fff;
+}
+
+.s_cam_ai_btn {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.s_cam_ai_btn-primary {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #409eff;
+  color: #fff;
+  cursor: pointer;
+}
+
+.s_cam_ai_spacer { flex: 1 1 auto; }
+
+/* Editor overlay */
+.s_cam_ai_editor-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.s_cam_ai_editor-content {
+  background: #fff;
+  border-radius: 10px;
+  width: 92%;
+  max-width: 720px;
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.s_cam_ai_editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid #eee;
+  background: #fafafa;
+}
+
+.s_cam_ai_editor-title { font-weight: 600; }
+
+.s_cam_ai_editor-close {
+  border: none;
+  background: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.s_cam_ai_editor-table-head {
+  display: grid;
+  gap: 8px;
+  padding: 8px 10px;
+  font-weight: 600;
+  background: #f5f7ff;
+  border-bottom: 1px solid #eee;
+  grid-template-columns: 100px 1fr 90px 90px;
+}
+
+.s_cam_ai_editor-table-scroll {
+  overflow: auto;
+  max-height: 56vh;
+  background: #fff;
+}
+
+.s_cam_ai_editor-row {
+  display: grid;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f2f2f2;
+  align-items: center;
+  grid-template-columns: 100px 1fr 90px 90px;
+}
+.s_cam_ai_editor-row:last-child { border-bottom: none; }
+
+.s_cam_ai_col-qty input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  text-align: right;
+}
+
+.s_cam_ai_btn-danger {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: #ff4d4f;
+  color: #fff;
+  cursor: pointer;
+}
+
+.s_cam_ai_editor-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+}
+
+.s_cam_ai_editor-total { font-weight: 600; }

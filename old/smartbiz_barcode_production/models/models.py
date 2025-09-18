@@ -13,6 +13,7 @@ from io import BytesIO
 import xlsxwriter
 from openpyxl import load_workbook
 from odoo.tools import float_round, float_compare
+from odoo.tools import float_is_zero
 
 
 class mrp_Production(models.Model):
@@ -789,6 +790,7 @@ class mrp_Production(models.Model):
         return self.get_data(production_id)
     
     def cancel_order(self,production_id):
+        #raise UserError("OK")
         self.env['mrp.production'].browse(production_id).action_cancel()
         
     def create_lot(self,production_id,product_id,company_id,lot_name = False):
@@ -1136,3 +1138,185 @@ class mrp_Production(models.Model):
                 
             })
         return quants
+    
+    def _ensure_production_lot(self, mo, product, lot_name=None):
+        """Tạo/đảm bảo Lot theo lot_name trên MO cho sản phẩm (chỉ khi product tracking != 'none')."""
+        if product.tracking == 'none':
+            return False
+        Lot = self.env['stock.lot']
+        name = (
+            lot_name
+            or getattr(mo, 'lot_name', False)
+            or (mo.lot_producing_id and mo.lot_producing_id.name)
+            or mo.name
+        )
+        if not name:
+            raise UserError(_("Không xác định được lot_name để tạo Lô."))
+        lot = Lot.search([
+            ('name', '=', name),
+            ('product_id', '=', product.id),
+            ('company_id', '=', mo.company_id.id),
+        ], limit=1)
+        if not lot:
+            lot = Lot.create({
+                'name': name,
+                'product_id': product.id,
+                'company_id': mo.company_id.id,
+            })
+        return lot
+        
+    def pack_auto(self,production_id, pack_spec):
+        MoveLine = self.env['stock.move.line']
+        Package = self.env['stock.quant.package']
+        #raise UserError('ok')
+        if 'quantity' not in MoveLine._fields:
+            raise UserError(_("Thiếu field 'quantity' trên stock.move.line."))
+
+        mo = self.browse(production_id)
+        if not mo:
+            raise UserError(_("Không tìm thấy Lệnh sản xuất."))
+
+        spec = pack_spec or {}
+        target = spec.get('target', 'finished')
+        if target not in ('finished', 'raw'):
+            raise UserError(_("Giá trị 'target' không hợp lệ. Chỉ nhận 'finished' hoặc 'raw'."))
+
+        pack_size_default = int(spec.get('pack_size') or 0)
+        if pack_size_default <= 0:
+            raise UserError(_("Thiếu 'pack_size' trong pack_spec."))
+
+        per_product = spec.get('per_product') or {}
+        package_type_default = spec.get('default_package_type_id')
+        dest_override = spec.get('location_dest_id')
+        name_prefix = spec.get('package_name_prefix')
+        unreserve_raw = bool(spec.get('unreserve_raw', False))  # mặc định không unreserve NPL
+
+        def fcmp(a, b, uom):
+            return float_compare(a, b, precision_rounding=(uom and uom.rounding) or 0.0001)
+
+        created_packages = self.env['stock.quant.package']
+        packed_line_count = 0
+        unreserved_count = 0
+
+        # (tuỳ chọn) hủy dự trữ nguyên liệu
+        if unreserve_raw:
+            raw_moves = mo.move_raw_ids.filtered(lambda m: m.state not in ('done', 'cancel'))
+            if raw_moves:
+                unreserved_count += len(raw_moves)
+                try:
+                    raw_moves._do_unreserve()
+                except Exception:
+                    raw_moves.mapped('move_line_ids').unlink()
+
+        # moves theo target
+        moves = (mo.move_finished_ids if target == 'finished' else mo.move_raw_ids).filtered(
+            lambda m: m.state not in ('done', 'cancel')
+        )
+        if not moves:
+            return {'unreserved_moves': unreserved_count, 'created_packages': 0, 'packed_lines': 0, 'package_ids': []}
+        
+        for mv in moves:
+            product = mv.product_id
+            uom = product.uom_id
+            pconf = per_product.get(product.id, {})
+            pack_size = int(pconf.get('pack_size') or pack_size_default)
+            if pack_size <= 0:
+                raise UserError(_("Thiếu 'pack_size' cho sản phẩm %s.") % product.display_name)
+            this_dest_id = pconf.get('location_dest_id') or dest_override or mv.location_dest_id.id
+            package_type_id = pconf.get('package_type_id', package_type_default)
+
+            # serial → ép pack_size=1
+            if product.tracking == 'serial' and pack_size != 1:
+                pack_size = 1
+
+            demand = mv.product_uom_qty or 0.0
+            already_packed_qty = sum((ln.quantity or 0.0) for ln in mv.move_line_ids if ln.result_package_id)
+            remaining_to_pack = max(demand - already_packed_qty, 0.0)
+
+            _logger.info(
+                "MO %s (id=%s) Move(id=%s, product=%s): demand=%s, already_packed=%s, remaining=%s",
+                mo.name, mo.id, mv.id, product.display_name, demand, already_packed_qty, remaining_to_pack
+            )
+            
+            if float_is_zero(remaining_to_pack, precision_rounding=uom.rounding):
+                continue
+
+            lot = self._ensure_production_lot(mo, product)  # False nếu product.tracking == 'none'
+
+            # Pool: các line CHƯA có package
+            pool = list(mv.move_line_ids.filtered(lambda l: not l.result_package_id and l.product_id == product))
+            # đảm bảo pool có lot/destination đúng
+            for ln in pool:
+                vals = {}
+                if lot and not ln.lot_id:
+                    vals['lot_id'] = lot.id
+                if this_dest_id and ln.location_dest_id.id != this_dest_id:
+                    vals['location_dest_id'] = this_dest_id
+                if vals:
+                    ln.write(vals)
+
+            while fcmp(remaining_to_pack, 0.0, uom) > 0:
+                need = min(remaining_to_pack, pack_size)
+
+                # Tạo package
+                pk_vals = {}
+                
+                pack = Package.create(pk_vals)
+                created_packages |= pack
+                
+                to_fill = need
+
+                # Ưu tiên lấy từ pool
+                for ln in list(pool):  # dùng bản copy để remove an toàn
+                    if fcmp(to_fill, 0.0, uom) <= 0:
+                        break
+                    avail = ln.quantity or 0.0
+                    if float_is_zero(avail, precision_rounding=uom.rounding):
+                        pool.remove(ln)
+                        continue
+
+                    take = min(avail, to_fill)
+                    if fcmp(avail, take, uom) > 0:
+                        # tách line
+                        new_ln = ln.copy({
+                            'quantity': take,
+                            'location_dest_id': this_dest_id or ln.location_dest_id.id,
+                            'lot_id': ln.lot_id.id or (lot.id if lot else False),
+                        })
+                        ln.write({'quantity': avail - take})
+                        new_ln.write({'result_package_id': pack.id})
+                        packed_line_count += 1
+                        to_fill -= take
+                    else:
+                        ln.write({'result_package_id': pack.id})
+                        packed_line_count += 1
+                        to_fill -= avail
+                        pool.remove(ln)
+
+                # Nếu vẫn thiếu → tạo line mới
+                while fcmp(to_fill, 0.0, uom) > 0:
+                    create_qty = to_fill if product.tracking != 'serial' else 1.0  # serial: luôn 1
+                    vals = {
+                        'move_id': mv.id,
+                        'product_id': product.id,
+                        'product_uom_id': (mv.product_uom.id if mv.product_uom else product.uom_id.id),
+                        'location_id': mv.location_id.id,
+                        'location_dest_id': this_dest_id or mv.location_dest_id.id,
+                        'quantity': create_qty,
+                        'result_package_id': pack.id,
+                    }
+                    if lot:
+                        vals['lot_id'] = lot.id
+                    new_ln = MoveLine.create(vals)
+                    packed_line_count += 1
+                    to_fill -= create_qty
+
+                remaining_to_pack -= need
+
+        return {
+            'unreserved_moves': unreserved_count,
+            'created_packages': len(created_packages),
+            'packed_lines': packed_line_count,
+            'package_ids': created_packages.ids,
+        }
+

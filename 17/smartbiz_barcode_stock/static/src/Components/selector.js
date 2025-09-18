@@ -6,7 +6,10 @@ import { _t } from "@web/core/l10n/translation";
 import { ManualBarcodeScanner } from "@smartbiz_barcode/Components/manual_barcode";
 import * as BarcodeScanner from "@web/webclient/barcode/barcode_scanner";
 export class Selector extends Component {
+    static props = ['records', 'multiSelect?', 'closeSelector', 'title','function','move?','isSelector?','lots?'];
+    static template = "smartbiz_barcode_stock.Selector"
     setup() {
+        this._t = _t;
         this.dialogService = useService("dialog");
         this.actionManager = useService("action");
         this.notification = useService("notification");
@@ -34,27 +37,34 @@ export class Selector extends Component {
         });
         this.barcodeService = useService("barcode");
         useBus(this.barcodeService.bus, "barcode_scanned", (ev) =>
+
             this.onBarcodeScanned(ev.detail.barcode)
           );
-        if (this.props.title === 'Chọn số Lô/Sê-ri' || this.props.title === 'Chọn kiện đích') {
+        if (this.props.title === "Select Lot/Serial" || this.props.title === "Select Destination Package") {
             this.state.showCreateNew = true;
         }
     }
     willUpdateProps(nextProps) {
        this.state.barcodeData = nextProps.barcodeData
     }
-    async onBarcodeScanned(barcode){
+    async onBarcodeScanned(barcode) {
         if (barcode) {
-            await this.processBarcode(barcode);
-      
-            if ("vibrate" in window.navigator) {
-              window.navigator.vibrate(100);
+            
+            const normalized = barcode.replace(/[\s,;|]+/gu, '\n').trim();
+            const lines2 = normalized.split('\n').filter(Boolean);
+            for (var line of lines2){
+                await this.processBarcode(line, this.picking_id)
             }
-          } else {
+            if ("vibrate" in window.navigator) {
+                window.navigator.vibrate(100);
+            }
+        } else {
             const message = _t("Please, Scan again!");
             this.notification.add(message, { type: "warning" });
-          }
-    }/* Xoá một package theo id */
+        }
+    }
+
+    /* Xoá một package theo id */
     removeProcessedPackage(pkgId) {
         const idx = this.state.processedPackages.findIndex(p => p.id === pkgId);
         if (idx > -1) {
@@ -71,12 +81,7 @@ export class Selector extends Component {
     }
 
     async processBarcode(barcode){
-        var barcodeData = await this.env.model.parseBarcode(
-            barcode,
-            false,
-            false,
-            false
-        );
+        var barcodeData = await this.orm.call('stock.picking', 'get_barcode_data', [,barcode,false,false],{});
         //console.log(barcodeData)
         if (barcodeData.match) {
             
@@ -100,49 +105,50 @@ export class Selector extends Component {
                 }
                 
             }
-            else if (barcodeData.barcodeType == "serials") {
-                if (this.props.title === 'Nhận theo số sê-ri') {    
-                    if(!this.state.processedSerials.find(x=>x == barcodeData.barcode)){
-                        if(this.containsLineBreak(barcodeData.barcode)) 
-                        {
-                            const normalized = barcodeData.barcode.replace(/\r\n|[;,]/g, '\n'); // đổi toàn bộ CRLF thành LF
-                            const lines2 = normalized.split('\n');
-
-                            for (var line of lines2){
-                                this.state.processedSerials.push(line)
-                            }   
-                        }
-
+            else if (barcodeData.barcodeType == "lots") {
+                if (this.props.title === "Receive by Serial") {    
+                    if(this.props.records.find(x=>x.lot_name == barcode)){
+                        const message = _t(`The ${barcode} is already in stock!`);
+                        this.notification.add(message, { type: "warning" });
+                        return;
                     }
-                }
-            }
-            else{            
-                const message = _t(`Barcode: ${barcode} không phải là Packages!`);
-                this.notification.add(message, { type: "warning" });
-            }
-        } else {
-            if (this.props.title === 'Nhận theo số sê-ri'){
-                if(!this.state.processedSerials.find(x=>x == barcode)){
-                    if(this.containsLineBreak(barcode))
-                    {
-                        const normalized = barcode.replace(/\r\n|[;,]/g, '\n'); // đổi toàn bộ CRLF thành LF
-                        const lines2 = normalized.split('\n'); 
-                        for (var line of lines2){
-                            this.state.processedSerials.push(line)
-                        }
+                    if(await this.orm.call('stock.picking', 'check_serial_number', [,barcodeData.record.id], {})){
+                        const message = _t(`The ${barcode} is already in stock!`);
+                        this.notification.add(message, { type: "warning" });
                     }
                     else{
-                        this.state.processedSerials.push(barcodeData.barcode)
+                        if(!this.state.processedSerials.find(x=>x == barcode)){
+                            this.state.processedSerials.push(barcode)                                      
+                        }
+                        else{
+                            const message = _t(`The ${barcode} has been scanned!`);
+                            this.notification.add(message, { type: "warning" });
+                        }
                     }
                     
                 }
+            }
+            else{            
+                const message = _t(`Barcode: ${barcode} is not a Package!`);
+                this.notification.add(message, { type: "warning" });
+            }
+        } else {
+            if (this.props.title === "Receive by Serial"){
+                if(this.props.records.find(x=>x.lot_name == barcode)){
+                    const message = _t(`The ${barcode} is already in stock!`);
+                    this.notification.add(message, { type: "warning" });
+                    return;
+                }
+                if(!this.state.processedSerials.find(x=>x == barcode)){
+                    this.state.processedSerials.push(barcode)                                      
+                }
                 else{
-                    const message = _t(`Mã ${barcode} đã được quét!`);
+                    const message = _t(`The ${barcode} has been scanned!`);
                     this.notification.add(message, { type: "warning" });
                 }
             }
             else{
-                const message = _t(`Không có thấy thông tin của barcode: ${barcode}!`);
+                const message = _t(`No barcode information found: ${barcode}!`);
                 this.notification.add(message, { type: "warning" });
             }
 
@@ -179,7 +185,7 @@ export class Selector extends Component {
                 this.state.selectedRecords.push(recordId); // Add to selection
             }
         } else {
-            if (this.props.title === "Chọn sản phẩm") {
+            if (this.props.title === "Select Product") {
                 const record = this.props.records.find(x => x.id === recordId);
                 const data = {
                     product_id: recordId,
@@ -208,7 +214,7 @@ export class Selector extends Component {
             }
         }
         else{
-            if(this.props.title == 'Chia tách Packages'){
+            if(this.props.title == "Split Packages"){
                 var lines =  await this.createLinesFromInventory(
                     this.state.package.products.filter((x) => x.product_id == this.props.move.product_id ),
                     this.state.qtyPerPackage, 
@@ -221,19 +227,19 @@ export class Selector extends Component {
                 console.log(lines)
                 this.props.closeSelector(lines);
             }
-            else if (this.props.title == 'Đóng Packages loạt') {
+            else if (this.props.title == 'Bulk Pack') {
                 let qtyPerPackage = parseFloat(this.state.qtyPerPackage);
                 let packageQty = parseInt(this.state.packageQty);
 
                 if (isNaN(qtyPerPackage) || isNaN(packageQty) || qtyPerPackage <= 0 || packageQty <= 0) {
-                    this.notification.add(_t("Vui lòng nhập số lượng hợp lệ cho số lượng trên một pack và số pack."), { type: "warning" });
+                    this.notification.add(_t("Please enter a valid quantity for quantity per pack and number of packs."), { type: "warning" });
                     return;
                 }
 
                 let lotName = this.state.lot_name.trim();
                 if (this.props.move.product_tracking !== 'none') {
                     if (!lotName) {
-                        this.notification.add(_t("Vui lòng nhập số lô."), { type: "warning" });
+                        this.notification.add(_t("Please enter batch number."), { type: "warning" });
                         return;
                     }
                 } else {
@@ -248,7 +254,7 @@ export class Selector extends Component {
                 );
                 this.props.closeSelector(lines);
             }
-            else if (this.props.title == 'Nhận theo số sê-ri') {
+            else if (this.props.title == "Receive by Serial") {
                 let qtyPerPackage = parseFloat(this.state.qtyPerPackage);
                
 
@@ -274,7 +280,7 @@ export class Selector extends Component {
         this.props.closeSelector(false);
     }
     async editRecord(id){
-        if (this.props.title === "Chọn kiện đích") {
+        if (this.props.title === "Select Destination Package") {
             const action = {
                 type: 'ir.actions.act_window',
                 res_model: 'stock.quant.package',
@@ -295,7 +301,7 @@ export class Selector extends Component {
         }
     }
     async createNew() {
-        if (this.props.title === "Chọn kiện đích") {
+        if (this.props.title === "Select Destination Package") {
             const action = {
                 type: 'ir.actions.act_window',
                 res_model: 'stock.quant.package',
@@ -318,7 +324,7 @@ export class Selector extends Component {
             });
             
         }
-        else if(this.props.title === 'Chọn số Lô/Sê-ri')
+        else if(this.props.title === "Select Lot/Serial")
         {
             const action = {
                 type: 'ir.actions.act_window',
@@ -348,11 +354,7 @@ export class Selector extends Component {
         }
         
     }
-    containsLineBreak(text, {full = false} = {}) {
-        return full
-          ? /\r\n|[\n\r\u2028\u2029]/.test(text)   // kiểm tra toàn diện
-          : /\r?\n/.test(text);                    // đủ dùng cho hầu hết trường hợp
-      }
+
     //Hàm để tạo move line từ package được quét vào
     async createLinesFromInventory(inventoryList, qtyPerPackage, packageQty, move, srcPackage, showPackageQty, processedPackages) {
         const lines = [];
@@ -640,5 +642,4 @@ export class Selector extends Component {
     
 }
 
-Selector.props = ['records', 'multiSelect?', 'closeSelector', 'title','move?','isSelector?','lots?'];
-Selector.template = "smartbiz_barcode_stock.Selector"
+

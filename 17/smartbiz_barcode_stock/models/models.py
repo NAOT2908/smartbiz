@@ -268,12 +268,26 @@ class Stock_Picking(models.Model):
                 return {'barcode':barcode,'match':True,'barcodeType':barcodeType,'record':record[0],'fromCache':False}
         else:
             if filters:
-                record = self.env['stock.lot'].search_read([('name', '=', barcode), ('product_id', '=', filters['product_id'])],
-                                                 limit=1, fields=self._get_fields('stock.lot'))
+                record = self.env['stock.lot'].search([('name', '=', barcode), ('product_id', '=', filters['product_id'])],
+                                                 limit=1)
             else:
-                record = self.env['stock.lot'].search_read([('name', '=', barcode)], limit=1, fields=self._get_fields('stock.lot'))
+                record = self.env['stock.lot'].search([('name', '=', barcode)], limit=1)
+
             if record:
-                return {'barcode':barcode,'match':True,'barcodeType':'lots','record':record[0],'fromCache':False}
+                data = {
+                    'name': record.name,
+                    'ref': record.ref,
+                    'product_id': record.product_id.id if record.product_id else False,
+                    'expiration_date': record.expiration_date,
+                    'create_date': record.create_date,
+                    'product_qty': record.product_qty,
+                    'id': record.id,
+                    'display_name': record.display_name,
+                    'product_name': record.product_id.name if record.product_id else '',
+                    'product_uom_id': record.product_id.uom_id.id if record.product_id else False,
+                    'location_id': record.location_id.id if record.location_id else False,
+                }
+                return {'barcode':barcode,'match':True,'barcodeType':'lots','record':data,'fromCache':False}
             record = self.env['product.product'].search_read([('barcode', '=', barcode)], limit=1,
                                                            fields=self._get_fields('product.product'))
             if record:
@@ -325,7 +339,12 @@ class Stock_Picking(models.Model):
         if model == 'stock.quant':
             return ['product_id','location_id','inventory_date','inventory_quantity','inventory_quantity_set','quantity','product_uom_id','lot_id','package_id','owner_id','inventory_diff_quantity','user_id',]
         return []
-        
+    def unpacked_move_lines(self,picking_id):
+        picking = self.search([['id','=',picking_id]],limit=1)
+        moves = picking.move_ids        
+        unpacked_move_lines = moves.move_line_ids.filtered(lambda ml: not ml.result_package_id)
+        return unpacked_move_lines.read(self._get_fields('stock.move.line'))
+    
     def get_data(self,picking_id,batch_id=False):
         if batch_id:
             batch_id = self.env['stock.picking.batch'].browse(batch_id)
@@ -337,7 +356,7 @@ class Stock_Picking(models.Model):
         uoms = moves.product_uom      
         move_lines = moves.move_line_ids
         packages = move_lines.package_id | move_lines.result_package_id
-        lots = move_lines.lot_id|self.env['stock.lot'].search( [('company_id', '=', picking.company_id.id), ('product_id', 'in', products.ids)])
+        #lots = move_lines.lot_id|self.env['stock.lot'].search( [('company_id', '=', picking.company_id.id), ('product_id', 'in', products.ids)])
         source_locations = self.env['stock.location'].search([('id', 'child_of', picking.location_id.ids)])
         destination_locations = self.env['stock.location'].search([('id', 'child_of', picking.location_dest_id.ids)])
         locations = move_lines.location_id | move_lines.location_dest_id | moves.location_id | moves.location_dest_id  | source_locations |destination_locations
@@ -386,6 +405,8 @@ class Stock_Picking(models.Model):
             'date': mv.date,
             'product_id' :mv.product_id.id,
             'product_name' :mv.product_id.display_name or '',
+            'product_name_' :mv.product_id.name or '',
+            'product_code' :mv.product_id.default_code or '',
             'product_barcode': mv.product_id.barcode or '',
             'product_tracking': mv.product_id.tracking,
             'product_uom': mv.product_id.uom_id.name or '',
@@ -457,7 +478,7 @@ class Stock_Picking(models.Model):
                 'products': product_list,
                 'lines': pkg['lines'],  # Bổ sung thông tin các move line cho package
             })
-        unpacked_move_lines = moves.move_line_ids.filtered(lambda ml: not ml.result_package_id)
+        
         unpacked_products = []
         for mv in moves:
             total_finished_qty = mv.product_uom_qty or 0.0
@@ -504,7 +525,7 @@ class Stock_Picking(models.Model):
             'moves': mvs,         
             'move_lines': mls,
             'packages': packs,
-            'lots': lots.read(picking._get_fields('stock.lot')),
+            #'lots': lots.read(picking._get_fields('stock.lot')),
             'locations': locations.read(picking._get_fields('stock.location')),
             'products': products.read(picking._get_fields('product.product')),
             'uoms':uoms.read(picking._get_fields('uom.uom')),
@@ -522,14 +543,21 @@ class Stock_Picking(models.Model):
             'state_name': self.sel_display(batch_id or picking, 'state'),
             'state':(batch_id or picking).state,
             'name': batch_id.name if batch_id else picking.name,
-
+            'origin': batch_id.origin if batch_id else picking.origin,
+            'scheduled_date': str(batch_id.scheduled_date) if batch_id else str(picking.scheduled_date),
             'order':[{'lot_name':picking.lot or '' if not batch_id else picking[0].lot or '' if picking else '',}],
             'finish_packages': finish_packages,
             'unpacked_moves':unpacked_products,
-            'unpacked_move_lines':unpacked_move_lines.read(self._get_fields('stock.move.line')),
+            
         }
         return data
-
+    
+    def check_serial_number(self, serial_id):
+        onhand = self.env['stock.quant'].search([('lot_id', '=', serial_id),('location_id.usage','=','internal')], limit=1)
+        if onhand and onhand.quantity > 0:
+            return True
+        else:
+            return False
        
     def sel_display(self, record, field_name):
         """
@@ -561,6 +589,9 @@ class Stock_Picking(models.Model):
         return {'move_id':move.id,'data':data}
 
     def save_data(self,picking_id,data,batch_id=False):
+        picking = self.env['stock.picking'].browse(picking_id)
+        if picking.state == 'draft':
+            picking.action_confirm()
         quantity = float(data['quantity'])
         package_id = data['package_id'] if 'package_id' in data.keys() else False
         result_package_id = data['result_package_id'] if 'result_package_id' in data.keys()  else False
@@ -631,39 +662,117 @@ class Stock_Picking(models.Model):
                 line.write({'result_package_id':l['result_package_id'],'quantity':qty})
             
         return self.get_data(picking_id,batch_id)
-
-    def create_packages(self,picking_id,batch_id,lines):
+   
+    def create_packages(self, picking_id, batch_id, lines):
+        vals_list = []
         for data in lines:
-            move_id = data['move_id']
-            product_id = data['product_id']
-            product = self.env['product.product'].browse(product_id)
-            product_uom_id = product.uom_id.id
-            lot_id = False
-            if data['lot_id']:
-                lot_id = data['lot_id']
-            elif data['lot_name']:
-                lot_id = self.env['stock.lot'].search([('name','=',data['lot_name']),('product_id','=',product_id)],limit=1)
-                if not lot_id:
-                    lot_id = self.env['stock.lot'].create({'name':data['lot_name'],'product_id':product_id})
-                lot_id = lot_id.id
-            quantity = data['quantity']
-            #raise UserError("data %s lot_name %s lot_id %s" % (data ,data['lot_name'],lot_id) )
-            self.env['stock.move.line'].create({
-                'move_id':move_id,
-                'product_id':product_id,
-                'product_uom_id':product_uom_id,
-                'quantity':quantity,
-                'location_id':data['location_id'],
-                'location_dest_id':data['location_dest_id'],
-                'lot_id':lot_id,
-                'package_id':data['package_id'],
-                'result_package_id':data['result_package_id'],
-                'state':'assigned',
-                'picked':True
+            product = self.env['product.product'].browse(data['product_id'])
+            lot_id = data.get('lot_id') or False
+            if not lot_id and data.get('lot_name'):
+                lot = self.env['stock.lot'].search([
+                    ('name', '=', data['lot_name']),
+                    ('product_id', '=', data['product_id'])
+                ], limit=1)
+                if not lot:
+                    lot = self.env['stock.lot'].create({
+                        'name': data['lot_name'], 'product_id': data['product_id']
+                    })
+                lot_id = lot.id
+
+            vals_list.append({
+                'move_id': data['move_id'],
+                'product_id': data['product_id'],
+                'product_uom_id': product.uom_id.id,
+                'quantity': data['quantity'],
+                'location_id': data['location_id'],
+                'location_dest_id': data['location_dest_id'],
+                'lot_id': lot_id,
+                'package_id': data['package_id'],
+                'result_package_id': data['result_package_id'],
+                'state': 'assigned',
+                'picked': True,
             })
-            
-        return self.get_data(picking_id,batch_id)    
-    
+        if vals_list:
+            self.env['stock.move.line'].create(vals_list)
+        return self.get_data(picking_id, batch_id)
+
+    def save_lines_bulk(self, picking_id, lines, batch_id=False):
+        # Tắt prefetch để giảm overhead trong batch lớn
+        self = self.with_context(prefetch_fields=False)
+
+        picking = self.browse(picking_id)
+        if picking.state == 'draft':
+            picking.action_confirm()  # Xác nhận 1 lần cho cả batch
+
+        # 1) Thu thập các (product_id, lot_name) cần resolve theo lô
+        to_resolve = {}
+        product_ids = set()
+        for d in lines:
+            if not d.get('lot_id') and d.get('lot_name'):
+                to_resolve.setdefault(d['product_id'], set()).add(d['lot_name'])
+            product_ids.add(d['product_id'])
+
+        # 2) Tìm lot theo batch, thiếu thì tạo hàng loạt
+        lot_map = {}
+        if to_resolve:
+            all_names = set()
+            for names in to_resolve.values():
+                all_names |= names
+            lots = self.env['stock.lot'].search([
+                ('name', 'in', list(all_names)),
+                ('product_id', 'in', list(product_ids)),
+            ])
+            for l in lots:
+                lot_map[(l.product_id.id, l.name)] = l.id
+
+            to_create = []
+            for pid, names in to_resolve.items():
+                for nm in names:
+                    if (pid, nm) not in lot_map:
+                        to_create.append({'name': nm, 'product_id': pid})
+            if to_create:
+                new_lots = self.env['stock.lot'].create(to_create)  # bulk create
+                for l in new_lots:
+                    lot_map[(l.product_id.id, l.name)] = l.id
+
+        # 3) Chuẩn bị create/write theo batch
+        create_vals = []
+        to_write = []  # (id, vals)
+        for d in lines:
+            lot_id = d.get('lot_id')
+            if not lot_id and d.get('lot_name'):
+                lot_id = lot_map.get((d['product_id'], d['lot_name']))
+
+            common = {
+                'quantity': float(d.get('quantity') or 0.0),           # chỉ dùng quantity
+                'location_id': d['location_id'],
+                'location_dest_id': d['location_dest_id'],
+                'lot_id': lot_id,
+                'lot_name': d.get('lot_name') or False,
+                'package_id': d.get('package_id') or False,
+                'result_package_id': d.get('result_package_id') or False,
+                'picked': True,
+            }
+
+            if d.get('id'):
+                to_write.append((d['id'], common))
+            else:
+                vals = dict(common,
+                    product_id=d['product_id'],
+                    product_uom_id=d['product_uom_id'],
+                    picking_id=picking_id,
+                )
+                create_vals.append(vals)
+
+        # 4) Thực thi
+        if create_vals:
+            self.env['stock.move.line'].create(create_vals)  # bulk create dòng mới
+
+        for rec_id, vals in to_write:                        # write các dòng cũ
+            self.env['stock.move.line'].browse(rec_id).write(vals)
+
+        # 5) Trả dữ liệu (giữ nguyên hành vi cũ để frontend không phải đổi nhiều)
+        return self.get_data(picking_id, batch_id)
 
     def delete_move_line(self,picking_id,move_line_id,batch_id=False):
         self.env['stock.move.line'].browse(move_line_id).unlink()
