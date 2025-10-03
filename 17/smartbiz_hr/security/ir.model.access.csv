@@ -5,18 +5,33 @@ hr_admin_smartbiz_hr_overtime_request,"HR Admin-smartbiz_hr.Overtime Request",mo
 hr_users_smartbiz_hr_request_line,"HR Users-smartbiz_hr.Request Line",model_smartbiz_hr_request_line,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
 hr_manager_smartbiz_hr_request_line,"HR Manager-smartbiz_hr.Request Line",model_smartbiz_hr_request_line,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
 hr_admin_smartbiz_hr_request_line,"HR Admin-smartbiz_hr.Request Line",model_smartbiz_hr_request_line,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
-hr_users_smartbiz_hr_work_entry_rule_category,"HR Users-smartbiz_hr.Work Entry Rule Category",model_smartbiz_hr_work_entry_rule_category,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
-hr_manager_smartbiz_hr_work_entry_rule_category,"HR Manager-smartbiz_hr.Work Entry Rule Category",model_smartbiz_hr_work_entry_rule_category,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
-hr_admin_smartbiz_hr_work_entry_rule_category,"HR Admin-smartbiz_hr.Work Entry Rule Category",model_smartbiz_hr_work_entry_rule_category,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
-hr_users_smartbiz_hr_work_entry_rule,"HR Users-smartbiz_hr.Work Entry Rule",model_smartbiz_hr_work_entry_rule,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
-hr_manager_smartbiz_hr_work_entry_rule,"HR Manager-smartbiz_hr.Work Entry Rule",model_smartbiz_hr_work_entry_rule,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
-hr_admin_smartbiz_hr_work_entry_rule,"HR Admin-smartbiz_hr.Work Entry Rule",model_smartbiz_hr_work_entry_rule,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
-hr_users_smartbiz_hr_we_rule_condition,"HR Users-smartbiz_hr.WE Rule Condition",model_smartbiz_hr_we_rule_condition,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
-hr_manager_smartbiz_hr_we_rule_condition,"HR Manager-smartbiz_hr.WE Rule Condition",model_smartbiz_hr_we_rule_condition,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
-hr_admin_smartbiz_hr_we_rule_condition,"HR Admin-smartbiz_hr.WE Rule Condition",model_smartbiz_hr_we_rule_condition,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
-hr_users_smartbiz_hr_we_rule_action,"HR Users-smartbiz_hr.WE Rule Action",model_smartbiz_hr_we_rule_action,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
-hr_manager_smartbiz_hr_we_rule_action,"HR Manager-smartbiz_hr.WE Rule Action",model_smartbiz_hr_we_rule_action,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
-hr_admin_smartbiz_hr_we_rule_action,"HR Admin-smartbiz_hr.WE Rule Action",model_smartbiz_hr_we_rule_action,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
-hr_users_smartbiz_hr_we_rule_log,"HR Users-smartbiz_hr.WE Rule Log",model_smartbiz_hr_we_rule_log,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
-hr_manager_smartbiz_hr_we_rule_log,"HR Manager-smartbiz_hr.WE Rule Log",model_smartbiz_hr_we_rule_log,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
-hr_admin_smartbiz_hr_we_rule_log,"HR Admin-smartbiz_hr.WE Rule Log",model_smartbiz_hr_we_rule_log,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_allowance,"HR Users-smartbiz_hr.Allowance",model_smartbiz_hr_allowance,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_allowance,"HR Manager-smartbiz_hr.Allowance",model_smartbiz_hr_allowance,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_allowance,"HR Admin-smartbiz_hr.Allowance",model_smartbiz_hr_allowance,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_contract_allowance,"HR Users-smartbiz_hr.Contract Allowance",model_smartbiz_hr_contract_allowance,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_contract_allowance,"HR Manager-smartbiz_hr.Contract Allowance",model_smartbiz_hr_contract_allowance,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_contract_allowance,"HR Admin-smartbiz_hr.Contract Allowance",model_smartbiz_hr_contract_allowance,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_overtime_rule,"HR Users-smartbiz_hr.OverTime Rule",model_smartbiz_hr_overtime_rule,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_overtime_rule,"HR Manager-smartbiz_hr.OverTime Rule",model_smartbiz_hr_overtime_rule,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_overtime_rule,"HR Admin-smartbiz_hr.OverTime Rule",model_smartbiz_hr_overtime_rule,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_calendar_leave_type,"HR Users-smartbiz_hr.Calendar Leave Type",model_smartbiz_hr_calendar_leave_type,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_calendar_leave_type,"HR Manager-smartbiz_hr.Calendar Leave Type",model_smartbiz_hr_calendar_leave_type,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_calendar_leave_type,"HR Admin-smartbiz_hr.Calendar Leave Type",model_smartbiz_hr_calendar_leave_type,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_calculation_policy,"HR Users-smartbiz_hr.Calculation Policy",model_smartbiz_hr_calculation_policy,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_calculation_policy,"HR Manager-smartbiz_hr.Calculation Policy",model_smartbiz_hr_calculation_policy,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_calculation_policy,"HR Admin-smartbiz_hr.Calculation Policy",model_smartbiz_hr_calculation_policy,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_attendance_policy,"HR Users-smartbiz_hr.Attendance Policy",model_smartbiz_hr_attendance_policy,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_attendance_policy,"HR Manager-smartbiz_hr.Attendance Policy",model_smartbiz_hr_attendance_policy,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_attendance_policy,"HR Admin-smartbiz_hr.Attendance Policy",model_smartbiz_hr_attendance_policy,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_overtime_policy,"HR Users-smartbiz_hr.OverTime Policy",model_smartbiz_hr_overtime_policy,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_overtime_policy,"HR Manager-smartbiz_hr.OverTime Policy",model_smartbiz_hr_overtime_policy,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_overtime_policy,"HR Admin-smartbiz_hr.OverTime Policy",model_smartbiz_hr_overtime_policy,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_attendance_alert,"HR Users-smartbiz_hr.Attendance Alert",model_smartbiz_hr_attendance_alert,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_attendance_alert,"HR Manager-smartbiz_hr.Attendance Alert",model_smartbiz_hr_attendance_alert,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_attendance_alert,"HR Admin-smartbiz_hr.Attendance Alert",model_smartbiz_hr_attendance_alert,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_mailer_configuration,"HR Users-smartbiz_hr.Mailer Configuration",model_smartbiz_hr_mailer_configuration,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_mailer_configuration,"HR Manager-smartbiz_hr.Mailer Configuration",model_smartbiz_hr_mailer_configuration,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_mailer_configuration,"HR Admin-smartbiz_hr.Mailer Configuration",model_smartbiz_hr_mailer_configuration,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_mailer_time,"HR Users-smartbiz_hr.Mailer Time",model_smartbiz_hr_mailer_time,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_mailer_time,"HR Manager-smartbiz_hr.Mailer Time",model_smartbiz_hr_mailer_time,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_mailer_time,"HR Admin-smartbiz_hr.Mailer Time",model_smartbiz_hr_mailer_time,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1

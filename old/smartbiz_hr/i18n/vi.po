@@ -1,0 +1,450 @@
+msgid ""
+msgstr ""
+
+#. module: smartbiz_hr
+#: model:res.groups,name:smartbiz_hr.group_roles_hr_users_1
+msgid "HR Users"
+msgstr "Người dùng"
+
+#. module: smartbiz_hr
+#: model:res.groups,name:smartbiz_hr.group_roles_hr_manager_2
+msgid "HR Manager"
+msgstr "Quản lý"
+
+#. module: smartbiz_hr
+#: model:res.groups,name:smartbiz_hr.group_roles_hr_admin_3
+msgid "HR Admin"
+msgstr "Quản trị viên"
+
+#. module: smartbiz_hr
+#: model:res.groups,name:smartbiz_hr.group_roles_hr_checker_4
+msgid "HR Checker"
+msgstr "Người kiểm duyệt"
+
+#. module: smartbiz_hr
+#: model:res.groups,name:smartbiz_hr.group_roles_hr_approver_5
+msgid "HR Approver"
+msgstr "Người phê duyệt"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_res_users
+#: model:ir.ui.menu,name:smartbiz_hr.res_users_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.res_users_action
+msgid "Users"
+msgstr "Người dùng"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_res_partner
+#: model:ir.ui.menu,name:smartbiz_hr.res_partner_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.res_partner_action
+msgid "Partner"
+msgstr "Đối tác"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_res_company
+#: model:ir.ui.menu,name:smartbiz_hr.res_company_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.res_company_action
+msgid "Company"
+msgstr "Công ty"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_ir_attachment
+#: model:ir.ui.menu,name:smartbiz_hr.ir_attachment_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.ir_attachment_action
+msgid "Attachment"
+msgstr "Đính kèm"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_mrp_workcenter
+#: model:ir.ui.menu,name:smartbiz_hr.mrp_workcenter_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.mrp_workcenter_action
+#: model:ir.model.fields,field_description:smartbiz_hr.field_hr_work_entry__workcenter_id
+msgid "Workcenter"
+msgstr "Trạm làm việc"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_resource_calendar
+#: model:ir.ui.menu,name:smartbiz_hr.resource_calendar_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.resource_calendar_action
+msgid "Calendar"
+msgstr "Lịch"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_hr_contract
+#: model:ir.ui.menu,name:smartbiz_hr.hr_contract_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.hr_contract_action
+msgid "Contract"
+msgstr "Hợp đồng"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_hr_work_entry
+#: model:ir.ui.menu,name:smartbiz_hr.hr_work_entry_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.hr_work_entry_action
+msgid "Work.Entry"
+msgstr "Bảng công"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_hr_work_entry__ok_quantity
+msgid "OK Quantity"
+msgstr "Số lượng đạt"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_hr_work_entry__ng_quantity
+msgid "NG Quantity"
+msgstr "Số lượng lỗi"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_hr_work_entry_type
+#: model:ir.ui.menu,name:smartbiz_hr.hr_work_entry_type_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.hr_work_entry_type_action
+msgid "Work.Entry.Type"
+msgstr "Kiểu bảng công"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_hr_attendance
+#: model:ir.ui.menu,name:smartbiz_hr.hr_attendance_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.hr_attendance_action
+#: model:ir.ui.menu,name:smartbiz_hr.menu_attendance_3
+msgid "Attendance"
+msgstr "Chấm công"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_hr_employee
+#: model:ir.ui.menu,name:smartbiz_hr.hr_employee_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.hr_employee_action
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_overtime_request__employee_ids
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_request_line__employee_id
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_we_rule_log__employee_id
+#: model:ir.ui.menu,name:smartbiz_hr.menu_employee_2
+msgid "Employee"
+msgstr "Nhân viên"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_hr_payslip
+#: model:ir.ui.menu,name:smartbiz_hr.hr_payslip_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.hr_payslip_action
+#: model:ir.ui.menu,name:smartbiz_hr.menu_payslip_7
+msgid "Payslip"
+msgstr "Phiếu lương"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_hr_payslip__name
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_overtime_request__name
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_work_entry_rule_category__name
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_work_entry_rule__name
+msgid "Name"
+msgstr "Tên"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_smartbiz_hr_overtime_request
+#: model:ir.ui.menu,name:smartbiz_hr.smartbiz_hr_overtime_request_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.smartbiz_hr_overtime_request_action
+#: model:ir.ui.menu,name:smartbiz_hr.menu_overtime_request_4
+msgid "Overtime Request"
+msgstr "Yêu cầu làm thêm giờ"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_overtime_request__start_date
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_request_line__start_date
+msgid "Start Date"
+msgstr "Ngày bắt đầu"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_overtime_request__end_date
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_request_line__end_date
+msgid "End Date"
+msgstr "Ngày kết thúc"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_overtime_request__duration
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_request_line__duration
+msgid "Duration"
+msgstr "Khoảng thời gian"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_overtime_request__lines_ids
+msgid "Lines"
+msgstr "Chi tiết"
+
+#. module: smartbiz_hr
+#: model_terms:ir.ui.view,arch_db:smartbiz_hr.smartbiz_hr_overtime_request_form
+msgid "Detail"
+msgstr "Chi tiết"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_overtime_request__note
+msgid "Note"
+msgstr "Ghi chú"
+
+#. module: smartbiz_hr
+#: model_terms:ir.ui.view,arch_db:smartbiz_hr.smartbiz_hr_overtime_request_form
+msgid "Notes"
+msgstr "Ghi chú"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_overtime_request__approver_ids
+msgid "Approver"
+msgstr "Người phê duyệt"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_overtime_request__state
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_request_line__state
+msgid "State"
+msgstr "Tình trạng"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_smartbiz_hr_request_line
+#: model:ir.ui.menu,name:smartbiz_hr.smartbiz_hr_request_line_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.smartbiz_hr_request_line_action
+msgid "Request Line"
+msgstr "Dòng yêu cầu"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_request_line__request_id
+#: model:ir.ui.menu,name:smartbiz_hr.menu_request_5
+msgid "Request"
+msgstr "Yêu cầu"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_smartbiz_hr_work_entry_rule_category
+#: model:ir.ui.menu,name:smartbiz_hr.smartbiz_hr_work_entry_rule_category_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.smartbiz_hr_work_entry_rule_category_action
+msgid "Work Entry Rule Category"
+msgstr "Danh mục quy tắc bảng công"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_work_entry_rule_category__sequence
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_work_entry_rule__sequence
+msgid "Sequence"
+msgstr "Số thứ tự"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_work_entry_rule_category__active
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_work_entry_rule__active
+msgid "Active"
+msgstr "Kích hoạt"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_work_entry_rule_category__rules_ids
+#: model_terms:ir.ui.view,arch_db:smartbiz_hr.smartbiz_hr_work_entry_rule_category_form
+msgid "Rules"
+msgstr "Quy tắc"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_smartbiz_hr_work_entry_rule
+#: model:ir.ui.menu,name:smartbiz_hr.smartbiz_hr_work_entry_rule_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.smartbiz_hr_work_entry_rule_action
+msgid "Work Entry Rule"
+msgstr "Quy tắc bảng công"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_work_entry_rule__category_id
+msgid "Category"
+msgstr "Loại"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_work_entry_rule__when
+msgid "When"
+msgstr "Khi"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_work_entry_rule__when__after_generate
+msgid "After Generate"
+msgstr "Sau khi tạo"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_work_entry_rule__when__before_generate
+msgid "Before Generate"
+msgstr "Trước khi tạo"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_work_entry_rule__rule_type
+msgid "Rule Type"
+msgstr "Loại quy tắc"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_work_entry_rule__rule_type__rounding
+msgid "Rounding"
+msgstr "Làm tròn"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_work_entry_rule__rule_type__grace
+msgid "Grace"
+msgstr "Duyên dáng"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_work_entry_rule__rule_type__overtime_tier
+msgid "Overtime Tier"
+msgstr "Cấp thêm giờ"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_work_entry_rule__rule_type__shift_differential
+msgid "Shift Differential"
+msgstr "Dịch chuyển khác biệt"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_work_entry_rule__rule_type__lateness
+msgid "Lateness"
+msgstr "Độ trễ"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_work_entry_rule__condition_ids
+msgid "Condition"
+msgstr "Điều kiện"
+
+#. module: smartbiz_hr
+#: model_terms:ir.ui.view,arch_db:smartbiz_hr.smartbiz_hr_work_entry_rule_form
+msgid "Conditions"
+msgstr "Điều kiện"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_work_entry_rule__action_ids
+msgid "Action"
+msgstr "Hoạt động"
+
+#. module: smartbiz_hr
+#: model_terms:ir.ui.view,arch_db:smartbiz_hr.smartbiz_hr_work_entry_rule_form
+msgid "Actions"
+msgstr "Hành động"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_smartbiz_hr_we_rule_condition
+#: model:ir.ui.menu,name:smartbiz_hr.smartbiz_hr_we_rule_condition_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.smartbiz_hr_we_rule_condition_action
+msgid "WE Rule Condition"
+msgstr "Điều kiện"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_we_rule_condition__rule_id
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_we_rule_action__rule_id
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_we_rule_log__rule_id
+msgid "Rule"
+msgstr "Quy tắc"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_we_rule_condition__python_code
+#: model_terms:ir.ui.view,arch_db:smartbiz_hr.smartbiz_hr_we_rule_condition_form
+msgid "Python Code"
+msgstr "Mã Python"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_smartbiz_hr_we_rule_action
+#: model:ir.ui.menu,name:smartbiz_hr.smartbiz_hr_we_rule_action_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.smartbiz_hr_we_rule_action_action
+msgid "WE Rule Action"
+msgstr "Hành động"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_we_rule_action__action_type
+msgid "Action Type"
+msgstr "Loại hành động"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_we_rule_action__action_type__round_start
+msgid "Round Start"
+msgstr "Bắt đầu tròn"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_we_rule_action__action_type__round_stop
+msgid "Round Stop"
+msgstr "Điểm dừng tròn"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_we_rule_action__action_type__adjust_rate
+msgid "Adjust Rate"
+msgstr "Điều chỉnh tỷ lệ"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_we_rule_action__action_type__split_interval
+msgid "Split Interval"
+msgstr "Khoảng thời gian phân chia"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_we_rule_action__action_type__create_entry
+msgid "Create Entry"
+msgstr "Tạo mục nhập"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_we_rule_action__parameter
+msgid "Parameter"
+msgstr "Tham số"
+
+#. module: smartbiz_hr
+#: model_terms:ir.ui.view,arch_db:smartbiz_hr.smartbiz_hr_we_rule_action_form
+msgid "Parameters"
+msgstr "Tham số"
+
+#. module: smartbiz_hr
+#: model:ir.model,name:smartbiz_hr.model_smartbiz_hr_we_rule_log
+#: model:ir.ui.menu,name:smartbiz_hr.smartbiz_hr_we_rule_log_menuitem
+#: model:ir.actions.act_window,name:smartbiz_hr.smartbiz_hr_we_rule_log_action
+msgid "WE Rule Log"
+msgstr "Nhận kí"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields,field_description:smartbiz_hr.field_smartbiz_hr_we_rule_log__work_entry_id
+#: model:ir.ui.menu,name:smartbiz_hr.menu_work_entry_6
+msgid "Work Entry"
+msgstr "Bảng công"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_overtime_request__state__draft
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_request_line__state__draft
+msgid "Draft"
+msgstr "Bản nháp"
+
+#. module: smartbiz_hr
+#: model_terms:ir.ui.view,arch_db:smartbiz_hr.smartbiz_hr_overtime_request_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_hr.smartbiz_hr_request_line_form
+msgid "Submit"
+msgstr "Nộp đơn"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_overtime_request__state__to_submit
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_request_line__state__to_submit
+msgid "To Submit"
+msgstr "Chờ duyệt"
+
+#. module: smartbiz_hr
+#: model_terms:ir.ui.view,arch_db:smartbiz_hr.smartbiz_hr_overtime_request_form
+#: model_terms:ir.ui.view,arch_db:smartbiz_hr.smartbiz_hr_request_line_form
+msgid "Approve"
+msgstr "Phê duyệt"
+
+#. module: smartbiz_hr
+#: model_terms:ir.ui.view,arch_db:smartbiz_hr.smartbiz_hr_overtime_request_form
+msgid "Refuse"
+msgstr "Từ chối"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_overtime_request__state__to_approve
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_request_line__state__to_approve
+msgid "To Approve"
+msgstr "Chờ phê duyệt"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_overtime_request__state__approved
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_request_line__state__approved
+msgid "Approved"
+msgstr "Đã phê duyệt"
+
+#. module: smartbiz_hr
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_overtime_request__state__refused
+#: model:ir.model.fields.selection,name:smartbiz_hr.selection__smartbiz_hr_request_line__state__refused
+msgid "Refused"
+msgstr "Bị từ chối"
+
+#. module: smartbiz_hr
+#: model:ir.ui.menu,name:smartbiz_hr.menu_smartbiz_hr_1
+msgid "SmartBiz HR"
+msgstr "SmartBiz HR"
+
+#. module: smartbiz_hr
+#: model:ir.ui.menu,name:smartbiz_hr.menu_report_8
+msgid "Report"
+msgstr "Báo cáo"
+
+#. module: smartbiz_hr
+#: model:ir.ui.menu,name:smartbiz_hr.menu_config_9
+msgid "Config"
+msgstr "Cấu hình"

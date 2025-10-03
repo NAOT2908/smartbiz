@@ -1,0 +1,22 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+hr_users_smartbiz_hr_overtime_request,"HR Users-smartbiz_hr.Overtime Request",model_smartbiz_hr_overtime_request,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_overtime_request,"HR Manager-smartbiz_hr.Overtime Request",model_smartbiz_hr_overtime_request,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_overtime_request,"HR Admin-smartbiz_hr.Overtime Request",model_smartbiz_hr_overtime_request,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_request_line,"HR Users-smartbiz_hr.Request Line",model_smartbiz_hr_request_line,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_request_line,"HR Manager-smartbiz_hr.Request Line",model_smartbiz_hr_request_line,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_request_line,"HR Admin-smartbiz_hr.Request Line",model_smartbiz_hr_request_line,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_work_entry_rule_category,"HR Users-smartbiz_hr.Work Entry Rule Category",model_smartbiz_hr_work_entry_rule_category,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_work_entry_rule_category,"HR Manager-smartbiz_hr.Work Entry Rule Category",model_smartbiz_hr_work_entry_rule_category,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_work_entry_rule_category,"HR Admin-smartbiz_hr.Work Entry Rule Category",model_smartbiz_hr_work_entry_rule_category,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_work_entry_rule,"HR Users-smartbiz_hr.Work Entry Rule",model_smartbiz_hr_work_entry_rule,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_work_entry_rule,"HR Manager-smartbiz_hr.Work Entry Rule",model_smartbiz_hr_work_entry_rule,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_work_entry_rule,"HR Admin-smartbiz_hr.Work Entry Rule",model_smartbiz_hr_work_entry_rule,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_we_rule_condition,"HR Users-smartbiz_hr.WE Rule Condition",model_smartbiz_hr_we_rule_condition,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_we_rule_condition,"HR Manager-smartbiz_hr.WE Rule Condition",model_smartbiz_hr_we_rule_condition,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_we_rule_condition,"HR Admin-smartbiz_hr.WE Rule Condition",model_smartbiz_hr_we_rule_condition,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_we_rule_action,"HR Users-smartbiz_hr.WE Rule Action",model_smartbiz_hr_we_rule_action,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_we_rule_action,"HR Manager-smartbiz_hr.WE Rule Action",model_smartbiz_hr_we_rule_action,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_we_rule_action,"HR Admin-smartbiz_hr.WE Rule Action",model_smartbiz_hr_we_rule_action,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1
+hr_users_smartbiz_hr_we_rule_log,"HR Users-smartbiz_hr.WE Rule Log",model_smartbiz_hr_we_rule_log,smartbiz_hr.group_roles_hr_users_1,1,0,0,0
+hr_manager_smartbiz_hr_we_rule_log,"HR Manager-smartbiz_hr.WE Rule Log",model_smartbiz_hr_we_rule_log,smartbiz_hr.group_roles_hr_manager_2,1,1,0,1
+hr_admin_smartbiz_hr_we_rule_log,"HR Admin-smartbiz_hr.WE Rule Log",model_smartbiz_hr_we_rule_log,smartbiz_hr.group_roles_hr_admin_3,1,1,1,1

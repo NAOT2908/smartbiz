@@ -26,20 +26,14 @@
             <field name="category_id" ref="security_category"/>
         </record>
 
-        <record model="res.groups" id="smartbiz_hr.group_roles_leader_4">
-            <field name="name">Leader</field>
+        <record model="res.groups" id="smartbiz_hr.group_roles_hr_checker_4">
+            <field name="name">HR Checker</field>
             <field name="type">roles</field>
             <field name="category_id" ref="security_category"/>
         </record>
 
-        <record model="res.groups" id="smartbiz_hr.group_roles_approver_5">
-            <field name="name">Approver</field>
-            <field name="type">roles</field>
-            <field name="category_id" ref="security_category"/>
-        </record>
-
-        <record model="res.groups" id="smartbiz_hr.group_roles_gd_6">
-            <field name="name">GD</field>
+        <record model="res.groups" id="smartbiz_hr.group_roles_hr_approver_5">
+            <field name="name">HR Approver</field>
             <field name="type">roles</field>
             <field name="category_id" ref="security_category"/>
         </record>

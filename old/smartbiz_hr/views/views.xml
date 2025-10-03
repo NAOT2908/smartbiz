@@ -1,0 +1,558 @@
+<odoo>
+
+<!-- Forms -->
+
+    <record model="ir.ui.view" id="hr_work_entry_form">
+      <field name="name">hr_work_entry_form</field>
+      <field name="model">hr.work.entry</field>
+      <field name="priority" eval="7"/>
+      <field name="inherit_id" ref="hr_work_entry.hr_work_entry_view_form" />
+      <field name="arch" type="xml">
+           <xpath expr="//field[@name='company_id']" position="after">
+                   <field name="workcenter_id" widget=""/>
+                   <field name="ok_quantity" widget=""/>
+                   <field name="ng_quantity" widget=""/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_overtime_request_form">
+      <field name="name">smartbiz_hr_overtime_request_form</field>
+      <field name="model">smartbiz_hr.overtime_request</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Overtime Request">
+            <header>
+                <button name="action_draft_submit" string="Submit" type = "object" class="oe_highlight" invisible="state != 'draft'"/>
+                <button name="action_to_submit_approve" string="Approve" type = "object" class="oe_highlight" invisible="state != 'to_submit'" groups="smartbiz_hr.group_roles_hr_checker_4"/>
+                <button name="action_to_submit_refuse" string="Refuse" type = "object"  invisible="state not in [ 'to_submit', 'to_approve']" groups="smartbiz_hr.group_roles_hr_checker_4, smartbiz_hr.group_roles_hr_approver_5"/>
+                <button name="action_to_approve_approve" string="Approve" type = "object" class="oe_highlight" invisible="state != 'to_approve'" groups="smartbiz_hr.group_roles_hr_approver_5"/>
+                <field name="state" widget="statusbar" />
+            </header>
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name" widget=""/>
+                   <field name="employee_ids" widget="many2many_tags"/>
+            </group>
+            <group>
+                   <field name="start_date" widget=""/>
+                   <field name="end_date" widget=""/>
+                   <field name="duration" widget=""/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Detail">
+                   <field name="lines_ids" widget=""/>
+            </page>
+            <page string="Notes">
+            <group>
+                   <field name="note" widget=""/>
+                   <field name="approver_ids" widget=""/>
+            </group>
+            </page>
+            </notebook>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_request_line_form">
+      <field name="name">smartbiz_hr_request_line_form</field>
+      <field name="model">smartbiz_hr.request_line</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Request Line">
+            <header>
+                <button name="action_draft_submit" string="Submit" type = "object"  invisible="state != 'draft'"/>
+                <button name="action_to_submit_approve" string="Approve" type = "object"  invisible="state != 'to_submit'" groups="smartbiz_hr.group_roles_hr_checker_4"/>
+                <button name="action_to_submit_refuse" string="Refuse" type = "object"  invisible="state not in [ 'to_submit', 'to_approve']" groups="smartbiz_hr.group_roles_hr_checker_4, smartbiz_hr.group_roles_hr_approver_5"/>
+                <button name="action_to_approve_approve" string="Approve" type = "object"  invisible="state != 'to_approve'" groups="smartbiz_hr.group_roles_hr_approver_5"/>
+                <field name="state" widget="statusbar" />
+            </header>
+      <sheet>
+          <group col="1">
+                   <field name="request_id" widget=""/>
+                   <field name="employee_id" widget=""/>
+                   <field name="start_date" widget=""/>
+                   <field name="end_date" widget=""/>
+                   <field name="duration" widget=""/>
+          </group>
+      </sheet>
+      <div class="oe_chatter">
+             <field name = "message_follower_ids" widget="mail_followers"/>
+             <field name = "activity_ids" widget="mail_activity"/>
+             <field name = "message_ids" widget="mail_thread"/>
+      </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_work_entry_rule_category_form">
+      <field name="name">smartbiz_hr_work_entry_rule_category_form</field>
+      <field name="model">smartbiz_hr.work_entry_rule_category</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Work Entry Rule Category">
+      <sheet>
+            <group>
+                   <field name="name" widget=""/>
+            </group>
+            <notebook>
+            <page string="Rules">
+                   <field name="rules_ids" widget=""/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_work_entry_rule_form">
+      <field name="name">smartbiz_hr_work_entry_rule_form</field>
+      <field name="model">smartbiz_hr.work_entry_rule</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form Work Entry Rule">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="name" widget=""/>
+                   <field name="category_id" widget=""/>
+                   <field name="active" widget=""/>
+            </group>
+            <group>
+                   <field name="when" widget=""/>
+                   <field name="rule_type" widget=""/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Conditions">
+                   <field name="condition_ids" widget=""/>
+            </page>
+            <page string="Actions">
+                   <field name="action_ids" widget=""/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_we_rule_condition_form">
+      <field name="name">smartbiz_hr_we_rule_condition_form</field>
+      <field name="model">smartbiz_hr.we_rule_condition</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form WE Rule Condition">
+      <sheet>
+            <group>
+                   <field name="rule_id" widget=""/>
+            </group>
+            <notebook>
+            <page string="Python Code">
+                   <field name="python_code" widget=""/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_we_rule_action_form">
+      <field name="name">smartbiz_hr_we_rule_action_form</field>
+      <field name="model">smartbiz_hr.we_rule_action</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form WE Rule Action">
+      <sheet>
+            <group col="2">
+            <group>
+                   <field name="rule_id" widget=""/>
+            </group>
+            <group>
+                   <field name="action_type" widget=""/>
+            </group>
+            </group>
+            <notebook>
+            <page string="Parameters">
+                   <field name="parameter" widget=""/>
+            </page>
+            </notebook>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_we_rule_log_form">
+      <field name="name">smartbiz_hr_we_rule_log_form</field>
+      <field name="model">smartbiz_hr.we_rule_log</field>
+      <field name="priority" eval="6"/>
+      <field name="arch" type="xml">
+        <form string="Form WE Rule Log">
+      <sheet>
+          <group col="1">
+                   <field name="rule_id" widget=""/>
+                   <field name="work_entry_id" widget=""/>
+                   <field name="employee_id" widget=""/>
+          </group>
+      </sheet>
+        </form>
+      </field>
+    </record>
+
+<!-- Trees -->
+
+    <record model="ir.ui.view" id="hr_work_entry_tree">
+      <field name="name">hr_work_entry_tree</field>
+      <field name="model">hr.work.entry</field>
+      <field name="inherit_id" ref="hr_work_entry.hr_work_entry_view_tree" />
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+           <xpath expr="//field[@name='date_stop']" position="after">
+            <field name="workcenter_id" widget="" optional="show"/>
+            <field name="ok_quantity" widget="" optional="show"/>
+            <field name="ng_quantity" widget="" optional="show"/>
+           </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_overtime_request_tree">
+      <field name="name">smartbiz_hr_overtime_request_tree</field>
+      <field name="model">smartbiz_hr.overtime_request</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Overtime Request" >
+            <field name="state" />
+            <field name="name" widget="" optional="show"/>
+            <field name="employee_ids" widget="many2many_tags" optional="show"/>
+            <field name="start_date" widget="" optional="show"/>
+            <field name="end_date" widget="" optional="show"/>
+            <field name="duration" widget="" optional="show"/>
+            <field name="lines_ids" widget="" optional="show"/>
+            <field name="note" widget="" optional="show"/>
+            <field name="approver_ids" widget="" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_request_line_tree">
+      <field name="name">smartbiz_hr_request_line_tree</field>
+      <field name="model">smartbiz_hr.request_line</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Request Line" >
+            <field name="state" />
+            <field name="request_id" widget="" optional="show"/>
+            <field name="employee_id" widget="" optional="show"/>
+            <field name="start_date" widget="" optional="show"/>
+            <field name="end_date" widget="" optional="show"/>
+            <field name="duration" widget="" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_work_entry_rule_category_tree">
+      <field name="name">smartbiz_hr_work_entry_rule_category_tree</field>
+      <field name="model">smartbiz_hr.work_entry_rule_category</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Work Entry Rule Category" >
+            <field name="name" widget="" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_work_entry_rule_tree">
+      <field name="name">smartbiz_hr_work_entry_rule_tree</field>
+      <field name="model">smartbiz_hr.work_entry_rule</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree Work Entry Rule" >
+            <field name="name" widget="" optional="show"/>
+            <field name="sequence" widget="tree_handle" optional="show"/>
+            <field name="when" widget="" optional="show"/>
+            <field name="rule_type" widget="" optional="show"/>
+            <field name="condition_ids" widget="" optional="show"/>
+            <field name="action_ids" widget="" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_we_rule_condition_tree">
+      <field name="name">smartbiz_hr_we_rule_condition_tree</field>
+      <field name="model">smartbiz_hr.we_rule_condition</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree WE Rule Condition" >
+            <field name="rule_id" widget="" optional="show"/>
+            <field name="python_code" widget="" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_we_rule_action_tree">
+      <field name="name">smartbiz_hr_we_rule_action_tree</field>
+      <field name="model">smartbiz_hr.we_rule_action</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree WE Rule Action" >
+            <field name="rule_id" widget="" optional="show"/>
+            <field name="action_type" widget="" optional="show"/>
+            <field name="parameter" widget="" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_we_rule_log_tree">
+      <field name="name">smartbiz_hr_we_rule_log_tree</field>
+      <field name="model">smartbiz_hr.we_rule_log</field>
+      <field name="priority" eval="7"/>
+      <field name="arch" type="xml">
+        <tree string="Tree WE Rule Log" >
+            <field name="rule_id" widget="" optional="show"/>
+            <field name="work_entry_id" widget="" optional="show"/>
+            <field name="employee_id" widget="" optional="show"/>
+        </tree>
+      </field>
+    </record>
+
+<!-- calendars -->
+
+<!-- kanbans -->
+
+<!-- pivots -->
+
+<!-- graphs -->
+
+<!-- Gantt -->
+
+<!-- Search -->
+
+    <record model="ir.ui.view" id="smartbiz_hr_overtime_request_search">
+      <field name="name">smartbiz_hr_overtime_request_search</field>
+      <field name="model">smartbiz_hr.overtime_request</field>
+      <field name="arch" type="xml">
+        <search string="Tree Overtime Request">
+            <field name="name"/>
+            <field name="employee_ids"/>
+        </search>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_work_entry_rule_category_search">
+      <field name="name">smartbiz_hr_work_entry_rule_category_search</field>
+      <field name="model">smartbiz_hr.work_entry_rule_category</field>
+      <field name="arch" type="xml">
+        <search string="Tree Work Entry Rule Category">
+            <field name="name"/>
+            <field name="active"/>
+        </search>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="smartbiz_hr_work_entry_rule_search">
+      <field name="name">smartbiz_hr_work_entry_rule_search</field>
+      <field name="model">smartbiz_hr.work_entry_rule</field>
+      <field name="arch" type="xml">
+        <search string="Tree Work Entry Rule">
+            <field name="name"/>
+        </search>
+      </field>
+    </record>
+
+<!-- Modified Views -->
+
+<!-- Modified Views Properties -->
+
+<!-- Modified Elements Properties -->
+
+<!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="hr_work_entry_action">
+      <field name="name">Work.Entry</field>
+      <field name="res_model">hr.work.entry</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="hr_payslip_action">
+      <field name="name">Payslip</field>
+      <field name="res_model">hr.payslip</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_hr_overtime_request_action">
+      <field name="name">Overtime Request</field>
+      <field name="res_model">smartbiz_hr.overtime_request</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_hr_request_line_action">
+      <field name="name">Request Line</field>
+      <field name="res_model">smartbiz_hr.request_line</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_hr_work_entry_rule_category_action">
+      <field name="name">Work Entry Rule Category</field>
+      <field name="res_model">smartbiz_hr.work_entry_rule_category</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_hr_work_entry_rule_action">
+      <field name="name">Work Entry Rule</field>
+      <field name="res_model">smartbiz_hr.work_entry_rule</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_hr_we_rule_condition_action">
+      <field name="name">WE Rule Condition</field>
+      <field name="res_model">smartbiz_hr.we_rule_condition</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_hr_we_rule_action_action">
+      <field name="name">WE Rule Action</field>
+      <field name="res_model">smartbiz_hr.we_rule_action</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="smartbiz_hr_we_rule_log_action">
+      <field name="name">WE Rule Log</field>
+      <field name="res_model">smartbiz_hr.we_rule_log</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+    </record>
+
+<!-- Menu -->
+
+<!-- Top menu item -->
+
+    <menuitem name="SmartBiz HR" 
+       id="menu_smartbiz_hr_1"
+       sequence ="1"
+       web_icon="smartbiz_hr,static/description/hr icon.png"
+    />
+    <menuitem name="Employee" 
+       id="menu_employee_2"
+       sequence ="2"
+    />
+    <menuitem name="Attendance" 
+       id="menu_attendance_3"
+       sequence ="3"
+    />
+    <menuitem name="Overtime Request" 
+       id="menu_overtime_request_4"
+       sequence ="4"
+       web_icon="smartbiz_hr,static/description/ot icon.png"
+    />
+    <menuitem name="Request" 
+       id="menu_request_5"
+       sequence ="5"
+    />
+    <menuitem name="Work Entry" 
+       id="menu_work_entry_6"
+       sequence ="6"
+    />
+    <menuitem name="Payslip" 
+       id="menu_payslip_7"
+       sequence ="7"
+    />
+    <menuitem name="Report" 
+       id="menu_report_8"
+       sequence ="8"
+    />
+    <menuitem name="Config" 
+       id="menu_config_9"
+       sequence ="9"
+    />
+    <record id="menu_employee_2" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_smartbiz_hr_1"/>
+    </record>
+
+    <record id="menu_attendance_3" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_smartbiz_hr_1"/>
+    </record>
+
+    <record id="menu_request_5" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_smartbiz_hr_1"/>
+    </record>
+
+    <record id="menu_work_entry_6" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_smartbiz_hr_1"/>
+    </record>
+
+    <record id="menu_payslip_7" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_smartbiz_hr_1"/>
+    </record>
+
+    <record id="menu_report_8" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_smartbiz_hr_1"/>
+    </record>
+
+    <record id="menu_config_9" model="ir.ui.menu">
+       <field name="parent_id" ref="menu_smartbiz_hr_1"/>
+    </record>
+
+<!-- Menu item action -->
+
+    <menuitem name="Overtime Request" 
+       id="smartbiz_hr_overtime_request_menuitem"
+       action ="smartbiz_hr_overtime_request_action"
+       parent ="menu_overtime_request_4"
+       sequence ="30"
+    />
+    <menuitem name="Work Entry Rule Category" 
+       id="smartbiz_hr_work_entry_rule_category_menuitem"
+       action ="smartbiz_hr_work_entry_rule_category_action"
+       parent ="menu_config_9"
+       sequence ="33"
+    />
+    <menuitem name="Work Entry Rule" 
+       id="smartbiz_hr_work_entry_rule_menuitem"
+       action ="smartbiz_hr_work_entry_rule_action"
+       parent ="menu_config_9"
+       sequence ="34"
+    />
+    <menuitem name="WE Rule Condition" 
+       id="smartbiz_hr_we_rule_condition_menuitem"
+       action ="smartbiz_hr_we_rule_condition_action"
+       parent ="menu_config_9"
+       sequence ="35"
+    />
+    <menuitem name="WE Rule Action" 
+       id="smartbiz_hr_we_rule_action_menuitem"
+       action ="smartbiz_hr_we_rule_action_action"
+       parent ="menu_config_9"
+       sequence ="36"
+    />
+    <menuitem name="WE Rule Log" 
+       id="smartbiz_hr_we_rule_log_menuitem"
+       action ="smartbiz_hr_we_rule_log_action"
+       parent ="menu_config_9"
+       sequence ="37"
+    />
+
+</odoo>

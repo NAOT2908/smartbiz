@@ -20,6 +20,9 @@
   flex-direction: column;
   padding: 16px;
   gap: 10px;
+  position: sticky;
+  top: 0;
+  background-color: #f9f9f9;
 
   .s_detail_main {
     display: flex;
@@ -38,6 +41,7 @@
         gap: 8px;
         align-items: center;
         flex-direction: row;
+        overflow: hidden;
 
         .s_detail_label {
           font-weight: bold;
@@ -47,6 +51,8 @@
         .s_detail_value {
           flex-grow: 1;
           color: #555;
+          
+          white-space: nowrap;
         }
       }
 
@@ -169,6 +175,10 @@
 
       .s_detail_label {
         margin-bottom: 4px;
+      }
+      .s_detail_value {
+        white-space: normal; /* Cho phép xuống dòng nếu cần */
+        overflow: auto;
       }
     }
 

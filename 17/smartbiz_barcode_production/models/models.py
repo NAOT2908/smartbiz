@@ -1169,9 +1169,13 @@ class mrp_Production(models.Model):
                     #   - 'packageCount' = 0 
                 }
                 unpacked_products.append(product_data)
-
+                
+        # Sắp xếp dữ liệu theo id để đảm bảo thứ tự quét
+        mls = sorted(mls, key=lambda x: x['id'], reverse=True)
+        mvs = sorted(mvs, key=lambda x: x['id'], reverse=True)
+        material_moves = sorted(material_moves, key=lambda x: x['id'], reverse=True)
+        finished_moves = sorted(finished_moves, key=lambda x: x['id'], reverse=True)
        
-
 
         packages = move_lines.package_id | move_lines.result_package_id
 

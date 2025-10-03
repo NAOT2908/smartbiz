@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 {
-    'name': "SmartBiz HRM App",
-    'summary': "SmartBiz HRM App",
-    'description': "SmartBiz HRM App",
+    'name': "SmartBiz HR",
+    'summary': "SmartBiz HR",
+    'description': "SmartBiz HR",
     'author': "SmartBiz",
     'website': "https://www.sbiz.vn",
 
@@ -14,23 +14,25 @@
 
     # Any module necessary for this one to work correctly
     'depends': [
-        'base','hr','smartbiz_barcode',
+        'base','smartbiz','hr_payroll','smartbiz_mes','hr_attendance','hr_skills',
         'mail',
     ],
 
     # always loaded
     'data': [
+        'security/securities.xml',
         'security/ir.model.access.csv',
         'views/views.xml',
         'report/report.xml',
         'report/report_templates.xml',
+        'data/data.xml',
     ],
 
     'assets': {
         'web.assets_backend': [
-              'smartbiz_hr_app/static/src/**/*.js',
-              'smartbiz_hr_app/static/src/**/*.scss',
-              'smartbiz_hr_app/static/src/**/*.xml',
+              'smartbiz_hr/static/src/**/*.js',
+              'smartbiz_hr/static/src/**/*.scss',
+              'smartbiz_hr/static/src/**/*.xml',
          ],
         'web.assets_qweb': [
          ],

@@ -6,6 +6,36 @@
 <!-- Record Mobile Template -->
 <!-- Record Notifications -->
 <!-- Auto Schedule -->
+        <record model="ir.cron" id="auto_[smartbiz_hr]_recompute_work_entries">
+            <field name="name">[SmartBiz HR] Recompute Work Entries</field>
+            <field name="code">model.cron_recompute_from_sources(days_back=10, max_emps_per_tick=2000)</field>
+            <field name="interval_number">10</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall" eval="-1" />
+            <field name="active" eval="True" />
+            <field name="model_id" ref="model_hr_work_entry" />
+        </record>
+
+        <record model="ir.cron" id="auto_[smartbiz_hr]_build_attendance_alerts">
+            <field name="name">[SmartBiz HR] Build Attendance Alerts</field>
+            <field name="code">model.cron_build_attendance_alerts(days_back=2, max_emps_per_tick=5000)</field>
+            <field name="interval_number">15</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall" eval="-1" />
+            <field name="active" eval="True" />
+            <field name="model_id" ref="model_hr_work_entry" />
+        </record>
+
+        <record model="ir.cron" id="auto_[smartbiz_hr]_mailer_tick">
+            <field name="name">[SmartBiz HR] Mailer Tick</field>
+            <field name="code">model.cron_mailer_tick()</field>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall" eval="-1" />
+            <field name="active" eval="True" />
+            <field name="model_id" ref="model_smartbiz_hr_mailer_configuration" />
+        </record>
+
 
     </data>
 </odoo>

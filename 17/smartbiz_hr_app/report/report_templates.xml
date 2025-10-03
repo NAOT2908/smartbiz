@@ -1,5 +1,173 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <template id="smartbiz_hr_app.report_leave_application" name="Leave Application Report">
+        <t t-call="web.html_container">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page"
+                            style="font-family: 'Arial', sans-serif; font-size: 11pt; border: 2px solid #00008b; padding: 5px;">
+                            <div style="text-align: left; margin-bottom: 20px;">
+                                <span style="font-weight: bold;">MARUNIX VIETNAM CO.,LTD</span>
+                                <br />
+                                <span style="font-size: 9pt;">Road 206, Section E, Pho Noi A
+                                    Industrial Park, Dinh Du Commune, Van Lam District, Hung Yen
+                                    Province</span>
+                            </div>
 
+                            <div style="text-align: center; font-weight: bold; margin-bottom: 20px;">
+                                <h1 style="font-size: 18pt; margin: 0;">APPLICATION FOR LEAVE</h1>
+                                <h2 style="font-size: 16pt; margin: 0;">PHIẾU ĐĂNG KÝ RA CỔNG</h2>
+                            </div>
 
+                            <div
+                                style=" margin-bottom: 20px; font-size: 10pt; text-align: center">
+                                <span>Ngày (Date) <span t-field="o.request_date_from"
+                                        t-options="{&quot;format&quot;: &quot;dd&quot;}" /> tháng
+                                    (month) <span t-field="o.request_date_from"
+                                        t-options="{&quot;format&quot;: &quot;MM&quot;}" /> năm
+                                    (year) <span t-field="o.request_date_from"
+                                        t-options="{&quot;format&quot;: &quot;yyyy&quot;}" /></span>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 10pt;">
+                                <tr>
+                                    <td style="border: 1px solid black; padding: 5px; width: 15%;">
+                                        <span style="font-weight: bold;">Họ tên nhân viên</span>
+                                        <br />
+                                        <span style="font-style: italic;">Full name</span>
+                                    </td>
+                                    <td style="border: 1px solid black; padding: 5px; ">
+                                        <span t-field="o.employee_id.name" />
+                                    </td>
+                                    <td style="border: 1px solid black; padding: 5px; width: 15%;">
+                                        <span style="font-weight: bold;">Mã nhân viên</span>
+                                        <br />
+                                        <span style="font-style: italic;">Code</span>
+                                    </td>
+                                    <td style="border: 1px solid black; padding: 5px; ">
+                                        <span t-field="o.employee_id.barcode" />
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="border: 1px solid black; padding: 5px; width: 15%;">
+                                        <span style="font-weight: bold;">Bộ phận</span>
+                                        <br />
+                                        <span style="font-style: italic;">Department</span>
+                                    </td>
+                                    <td colspan="3" style="border: 1px solid black; padding: 5px;">
+                                        <span t-field="o.employee_id.department_id.name" />
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="border: 1px solid black; padding: 5px; width: 15%;">
+                                        <span style="font-weight: bold;">Giờ ra</span>
+                                        <br />
+                                        <span style="font-style: italic;">Exit time</span>
+                                        <br />
+                                    </td>
+                                    <td style="border: 1px solid black; padding: 5px; ">
+                                        <span t-field="o.request_hour_from" />
+                                    </td>
+                                    <td style="border: 1px solid black; padding: 5px; width: 15%;">
+                                        <span style="font-weight: bold;">Giờ vào</span>
+                                        <br />
+                                        <span style="font-style: italic;">Entry time</span>
+                                        <br />
+                                    </td>
+                                    <td style="border: 1px solid black; padding: 5px;">
+                                        <span t-field="o.request_hour_to" />
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="border: 1px solid black; padding: 5px; width: 15%;">
+                                        <span style="font-weight: bold;">Mục đích</span>
+                                        <br />
+                                        <span style="font-style: italic;">Purpose</span>
+                                        <br />
+                                    </td>
+                                    <td colspan="3" style="border: 1px solid black; padding: 5px;">
+                                        <span t-field="o.name" />
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="border: 1px solid black; padding: 5px; width: 15%;">
+                                        <span style="font-weight: bold;">Mang theo</span>
+                                        <br />
+                                        <span style="font-style: italic;">Take with</span>
+                                    </td>
+                                    <td style="border: 1px solid black; padding: 5px;">
+                                        <span t-field="o.take_with" />
+                                    </td>
+                                    <td style="border: 1px solid black; padding: 5px; width: 15%;">
+                                        <span style="font-weight: bold;">Phương tiện</span>
+                                        <br />
+                                        <span style="font-style: italic;">Transportation</span>
+                                    </td>
+                                    <td style="border: 1px solid black; padding: 5px;">
+                                        <span t-field="o.plate_number" />
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="4"
+                                        style="border: 1px solid black; padding: 5px; height: 50px;">
+                                        <span style="font-weight: bold;">Ghi chú/ Remarks:</span>
+                                        <br />
+                                        <span style="font-size: 9pt; font-style: italic;">
+                                            Employees are only allowed to exit through the gate when
+                                            having an exit registration form that is confirmed by
+                                            the department and HR-GA department.
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table
+                                style="width: 100%; border-collapse: collapse; margin-top: 20px; text-align: center; font-size: 10pt;">
+                                <tr>
+                                    <td style="width: 20%; border: 1px solid black; padding: 5px;">
+                                        <span style="font-weight: bold;">Người đề nghị</span>
+                                        <br />
+                                        <span style="font-style: italic;">Applicant</span>
+                                    </td>
+                                    <td style="width: 20%; border: 1px solid black; padding: 5px;">
+                                        <span style="font-weight: bold;">Trưởng phòng</span>
+                                        <br />
+                                        <span style="font-style: italic;">Head department</span>
+                                    </td>
+                                    <td style="width: 20%; border: 1px solid black; padding: 5px;">
+                                        <span style="font-weight: bold;">Phòng Hành chính nhân sự</span>
+                                        <br />
+                                        <span style="font-style: italic;">HR-GA Department</span>
+                                    </td>
+                                    <td style="width: 20%; border: 1px solid black; padding: 5px;">
+                                        <span style="font-weight: bold;">Xác nhận của bảo vệ</span>
+                                        <br />
+                                        <span style="font-style: italic;">Confirmation of guard</span>
+                                    </td>
+                                </tr>
+                                <tr style="height: 100px;">
+                                    <td style="border: 1px solid black; padding: 5px;" />
+                                    <td style="border: 1px solid black; padding: 5px;" />
+                                    <td style="border: 1px solid black; padding: 5px;" >
+                                        <t t-if="o.state == 'refuse'">
+                                            <span style="color: red; font-weight: bold;">TỪ CHỐI</span>
+                                        </t>
+                                        <t t-if="o.state == 'validate'">
+                                            <span style="color: green; font-weight: bold;"> ĐÃ PHÊ DUYỆT</span>
+                                        </t>
+                                    </td>
+                                    <td style="border: 1px solid black; padding: 5px;" />
+                                </tr>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </t>
+    </template>
 </odoo>

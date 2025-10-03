@@ -65,6 +65,7 @@ export class HrInterface extends Component {
       view: "home", 
       search: "",
       img: "",
+      data: [],
       employee: this.props.employee || "",
       employee_id: this.props.employee_id || null,
       employee_name: this.props.employee_name || null,
@@ -99,12 +100,14 @@ export class HrInterface extends Component {
       dialogDefault: null,
       pdf: null,
       showPDF: false,
+      showAlert: false,
       selectedPayslip: null,
       selectedLeave: null,
       selectedOvertime: null,
       selectedIds: [],
       allocation_data: [],
       filteredEntries: [],
+      workentry_summary: [],
       currentFilterDate: new Date(),
       currentFilterType: "month",
       filterTypeLabel: "Month",
@@ -117,6 +120,12 @@ export class HrInterface extends Component {
       searchTerm: "",
       date_from: null,
       date_to: null,
+      alert_data: [],
+      selectedAlert: null,
+      workEntryTypes: [],
+      leaveTypes: [],
+      alertTypes: [],
+      selectedType: "",
     });
 
     this.displayMode = useState({ mode: "list" });
@@ -178,17 +187,13 @@ export class HrInterface extends Component {
       });
 
       // ====== Sidebar link active state ======
-      sidebarLinks?.forEach((link) => {
-        link.addEventListener("click", function () {
-          sidebarLinks.forEach((l) => l.classList.remove("active-link"));
-          this.classList.add("active-link");
-        });
-      });
+      // sidebarLinks?.forEach((link) => {
+      //   link.addEventListener("click", function () {
+      //     sidebarLinks.forEach((l) => l.classList.remove("active-link"));
+      //     this.classList.add("active-link");
+      //   });
+      // });
 
-      // ====== Hiện sidebar nếu màn hình >= 1150px ======
-      // if (window.innerWidth >= 1150) {
-      //   this.state.sidebarVisible = true;
-      // }
     });
 
     // this.filterEntries();
@@ -200,93 +205,40 @@ export class HrInterface extends Component {
   setMode(mode) {
     this.displayMode.mode = mode;
   }
-  updateSummaries() {
-    // Attendance Summary
-    let totalCheckinsToday = 0;
-    let currentlyCheckedIn = 0;
-    let notCheckedOut = 0;
-    const today = new Date().toISOString().slice(0, 10);
-
-    this.state.attendance_data.forEach((record) => {
-      if (record.check_in && record.check_in.startsWith(today)) {
-        totalCheckinsToday++;
-        // Assuming 'false' means not checked out, adjust if Odoo sends a different value for null/false
-        if (record.check_out === false || record.check_out === null) {
-          currentlyCheckedIn++;
-          notCheckedOut++;
-        }
-      }
-    });
-    this.state.attendanceSummary = {
-      totalCheckinsToday,
-      currentlyCheckedIn,
-      notCheckedOut,
-    };
-
-    // Leave Summary
-    let totalLeaveRequests = this.state.leave_data.length;
-    let pendingLeaveRequests = this.state.leave_data.filter(
-      (record) => record.state === "draft"
-    ).length;
-    let approvedLeaveRequests = this.state.leave_data.filter(
-      (record) => record.state === "validate"
-    ).length;
-    this.state.leaveSummary = {
-      totalLeaveRequests,
-      pendingLeaveRequests,
-      approvedLeaveRequests,
-    };
-
-    // Overtime Summary
-    let totalOvertimeRequests = this.state.overtime_data.length;
-    let pendingOvertimeRequests = this.state.overtime_data.filter(
-      (record) => record.state === "draft"
-    ).length;
-    let approvedOvertimeHours = this.state.overtime_data
-      .filter((record) => record.state === "approved")
-      .reduce((sum, record) => sum + record.duration, 0);
-    this.state.overtimeSummary = {
-      totalOvertimeRequests,
-      pendingOvertimeRequests,
-      approvedOvertimeHours,
-    };
-
-    // Salary Summary - Now uses payslip_data
-    let totalPaidSalary = this.state.payslip_data
-      .filter((record) => record.state === "done")
-      .reduce((sum, record) => sum + record.net_wage, 0);
-    let averageSalary =
-      this.state.payslip_data.length > 0
-        ? totalPaidSalary / this.state.payslip_data.length
-        : 0;
-    let totalPayslips = this.state.payslip_data.length;
-    this.state.salarySummary = {
-      totalPaidSalary: totalPaidSalary.toFixed(0),
-      averageSalary: averageSalary.toFixed(0),
-      totalPayslips,
-    };
-  }
-  mapLeaveStatus(state) {
+ 
+  mapStatus(state) {
     return (
       {
-        draft: "Draft",
-        confirm: "Confirmed",
-        validate: "Approved",
-        refused: "Rejected",
+        draft: "Nháp",
+        confirm: "Cần phê duyệt",
+        validate: "Đã phê duyệt",
+        validate1: "Đã phê duyệt lần 2",
+        refused: "Từ chối",
+        refuse : "Từ chối",
+        to_submit: "Chờ kiểm tra",
+        to_approve: "Chờ phê duyệt",
+        approved: "Đã phê duyệt",
+        open: "Mở",
+        ack: "Đã xác nhận",
+        resolved: "Đã giải quyết",
       }[state] || state
     );
   }
+    getIconConfig(typeName) {
+    const map = {
+        "Chuyên cần": { icon: "🗓️", color: "bg-green-100 text-green-800" },
+        "Home Working": { icon: "💻", color: "bg-blue-100 text-blue-800" },
+        "Nghỉ phép chung": { icon: "🏖️", color: "bg-yellow-100 text-yellow-800" },
+        "Nghỉ phép năm": { icon: "🌴", color: "bg-teal-100 text-teal-800" },
+        "Ngày nghỉ bù": { icon: "🔄", color: "bg-purple-100 text-purple-800" },
+        "Nghỉ bệnh": { icon: "🤒", color: "bg-red-100 text-red-800" },
+        "Không thanh toán": { icon: "💸", color: "bg-pink-100 text-pink-800" },
+        "Không có hợp đồng": { icon: "❌", color: "bg-gray-200 text-gray-700" },
+        "Giờ tăng ca": { icon: "⚡", color: "bg-orange-100 text-orange-800" },
+    };
+    return map[typeName] || { icon: "📌", color: "bg-gray-100 text-gray-800" };
+}
 
-  mapOvertimeStatus(state) {
-    return (
-      {
-        to_approve: "To Approve",
-        approved: "Approved",
-        to_submit: "To Submit",
-        refused: "Rejected",
-      }[state] || state
-    );
-  }
 
   formatCurrency(value) {
     if (typeof value !== "number") return value; // Return as is if not a number
@@ -321,6 +273,7 @@ export class HrInterface extends Component {
       case "validate":
         return "px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800";
       case "approved":
+      case "resolved":
         return "px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800";
       case "to_submit":
         return "px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800";
@@ -329,23 +282,20 @@ export class HrInterface extends Component {
       case "to_approve":
         return "px-3 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800";
       case "draft":
+      case "open":
         return "px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800";
       case "refuse":
         return "px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800";
       case "status-checked-in":
         return "px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800";
-      case "status-not-checked-out":
+      case "ack":
         return "px-3 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800";
       default:
         return "px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800";
     }
   }
 
-  switchView(viewName) {
-    this.state.view = viewName;
-    // In Owl, t-if handles visibility, no need for manual class toggling here.
-    // Just ensure the state.view is updated.
-  }
+
 
   onNewEntryClick() {
     alert('Chức năng "Mới" sẽ được thêm vào đây!');
@@ -357,13 +307,32 @@ export class HrInterface extends Component {
     if (isNaN(num)) return 0;
     return Math.round((num + Number.EPSILON) * 100) / 100;
   }
-  changeTab(tabName) {
+  async changeTab(tabName) {
+    const { date_from, date_to } = this.getDateRange();
     this.state.view = tabName;
-    console.log(tabName);
+    if(tabName === "workentry"){
+      const summary = await this.orm.call("smartbiz.hr.interface", "getWorkentrySummary", [, this.state.employee_id, date_from, date_to]);
+      console.log(summary)
+      this.state.workentry_summary = summary || [];
+    }
+    else if (tabName === "attendance") {
+      // const summary = await this.orm.call("smartbiz.hr.interface", "getAttendanceSummary", [, this.state.employee_id, date_from, date_to]);
+      // this.state.attendanceSummary = summary;
+      // console.log(summary);
+    } else if (tabName === "leave") {
+      const summary = await this.orm.call("smartbiz.hr.interface", "getLeaveSummary", [, this.state.employee_id]);
+      this.state.allocation_data = summary || [];
+      // console.log(summary)
+    } else if (tabName === "alert") {
+      const summary = await this.orm.call("smartbiz.hr.interface", "getAttendanceAlert", [, this.state.employee_id, date_from, date_to]);
+      this.state.alert_data = summary || [];
+      // console.log(summary);
+    }
+    
   }
   onSearchChange(event) {
     this.state.search = event.target.value;
-    console.log(this.state.search);
+    // console.log(this.state.search);
     this.search();
   }
 
@@ -438,25 +407,22 @@ export class HrInterface extends Component {
   // hàm showModal universal
   // =====================
   showModal(title, action = "", defaultValues = null) {
-    const dayOptions = [
-      { id: "half_day",  name: _t("Half day") },
-      { id: "full_day", name: _t("Full day") },
-    ];
-    const hoursOptions = [
-      { id: "yes",  name: _t("Yes") },
-      { id: "no", name: _t("No") },
-    ];
+    console.log(defaultValues)
     const timeOptions = Array.from({ length: 48 }, (_, i) => {
-      const hour = Math.floor(i / 2);
-      const minute = i % 2 === 0 ? "00" : "30";
-      const id = hour + (i % 2) * 0.5; // 0, 0.5, 1, 1.5 ... 23.5
+      const hour = Math.floor(i / 2);      // 0 -> 23
+      const minute = i % 2 === 0 ? 0 : 30; // 0 hoặc 30
+      const id = hour + (minute === 30 ? 0.5 : 0);
+
+      // chuyển sang 12h + AM/PM
+      const period = hour < 12 ? "AM" : "PM";
+      const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+      const displayMinute = minute.toString().padStart(2, "0");
+
       return {
-        id: id,                               // 0, 0.5, 1, 1.5 ...
-        name: `${hour.toString().padStart(2, "0")}:${minute}`, // 00:00, 00:30, ..., 23:30
+        id: id, // 0, 0.5, 1, 1.5 ... 23.5
+        name: `${displayHour}:${displayMinute} ${period}`, // "12:00 AM", "12:30 AM", ...
       };
     });
-
-
     const formMap = {
       attendance_data: [
         {
@@ -477,9 +443,11 @@ export class HrInterface extends Component {
           type: "datetime-local",
           required: true,
         },
-        { name: "check_out", label: "Check Out", type: "datetime-local" },
-        // { name: 'worked_hours', label: 'Worked Hours', type: 'number', readonly: true },
-        // { name: 'overtime_hours', label: 'Overtime Hours', type: 'number', readonly: true },
+        { 
+          name: "check_out",
+          label: "Check Out", 
+          type: "datetime-local" 
+        },
         { name: "note", label: "Note", type: "textarea" },
       ],
       leave_data: [
@@ -512,42 +480,27 @@ export class HrInterface extends Component {
           name: "date_to",
           label: "To Date",
           type: "date",
-          required: true,
-          visible_if: { field: "request_unit_half", operator: "=", value: "full_day" }
-        },
-        {
-          name: "request_unit_half",
-          label: "Half Day",
-          type: "select",
-          options: dayOptions,
-        },
-        {
-          name: "request_unit_hours",
-          label: "Custom Hours",
-          type: "select",
-          options: hoursOptions,
         },
         {
           name: "request_hour_from",
           label: "From",
           type: "select",
-          visible_if: { field: "request_unit_hours", operator: "=", value: "yes" },
           options: timeOptions
         },
         {
           name: "request_hour_to",
           label: "To",
           type: "select",
-          visible_if: { field: "request_unit_hours", operator: "=", value: "yes" },
           options: timeOptions
         },
-        {
-          name: "number_of_days",
-          label: "Number of Days",
-          type: "number",
-          readonly: true,
-        },
-        { name: 'bsxe', label: 'license plate number', type: 'text', required: true, visible_if: { field: "holiday_status_id", operator: "=", value: 9 }, },
+        // {
+        //   name: "number_of_days",
+        //   label: "Number of Days",
+        //   type: "number",
+        //   readonly: true,
+        // },
+        { name: 'take_with', label: 'Take with', type: 'text', },
+        { name: 'plate_number', label: 'license plate number', type: 'text', },
         { name: "note", label: "Note", type: "textarea" },
       ],
       overtime_data: [
@@ -585,7 +538,7 @@ export class HrInterface extends Component {
         // { name: 'state', label: 'Status', type: 'text', readonly: true },
         { name: "note", label: "Note", type: "textarea" },
       ],
-      payslip_data: [
+      alert_data: [
         {
           name: "employee_name",
           label: "Employee",
@@ -593,16 +546,16 @@ export class HrInterface extends Component {
           readonly: true,
         },
         {
-          name: "date_from",
-          label: "From Date",
+          name: "block_start",
+          label: "Start Time",
           type: "datetime-local",
-          required: true,
+          readonly: true,
         },
         {
-          name: "date_to",
-          label: "To Date",
+          name: "block_end",
+          label: "End Time",
           type: "datetime-local",
-          required: true,
+          readonly: true,
         },
         {
           name: "net_wage",
@@ -630,13 +583,13 @@ export class HrInterface extends Component {
     console.log(title, data, action);
     if (action === "attendance_data" && data) {
       this.state.selectedActivity = data.id;
-      const hr_data = await this.orm.call(
-        "smartbiz.hr.interface",
-        "create_attendance",
-        [, data.employee_ids, data]
-      );
-      await this.getData(this.state.employee_id);
-      console.log(hr_data);
+      // const hr_data = await this.orm.call(
+      //   "smartbiz.hr.interface",
+      //   "create_attendance",
+      //   [, data.employee_ids, data]
+      // );
+      // await this.getData(this.state.employee_id);
+      // console.log(hr_data);
     }
     if (action === "leave_data" && data) {
       this.state.selectedLeave = data.id;
@@ -656,11 +609,9 @@ export class HrInterface extends Component {
         [, data.employee_ids, data, this.state.employee_id]
       );
      await this.getData(this.state.employee_id);
-      console.log(hr_data);
     }
-    if (action === "payslip_data" && data) {
-      this.state.selectedPayslip = data.id;
-      console.log(data);
+    if (action === "alert" && data) {
+      
     }
 
     // reset
@@ -669,6 +620,29 @@ export class HrInterface extends Component {
     this.state.dialogAction = "";
     this.state.dialogFields = [];
     this.state.dialogRecords = [];
+  }
+
+  openAlert(record) {
+    this.state.showAlert = true;
+    this.state.selectedAlert = record.alert_data;
+    // console.log(record)
+  }
+
+  closeAlert() {
+    this.state.showAlert = false;
+  }
+
+  async create_attendance_leave(type, record) {
+    if (type === "attendance") {
+      this.changeTab("attendance");
+        // const data = await this.orm.call("smartbiz.hr.interface", "create_alert_attendance", [, this.state.employee_id, record]);
+        // await this.getData(this.state.employee_id);
+      }
+    else if (type === "leave") {
+      this.changeTab("leave");
+              
+    }
+    this.state.showAlert = false;
   }
 
   viewPDF(id) {
@@ -689,7 +663,7 @@ export class HrInterface extends Component {
   }
   async getData(id) {
     const { date_from, date_to } = this.getDateRange();
-    console.log(date_from, date_to);
+    // console.log(date_from, date_to);
     const data = await this.orm.call("smartbiz.hr.interface", "getData", [
       ,
       id,
@@ -703,26 +677,80 @@ export class HrInterface extends Component {
       [["active", "=", true]],
       ["id", "name", "barcode", "work_email", "pin", "department_id"]
     );
-    console.log(this.employees);
+    // console.log(this.employees);
     this.leaveTypes = await this.orm.searchRead(
-      "hr.leave.type",
-      [["active", "=", true]],
-      ["id", "name", "display_name", "leave_validation_type"]
-    );
-    console.log(this.leaveTypes);
+        "hr.leave.type",
+        [
+          "|",
+            ["requires_allocation", "=", "no"],
+            "&",
+              ["has_valid_allocation", "=", true],
+              "&",
+                ["max_leaves", ">", 0],
+                "|",
+                  ["allows_negative", "=", true],
+                  "&",
+                    ["virtual_remaining_leaves", ">", 0],
+                    ["allows_negative", "=", false],
+        ],
+        ["id", "name"],
+        {
+          context: {
+            employee_id: id,  
+          },
+        }
+      );
+    this.state.workEntryTypes = await this.orm.searchRead(
+        "hr.work.entry.type",
+        [],
+        ["id", "name", "code"]
+      );
+    // this.aletTypes = await this.orm.searchRead(
+    //     "smartbiz_hr.attendance_alert",
+    //     [],
+    //     ["id", "name"]
+    //   );
+    // console.log(this.leaveTypes, this.workEntryTypes, this.aletTypes);
+    if(this.state.view === "workentry"){
+      const summary = await this.orm.call("smartbiz.hr.interface", "getWorkentrySummary", [, this.state.employee_id, date_from, date_to]);
+      console.log(summary)
+      this.state.workentry_summary = summary || [];
+    }
+    else if (this.state.view === "attendance") {
+      // const summary = await this.orm.call("smartbiz.hr.interface", "getAttendanceSummary", [, this.state.employee_id, date_from, date_to]);
+      // this.state.attendanceSummary = summary;
+      // console.log(summary);
+    } else if (this.state.view === "leave") {
+      const summary = await this.orm.call("smartbiz.hr.interface", "getLeaveSummary", [, this.state.employee_id]);
+      this.state.allocation_data = summary || [];
+      // console.log(summary);
+    }else if (this.state.view === "alert") {
+      const summary = await this.orm.call("smartbiz.hr.interface", "getAttendanceAlert", [, this.state.employee_id, date_from, date_to]);
+      this.state.alert_data = summary || [];
+      // console.log(summary);
+    }
     this.updateData(data);
-    this.updateSummaries(); // Update summary data after loading
-    this.switchView(this.state.view); // Render initial vie
+    // console.log(this.state.selectedType);
   }
 
   updateData(data) {
+    this.state.data = data || [];
     this.state.attendance_data = data.attendance_data || [];
     this.state.leave_data = data.leave_data || [];
     this.state.overtime_data = data.overtime_data || [];
     this.state.payslip_data = data.payslip_data || [];
-    this.state.allocation_data = data.allocations || [];
     this.state.workentry_data = data.workentry_data || [];
-    console.log(this.state.allocation_data);
+    if (this.state.view === "workentry") {
+      if (this.state.selectedType && this.state.selectedType !== "all") {
+        this.filterEntries();
+      }  
+    }
+    else if (this.state.view === "leave") {
+      if (this.state.selectedType && this.state.selectedType !== "all") {
+        this.filterEntries();
+      }
+    }
+    
   }
 
   logout() {
@@ -730,7 +758,36 @@ export class HrInterface extends Component {
   }
 
   //<--- Lọc ngày  --->
+  onChangeType(ev) {
+    
+      this.state.selectedType = ev.target.value;
+      // console.log(this.state.selectedType);
+      this.filterEntries();
+  }
+  filterEntries() {
+    if(this.state.view === "workentry") {
+      if (this.state.selectedType === "" || this.state.selectedType === "all") {
+          // reset về full data
+          this.state.workentry_data = this.state.data.workentry_data;
+          return;
+      }
 
+      const selectedId = parseInt(this.state.selectedType);
+      this.state.workentry_data = this.state.data.workentry_data.filter(
+          x => x.work_entry_type_id[0] === selectedId
+      );
+    } else if(this.state.view === "leave") {
+      if (this.state.selectedType === "" || this.state.selectedType === "all") {
+          
+          this.state.leave_data = this.state.data.leave_data;
+          return;
+      }
+      this.state.leave_data = this.state.data.leave_data.filter(
+          x => x.holiday_status_id[0] == this.state.selectedType
+      );
+    }
+      
+  }
   onSearchInput(ev) {
     this.state.searchTerm = ev.target.value;
     console.log(this.state.searchTerm);
@@ -812,6 +869,7 @@ export class HrInterface extends Component {
     this.state.currentDate = current.toJSDate();
     this.updateRangeDisplay();
     this.getData(this.state.employee_id);
+    
   }
 
   updateRangeDisplay() {
